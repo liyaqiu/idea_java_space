@@ -25,7 +25,7 @@ build
 log/
 
 # out
-**/out/
+out/
 
 # Mac
 .DS_Store
