@@ -1,0 +1,39 @@
+server:
+  port: 8080
+logging:
+  config: classpath:log4j2.xml
+
+
+
+
+jetcache:
+  statIntervalMinutes: 15 #开启统计分析
+  areaInCacheName: false #是否把area前缀一起作为key存储
+  local:
+    default:
+      type: linkedhashmap
+      keyConvertor: fastjson
+      limit: 100  #缓存数据数量
+    zms:
+      type: caffeine
+      keyConvertor: fastjson
+      limit: 100  #缓存数据数量
+  remote:
+    default:
+      type: redis
+      keyConvertor: fastjson
+      valueEncode: java
+      valueDecode: java
+      host: 192.168.0.203
+      port: 6379
+      poolConfig:
+        maxTotal: 50
+    zms:
+      type: redis
+      keyConvertor: fastjson
+      valueEncode: java
+      valueDecode: java
+      host: 192.168.0.203
+      port: 6379
+      poolConfig:
+        maxTotal: 50

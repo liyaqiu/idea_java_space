@@ -1,0 +1,52 @@
+
+master_process on;#默认为on off
+user  root; #使用root来启动work进程
+worker_processes  1;
+error_log  logs/error.log  debug;
+events {
+    #accept_mutex on;#是否开启work队列机制
+    #multi_accept on;#允许一个wrok接受多个请求
+    use epoll; #使用多路复用io
+    worker_connections  1024;
+}
+
+http {
+    include       mime.types;
+    default_type  text/html;
+
+    log_format  myformat  '[1]$remote_addr - [2]$remote_user [$time_local] "[3]$request" '
+                      '[4]$status $body_bytes_sent "$http_referer" '
+                      '"[5]$http_user_agent" "[6]$http_x_forwarded_for"';
+    access_log  logs/access.log  myformat;
+
+    sendfile        on; #功能：减少copy次数，以及减少用户态和内核态的切换
+    #tcp_nopush tcp_nodelay 两者互斥，在内核2.5.9以后兼容，当tcp_nopush未满并且达到阈值，nginx会强制tcp_nodelay发送数据包
+    tcp_nopush on; #需要sendfile打开才能用，功能：将数据放缓存区装满以后一起发送
+    tcp_nodelay on; #功能：不需要等待延迟，直接发送
+    keepalive_timeout  65;
+
+    upstream lbopenresty{
+        hash &request_uri;
+        server 192.168.0.203:8082;
+        server 192.168.0.203:8083 down;
+    }
+
+    server {
+         listen       8081;
+         server_name  localhost;
+         charset utf-8;
+         location /shop {
+            default_type 'text/html';
+            alias /root/static/;
+            index index.html;
+         }
+         location /goods {
+            rewrite ^/goods/(.*) /api-goods/$1 last;
+         }
+         location /api-goods {
+            default_type 'application/json';
+            proxy_pass http://lbopenresty;
+         }
+
+    }
+}

@@ -1,0 +1,34 @@
+
+master_process on;#默认为on off
+user  root; #使用root来启动work进程
+worker_processes  1;
+error_log  logs/error.log  debug;
+events {
+    #accept_mutex on;#是否开启work队列机制
+    #multi_accept on;#允许一个wrok接受多个请求
+    use epoll; #使用多路复用io
+    worker_connections  1024;
+}
+
+#增加4层负载均衡模块 ./configure  --with-stream
+
+
+stream{
+    upstream redis{
+        server 192.168.0.203:6378;
+        server 192.168.0.203:6379;
+    }
+    upstream tomcat{
+        server 192.168.0.203:8080;
+        server 192.168.0.203:8081;
+    }
+    server{
+        listen 81:
+        proxy_pass redis;
+    }
+    server{
+        listen 82:
+        proxy_pass tomcat;
+    }
+}
+

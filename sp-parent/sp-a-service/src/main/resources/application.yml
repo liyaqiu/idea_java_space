@@ -1,0 +1,35 @@
+server:
+  port: 8082
+#eureka:
+#  client:
+#    service-url:
+#      defaultZone: http://127.0.0.1:10086/eureka
+sp-b-service:
+  ribbon:
+    NFLoadBalancerRuleClassName: com.alibaba.cloud.nacos.ribbon.NacosRule
+#sp-service:
+#  ribbon:
+#    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule
+#xxxx-service:
+#  ribbon:
+#    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule
+
+ribbon:
+  eager-load:
+    enabled: true  #启动后立即加载feign客户端
+    clients: sp-b-service
+
+feign:
+  client:
+    config:
+      default:
+        loggerLevel: NONE
+  httpclient:
+    max-connections: 200
+    enabled: true
+    max-connections-per-route: 50
+  sentinel: #开启sentinel熔断降级支持
+    enabled: true
+logging:
+  config: classpath:log4j2.xml
+

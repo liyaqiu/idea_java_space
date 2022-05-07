@@ -1,0 +1,38 @@
+server:
+  port: 8082
+#redis-sentinel（redis哨兵集群）
+#spring:
+#  redis:
+#    sentinel:
+#      master: mymaster
+#      nodes: #指定redis-sentinel集群地址
+#        - 192.168.0.203:26379
+#        - 192.168.0.203:26380
+#        - 192.168.0.203:26381
+
+
+#redis分片集群
+#spring:
+#  redis:
+#    cluster:
+#      nodes:
+#        - 192.168.0.203:7001
+#        - 192.168.0.203:7002
+#        - 192.168.0.203:7003
+#        - 192.168.0.203:7004
+#        - 192.168.0.203:7005
+#        - 192.168.0.203:7006
+
+#单机redis
+spring:
+  redis:
+    host: 192.168.88.10
+    port: 6379
+    client-type: lettuce
+    database: 0  #指定数据 redis数据库 默认0-15
+    lettuce: #默认为lettuce实现
+      pool:
+        max-active: 10
+#    jedis:
+#      pool:
+#        max-active: 10

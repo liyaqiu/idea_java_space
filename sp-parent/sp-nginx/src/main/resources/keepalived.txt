@@ -1,0 +1,81 @@
+keepalived-2.2.7.tar.gz
+官方下载
+    https://www.keepalived.org/download.html
+编译安装
+     cd /root/keepalived-2.2.7
+     ./configure --sysconf=/etc --prefix=/usr/local
+     make && make install
+     启动
+        /usr/local/sbin/keepalived
+     配置
+        /etc/keepalived/keepalived.conf
+     查看日志
+        tail -f  /var/log/messages
+
+检查脚本
+/root/ck_nginx.sh
+chmod 755 ck_nginx.sh
+#!/bin/bash
+#echo调试，调试完可以关闭
+#echo "nihao1" >> /root/abc
+if [ `ps -C nginx --no-header | wc -l` -eq 0 ];then
+     /usr/local/nginx/sbin/nginx
+     #echo "nihao2" >> /root/abc
+     sleep 2
+    if [ `ps -C nginx --no-header | wc -l` -eq 0 ];then
+        #echo "nihao3" >> /root/abc
+        killall /usr/local/sbin/keepalived  #killall命令安装 yum install -y psmisc
+    fi
+fi
+
+
+
+global_defs {
+   notification_email {
+     reveiver1@qq.com
+     reveiver2@qq.com
+     reveiver3@qq.com
+   }
+   notification_email_from sender@qq.com
+   smtp_server 192.168.200.1
+   smtp_connect_timeout 30
+
+   #修改1(keepalived_1,keepalived_2)
+   router_id keepalived_1 #运行keepalived服务器唯一标识，用作发送邮件的主题（每台机器设置不一样的 router_id ）
+
+   vrrp_skip_check_adv_addr
+   vrrp_strict
+   vrrp_garp_interval 0
+   vrrp_gna_interval 0
+
+   script_user root  #设置执行脚本的用户
+   enable_script_security
+}
+
+vrrp_script ck_nginx{
+    script "/etc/keepalived/ck_nginx.sh" #检查脚本位置
+    interval 3 #每3秒执行一次检查脚本，这个时间要大于脚本执行的时间，否则脚本没执行完久会被重新执行
+    weight -20 #如果主宕机，证明不太文档，需要减掉它的权重，防止在次被选成主
+}
+vrrp_instance VI_1 { #vrrp实例名
+    #修改2(主MASTER,备MASTER)
+    state MASTER  # 主机用MASTER  备机用MASTER
+    interface ens33
+    virtual_router_id 51  #取值在0-255之间，用来区分多个instance的VRRP组播,同一个组值一样
+    #修改3(主100,备90)
+    priority 100 # state MASTER #并不一定为主，需要通过priority来确定主备
+    advert_int 1 # vrrp通告的时间间隔；主备间通告时间检查的时间间隔，单位为s，默认1s
+    authentication {
+        auth_type PASS
+        auth_pass 1111
+    }
+    virtual_ipaddress { #vip
+        192.168.0.10
+        192.168.0.11
+        192.168.0.12
+    }
+    track_script{ #脚本追踪，防止服务本身挂了，而且keepalived没挂，从而无法进行ip漂移
+        ck_nginx
+    }
+}
+

@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc1
+  namespace: dev
+  labels:
+    pvc: hangzhou
+    env: test
+spec:
+  #可以根据标签来筛选，不写则匹配全部
+  selector: #选择器
+    matchLabels: #匹配那些Pod
+      pv: hangzhou
+  #存储类别(不常用) 作为附加描述磁盘的信息，可以用于匹配的附加选项
+  #设定具体类别的PV 只能和设定具体类别的PVC绑定
+  #未设定具体类别的PV 只能和未设定具体类别的PVC绑定
+  #storageClassName: slow
+  #访问模式
+  #ReadWriteOnce(RWO) 卷可以被一个节点以读写方式挂载。 ReadWriteOnce 访问模式也允许运行在同一节点上的多个 Pod 访问卷。
+  #ReadOnlyMany(ROX) 卷可以被多个节点以只读方式挂载。
+  #ReadWriteMany(RWX) 卷可以被多个节点以读写方式挂载。
+  #ReadWriteOncePod(RWOP ) 卷可以被单个 Pod 以读写方式挂载。 如果你想确保整个集群中只有一个 Pod 可以读取或写入该 PVC， 请使用ReadWriteOncePod 访问模式。这只支持 CSI 卷以及需要 Kubernetes 1.22 以上版本。
+  #重要提醒！ 每个卷同一时刻只能以一种访问模式挂载，即使该卷能够支持 多种访问模式。例如，一个 GCEPersistentDisk 卷可以被某节点以 ReadWriteOnce 模式挂载，或者被多个节点以 ReadOnlyMany 模式挂载，但不可以同时以两种模式 挂载。
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

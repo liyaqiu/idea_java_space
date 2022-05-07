@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--日志级别以及优先级排序: OFF > FATAL > ERROR > WARN > INFO > DEBUG > TRACE > ALL -->
+<configuration status="WARN" monitorInterval="1800">
+    <Properties>
+        <property name="geshi" value="%d{HH:mm:ss.SSS} %pid [%-5level] [%-16thread] %c %m%n"/>
+    </Properties>
+
+    <appenders>
+        <Console name="kongzhitai" target="SYSTEM_OUT">
+            <PatternLayout pattern="${geshi}"/>
+        </Console>
+
+
+    </appenders>
+
+
+
+    <loggers>
+        <root level="info">
+            <appender-ref ref="kongzhitai"/>
+        </root>
+
+       <!-- <logger name="com.controller" level="debug" additivity="false">
+            <appender-ref ref="kongzhitai"/>
+            <appender-ref ref="gundongwenjian"/>
+        </logger>-->
+    </loggers>
+</configuration>

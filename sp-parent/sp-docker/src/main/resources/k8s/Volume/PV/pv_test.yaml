@@ -1,0 +1,64 @@
+#yum install -y nfs-utils
+#mkdir -p /root/k8s/data
+#mkdir -p /root/k8s/{pv1,pv2,pv3}
+#将共享目录读写权限暴露给192.168.88.0/24网段
+#echo "/root/k8s/data 192.168.88.0/24(rw,no_root_squash)" >> /etc/exports
+#echo "/root/k8s/pv1 192.168.88.0/24(rw,no_root_squash)" >> /etc/exports
+#echo "/root/k8s/pv2 192.168.88.0/24(rw,no_root_squash)" >> /etc/exports
+#echo "/root/k8s/pv3 192.168.88.0/24(rw,no_root_squash)" >> /etc/exports
+#systemctl start nfs
+#systemctl reload nfs
+#官方文档 https://kubernetes.io/zh/docs/concepts/storage/persistent-volumes/
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv1
+  labels:
+    pv: hangzhou
+    env: test
+spec:
+  #存储容量
+  capacity:
+    storage: 1Gi #Ki | Mi | Gi | Ti | Pi | Ei
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  nfs:
+    path: /root/k8s/pv1
+    server: 192.168.88.10
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv2
+  labels:
+    pv: hangzhou
+    env: test
+spec:
+  #存储容量
+  capacity:
+    storage: 2Gi #Ki | Mi | Gi | Ti | Pi | Ei
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Recycle
+  nfs:
+    path: /root/k8s/pv2
+    server: 192.168.88.10
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv3
+  labels:
+    pv: hangzhou
+    env: test
+spec:
+  #存储容量
+  capacity:
+    storage: 3Gi #Ki | Mi | Gi | Ti | Pi | Ei
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  nfs:
+    path: /root/k8s/pv3
+    server: 192.168.88.10

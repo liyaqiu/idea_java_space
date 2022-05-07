@@ -1,0 +1,169 @@
+
+master_process on;#默认为on off
+user  root; #使用root来启动work进程
+worker_processes  1;
+error_log  logs/error.log  debug;
+events {
+    #accept_mutex on;#是否开启work队列机制
+    #multi_accept on;#允许一个wrok接受多个请求
+    use epoll; #使用多路复用io
+    worker_connections  1024;
+}
+
+http {
+    include       mime.types;
+    default_type  text/html;
+
+    log_format  myformat  '[1]$remote_addr - [2]$remote_user [$time_local] "[3]$request" '
+                      '[4]$status $body_bytes_sent "$http_referer" '
+                      '"[5]$http_user_agent" "[6]$http_x_forwarded_for"';
+    access_log  logs/access.log  myformat;
+
+    sendfile        on; #功能：减少copy次数，以及减少用户态和内核态的切换
+    #tcp_nopush tcp_nodelay 两者互斥，在内核2.5.9以后兼容，当tcp_nopush未满并且达到阈值，nginx会强制tcp_nodelay发送数据包
+    tcp_nopush on; #需要sendfile打开才能用，功能：将数据放缓存区装满以后一起发送
+    tcp_nodelay on; #功能：不需要等待延迟，直接发送
+    keepalive_timeout  65;
+
+    #
+
+    init_by_lua_block{
+         cjson = require "cjson" --全局变量声明
+    }
+    server {
+         listen       8080;
+         server_name  localhost;
+         charset utf-8;
+
+         location /test0 {
+            default_type 'text/plain';
+            #content_by_lua "ngx.say('hello-world')";
+
+            content_by_lua_block {
+                ngx.say('hello-world')
+            }
+
+            #content_by_lua_file /root/luafile;
+         }
+         location /test1 {
+            default_type 'text/plain';
+            content_by_lua "ngx.say('hello-world')";
+         }
+
+         #lua参数设置 http://192.168.0.203:8080/test2?name=liyaqiu&age=21
+         location /test2 {
+            default_type 'text/plain';
+            set $canshu  '没任何参数';
+            #lua设置参数
+            set_by_lua $canshu "
+                --获取url参数
+                local url_args = ngx.req.get_uri_args()
+                local result = '';
+                for key,value in pairs(url_args) do
+                    result = result..key..':'
+                    result = result..value..' '
+                end
+                return result
+            ";
+            return 200 $canshu;
+         }
+
+         #连接redis，并且设置和获取key value
+         location /test3 {
+            default_type 'text/plain';
+            content_by_lua_block{
+                local redis = require "resty.redis"
+                local redisObj = redis:new()
+                redisObj:set_timeout(1000)
+                local result_ok,result_err = redisObj:connect("192.168.0.203",6379)
+                if not result_ok then
+                    ngx.say("连接失败",result_err)
+                    return
+                end
+                --存数据
+                result_ok,result_err = redisObj:set("userName","liyaqiu")
+                if not result_ok then
+                    ngx.say("存数据失败",result_err)
+                    return
+                end
+                --取数据
+                result_ok,result_err = redisObj:get("userName")
+                if not result_ok then
+                    ngx.say("取数据失败",result_err)
+                    return
+                end
+                ngx.say(result_ok)
+                redisObj:close()
+            }
+
+         }
+         #连接mysql
+         location /test4 {
+            default_type 'text/plain';
+            content_by_lua_block{
+                local url_args = ngx.req.get_uri_args()
+                local mysql = require "resty.mysql"
+                local dbObj = mysql:new()
+                dbObj:set_timeout(1000)
+                local result_ok,result_err = dbObj:connect{
+                    host = "192.168.0.203",
+                    port = 3306,
+                    user = "root",
+                    password = "123456",
+                    database = "nginx_mysql"
+                }
+                if not result_ok then
+                    ngx.say("连接失败",result_err)
+                    return
+                end
+
+                --此sql会有sql注入 http://192.168.0.203:8080/test4?id=2
+                --[[
+                dbObj:send_query("select * from hello_world where id = "..url_args.id)
+                local res,err,errcode,sqlstate = dbObj:read_result()
+                ngx.say(res[1].id..","..res[1].name..","..res[1].age)
+                --]]
+
+                dbObj:send_query("select * from hello_world")
+                local res,err,errcode,sqlstate = dbObj:read_result()
+                for key,value in pairs(res) do
+                   ngx.say(value.id..","..value.name..","..value.age)
+                end
+                dbObj:close()
+            }
+         }
+         #连接mysql  csjon处理reslut结果集
+         location /test5 {
+            default_type 'application/json';
+            content_by_lua_block{
+                -- 乱码问题 https://github.com/openresty/lua-resty-mysql/issues/20
+                --local cjson = require "cjson"
+                local mysql = require "resty.mysql"
+                local dbObj = mysql:new()
+                dbObj:set_timeout(1000)
+                local result_ok,result_err = dbObj:connect{
+                    host = "192.168.0.203",
+                    port = 3306,
+                    user = "root",
+                    password = "123456",
+                    database = "nginx_mysql",
+                }
+                if not result_ok then
+                    ngx.say("连接失败",result_err)
+                    return
+                end
+                --[[
+                dbObj:send_query("select * from hello_world")
+                local res,err,errcode,sqlstate = dbObj:read_result()
+                --]]
+
+                local res,err,errcode,sqlstate = dbObj:query("select * from hello_world")
+
+                ngx.say(cjson.encode(res))
+
+                dbObj:close()
+            }
+         }
+    }
+}
+

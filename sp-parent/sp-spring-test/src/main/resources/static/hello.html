@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<script type="text/javascript" src="./jquery-3.6.0.js"></script>
+<script type="text/javascript">
+
+
+        $(function(){
+            $.ajax({
+                type: "POST",
+                url: "/test/test11",
+                contentType: "application/json; charset=utf-8",
+                data: '[{"name":"liyaqiu","age":"31"},{"name":"liqiu","age":"33"}]',
+                success: function (resp) {
+                    console.log(resp)
+                },
+                error: function (err) {
+                  console.log(err)
+                }
+            })
+        })
+
+
+    </script>
+<body>
+    hello-world html
+
+    <!--<form method="post" action="/test/test10" enctype="application/x-www-form-urlencoded">
+        <input type="text" name="users[0].name"/>
+        <input type="text" name="users[0].age"/>
+        <input type="text" name="users[1].name"/>
+        <input type="text" name="users[1].age"/>
+        <input type="submit" value="提交">
+    </form>-->
+    <hr>
+    <br>
+    <form method="post" action="/file/upload" enctype="multipart/form-data">
+        <input type="text" name="name"/><br>
+        <input type="text" name="age"/><br>
+        <input type="file" name="file1"><br>
+        <input type="submit" value="提交">
+    </form>
+
+</body>
+</html>

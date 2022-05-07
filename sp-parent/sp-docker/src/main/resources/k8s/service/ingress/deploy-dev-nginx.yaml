@@ -1,0 +1,58 @@
+#echo "dev nginx1" > /usr/share/nginx/html/index.html
+#echo "dev nginx2" > /usr/share/nginx/html/index.html
+apiVersion: apps/v1 #版本号
+kind: Deployment #类型
+metadata: #元数据
+  name: deploy-nginx-name #pod控制器名称
+  namespace: dev #所属命名空间
+  labels: #标签
+    contro: deploy-control
+spec: #规范相信
+  replicas: 2 #副本数量
+  selector: #选择器
+    matchLabels: #匹配那些Pod
+      app: nginx-pod
+  template: #模版。当副本数量不足时，会根据模版创建Pod
+    metadata:
+      labels:
+        app: nginx-pod
+    spec:
+      containers:
+        - name: nginx-containers
+          image: nginx:1.17.3
+          ports: #需要暴露的端口列表
+            - containerPort: 80 #容器端口
+
+---
+apiVersion: v1 #版本号
+kind: Service #类型
+metadata: #元数据
+  name: svc-nginx-headless
+  namespace: dev #所属命名空间
+  labels: #标签
+    svclabel: svclabel
+spec:
+  selector: #用域确定当前service代理哪些Pod
+    app: nginx-pod
+  #ClusterIP 默认值，它是k8s系自动分配的虚拟IP，只能在集群内部访问
+  #NodePort 将service通过指定的Node上的端口暴露给外部。集群外部可以访问
+  #LoadBalancer 使用外接负载均衡器完成到服务的负载分发，此模式需要外部云环境支持
+  #ExternalName 把集群外部的服务引入集群内部使用
+  type: ClusterIP
+  #仅适用于ClusterIP,NodePort,LoadBalancer类型。如果类型为 ExternalName则忽略
+  #不写IP则为随机分配IP
+  #写IP则为指定IP
+  #None无头服务（headliness）headless服务是为pod提供一个固定的地址
+  clusterIP: None
+  #默认为None（轮询策略）
+  #ClientIP（同一个ip分发到同一个节点上）
+  sessionAffinity: None
+  ports: #端口信息
+    - protocol: TCP # SCTP 和 TCP（默认）
+      port: 9999 # svc端口 #测试了这个端口在clusterIP=None无头模式下也不生效
+      targetPort: 80 #pod端口 对于clusterIP=None 的服务，该字段将被忽略，应省略或设置为等于“端口”
+  #1查看集群dns
+  # kubectl get svc -n kube-system
+  #2查看dns解析  服务名+空间名+域名
+  # nslookup svc-nginx-headless.dev.svc.cluster.local 10.10.0.10
+  # curl svc-nginx-headless.dev.svc.cluster.local:80

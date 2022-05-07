@@ -1,0 +1,124 @@
+def git_url = 'git@192.168.88.15:group1/parent.git'
+def harbor_url = '192.168.88.12:86'
+def harbor_respository = 'zms'
+def image_version = 'v1'
+def credentialsId = '6b28ba30-1290-4efc-beb9-ea1daa8ef51b'
+
+pipeline {
+    agent any
+    environment {
+       abc = '1111'
+    }
+    stages {
+        stage('pull code') {
+            steps {
+                echo '拉取代码'
+                //${branch}需要添加参数 Dashboard > test-pipeline > General > This project is parameterized
+				checkout([$class: 'GitSCM', branches: [[name: '*/${branch}']], extensions: [], userRemoteConfigs: [[credentialsId: 'fd100e76-96ae-4b17-ad69-7ad04902f100', url: "${git_url}"]]])
+            }
+        }
+        //如果不做一次初始化，子项目无法找到父pom会导致构建失败
+        stage('project initproject') {
+            steps {
+                script {
+                    if ("${initproject}" == 'true') {
+                        echo '项目初始化'
+                        sh 'mvn clean install'
+                    }
+                }
+            }
+        }
+        stage('构建子模块代码') {
+            steps {
+                script {
+                    //project_name = entity@xxx,son1@8080,son2@8081
+                    for(projectFullName in project_name.split(",")){
+                        projectName = projectFullName.split("@")[0]
+                        sh "mvn -f ${projectName}  clean install "
+                    }
+//                     if ("${deply_to}" == 'test-server') {
+//                         for(projectFullName in project_name.split(",")){
+//                             projectName = projectFullName.split("@")[0]
+//                             sh "mvn -f ${projectName}  clean install -P jenkins-dev-config"
+//                         }
+//                     }
+//                     if ("${deply_to}" == 'pro-server') {
+//                         for(projectFullName in project_name.split(",")){
+//                             projectName = projectFullName.split("@")[0]
+//                             sh "mvn -f ${projectName}  clean install -P jenkins-pro-config"
+//                         }
+//                     }
+                }
+            }
+        }
+        stage('代码检查') {
+            steps {
+                script {
+                    //引入SonarScanner工具
+                    scannerHome = tool 'SonarQube-Scanner-test'
+                }
+                script {
+                    //project_name = entity@xxx,son1@8080,son2@8081
+                    for(projectFullName in project_name.split(",")){
+                        projectName = projectFullName.split("@")[0]
+                        //引用sonarQube server环境
+                        withSonarQubeEnv('SonarQube-servers-test') {
+                            sh "cd ${projectName} && ${scannerHome}/bin/sonar-scanner"
+                        }
+                    }
+                }
+            }
+        }
+        stage('镜像生成,推送到私有仓库,发布') {
+            steps {
+                script {
+                    //deploy_to = test-server,pro-server
+                    for(serverName in deploy_to.split(",")){
+                        // --spring.profiles.active=pro
+                        spring_profile_active = "--spring.profiles.active="
+                        if (serverName == 'test-server') {
+                            spring_profile_active+="dev"
+                        }else if (serverName == 'pro-server') {
+                            spring_profile_active+="pro"
+                        }
+                        //project_name = entity@xxx,son1@8080,son2@8081
+                        for(projectFullName in project_name.split(",")){
+                            projectName = projectFullName.split("@")[0]
+                            projectPort = projectFullName.split("@")[1]
+
+                            source_image_name = "${projectName}:latest"
+                            target_image_name = "${harbor_url}/${harbor_respository}/${projectName}:${image_version}"
+                            remote_command = "/root/deploy.sh ${harbor_url} ${harbor_respository} ${projectName} ${image_version} ${projectPort} ${spring_profile_active}"
+
+                            echo '镜像生成开始'
+                            //利用mvn插件来docker build
+                            sh "mvn -f ${projectName} dockerfile:build"
+                            sh "docker tag  ${source_image_name} ${target_image_name}"
+                            echo '镜像生成结束'
+
+                            echo '镜像上传开始'
+                            withCredentials([usernamePassword(credentialsId: "${credentialsId}", passwordVariable: 'passwd', usernameVariable: 'username')]) {
+                                //登陆harbor
+                                sh "docker login -u ${username} -p ${passwd} ${harbor_url} "
+                                //镜像上船
+                                sh "docker push ${target_image_name}"
+                            }
+                            echo '镜像上传结束'
+
+                            echo '发布开始'
+                            sshPublisher(publishers: [sshPublisherDesc(configName: "${serverName}", transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: "${remote_command}", execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '', remoteDirectorySDF: false, removePrefix: '', sourceFiles: '')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: true)])
+                            echo '发布结束'
+                        }
+                    }
+                }
+            }
+        }
+    }
+    post {
+      always {
+        //普通邮件
+        //mail bcc: '', mimeType: 'text/html;charset=UTF-8', body: '<a href="www.baidu.com">点击我</a>', cc: '', from: '361234567@qq.com', replyTo: '361234567@qq.com', subject: 'test-jenkins', to: '361234567@qq.com'
+        emailext body: '${FILE,path="jenkinsmail.html"}', subject: 'test-jenkins', to: '361234567@qq.com'
+      }
+    }
+}

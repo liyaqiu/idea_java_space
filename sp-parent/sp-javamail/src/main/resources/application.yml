@@ -1,0 +1,7 @@
+spring:
+  mail:
+    host: smtp.qq.com
+    username: 361234567@qq.com
+    password: aybozlhywolycagc
+logging:
+  config: classpath:log4j2.xml

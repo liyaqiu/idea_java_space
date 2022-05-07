@@ -1,0 +1,36 @@
+#环境准备
+#https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.30.0/deploy/static/mandatory.yaml
+#https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.30.0/deploy/static/provider/baremetal/service-nodeport.yaml
+
+
+apiVersion: extensions/v1beta1 #必选
+kind: Ingress #必选
+metadata: #必选
+  name: ingress-name #必选 pod名称
+  namespace: dev # pod所属命名空间 (默认 default)
+  labels:
+    ver: snapshot-1.0
+    env: test
+spec:
+  rules:
+    - host: aaa.eric.com
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: svc-nginx-headless # 可以代理servic任何一种类型
+              servicePort: 9999 #只关联到svc的port，此prot一定要和svc port对应上
+    - host: aaa.liyaqiu.com
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: svc-tomcat-headless # 可以代理servic任何一种类型
+              servicePort: 8888 #只关联到svc的port，此prot一定要和svc port对应上
+
+
+# 查看ingress环境
+# kubectl get svc -n ingress-nginx -o wide -w
+# kubectl  get deploy -n ingress-nginx -w
+# 做Hosts映射,集群任何一个宿主机地址 192.168.88.21 aaa.eric.com
+# 访问 aaa.eric.com:nodePort（kubectl get svc -n ingress-nginx -o wide -w）暴露的端口

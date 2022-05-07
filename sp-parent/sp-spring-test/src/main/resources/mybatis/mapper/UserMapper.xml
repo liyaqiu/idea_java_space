@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org/DTD Mapper 3.0" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mybatisplus.UserMapper">
+
+    <!--
+        JavaType 指定实体类型
+        ofType 指定集合中的实体类型
+    -->
+
+    <select id="queryUserById" parameterType="string" resultType="User">
+        select * from user where id = #{id}
+    </select>
+
+    <resultMap id="UserMap" type="User">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <!--一对一-->
+        <!--<association property="ordersList"   resultMap="OrdersMap"/>-->
+        <!--一对多-->
+        <collection property="ordersList"   resultMap="OrdersMap"/>
+        <!--多对多，不需要对中间表进行映射。-->
+        <!--<collection property="ordersList" ofType="" resultMap="OrdersMap"/>-->
+    </resultMap>
+    <resultMap id="OrdersMap" type="Orders">
+        <id column="oid" property="id"/>
+        <result column="oname" property="name"/>
+        <result column="uid" property="uid"/>
+    </resultMap>
+
+    <select id="oneToMany"  resultMap="UserMap">
+        SELECT u.* , o.id oid, o.name oname,o.uid uid  from user u , orders o where u.id = o.uid;
+    </select>
+
+
+
+
+    <resultMap id="UserMap1" type="User">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <!--多对多 sql上跟一对多不一样，不需要对中间表进行映射。-->
+        <collection property="roleList"  resultMap="RoleMap"/>
+    </resultMap>
+    <resultMap id="RoleMap" type="Role">
+        <id column="rid" property="id"/>
+        <result column="rname" property="name"/>
+    </resultMap>
+
+
+    <select id="manyToMany"  resultMap="UserMap1">
+        SELECT u.* ,r.id rid,r.name rname from user u , roleuser ru, role r where ru.uid = u.id and r.id = ru.rid
+    </select>
+
+
+
+</mapper>

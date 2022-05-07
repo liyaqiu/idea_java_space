@@ -1,0 +1,245 @@
+
+
+master_process on;#默认为on off
+
+
+user  root; #使用root来启动work进程
+worker_processes  1;
+
+error_log  logs/error.log  debug;
+
+daemon on; #默认为on off
+
+
+events {
+    #accept_mutex on;#是否开启work队列机制
+    #multi_accept on;#允许一个wrok接受多个请求
+    use epoll; #使用多路复用io
+    worker_connections  1024;
+}
+
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+
+    log_format  myformat  '[1]$remote_addr - [2]$remote_user [$time_local] "[3]$request" '
+                      '[4]$status $body_bytes_sent "$http_referer" '
+                      '"[5]$http_user_agent" "[6]$http_x_forwarded_for"';
+
+
+
+    access_log  logs/access.log  myformat;
+
+    sendfile        on; #功能：减少copy次数，以及减少用户态和内核态的切换
+    #tcp_nopush tcp_nodelay 两者互斥，在内核2.5.9以后兼容，当tcp_nopush未满并且达到阈值，nginx会强制tcp_nodelay发送数据包
+    tcp_nopush on; #需要sendfile打开才能用，功能：将数据放缓存区装满以后一起发送
+    tcp_nodelay on; #功能：不需要等待延迟，直接发送
+    keepalive_timeout  65;
+
+
+    gzip off;  #对静态资源压缩  因为 gzip是在用户态做压缩，所以会跟sendfile冲突，所以在使用压缩的情况下IO COPY次数会增加，可以选择 gzip_static
+    gzip_types application/javascript text/css;
+	gzip_vary on;
+
+    #gzip_static off; #需要手动压缩gzip文件，例如访问 http://192.168.0.203/service1/111.txt    需要资源目录存在111.txt.gzip文件
+
+
+    server {
+        listen       80;
+        server_name  localhost;
+
+        #charset koi8-r;
+
+        #access_log  logs/host.access.log  main;
+
+        location / {
+            root   html; #/usr/local/nginx/html
+            index  index.html index.htm;
+        }
+        location /test1 {
+            default_type application/json;
+            return 404 "{'username':'liyaqiu','age':'31'}";
+        }
+        location /test2 {
+            default_type application/octet-stream;
+            return 200 "<h1>hello-world</h1>";
+        }
+        location /test3 {
+            default_type text/html;
+            return 404 "<h1>hello-world</h1>";
+        }
+        location /test4 {
+            return 200 "<h1>hello-world</h1>";
+        }
+        error_page  404  www.baidu.com;
+        error_page  500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   html;
+        }
+    }
+    server {
+        listen       80;
+        server_name  192.168.0.203;
+
+        location ~^/abc\w$ {
+            default_type application/json;
+            return 200 "{'username':'liyaqiu','age':'31'}";
+        }
+
+        location /service {
+            default_type text/plain;
+            root   /root/html/aa; #root路径+location路径    /root/html/aa/service/test.html
+        }
+        location /service1 {
+            if ($args){
+               #return 403 'not allow access';
+			   return 302 https:www.baidu.com ;
+            }
+            default_type text/plain;
+            alias   /root/html/aa/;  #alias路径替换location路径  /root/html/aa/test.html
+        }
+
+        #error_page  404  www.baidu.com;
+        error_page  500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   html;
+        }
+
+    }
+    server {
+        listen       8080;
+        server_name  192.168.0.203;
+        location /service1 {
+            if ($args){
+               #return 403 'not allow access';
+			   return 302 https:www.baidu.com ;
+            }
+            default_type text/plain;
+            alias   /root/html/aa/;  #alias路径替换location路径  /root/html/aa/test.html
+        }
+        location /rewrite-test {
+            rewrite_log on;
+            error_log  logs/rewrite.log  notice;
+            default_type text/plain;
+            root   /root/html/aa;
+
+            #rewrite ^/rewrite-test/abc$ http://www.baidu.com ; #碰到http或者https直接重定向
+
+            #rewrite ^/rewrite-test/(demo1)$ /$1 ; #缺省的flag匹配成功以后拿着新URL继续往下匹配，全部匹配完成最后才去当前server重新寻找对应的location进行跳转，最后返回客户端
+            #rewrite ^/rewrite-test/(demo2)$ /$1 ;
+
+			#常用的
+            rewrite ^/rewrite-test/(demo1)$ /$1 last; #last匹配成功以后会停止后面匹配，去当前server重新寻找对应的location进行跳转，最后返回客户端
+            rewrite ^/rewrite-test/(demo2)$ /$1 last;
+
+            #rewrite ^/rewrite-test/(demo1)$ /$1 break; #break匹配成功以后会停止后面匹配，从当前location内的root或者alias去访问资源，最后返回客户端
+            #rewrite ^/rewrite-test/(demo2)$ /$1 break;
+
+            #rewrite ^/rewrite-test/(demo1)$ /$1 redirect; #redirect匹配成功以后会停止后面匹配，发送302状态码并且添加响应头Location: http://192.168.0.203:8080/demo1返回给客户端   最后客户端访问返回地址
+            #rewrite ^/rewrite-test/(demo2)$ https://www.baidu.com redirect;  #redirect 和 permanent 用法一样，	redirect 302临时重定向 	permanent 301永久重定向
+        }
+        location /demo1 {
+            default_type text/plain;
+            return 200 'access demo1';
+        }
+        location /demo2 {
+            default_type text/plain;
+            return 200 'access demo2';
+        }
+        #error_page  404  www.baidu.com;
+        error_page  500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   html;
+        }
+
+    }
+    #域名镜像，多域名之间跳转 www.abc1.com/hello www.abc2.com  跳转到 www.abc.com/hello  www.abc.com
+    server {
+        listen       8081;
+        server_name  www.abc.com;
+        location / {
+            default_type text/plain;
+            return 200 'index';
+        }
+        location /hello {
+            default_type text/plain;
+            return 200 'hello-world';
+        }
+    }
+    server {
+        listen       8082;
+        server_name  www.abc1.com www.abc2.com;
+        #rewrite ^/(.*) http://www.abc.com:8081/$1; #【.*】表示匹配任意
+        rewrite ^/(.*) http://$host:$server_port/$1;
+        rewrite_log on;
+        error_log  logs/rewrite.log  notice;
+    }
+
+    log_format  proxylog1  '$scheme://$host$request_uri----client: $remote_addr';
+    #正向代理
+    server {
+        listen       8888;
+        server_name  192.168.0.203;
+        resolver 8.8.8.8;
+        access_log  logs/proxy1.log  proxylog1;
+        location / {
+            #proxy_pass $scheme://$host:9999$request_uri;
+        }
+    }
+    log_format  proxylog  '$scheme://$http_host$request_uri----client: $remote_addr';
+    server {
+        listen       9999;
+        server_name  192.168.0.203;
+        access_log  logs/proxy.log  proxylog;
+        location / {
+            default_type text/html;
+            return 404 "<h1>hello-world</h1>";
+        }
+    }
+    #反向代理
+    server {
+        listen       1234;
+        server_name  192.168.0.203;
+        access_log  logs/proxy1.log  proxylog1;
+        location / {
+            #proxy_pass  http://www.baidu.com;
+            proxy_pass  http://192.168.0.203:1111;
+        }
+        location /abc {
+            proxy_set_header username liyaqiu;	#增加新request-header头信息
+            add_header custom_header2 nihao2; #增加新response-header头信息
+            #proxy_pass  http://192.168.0.203:1111;   #不加斜杠会把/abc/nihao拼接上
+            proxy_pass  http://192.168.0.203:1111/;	 #加斜杠不会把/abc拼接上
+            #proxy_redirect	被代理服务器Location值 http://192.168.0.204:8081  代理服务器地址http://192.168.0.203:8080 #解决被代理服务器发生重定向以后修改location或者refresh值
+        }
+    }
+    server {
+        listen       1111;
+        server_name  192.168.0.203;
+        access_log  logs/proxy.log  proxylog;
+        location =/nihao {
+            default_type text/html;
+            add_header custom_header1 nihao; #增加新response-header头信息
+            return 200 "<h1>username:$http_username</h1>";
+        }
+    }
+    #参数获取
+    server {
+         listen       5555;
+         server_name  localhost;
+         access_log  logs/lb3.log  proxylog;
+         location ~^/abc/(.*) {
+             return 200 "hello $1  $http_Connection  $arg_canshu  $cookie_channel";
+         }
+    }
+	# 如果没有显式声明 default server 则第一个 server 会被隐式的设为 default server
+	# 显示的定义一个 default server
+    server {
+        listen 80 default_server;
+        server_name _;
+        default_type text/html;
+        return 404 "<h1>not found server</h1>";
+    }
+
+}

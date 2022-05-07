@@ -1,0 +1,30 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: sp-controller
+  cloud:
+    nacos:
+      server-addr: 192.168.109.1:8848
+      discovery:
+        cluster-name: lianjiang
+#eureka:
+#  client:
+#    service-url:
+#      defaultZone: http://127.0.0.1:10086/eureka
+sp-dao:
+  ribbon:
+    NFLoadBalancerRuleClassName: com.alibaba.cloud.nacos.ribbon.NacosRule
+#sp-dao:
+#  ribbon:
+#    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule
+#xxxx-service:
+#  ribbon:
+#    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule
+
+ribbon:
+  eager-load:
+    enabled: true
+    clients: sp-dao
+logging:
+  config: classpath:log4j2.xml

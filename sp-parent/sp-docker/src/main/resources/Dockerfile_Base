@@ -1,0 +1,84 @@
+Dockerfle命令
+	构建
+		docker build -t test:V1 /root/
+
+	FROM 继承哪个镜像
+		FROM ubuntu:latest
+	MAINTAINER 维护者信息
+		MAINTAINER eric
+
+	ENV环境变量设定(可以在整个Dockerfile文件中${xxxenv}获取})
+		ENV JAVA_HOME /root/jdk1.8.0_191
+		ENV JAVA_BIN  $JAVA_HOME/bin
+
+	RUN运行方式
+		shell格式
+			RUN sh /root/zms.sh arg1 arg2
+		exec格式
+			RUN ["/root/zms.sh","arg1","arg2"]
+
+	EXPOSE告知运行着程序内部程序运行时会有这些端口监听，起到提示作用（注意：不代表实际监听端口）
+		EXPOSE 8080 9090
+
+	WORKDIR run进入容器的默认位置
+		WORKDIR  /root/zms
+
+	USER指定用户运行默认为root（需要你的容器内也具备这个用户）
+		USER eric
+
+	VOLUME声明挂载目录，如果用户不用-v进行挂载，会默认挂载出来（通过docker inspect查看）,如果用户指定-v挂载，则会覆盖默认挂载
+		VOLUME ["/data","/data1"]
+
+
+	ADD会拷贝并且作为tar文件解压
+		ADD ./redis.tar /data/
+	COPY原封不动拷贝
+		COPY ./redis.tar /data1/
+
+
+	--------------------------CMD 和 ENTRYPOINT---------------------------------------
+	创建一个run.sh测试
+		vi /run.sh
+		#!/bin/bash
+		echo $1
+		echo $2
+		echo $3
+		echo $4
+		echo $5
+		/bin/bash
+	chmod 755 /run.sh
+
+	CMD单独使用运行方式
+		shell格式
+			CMD sh /run.sh hello 123456
+		exec格式
+			CMD ["/run.sh","hello","123456"]
+		docker run取消默认运行方式
+			docker run  -it test:v1 /run.sh 参数1 参数2
+
+
+	ENTRYPOINT单独使用运行方式
+		shell格式
+			ENTRYPOINT sh /run.sh hello 123456
+		exec格式（可以在docker run后面传参）
+			定参1个
+				ENTRYPOINT ["/run.sh","hello"]
+					docker run  -it test:v1  111 222
+					run.sh最后获取的参数为 hello 111 222
+			定参N个
+				ENTRYPOINT ["/run.sh","hello","123456"]
+					docker run  -it test:v1  111 222
+					run.sh最后获取的参数为 hello 123456 111 222
+		docker run取消默认运行方式
+			docker run --entrypoint /run.sh -it test:v1 参数1 参数2
+
+
+	CMD和ENTRYPOINT配合使用
+		exec格式
+			CMD参数提供给ENTRYPOINT
+				ENTRYPOINT ["/run.sh","定参1","定参2"]
+				CMD ["变参数1","变参数2","变参数3"]
+			docker run默认覆盖参数
+				 docker run  -it test:v1  参数1 参数2
+			docker run取消默认运行方式
+				 docker run --entrypoint /run.sh -it test:v1 参数1 参数2

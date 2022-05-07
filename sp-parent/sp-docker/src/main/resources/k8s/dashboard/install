@@ -1,0 +1,35 @@
+dashboard安装
+	wget  https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml
+
+修改
+kind: Service
+apiVersion: v1
+metadata:
+  labels:
+    k8s-app: kubernetes-dashboard
+  name: kubernetes-dashboard
+  namespace: kubernetes-dashboard
+spec:
+  type: NodePort #更改
+  ports:
+    - port: 443
+      targetPort: 8443
+      nodePort: 30080 #更改
+  selector:
+    k8s-app: kubernetes-dashboard
+
+安装
+    kubectl apply -f recommended.yaml
+查看状态
+    kubectl get pod,svc -n kubernetes-dashboard
+访问UI
+    https://192.168.88.21:30080/#/login
+    创建账号
+        kubectl create serviceaccount dashboard-admin -n kubernetes-dashboard
+    授权
+        kubectl create clusterrolebinding dashboard-admin-rb --clusterrole=cluster-admin --serviceaccount=kubernetes-dashboard:dashboard-admin
+    查看token账号
+        kubectl get secrets -n kubernetes-dashboard | grep dashboard-admin
+    获取token
+     kubectl describe secrets dashboard-admin-token-vznn5 -n kubernetes-dashboard
+

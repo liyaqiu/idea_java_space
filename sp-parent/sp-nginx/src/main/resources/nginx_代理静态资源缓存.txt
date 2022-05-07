@@ -1,0 +1,102 @@
+
+master_process on;#默认为on off
+user  root; #使用root来启动work进程
+worker_processes  1;
+error_log  logs/error.log  debug;
+events {
+    #accept_mutex on;#是否开启work队列机制
+    #multi_accept on;#允许一个wrok接受多个请求
+    use epoll; #使用多路复用io
+    worker_connections  1024;
+}
+
+http {
+    include       mime.types;
+    default_type  text/html;
+
+    log_format  myformat  '[1]$remote_addr - [2]$remote_user [$time_local] "[3]$request" '
+                      '[4]$status $body_bytes_sent "$http_referer" '
+                      '"[5]$http_user_agent" "[6]$http_x_forwarded_for"';
+    access_log  logs/access.log  myformat;
+
+    sendfile        on; #功能：减少copy次数，以及减少用户态和内核态的切换
+    #tcp_nopush tcp_nodelay 两者互斥，在内核2.5.9以后兼容，当tcp_nopush未满并且达到阈值，nginx会强制tcp_nodelay发送数据包
+    tcp_nopush on; #需要sendfile打开才能用，功能：将数据放缓存区装满以后一起发送
+    tcp_nodelay on; #功能：不需要等待延迟，直接发送
+    keepalive_timeout  65;
+
+
+    # 模块 ngx_http_proxy_module
+    # 定义缓存
+    # proxy_cache_path 缓存位置 /usr/local/nginx/proxy_cache
+    # levels 目录定义  数值最大为2 最深目录层次3层  例如levels=2:2:2
+    # keys_zone 定义逻辑地区最大存储200兆的key  1兆大概8000个key
+    # inactive 1d  1天内未访问就会被删除
+    # max_size 最大存储20g数据，超过会覆盖之前的最旧的数据
+    proxy_cache_path /usr/local/nginx/proxy_cache levels=2:1 keys_zone=luojizone:200m inactive=1d max_size=20g;
+
+    upstream lb1{
+        server localhost:9991 down;
+        server 192.168.0.110:8888 ;
+    }
+    log_format  proxylog  '$scheme  ==  $proxy_host ==  $request_uri == $upstream_cache_status';
+
+    server {
+        listen       8080;
+        server_name  localhost;
+        location /abc {
+
+            proxy_cache luojizone;  #开启代理缓存 默认是proxy_cache off
+            proxy_cache_key $scheme$proxy_host$request_uri; #默认 $scheme$proxy_host$request_uri;
+            proxy_cache_min_uses 3; #访问几次后会被缓存 默认为1次
+            proxy_cache_methods GET ; #那些请求方式会被缓存，默认为 GET HEAD POST
+            proxy_cache_valid 200 1d;  #200状态吗缓存120秒过期，在20后再次请求久会重新到服务器拉取最新资源
+            proxy_cache_valid 404 30s; #404状态吗缓存30秒
+            proxy_cache_valid any 1m; #其他状态码缓存1分钟
+
+            add_header nginx-cache "$upstream_cache_status"; #通过该变量来观察是否被缓存命中
+
+            #除开html|js|png这些以外的都不做缓存
+            if ($request_uri !~ /.*\.(html|js|png)$){
+                set $bianliang 1;
+                #return 200 'hello';
+            }
+
+            #设置不缓存资源
+            proxy_no_cache $bianliang $cookie_nocache $arg_nocache $arg_comment; # 定义不将数据进行缓存，但是会去缓存找，只要有一个条件不为0或者不为空则成立
+            proxy_cache_bypass $bianliang $cookie_nocache $arg_nocache $arg_comment; # 定义不从缓存中获取数据，但是会进行缓存，只要有一个条件不为0或者不为空则成立
+
+            proxy_pass http://lb1/;  #加斜杠不会拼接 /abc
+            #proxy_pass http://lb1/js/;
+            #proxy_pass http://lb1/css/;
+
+            access_log  logs/lb.log  proxylog;
+        }
+
+        #代理缓存文件删除
+        #ngx_cache_purge第三方扩展模块
+        #下载地址http://labs.frickle.com/nginx_ngx_cache_purge/
+        #添加模块 ./configure --add-module=/usr/local/nginx/module/ngx_cache_purge-2.3
+        location ~ /delete(/.*) {
+            proxy_cache_purge luojizone httplb1/abc$1;
+            #return 200 'http == lb1 == $1';
+        }
+    }
+
+
+    #测试地址 http://192.168.0.203:8899/test?nocache=1&comment=123
+    log_format  canshu  '$cookie_nocache  | $arg_nocache | $arg_comment';
+    server{
+        listen 8899;
+        server_name localhost;
+        location = /test {
+            set $bianliang 1;
+            add_header Set-Cookie 'nocache=CookieValue';
+            access_log  logs/lb.log  canshu;
+            return 200 '$cookie_nocache  | $arg_nocache | $arg_comment | $bianliang ';
+        }
+    }
+
+
+}
+

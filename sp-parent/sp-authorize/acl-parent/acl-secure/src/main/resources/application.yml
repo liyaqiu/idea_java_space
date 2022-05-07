@@ -1,0 +1,26 @@
+server:
+  port: 8080
+
+#spring:
+#  datasource:
+#    driver-class-name: com.mysql.jdbc.Driver
+#    url: jdbc:mysql://192.168.88.11:3306/my_db?useSSL=false
+#    username: root
+#    password: 123456
+
+
+#单机redis
+spring:
+  http:
+    encoding:
+      charset=UTF-8:
+  redis:
+    host: 192.168.88.11
+    port: 6379
+    client-type: lettuce
+    lettuce: #默认为lettuce实现
+      pool:
+        max-active: 10
+
+logging:
+  config: classpath:log4j2.xml

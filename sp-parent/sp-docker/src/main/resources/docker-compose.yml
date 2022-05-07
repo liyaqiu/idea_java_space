@@ -1,0 +1,73 @@
+version: "3"
+
+services:
+    zmsService: #可以访问
+        image: test:v2
+        container_name: zms #可以访问
+        restart: always # 等同 docker run --restart always
+        environment:
+            JAVA_HOME: '01234'
+            JABA_PATH: '56789'
+        ports:
+            - "8080:80"
+            - "8081:81"
+        volumes:
+            - datavolume:/data
+            - /root/data1:/data1
+        networks:
+            - my1
+        expose: #起到一个声明最庸，跟Dockerfile EXPOSE 或者是 docker run --expose 12345 --expose 22345
+            - "3000"
+            - "8000"
+        depends_on: #只是单纯的获取了容器的running状态，并不能实际解决项目的ready状态，所以需要外加辅助启动来达到真正意义上的依赖（https://zhuanlan.zhihu.com/p/365193592）
+            - redisService
+            - mysqlService
+        #---------------规则1---------------------
+        #单 CMD /run.sh 11 22 33 44
+        #使用方式
+        #command: /run.sh aaa bbb ccc  #覆盖执行命令
+        #---------------规则2---------------------
+        #单 ENTRYPOINT ["/run.sh","hello"]
+        #使用方式
+        #command: /run.sh aaa bbb ccc  #传递参数 最后参数结果为：hello /run.sh aaa bbb ccc
+        #---------------规则3---------------------
+        # 组合
+        #ENTRYPOINT ["/run.sh","hello"]
+        #CMD ["123","456"]
+        #使用方式
+        #command: /run.sh aaa bbb ccc  #覆盖变参数，结果为 hello /run.sh aaa bbb ccc
+        #entrypoint: ["/run.sh","11","22","33","44"]  # 覆盖命令，以及覆盖参数
+    appService:
+        image: test:v2
+        deploy:
+            replicas: 2
+
+    redisService:
+        image: test:v2
+        container_name: redis
+        ports:
+            - "8082:80"
+            - "8083:81"
+        volumes:
+            - datavolume:/data
+            - /root/data1:/data1
+        networks:
+            - my1
+            - my2
+    mysqlService:
+        image: test:v2
+        #container_name: mysql #可以访问 默认不写（zmsdir_mysqlService_1）
+        ports:
+            - "8084:80"
+            - "8085:81"
+        volumes:
+            - datavolume:/data
+            - /root/data1:/data1
+        networks:
+            - my2
+
+volumes: #声明数据卷
+    datavolume:
+networks: #声明网络（默认为bridge模式）
+    my1:
+    my2:

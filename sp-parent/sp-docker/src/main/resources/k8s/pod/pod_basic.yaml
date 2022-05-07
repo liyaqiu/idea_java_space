@@ -1,0 +1,378 @@
+apiVersion: v1 #必选
+kind: Pod #必选
+metadata: #必选
+  name: pod-name #必选 pod名称
+  namespace: pod-namespace # pod所属命名空间 (默认 default)
+  labels:
+    ver: myv1
+    env: test
+spec: #必选 pod中容器的规范
+  containers: #必选,pod容器列表
+    - name: container-name #必选，容器名
+      image: nginx:1.14-alpine #必选，容器镜像
+      #默认看后缀：
+      #  如果为nginx:1.14-alpine:latest 则默认为Always
+      #  如果为nginx:1.14-alpine:v1 则默认为IfNotPresent
+      #Always 每次启动拉取最新
+      #IfNotPresent 如果本地仓库有则不拉取
+      #Never 从不拉取
+      imagePullPolicy: Always
+      command: ["sh","-l"] #跟docket entrypoint一样功能
+      #args: ["sh","/run.sh","hello","world"] # 跟docker cmd一样功能
+      args:
+        - sh
+        - /run.sh
+        - hello
+        - world
+      workingDir: #容器的工作目录 docker run -it --rm -w /root beae173ccac6
+      volumeMounts: #挂载到容器的内部存储卷位置
+        - name: volumeName #引用pod定义的共享存储卷名称，需要用volumes[]部分定义的卷名
+          mountPath: string #存储卷在容器内的绝对路径
+          readOnly: boolean #是否为只读
+      ports: #需要暴露的端口列表
+        - name: prot-name #端口名
+          containerPort: 80 #容器端口
+          #hostIP: 0.0.0.0 #更改宿主机IP，一般省略
+          hostPort: 8888
+          #宿主机端口,一般省略，如果设置，主机上只能运行一个副本
+          #如果写，docker inspect能够看到真实映射到宿主机，如果不写，那么只是个声明，不存在真实映射
+          protocol: TCP #支持TCP/UDP/SCTP,默认为TCP
+      env: #容器环境变量
+        - name: JAVA_HOME #环境变量名称
+          value: /root/jdk1.8.0_191 #环境变量值
+        - name: JABA_PATH
+          value: hello-world
+      resources: #限制容器的资源使用  https://blog.csdn.net/lw277232240/article/details/104535875
+        limits: #（上限）用于限制运行时容器的最大占用资源，当容器占用资源超过limits时会被终止，并进行重启
+          cpu: 2 #CPU最大个数限制，将用于docker run --cpu-period（周期），--cpu-quota（配额）参数
+          memory: 10Gi #内存大小限制，单位（M）,将用于docker run --memory参数
+        requests: #(下限)用于设置容器需要的最小资源，如果环境资源不够，容器将无法启动
+          cpu: 2  #CPU最大个数限制，将用于docker run --cpu-period（周期），--cpu-quota（配额）参数
+          memory: 2Mi #容器启动低于2M内存无法启动
+      lifecycle: #生命周期钩子
+        postStart: #容器启动后立即执行此钩子，如果执行失败，会根据重启策略进行重启
+          #方式1
+          exec: #容器启动后执行命令，如果执行失败则重启容器
+            command: [ "ping","192.168.88.10","-c","1"]
+          #方式2
+          tcpSocket: #容器启动后，如果8080端口访问不了就重启容器
+            port: 8080
+          #方式3
+          httpGet: #状态码在200-399之间 容器启动后向某地址发起Get请求，如果失败，重启容器
+            path: /login.html #uri地址
+            port: 8080
+            host: 192.168.88.10
+            schema: HTTP #支持http|https
+        preStop: #容器终止前执行此钩子，无论结果如何，容器都会终止
+          #方式1
+          exec: #容器启动后执行命令，如果执行失败则重启容器
+            command: [ "ping","192.168.88.10","-c","1"]
+          #方式2
+          tcpSocket: #容器启动后，如果8080端口访问不了就重启容器
+            port: 8080
+          #方式3
+          httpGet: #状态码在200-399之间 容器启动后向某地址发起Get请求，如果失败，重启容器
+            path: /login.html #uri地址
+            port: 8080
+            host: 192.168.88.10
+            schema: HTTP #支持http|https
+      livenessProbe: #存活探测，用于检测容器是否正常运行，如果不正常，重启容器，由重启策略决定
+        #方式1
+        exec: #容器启动后执行命令，如果执行失败则重启容器
+          command: [ "ping","192.168.88.10","-c","1"]
+        #方式2
+        tcpSocket: #容器启动后，如果8080端口访问不了就重启容器
+          port: 8080
+        #方式3
+        httpGet: #状态码在200-399之间 容器启动后向某地址发起Get请求，如果失败，重启容器
+          path: /login.html #uri地址
+          port: 8080
+          host: 192.168.88.10
+          schema: HTTP #支持http|https
+          httpHeaders: #可以携带header信息进行请求
+            - name: string
+              value: string
+        #探测策略
+        initialDelaySeconds: 0 #容器启动后等待多少秒开始执行
+        timeoutSeconds: 1 #探测超时时间，默认1秒
+        periodSeconds: 10 #执行探测的频率，默认10秒
+        successThreshold: 3 # 联系探测失败多少次才被认定为失败，默认是3次
+        failureThreshold: 1 # 连续探测成功多少次才被认定为成功，默认是1次
+      readinessProbe: #准备就绪探测，用于检测容器是否正常接收请求，如果不能，不会接收到发流量
+        #方式1
+        exec: #容器启动后执行命令，如果执行失败则重启容器
+          command: [ "/usr/sbin/nginx","-s","quit" ]
+        #方式2
+        tcpSocket: #容器启动后，如果8080端口访问不了就重启容器
+          port: 8080
+        #方式3
+        httpGet: #状态码在200-399之间 容器启动后向某地址发起Get请求，如果失败，重启容器
+          path: /login.html #uri地址
+          port: 8080
+          host: 192.168.88.10
+          schema: HTTP #支持http|https
+          httpHeaders: #可以携带header信息进行请求
+            - name: string
+              value: string
+        #探测策略
+        initialDelaySeconds: 0 #容器启动后等待多少秒开始执行 #就绪性探测此参数需谨慎，未经过探测的容器service流量是不会分发到此容器。
+        timeoutSeconds: 1 #探测超时时间，默认1秒
+        periodSeconds: 10 #执行探测的频率，默认10秒
+        successThreshold: 3 # 联系探测失败多少次才被认定为失败，默认是3次
+        failureThreshold: 1 # 连续探测成功多少次才被认定为成功，默认是1次
+  initContainers: #初始化容器，和containers用法一样，初始化完成以后容器会从docker被移除
+    - name: watch-mysql #必选，容器名
+      image: busybox:latest #必选
+      command: [ "sh","-c","until ping 192.168.88.10 -c 1 ; do echo waiting for mysql; sleep 2; done;" ]
+      volumeMounts: #使用数据卷
+        - name: volume-name #数据卷名称
+          mountPath: /data #挂载到容器里面的具体地址
+          readOnly: false # true:只读  false:可读可写
+  #Always 任何状态码，容器重启
+  #Onfailure 状态码不为0时，容器重启
+  #Never 任何状态码容器都不重启
+  restartPolicy: Always #容器重启策略 默认为 Always [ Always | Onfailure | Never]
+  #pod调度的参考文档 https://blog.csdn.net/weixin_30693683/article/details/97591386
+  #########################################pod调度策略 start#######################################
+  #定向调度（会因为节点或者节点标签的不存在导致部署失败）
+  #方式1
+  nodeName: node2  #将该pod调度到指定的node节点上，直接绕过scheduler算法计算
+  #方式2
+  nodeSelector:  #由scheduler使用MatchNodeSelector调度策略进行匹配，然后在通过scheduler算法计算
+    env: test
+  #亲和性调度（不会因为节点或者pod的不存而影响启动失败）
+  affinity: #（以下接可使用 matchExpressions 和 matchFields 匹配）
+    #nodeAffinity规则设置的注意事项
+    #1.如果同时定义了nodeSelector和nodeAffinity,那么必须两个条件都得到满足，pod才能运行在指定的Node上
+    #2.如果nodeAffinity指定了多个nodeSelectorTerms，那么只需要满足其中一个能够匹配成功即可
+    #3.如果一个nodeSelectorTerms中有多个matchExpressions，则一个节点必须满足所有的才能匹配成功
+    #4.如果一个pod所在的Node在Pod运行期间标签发生了改变，不在复合该Pod的节点亲和性需求，则系统忽略次变化
+    #方式1 节点亲和性调度
+    nodeAffinity: #节点亲和性调度
+      #方式1.1 硬限制
+      requiredDuringSchedulingIgnoredDuringExecution: #Node节点必须满足指定的所有规则才可以，（硬限制，和定向调度的nodeSelector原理一样）
+        nodeSelectorTerms: #节点选择列表
+          - matchExpressions: #按节点标签匹配（推荐）
+              # 案例1 表示匹配节点上标签key为env
+              - key: env
+                operator: Exists
+              # 案例2 表示匹配标签key为env，并且标签值为 ["test","pro","dev"]的任意一个
+              - key: env
+                operator: In
+                values: ["test","pro","dev"]
+              # 案例3 表示匹配标签为env,并且标签值大于20
+              - key: env
+                operator: Gt
+                values: ["20"]
+          - matchFields: #按节点字段列出的节点选择器要求列表
+              - key:
+                operator: #关系符 支持Exists,DoesNotExist,In,NotIn,Gt,Lt
+                values: []
+      # 方式1.2 软限制
+      preferredDuringSchedulingIgnoredDuringExecution: # 当规则不满足的情况下通过scheduler算法进行调度（软限制）
+        - preference:
+            matchExpressions: #按节点标签匹配（推荐）
+              - key: env
+                operator: In
+                values: ["test","aaa","bbb"]
+          weight: 10 #据权重进行优先级选择  范围1-100
+        - preference:
+            matchExpressions: #按节点标签列出的节点选择器要求列表（推荐）
+              - key: env
+                operator: In
+                values: ["pro","ccc","ddd"]
+          weight: 60 #根据权重进行优先级选择 范围1-100
+    #方式2 pod亲和性调度
+    podAffinity: #可以将Pod尽可能的靠近（node,机架,云）拓扑域发布，减少服务与服务之间的通讯网络IO
+      #方式2.1 硬限制
+      requiredDuringSchedulingIgnoredDuringExecution: #Node节点必须满足指定的所有规则才可以，（硬限制，和定向调度的nodeSelector原理一样）
+        #匹配规则 先根据namespaces和labelSelector找出多个pods，在根据多个pods对应topologyKey找出value(node标签的值)，在根据多个value(node标签的值)找出所有对应的机器节点，最后根据scheduler算法计算该分配到哪个机器上
+        #调度结果：Pod最终调度到同一个拓扑域某一个节点
+        #拓扑域：根据节点标签来划分（node,机架,云）
+        #同一个拓扑域：节点标签的Key和Vaule同样
+        - namespaces: #不指定默认跟这个Pod同一个namespace
+            - dev
+          labelSelector:
+            matchExpressions: #按pod标签进行匹配（推荐）
+              - key: ver
+                operator: In
+                values: [ "snapshot-1.0","ccc","ddd" ]
+          # kubernetes.io/hostname=node1
+          # kubernetes.io/hostname=node2
+          # kubernetes.io/hostname=node3
+          # nodecentos=test
+          # nodecentos=pro
+          # nodecentos=pro
+          # nodecentos=pro
+          # nodecentos=dev
+          topologyKey: nodecentos  #拓扑域
+      # 方式2.2 软限制
+      preferredDuringSchedulingIgnoredDuringExecution: #当规则不满足的情况下通过scheduler算法进行调度（软限制）
+        #匹配规则 先根据namespaces和labelSelector找出多个pods，在根据多个pods对应topologyKey找出value(node标签的值)，在根据多个value(node标签的值)找出所有对应的机器节点，最后根据scheduler算法计算该分配到哪个机器上
+        #调度结果：Pod最终调度到同一个拓扑域某一个节点
+        #拓扑域：根据节点标签来划分（node,机架,云）
+        #同一个拓扑域：节点标签的Key和Vaule同样
+        - podAffinityTerm:
+            namespaces: #不指定默认跟这个Pod同一个namespace
+              - dev
+            labelSelector:
+              matchExpressions: #按pod标签进行匹配（推荐）
+                - key: ver
+                  operator: In
+                  values: [ "snapshot-1.0","ccc","ddd" ]
+            # kubernetes.io/hostname=node1
+            # kubernetes.io/hostname=node2
+            # kubernetes.io/hostname=node3
+            # nodecentos=test
+            # nodecentos=pro
+            # nodecentos=pro
+            # nodecentos=pro
+            # nodecentos=dev
+            topologyKey: kubernetes.io/hostname  #拓扑域
+          weight: 10 #据权重进行优先级选择  范围1-100
+        - podAffinityTerm:
+            namespaces: #不指定默认跟这个Pod同一个namespace
+              - dev
+            labelSelector:
+              matchExpressions: #按pod标签进行匹配（推荐）
+                - key: ver
+                  operator: In
+                  values: [ "snapshot-1.0","ccc","ddd" ]
+            # kubernetes.io/hostname=node1
+            # kubernetes.io/hostname=node2
+            # kubernetes.io/hostname=node3
+            # nodecentos=test
+            # nodecentos=pro
+            # nodecentos=pro
+            # nodecentos=pro
+            # nodecentos=dev
+            topologyKey: nodecentos  #pod最终需要调度到哪个（拓扑域：node标签的key）上部署
+          weight: 60 #据权重进行优先级选择  范围1-100
+    #方式3 pod反亲和性调度
+    podAntiAffinity: #将pod调度到不同拓扑域，以增加并发访问
+      #方式2.1 硬限制
+      requiredDuringSchedulingIgnoredDuringExecution: #Node节点必须满足指定的所有规则才可以，（硬限制，和定向调度的nodeSelector原理一样）
+        #匹配规则 先根据namespaces和labelSelector找出多个pods，在根据多个pods对应topologyKey找出value(node标签的值)，在根据多个value(node标签的值)找出所有对应的机器节点，最后根据scheduler算法计算该分配到哪个机器上
+        #调度结果：Pod最终调度到不同的拓扑域某一个节点
+        #拓扑域：根据节点标签来划分（node,机架,云）
+        #同一个拓扑域：节点标签的Key和Vaule同样
+        - namespaces: #不指定默认跟这个Pod同一个namespace
+            - dev
+          labelSelector:
+            matchExpressions: #按pod标签进行匹配（推荐）
+              - key: ver
+                operator: In
+                values: [ "snapshot-1.0","ccc","ddd" ]
+          # kubernetes.io/hostname=node1
+          # kubernetes.io/hostname=node2
+          # kubernetes.io/hostname=node3
+          # nodecentos=test
+          # nodecentos=pro
+          # nodecentos=pro
+          # nodecentos=pro
+          # nodecentos=dev
+          topologyKey: kubernetes.io/hostname  #拓扑域
+      # 方式2.2 软限制
+      preferredDuringSchedulingIgnoredDuringExecution: #当规则不满足的情况下通过scheduler算法进行调度（软限制）
+        #匹配规则 先根据namespaces和labelSelector找出多个pods，在根据多个pods对应topologyKey找出value(node标签的值)，在根据多个value(node标签的值)找出所有对应的机器节点，最后根据scheduler算法计算该分配到哪个机器上
+        #调度结果：Pod最终调度到不同的拓扑域某一个节点
+        #拓扑域：根据节点标签来划分（node,机架,云）
+        #同一个拓扑域：节点标签的Key和Vaule同样
+        - podAffinityTerm:
+            namespaces: #不指定默认跟这个Pod同一个namespace
+              - dev
+            labelSelector:
+              matchExpressions: #按pod标签进行匹配（推荐）
+                - key: ver
+                  operator: In
+                  values: [ "snapshot-1.0","ccc","ddd" ]
+            # kubernetes.io/hostname=node1
+            # kubernetes.io/hostname=node2
+            # kubernetes.io/hostname=node3
+            # nodecentos=test
+            # nodecentos=pro
+            # nodecentos=pro
+            # nodecentos=pro
+            # nodecentos=dev
+            topologyKey: kubernetes.io/hostname #拓扑域
+          weight: 10 #据权重进行优先级选择  范围1-100
+        - podAffinityTerm:
+            namespaces: #不指定默认跟这个Pod同一个namespace
+              - dev
+            labelSelector:
+              matchExpressions: #按pod标签进行匹配（推荐）
+                - key: ver
+                  operator: In
+                  values: [ "snapshot-1.0","ccc","ddd" ]
+            # kubernetes.io/hostname=node1
+            # kubernetes.io/hostname=node2
+            # kubernetes.io/hostname=node3
+            # nodecentos=test
+            # nodecentos=pro
+            # nodecentos=pro
+            # nodecentos=pro
+            # nodecentos=dev
+            topologyKey: nodecentos  #拓扑域
+          weight: 60 #据权重进行优先级选择  范围1-100
+  #污点容忍调度
+  tolerations:
+    #容忍方式1：容忍任何key,任何value,任何effect
+    - operator: Exists
+    #容忍方式2：容忍所有key和所有value。容忍级别为NoExecute
+    - operator: Exists
+      effect: NoExecute
+    #容忍方式3：容忍key为wudian，任何value，容忍级别为NoExecute
+    - key: wudian
+      operator: Exists
+      effect: NoExecute
+    #容忍方式4：容忍key为wudian，值为v3，容忍级别为NoExecute
+    - key: wudian #默认不写为Any
+      operator: Equal #默认Equal
+      value: v3 #默认不写为Any
+      effect: NoExecute #空，表示匹配所有 PreferNoSchedule NoSchedule NoExecute
+      tolerationSeconds: #容忍时间，当effect为NoExecute时生效，表示pod在Node上停留的时间，默认为永久
+  #########################################pod调度策略 end#######################################
+  volumes: #声明数据卷
+    #案例1 emptyDir 数据卷
+    - name: volume-name
+      emptyDir: { }
+    #案例2 hostPath 数据卷
+    - name: volume-name
+      hostPath:
+        path: /root/logs
+        #"" 空字符串（默认）用于向后兼容，这意味着在安装 hostPath 卷之前不会执行任何检查。
+        #DirectoryOrCreate	如果在给定路径上什么都不存在，那么将根据需要创建空目录，权限设置为 0755，具有与 kubelet 相同的组和属主信息。
+        #Directory	在给定路径上必须存在的目录。
+        #FileOrCreate	如果在给定路径上什么都不存在，那么将在那里根据需要创建空文件，权限设置为 0644，具有与 kubelet 相同的组和所有权。
+        #File	在给定路径上必须存在的文件。
+        #Socket	在给定路径上必须存在的 UNIX 套接字。
+        #CharDevice	在给定路径上必须存在的字符设备。
+        #BlockDevice	在给定路径上必须存在的块设备。
+        type: DirectoryOrCreate
+    #案例3 nfs 数据卷
+    - name: volume-name
+      nfs: # 网络文件系统
+        server: 192.168.88.10
+        path: /root/k8s/data
+    #案例4 pvc 数据卷
+    - name: volume-name
+      persistentVolumeClaim: # 使用pvc
+        claimName: pvc2
+        readOnly: false # true:只读  false:可读可写
+    #案例5 configMap 数据卷
+    - name: volume-name
+      configMap:
+        name: configmap-name
+    #案例6 secret 数据卷
+    - name: volume-name
+      secret:
+        secretName: secret-name
+  imagePullSecrets: #pull镜像时是同的secret名称，以key:secretkey格式指定
+    - name: string
+  hostNetwork: false #跟docker --network=host模式一样，共享宿主机网络，默认为false
+
+
+
+
+
+

@@ -1,0 +1,34 @@
+spring:
+  profiles:
+    active: test
+  datasource:
+   driver-class-name: com.mysql.jdbc.Driver
+   url: jdbc:mysql://localhost:3306/my_db?useSSL=false
+   username: root
+   password: 123456
+
+
+---
+spring:
+  config:
+    activate:
+      on-profile:
+        - pro
+server:
+  port: 8081
+---
+spring:
+  config:
+    activate:
+      on-profile:
+        - dev
+server:
+  port: 8082
+---
+spring:
+  config:
+    activate:
+      on-profile:
+        - test
+server:
+  port: 8083

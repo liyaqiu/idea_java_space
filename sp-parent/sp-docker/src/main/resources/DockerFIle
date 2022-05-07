@@ -1,0 +1,35 @@
+#运维工具容器
+docker pull busybox:1.35.0
+###################################################
+FROM alpine:latest
+RUN echo "alias ll='ls -l --color=auto'" >> /etc/profile \
+    #安装ping
+    && apk add --no-cache iputils \
+    #安装netcat(server: nc -l -p 8080 cliect: nc 172.31.100.7 8080)
+    && apk add --update --no-cache netcat-openbsd \
+    #curl命令
+    && apk add --no-cache curl \
+    #telnet命令
+    && apk add --no-cache busybox-extras
+CMD sh -l
+加载环境配置登陆方式 https://unix.stackexchange.com/questions/665004/what-is-the-startup-script-on-alpine-linux-when-you-login-i-want-my-aliasses-w
+ docker run -it c059bfaa849c sh -l
+ docker exec -it be7028f015e5 sh -l
+
+##############################################################
+FROM ubuntu:latest
+RUN apt-get update \
+#安装vim
+#    && apt-get -y install vim \
+#安装net-tools(netstat ifconfig)
+    && apt-get -y install net-tools \
+#安装netcat(server: nc -l -p 8080 cliect: nc 172.31.100.7 8080)
+    && apt-get -y install netcat-traditional \
+#安装ping
+    && apt-get -y install inetutils-ping \
+#安装iproute2
+    && apt-get -y install iproute2
+
+
+docker pull openjdk:8-jdk-alpine
+docker pull openjdk:8-jdk-slim

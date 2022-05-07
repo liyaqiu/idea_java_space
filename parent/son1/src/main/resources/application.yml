@@ -1,0 +1,7 @@
+server:
+  port: 8080
+logging:
+  config: classpath:log4j2.xml
+spring:
+  profiles: #java -jar son1-1.0-SNAPSHOT.jar --spring.profiles.active=pro
+    active: @profile.active@

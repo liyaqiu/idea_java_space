@@ -1,0 +1,73 @@
+# https://json2yaml.com/
+server:
+  port: 8080
+logging:
+  config: classpath:log4j2.xml
+
+mybatis-plus:
+  #config-location: classpath:mybatis-config.xml
+  mapper-locations:
+    - classpath:mybatis/mapper/*Mapper.xml  #mapper文件
+  type-aliases-package: com.mybatisplus.entity #实体类别名包
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/my_db?useSSL=false
+    username: root
+    password: 123456
+  #    hikari:
+  #      minimum-idle: 5
+  #      # 空闲连接存活最大时间，默认600000（10分钟）
+  #      idle-timeout: 180000
+  #      # 连接池最大连接数，默认是10
+  #      maximum-pool-size: 10
+  #      # 此属性控制从池返回的连接的默认自动提交行为,默认值：true
+  #      auto-commit: true
+  #      # 连接池名称
+  #      pool-name: MyHikariCP
+  #      # 此属性控制池中连接的最长生命周期，值0表示无限生命周期，默认1800000即30分钟
+  #      max-lifetime: 1800000
+  #      # 数据库连接超时时间,默认30秒，即30000
+  #      connection-timeout: 30000
+  #      connection-test-query: SELECT 1
+
+  task: #spring 定时任务配置
+    scheduling:
+      thread-name-prefix: zms-task-name
+      pool:
+        size: 5  #默认为1
+      shutdown:
+        await-termination: false #线程次关闭时等待所有任务完成
+        await-termination-period: 10s #调度线程关闭前最大等待时间，确保最后一定关闭
+
+
+  #  resources: #web资源
+  #    static-locations:
+  #      - classpath:/abc/
+  #      - classpath:/static/
+
+  aop: #自动动态代理
+    auto: true
+    proxy-target-class: false
+
+
+    #默认情况下  全部使用cglib
+    # auto: true
+    # proxy-target-class: true
+
+    #这种情况下 如果有接口则走jdk,如果没有则走cglib
+    # auto: true
+    # proxy-target-class = false
+
+
+#  servlet:  #文件上传设置
+#    multipart:
+#      max-file-size: 10MB
+#      max-request-size: 10MB
+
+myconfig:
+  path: /root/nginx
+  name: liyaqiu-yaml2222
+  age: 16
+  max: 0127 #8进制

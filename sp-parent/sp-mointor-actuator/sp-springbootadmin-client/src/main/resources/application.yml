@@ -1,0 +1,39 @@
+server:
+  port: 80
+logging:
+  config: classpath:log4j2.xml
+
+spring:   # spring boot admin
+  boot:
+    admin:
+      client:
+        url:
+          - http://192.168.0.109:8080
+
+# actuator 配置
+management:
+  endpoint:
+    health:
+      enabled: true
+      show-details: ALWAYS
+    info:
+      enabled: true
+    beans:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include:
+          - "*"
+    enabled-by-default: true
+#    jmx:
+#      exposure:
+#        include:
+#          - "*"
+info:
+  appConfig: @profile.active@
+  appName: @artifactId@
+  encode: @project.build.sourceEncoding@
+  author: eric
+
+

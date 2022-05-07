@@ -1,0 +1,17 @@
+server:
+  port: 8080
+logging:
+  config: classpath:log4j2.xml
+
+
+  cache:  #spring提供缓存
+    cache-names: "userCache,cache2"
+    type: REDIS
+    redis:
+      use-key-prefix: true  #是否使用缓存key作为前缀
+      key-prefix: xxxservice #附加前缀
+      cache-null-values: false #是否允许存空值
+      time-to-live: 10s # 缓存key存活时间
+  redis:
+    host: localhost
+    port: 6379

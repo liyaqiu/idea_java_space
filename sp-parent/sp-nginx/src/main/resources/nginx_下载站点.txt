@@ -1,0 +1,59 @@
+
+master_process on;#默认为on off
+user  root; #使用root来启动work进程
+worker_processes  1;
+error_log  logs/error.log  debug;
+events {
+    #accept_mutex on;#是否开启work队列机制
+    #multi_accept on;#允许一个wrok接受多个请求
+    use epoll; #使用多路复用io
+    worker_connections  1024;
+}
+
+http {
+    include       mime.types;
+    default_type  text/html;
+
+    log_format  myformat  '[1]$remote_addr - [2]$remote_user [$time_local] "[3]$request" '
+                      '[4]$status $body_bytes_sent "$http_referer" '
+                      '"[5]$http_user_agent" "[6]$http_x_forwarded_for"';
+    access_log  logs/access.log  myformat;
+
+    sendfile        on; #功能：减少copy次数，以及减少用户态和内核态的切换
+    #tcp_nopush tcp_nodelay 两者互斥，在内核2.5.9以后兼容，当tcp_nopush未满并且达到阈值，nginx会强制tcp_nodelay发送数据包
+    tcp_nopush on; #需要sendfile打开才能用，功能：将数据放缓存区装满以后一起发送
+    tcp_nodelay on; #功能：不需要等待延迟，直接发送
+    keepalive_timeout  65;
+
+    log_format  proxylog  '$scheme://$http_host$request_uri----client: $remote_addr';
+
+    #下载站点 ngx_http_autoindex_module
+    #用户认证 ngx_http_auth_basic_module
+    #生成密码工具  yum -y install httpd-tools
+    #创建用户 htpasswd -c /root/passwd liyaqiu
+    #更改密码 htpasswd -b /root/passwd liyaqiu 123456
+    #删除用户 htpasswd -d /root/passwd liyaqiu
+    #校验用户密码 htpasswd -v /root/passwd liyaqiu 123456
+    server {
+         listen       8099;
+         server_name  localhost;
+
+         location /download {
+             alias  /;
+
+             default_type  application/octet-stream;
+             #default_type  text/html; #可以直接查看，不会下载
+
+             autoindex on;
+             autoindex_exact_size on;
+             autoindex_format html; # html | xml | json | jsonp
+             autoindex_localtime on;
+
+             #auth_basic 'auth??';  #开启认证
+             #auth_basic_user_file /root/passwd;
+
+             access_log  logs/lb3.log  proxylog;
+         }
+    }
+}
+

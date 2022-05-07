@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--日志级别以及优先级排序: OFF > FATAL > ERROR > WARN > INFO > DEBUG > TRACE > ALL -->
+<configuration status="WARN" monitorInterval="1800">
+    <Properties>
+        <property name="geshi" value="%d{HH:mm:ss.SSS} %pid [%-5level] [%thread] %c : %m%n"/>
+    </Properties>
+
+    <appenders>
+        <Console name="kongzhitai" target="SYSTEM_OUT">
+            <PatternLayout pattern="${geshi}"/>
+        </Console>
+
+        <!--可以使用.txt .zip .tar进行滚动压缩 RollingFile 或者 RollingRandomAccessFile-->
+        <RollingRandomAccessFile name="gundongwenjian" fileName="springbootlogs\all.log"
+                                 filePattern="springbootlogs\%d{yyyy-MM}/info-%d{yyyy-MM-dd}-%i.txt">
+            <PatternLayout pattern="${geshi}"/>
+            <Policies>
+                <!--启动时触发规则产生一个新的日志文件-->
+                <OnStartupTriggeringPolicy/>
+                <!--每个文件大小-->
+                <SizeBasedTriggeringPolicy size="100mb"/>
+                <!-- interval 默认为1 -->
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <!--                <CronTriggeringPolicy schedule="0/5 * * * * ?" />-->
+            </Policies>
+            <!-- 每10秒内允许有10个文件，每个文件大小为1mb，多余的会进行覆盖 -->
+            <!-- 每1天内允许有10个文件，每个文件大小为100mb，多余的会进行覆盖 也就是说1天之内，可以有10*100MB=1000MB-->
+            <DefaultRolloverStrategy max="10" />
+        </RollingRandomAccessFile>
+    </appenders>
+
+
+
+    <loggers>
+        <root level="info">
+            <appender-ref ref="kongzhitai"/>
+        </root>
+
+        <logger name="com.sp.mycache" level="debug" additivity="false">
+            <appender-ref ref="kongzhitai"/>
+        </logger>
+    </loggers>
+</configuration>

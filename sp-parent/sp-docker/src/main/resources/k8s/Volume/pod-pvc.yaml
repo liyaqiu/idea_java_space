@@ -1,0 +1,35 @@
+#yum install -y nfs-utils
+#mkdir -p /root/k8s/data
+#将共享目录读写权限暴露给192.168.88.0/24网段
+#echo "/root/k8s/data 192.168.88.0/24(rw,no_root_squash)" >> /etc/exports
+#systemctl start nfs
+#systemctl reload nfs
+apiVersion: v1 #必选
+kind: Pod #必选
+metadata: #必选
+  name: pod-name #必选 pod名称
+  namespace: dev # pod所属命名空间 (默认 default)
+  labels:
+    ver: myv1
+    env: test
+spec: #必选 pod中容器的规范
+  containers: #必选,pod容器列表
+    - name: nginx-name #必选，容器名
+      image: nginx:1.14-alpine #必选，容器镜像
+      volumeMounts:
+        - name: pvc-log-volume
+          mountPath: /var/log/nginx
+          readOnly: false # true:只读  false:可读可写
+    - name: busy-box-name #必选，容器名
+      image: test:v1
+      #必选，容器镜像
+      volumeMounts:
+        - name: pvc-log-volume
+          mountPath: /data
+          readOnly: true # true:只读  false:可读可写
+      command: ["/bin/sh","-c","tail -f /data/access.log"]
+  volumes: #声明数据卷
+    - name: pvc-log-volume
+      persistentVolumeClaim: # 使用pvc
+        claimName: pvc2
+        readOnly: false # true:只读  false:可读可写

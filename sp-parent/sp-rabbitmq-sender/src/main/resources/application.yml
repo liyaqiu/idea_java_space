@@ -1,0 +1,17 @@
+server:
+  port: 8088
+spring:
+  rabbitmq:
+    host: 192.168.0.203
+    port: 5672
+    #addresses: 192.168.0.203:5672,192.168.0.203:5673,192.168.0.203:5674
+    virtual-host: /
+    username: liyaqiu
+    password: 123456
+    #--------------高级配置-----------------
+    publisher-confirm-type: correlated # 开启异步回调，ConfirmCallback 消息是否到达交换机
+    publisher-returns: true # 开启异步回调 ReturnCallback 消息到了交换机，消息是否能路由到队列
+    template:
+      mandatory: true #true 调用ReturnCallback  false消息丢弃
+logging:
+  config: classpath:log4j2.xml

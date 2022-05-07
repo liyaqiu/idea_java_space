@@ -1,0 +1,93 @@
+
+master_process on;#默认为on off
+user  root; #使用root来启动work进程
+worker_processes  1;
+error_log  logs/error.log  debug;
+events {
+    #accept_mutex on;#是否开启work队列机制
+    #multi_accept on;#允许一个wrok接受多个请求
+    use epoll; #使用多路复用io
+    worker_connections  1024;
+}
+
+http {
+    include       mime.types;
+    default_type  text/html;
+
+    log_format  myformat  '[1]$remote_addr - [2]$remote_user [$time_local] "[3]$request" '
+                      '[4]$status $body_bytes_sent "$http_referer" '
+                      '"[5]$http_user_agent" "[6]$http_x_forwarded_for"';
+    access_log  logs/access.log  myformat;
+
+    sendfile        on; #功能：减少copy次数，以及减少用户态和内核态的切换
+    #tcp_nopush tcp_nodelay 两者互斥，在内核2.5.9以后兼容，当tcp_nopush未满并且达到阈值，nginx会强制tcp_nodelay发送数据包
+    tcp_nopush on; #需要sendfile打开才能用，功能：将数据放缓存区装满以后一起发送
+    tcp_nodelay on; #功能：不需要等待延迟，直接发送
+    keepalive_timeout  65;
+
+    #
+
+    init_by_lua_block{
+         mysql = require "resty.mysql"
+         redis = require "resty.redis"
+         cjson = require "cjson"
+    }
+    server {
+         listen       8080;
+         server_name  localhost;
+         charset utf-8;
+         # 预热加载
+         # http://192.168.0.203:8080/test 加载mysql全部数据到redis
+         # http://192.168.0.203:8080/test?id=1 更新某行数据到redis
+         location /test {
+            default_type 'text/plain';
+            content_by_lua_block{
+                local id = ngx.req.get_uri_args()[id]
+                --创建mysql连接
+                local dbObj = mysql:new()
+                dbObj:set_timeout(1000)
+                local result_ok,result_err = dbObj:connect{
+                    host = "192.168.0.203",
+                    port = 3306,
+                    user = "root",
+                    password = "123456",
+                    database = "nginx_mysql"
+                }
+                if not result_ok then
+                    ngx.say("连接mysql失败",result_err)
+                    return
+                end
+                local sqlStr = "select * from hello_world"
+                if id then
+                    sqlStr = sqlStr.." where id ="..id
+                end
+                --查询结果
+                local res,err,errcode,sqlstate = dbObj:query(sqlStr)
+                --关闭mysql连接
+                dbObj:close()
+
+                if not res then
+                    ngx.say("查询mysql失败:",err)
+                    return
+                end
+
+                --创建redis连接
+                local redisObj = redis:new()
+                redisObj:set_timeout(1000)
+                local result_ok,result_err = redisObj:connect("192.168.0.203",6379)
+                if not result_ok then
+                    ngx.say("连接redis失败",result_err)
+                    return
+                end
+                --将mysql数据存储到redis
+                for key,value in pairs(res) do
+                    redisObj:set(value.id,cjson.encode(value))
+                end
+                --关闭redis连接
+                redisObj:close()
+                ngx.say("success....")
+            }
+         }
+    }
+}
+

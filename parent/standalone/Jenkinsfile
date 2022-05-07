@@ -1,0 +1,75 @@
+def git_url = 'git@192.168.88.15:group1/parent.git'
+def harbor_url = '192.168.88.12:86'
+def harbor_respository = 'zms'
+def image_version = 'v1'
+def credentialsId = '6b28ba30-1290-4efc-beb9-ea1daa8ef51b'
+def source_image_name = "${project_name}:latest"
+def target_image_name = "${harbor_url}/${harbor_respository}/${project_name}:${image_version}"
+def remote_command = "/root/deploy.sh ${harbor_url} ${harbor_respository} ${project_name} ${image_version} ${service_port}"
+pipeline {
+    agent any
+
+    stages {
+        stage('pull code') {
+            steps {
+                echo '拉取代码'
+                //${branch}需要添加参数 Dashboard > test-pipeline > General > This project is parameterized
+				checkout([$class: 'GitSCM', branches: [[name: '*/${branch}']], extensions: [], userRemoteConfigs: [[credentialsId: 'fd100e76-96ae-4b17-ad69-7ad04902f100', url: "${git_url}"]]])
+            }
+        }
+        //如果不做一次初始化，子项目无法找到父pom会导致构建失败
+        stage('project initproject') {
+            steps {
+                script {
+                    if ("${initproject}" == 'true') {
+                        sh 'echo 项目初始化'
+                        sh 'mvn clean install'
+                    }
+                }
+            }
+        }
+        stage('构建子模块代码') {
+            steps {
+                sh 'mvn -f ${project_name} clean install'
+            }
+        }
+        stage('代码检查') {
+            steps {
+                script {
+                    //引入SonarScanner工具
+                    scannerHome = tool 'SonarQube-Scanner-test'
+                }
+                //引用sonarQube server环境
+                withSonarQubeEnv('SonarQube-servers-test') {
+                    sh "cd ${project_name} && ${scannerHome}/bin/sonar-scanner"
+                }
+            }
+        }
+        stage('镜像生成以及推送到私有仓库') {
+            steps {
+                sh "mvn -f ${project_name} dockerfile:build"
+                sh "docker tag  ${source_image_name} ${target_image_name}"
+                withCredentials([usernamePassword(credentialsId: "${credentialsId}", passwordVariable: 'passwd', usernameVariable: 'username')]) {
+                    //登陆harbor
+                    sh "docker login -u ${username} -p ${passwd} ${harbor_url} "
+                    //镜像上船
+                    sh "docker push ${target_image_name}"
+                }
+                echo '镜像上传成功'
+            }
+        }
+        stage('deploy') {
+            steps {
+                echo '部署项目'
+                sshPublisher(publishers: [sshPublisherDesc(configName: "${deply_to}", transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: "${remote_command}", execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '', remoteDirectorySDF: false, removePrefix: '', sourceFiles: '')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: true)])
+            }
+        }
+    }
+    post {
+      always {
+        //普通邮件
+        //mail bcc: '', mimeType: 'text/html;charset=UTF-8', body: '<a href="www.baidu.com">点击我</a>', cc: '', from: '361234567@qq.com', replyTo: '361234567@qq.com', subject: 'test-jenkins', to: '361234567@qq.com'
+        emailext body: '${FILE,path="jenkinsmail.html"}', subject: 'test-jenkins', to: '361234567@qq.com'
+      }
+    }
+}

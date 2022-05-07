@@ -1,0 +1,43 @@
+apiVersion: batch/v1beta1 #版本号
+kind: CronJob #类型
+metadata: #元数据
+  name: cronjobname #pod控制器名称
+  namespace: dev #所属命名空间
+  labels: #标签
+    contro: cronjob-contro
+spec: #规范信息
+  schedule: "*/1 * * * *" #cron表达式，每分钟执行一次
+  # Allow: 上一次任务没执行完成，本次任务可以接着运行
+  # Forbid: 上一次任务运行未完成，本次任务跳过运行
+  # Replace: 终止上一次任务，执行本次任务
+  concurrencyPolicy: Allow #默认为Allow
+  failedJobsHistoryLimit: 1 #执行失败的任务保留次数（默认为1）
+  successfulJobsHistoryLimit: 3 #执行成功的任务保留次数（默认为3）
+  #startingDeadlineSeconds: 300 #每次调度job完成预估需要多久，如果在预估时间内未能全部完成的job,将列为失败Job，默认为用不超时
+  jobTemplate: #job控制器模板
+    metadata: #元数据
+      name: jobname #pod控制器名称
+      namespace: dev #所属命名空间
+      labels: #标签
+        contro: job-contro
+    spec: #规范信息
+      #例子：completions: 6，parallelism: 2，那么每次同时运行2个pod，然后需要3次才能完成
+      completions: 1 #指定job需要成功运行pod的次数，默认为6
+      parallelism: 1 #指定并行运行的pod的个数，默认为1
+      #activeDeadlineSeconds: 30 #预估job的所有pod执行完需要多久，如果超市则不执行（默认为永久不超市job）
+      backoffLimit: 6 #容器返回状态码为非0时候，代表失败运行，创新创建pod运行，次数为6次,每次的创建pod的时间越来越慢。
+      manualSelector: false #cronjob只能为false，不支持true
+      template: #模版。当副本数量不足时，会根据模版创建Pod
+        metadata:
+          labels:
+            app: nginx-pod
+        spec:
+          containers:
+            - name: counter
+              image: busybox:1.30
+              command: [ "bin/sh","-c","for i in 9 8 7 6 5 4 3 2 1; do echo $i; sleep 1; done" ]
+          # 由于job运行的容器一般为执行完毕就结束容器
+          # Always 容器返回任何状态码，只要退出都会重启--->当设置为Always，那么backoffLimit没办法正常工作，无法达到重试次数递增效果
+          # Onfailure 容器返回非0状态码，就会重启——->当设置为Onfailure，那么backoffLimit和Onfailure都是容器返回状态码非0时候重启，那么backoffLimit同样也无法对失败次数做递增
+          # Never 容器返回任何状态码都不重启--->当设置为Never，那么只要容器返回状态码为非0时，就会递增失败次数+1
+          restartPolicy: Never #推荐设置Never

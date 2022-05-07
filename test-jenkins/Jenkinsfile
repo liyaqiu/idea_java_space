@@ -1,0 +1,44 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('pull code') {
+            steps {
+                echo '拉取代码'
+                //${branch}需要添加参数 Dashboard > test-pipeline > General > This project is parameterized
+				checkout([$class: 'GitSCM', branches: [[name: '*/${branch}']], extensions: [], userRemoteConfigs: [[credentialsId: 'fd100e76-96ae-4b17-ad69-7ad04902f100', url: 'git@192.168.88.15:group1/test-jenkins.git']]])
+            }
+        }
+        stage('bulid code') {
+            steps {
+                echo '构建代码'
+				sh 'mvn clean package'
+            }
+        }
+        stage('code check') {
+            steps {
+                echo '代码检查'
+                script {
+                    //引入SonarScanner工具
+                    scannerHome = tool 'SonarQube-Scanner-test'
+                }
+                //引用sonarQube server环境
+                withSonarQubeEnv('SonarQube-servers-test') {
+                    sh "${scannerHome}/bin/sonar-scanner"
+                }
+            }
+        }
+        stage('deploy') {
+            steps {
+                echo '部署项目'
+            }
+        }
+    }
+    post {
+      always {
+        //普通邮件
+        //mail bcc: '', mimeType: 'text/html;charset=UTF-8', body: '<a href="www.baidu.com">点击我</a>', cc: '', from: '361234567@qq.com', replyTo: '361234567@qq.com', subject: 'test-jenkins', to: '361234567@qq.com'
+        emailext body: '${FILE,path="jenkinsmail.html"}', subject: 'test-jenkins', to: '361234567@qq.com'
+      }
+    }
+}

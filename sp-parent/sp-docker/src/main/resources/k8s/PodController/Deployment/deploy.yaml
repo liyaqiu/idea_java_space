@@ -1,0 +1,31 @@
+apiVersion: apps/v1 #版本号
+kind: Deployment #类型
+metadata: #元数据
+  name: deployname #pod控制器名称
+  namespace: dev #所属命名空间
+  labels: #标签
+    contro: deploy-control
+spec: #规范相信
+  replicas: 2 #副本数量
+  strategy: #镜像更新策略
+#    #方式1 重新更新（一次性删掉所有旧版本，重新创建）
+     #type: Recreate
+#    #方式2 滚动更新（慢慢迭代删除旧版本，慢慢创建新版本）
+#    type: RollingUpdate #滚动更新策略
+#    rollingUpdate: #滚动更新
+#      #总结：pod可用为70%-130%区间
+#      maxSurge: 30% # 当设置为30%,确保更新期间任何时候运行的 pod 总数最多为所需 pod 的 130% 百分比或者整数皆可（默认25%）
+#      maxUnavailable: 30%
+  selector: #选择器
+    matchLabels: #匹配那些Pod
+      app: nginx-pod
+  template: #模版。当副本数量不足时，会根据模版创建Pod
+    metadata:
+      labels:
+        app: nginx-pod
+    spec:
+      containers:
+        - name: nginx-containers
+          image: nginx:1.17.3
+          ports: #需要暴露的端口列表
+            - containerPort: 80 #容器端口

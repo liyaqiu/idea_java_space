@@ -1,0 +1,130 @@
+
+master_process on;#默认为on off
+user  root; #使用root来启动work进程
+worker_processes  1;
+error_log  logs/error.log  debug;
+events {
+    #accept_mutex on;#是否开启work队列机制
+    #multi_accept on;#允许一个wrok接受多个请求
+    use epoll; #使用多路复用io
+    worker_connections  1024;
+}
+
+http {
+    include       mime.types;
+    default_type  text/html;
+
+    log_format  myformat  '[1]$remote_addr - [2]$remote_user [$time_local] "[3]$request" '
+                      '[4]$status $body_bytes_sent "$http_referer" '
+                      '"[5]$http_user_agent" "[6]$http_x_forwarded_for"';
+    access_log  logs/access.log  myformat;
+
+    sendfile        on; #功能：减少copy次数，以及减少用户态和内核态的切换
+    #tcp_nopush tcp_nodelay 两者互斥，在内核2.5.9以后兼容，当tcp_nopush未满并且达到阈值，nginx会强制tcp_nodelay发送数据包
+    tcp_nopush on; #需要sendfile打开才能用，功能：将数据放缓存区装满以后一起发送
+    tcp_nodelay on; #功能：不需要等待延迟，直接发送
+    keepalive_timeout  65;
+
+    #浏览器会有bug,发送了2次请求http://lb1/favicon.ico 和 http://lb1/rewrite-test/demo1 需要借助curl访问
+    #负载均衡状态
+        #down 标记当前服务器不提供访问
+        #backup 当所有主服务器宕机以后，backup服务器才会启用,只需要有任意一台主服务启用，所有backup服务器又恢复备用状态
+        #max_conns=0 设置最大并发连接数 （用测压工具测试）， 默认为0表示不限制，
+        #max_fails=3 fail_timeout=30  默认为max_fails=1 当失败1次以后，不在参与负载，等待30秒后在继续尝试
+    #upstream lb1{
+        #server localhost:9991 backup;
+        #server localhost:9992 ;
+        #server localhost:9993 backup;
+        #server localhost:9994 max_fails=3 fail_timeout=120;
+    #}
+
+    #负载均衡策略
+        #默认为轮询策略
+            #upstream lb1{
+                #server localhost:9991 backup;
+                #server localhost:9992 ;
+                #server localhost:9993 backup;
+                #server localhost:9994 max_fails=3 fail_timeout=120;
+            #}
+        #weight=3 加权轮询策略，默认全部为weight=1  #server localhost:9991 backup weight=3;
+            #upstream lb1{
+                #server localhost:9991 backup weight=1;
+                #server localhost:9992 ;
+                #server localhost:9993 backup weight=3;
+                #server localhost:9994 max_fails=3 fail_timeout=120;
+            #}
+        #ip_hash  根据ip hash进行分发
+            #upstream lb1{
+                #ip_hash;
+                #server localhost:9991 backup weight=1;
+                #server localhost:9992 ;
+                #server localhost:9993 backup weight=3;
+                #server localhost:9994 max_fails=3 fail_timeout=120;
+            #}
+        #least_conn #根据机器性能负载来进行分发
+            #upstream lb1{
+                #least_conn;
+                #server localhost:9991 backup;
+                #server localhost:9992 ;
+                #server localhost:9993 backup;
+                #server localhost:9994 max_fails=3 fail_timeout=120;
+            #}
+        #hash &request_uri url_hash+缓存使用
+            #upstream lb1{
+                #hash &request_uri;
+                #server localhost:9991 backup;
+                #server localhost:9992 ;
+                #server localhost:9993 backup;
+                #server localhost:9994 max_fails=3 fail_timeout=120;
+            #}
+        #fair 第三方负载均衡策略，根据页面大小以及加载时间长短来做负载
+            # 1.下载https://github.com/gnosek/nginx-upstream-fair/archive/refs/heads/master.zip
+            # 2.放到/usr/local/nginx/module/并解压 nginx-upstream-fair-master.zip
+            # 3.在源码文件（vim /root/nginx-1.18.0/src/http/ngx_http_upstream.h）中增加 in_port_t default_port;
+            #    in_port_t                        port;
+            #    in_port_t                        default_port; 需要增加行
+            #  ./configure --add-module=/usr/local/nginx/module/nginx-upstream-fair-master 利用nginx热部署进行升级
+    upstream lb1{
+        fair;
+        server localhost:9991 down;
+        server localhost:9992 down;
+        server localhost:9993 down;
+        server localhost:9994 down;
+        server 192.168.0.110:8888;
+    }
+
+    server {
+        listen       8080;
+        server_name  localhost;
+        location /abc {
+            proxy_pass http://lb1/;  #加斜杠不会拼接 /abc
+        }
+    }
+    log_format  proxylog  '$scheme://$http_host$request_uri----client: $remote_addr';
+    server {
+         listen       8081;
+         server_name  localhost;
+         access_log  logs/lb1.log  proxylog;
+
+         location / {
+             return 200 "hello 1";
+         }
+    }
+    server {
+         listen       8082;
+         server_name  localhost;
+         access_log  logs/lb2.log  proxylog;
+         location / {
+             return 200 "hello 2";
+         }
+    }
+    server {
+         listen       8083;
+         server_name  localhost;
+         access_log  logs/lb3.log  proxylog;
+         location / {
+             return 200 "hello 3";
+         }
+    }
+}
+

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--日志级别以及优先级排序: OFF > FATAL > ERROR > WARN > INFO > DEBUG > TRACE > ALL -->
+<configuration status="WARN" monitorInterval="1800">
+    <Properties>
+<!--        <property name="logFileName">qfxLog4jDemoLog</property>-->
+        <property name="geshi" value="%L %d{yyyy-MM-dd HH:mm:ss.SSS} [%-6level] [%thread] %c %m%n"/>
+    </Properties>
+
+    <appenders>
+        <Console name="kongzhitai" target="SYSTEM_ERR">
+            <!-- 允许INFO以上的进来。 -->
+<!--            <Filters>-->
+<!--                &lt;!&ndash; 表示匹配一个范围之间的信息 &ndash;&gt;-->
+<!--                <ThresholdFilter level="ERROR" onMatch="DENY" onMismatch="NEUTRAL"/>-->
+<!--                <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>-->
+<!--            </Filters>-->
+            <PatternLayout pattern="${geshi}"/>
+        </Console>
+
+        <!--File 或者 RandomAccessFile-->
+        <RandomAccessFile name="wenjian" fileName="logs/hello.log">
+            <PatternLayout pattern="${geshi}"/>
+            <!--            <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>-->
+        </RandomAccessFile>
+
+
+        <!--可以使用.txt .zip .tar进行滚动压缩 RollingFile 或者 RollingRandomAccessFile-->
+        <RollingRandomAccessFile name="gundongwenjian" fileName="logs/gundong_log.txt"
+                     filePattern="logs/%d{yyyy-MM}/info-%d{yyyy-MM-dd}-%i.txt">
+            <PatternLayout pattern="${geshi}"/>
+            <Policies>
+                <!--启动时触发规则产生一个新的日志文件-->
+                <OnStartupTriggeringPolicy/>
+                <!--每个文件大小-->
+                <SizeBasedTriggeringPolicy size="100mb"/>
+                <!-- interval 默认为1 -->
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+<!--                <CronTriggeringPolicy schedule="0/5 * * * * ?" />-->
+            </Policies>
+            <!-- 每10秒内允许有10个文件，每个文件大小为1mb，多余的会进行覆盖 -->
+            <!-- 每1天内允许有10个文件，每个文件大小为100mb，多余的会进行覆盖 也就是说1天之内，可以有10*100MB=1000MB-->
+            <DefaultRolloverStrategy max="10" />
+        </RollingRandomAccessFile>
+
+
+        <!--异步apepender 此方式性能提升不大，一般不用-->
+<!--        <Async name="yibuAppender">-->
+<!--            <AppenderRef ref="kongzhitai"/>-->
+<!--        </Async>-->
+    </appenders>
+
+    <loggers>
+        <root level="DEBUG">
+            <appender-ref ref="kongzhitai"/>
+        </root>
+        <logger name="logslf4j2" level="DEBUG" additivity="false">
+<!--            <appender-ref ref="kongzhitai"/>-->
+            <appender-ref ref="kongzhitai"/>
+<!--            <appender-ref ref="gundongwenjian"/>-->
+        </logger>
+
+<!--        <AsyncLogger name="logslf4j2" level="DEBUG" includeLocation="false" additivity="false">-->
+<!--            <appender-ref ref="kongzhitai"/>-->
+<!--        </AsyncLogger>-->
+    </loggers>
+</configuration>

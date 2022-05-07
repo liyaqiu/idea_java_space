@@ -1,0 +1,46 @@
+mylogin:
+  username: root
+  passwd: 123456
+
+spring:
+  profiles:
+    active: @profile.active@
+#  datasource:
+#    driver-class-name: com.mysql.jdbc.Driver
+#    url: jdbc:mysql://@ip@:3306/my_db?useSSL=false
+#    username: ${mylogin.username}
+#    password: ${mylogin.passwd}
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://192.168.88.10:3306/acl_db?useSSL=false
+    username: root
+    password: 123456
+
+#  devtools: #热部署配置
+#    restart:
+#      poll-interval: 4s
+#      quiet-period: 2s
+#      exclude: static/** #哪些资源不参与热部署
+#      enabled: true #是否开启热部署
+
+logging:
+#  pattern:
+#    console: "%d{HH:mm:ss.SSS} %pid [%-5level] [%-16.16thread] %40.40c : %m%n"
+#  #分组形式定义
+#  group:
+#    agroup: xxx.controller,xxx.entity,test.LogTest
+#    bgroup: xxx.service,xxx.dao
+#  level:
+#    root: info
+#    agroup: debug
+#    bgroup: error
+#    #包方式定义
+#    #test.LogTest: debug
+  #引入文件方式
+  config: classpath:log4j2.xml
+
+#mybatis-plus:
+#  config-location: classpath:mybatis-config.xml
+#  mapper-locations:
+#    - classpath:mybatis/mapper/*.xml
+#  type-aliases-package: com.sp.entity

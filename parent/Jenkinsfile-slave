@@ -1,0 +1,31 @@
+def git_url = 'git@192.168.88.15:group1/parent.git'
+def harbor_url = '192.168.88.12:86'
+def harbor_respository = 'zms'
+def image_version = 'v1'
+def credentialsId = '24002a42-c0d1-4ca9-a313-817ccc0e0aec'
+
+pipeline {
+    agent {
+      //指定哪个代理节点运行
+      label 'slave1'
+    }
+    environment {
+       abc = '1111'
+    }
+    stages {
+        stage('pull code') {
+            steps {
+                echo '拉取代码'
+                //${branch}需要添加参数 Dashboard > test-pipeline > General > This project is parameterized
+				checkout([$class: 'GitSCM', branches: [[name: '*/${branch}']], extensions: [], userRemoteConfigs: [[credentialsId: 'fd100e76-96ae-4b17-ad69-7ad04902f100', url: "${git_url}"]]])
+            }
+        }
+    }
+    post {
+      always {
+        //普通邮件
+        //mail bcc: '', mimeType: 'text/html;charset=UTF-8', body: '<a href="www.baidu.com">点击我</a>', cc: '', from: '361234567@qq.com', replyTo: '361234567@qq.com', subject: 'test-jenkins', to: '361234567@qq.com'
+        emailext body: '${FILE,path="jenkinsmail.html"}', subject: 'test-jenkins', to: '361234567@qq.com'
+      }
+    }
+}

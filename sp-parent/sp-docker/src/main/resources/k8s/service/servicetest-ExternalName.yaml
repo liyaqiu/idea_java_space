@@ -1,0 +1,22 @@
+#echo "node1" > /usr/share/nginx/html/index.html
+apiVersion: v1 #版本号
+kind: Service #类型
+metadata: #元数据
+  name: external-name
+  namespace: dev #所属命名空间
+  labels: #标签
+    svclabel: svclabel
+spec:
+  selector: #用域确定当前service代理哪些Pod
+    app: nginx-pod
+  #ClusterIP 默认值，它是k8s系自动分配的虚拟IP，只能在集群内部访问
+  #NodePort 将service通过指定的Node上的端口暴露给外部。集群外部可以访问
+  #LoadBalancer 使用外接负载均衡器完成到服务的负载分发，此模式需要外部云环境支持
+  #ExternalName 把集群外部的服务引入集群内部使用
+  type: ExternalName
+  externalName: www.aax0.com #只能填写域名,ip地址测试了不行（默认只支持公网的域名导入）
+  #1查看集群dns
+  # kubectl get svc -n kube-system
+  #2访问
+  # nslookup external-name.dev.svc.cluster.local 10.10.0.10
+  # curl external-name.dev.svc.cluster.local:1234

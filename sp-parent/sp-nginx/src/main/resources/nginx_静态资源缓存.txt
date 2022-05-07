@@ -1,0 +1,63 @@
+
+master_process on;#默认为on off
+user  root; #使用root来启动work进程
+worker_processes  1;
+error_log  logs/error.log  debug;
+events {
+    #accept_mutex on;#是否开启work队列机制
+    #multi_accept on;#允许一个wrok接受多个请求
+    use epoll; #使用多路复用io
+    worker_connections  1024;
+}
+
+http {
+    include       mime.types;
+    default_type  text/html;
+
+    log_format  myformat  '[1]$remote_addr - [2]$remote_user [$time_local] "[3]$request" '
+                      '[4]$status $body_bytes_sent "$http_referer" '
+                      '"[5]$http_user_agent" "[6]$http_x_forwarded_for"';
+    access_log  logs/access.log  myformat;
+
+    sendfile        on; #功能：减少copy次数，以及减少用户态和内核态的切换
+    #tcp_nopush tcp_nodelay 两者互斥，在内核2.5.9以后兼容，当tcp_nopush未满并且达到阈值，nginx会强制tcp_nodelay发送数据包
+    tcp_nopush on; #需要sendfile打开才能用，功能：将数据放缓存区装满以后一起发送
+    tcp_nodelay on; #功能：不需要等待延迟，直接发送
+    keepalive_timeout  65;
+
+    #https://www.cnblogs.com/zhouwenhong/p/3928645.html
+    #缓存
+        #弱缓存 默认支持（304状态吗）
+            #响应头  Last-Modified / Etag
+            #请求头 If-Modified-Since / If-None-Match
+
+        #强缓存，只要在expires或者Cache-Control时间没到之前不会发请求到服务器，但是大多数浏览器会忽略，从而还是走弱缓存 https://stackoverflow.com/questions/11245767/is-chrome-ignoring-cache-control-max-age
+            #expires  http1.0响应头 设置缓存过期时间
+            #Cache-Control http1.1响应头 设置和缓存相关配置
+            #如果Cache-Control与expires同时存在，Cache-Control生效
+            #expires max-age=0和no-cache一样效果
+                #expires off  (默认关闭)
+                #expires epoch (Cache-Control: no-cache 去服务端认证)
+                #expires max   (Cache-Control: max-age=315360000 有效期10年)
+                #expires  0 (Cache-Control: max-age=0 去服务端认证)
+                #expires  -1 (Cache-Control: no-cache 去服务端认证)
+                #expires  1d (Cache-Control: max-age=86400 有效期1天)
+            #Cache-Control
+                # add_header Cache-Control no-store; 不缓存任何信息
+                # https://blog.csdn.net/weixin_30952103/article/details/98925589?spm=1001.2101.3001.6650.1&utm_medium=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~Rate-1.pc_relevant_default&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~Rate-1.pc_relevant_default&utm_relevant_index=2
+
+    log_format  proxylog  '$scheme://$http_host$request_uri----client: $remote_addr';
+    server {
+         listen       8088;
+         server_name  localhost;
+
+         location ~ .*\.(html|js|css|png)$ {
+             expires  max;
+             #一般情况下不用配置，expires会添加Cache-Control响应头  add_header Cache-Control no-stroe
+             add_header custom_header2 nihao2;
+             root  /root/html;
+             access_log  logs/lb3.log  proxylog;
+         }
+    }
+}
+

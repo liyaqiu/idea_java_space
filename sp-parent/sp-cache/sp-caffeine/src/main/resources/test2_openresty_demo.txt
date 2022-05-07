@@ -1,0 +1,94 @@
+
+master_process on;#默认为on off
+user  root; #使用root来启动work进程
+worker_processes  1;
+error_log  logs/error.log  debug;
+events {
+    #accept_mutex on;#是否开启work队列机制
+    #multi_accept on;#允许一个wrok接受多个请求
+    use epoll; #使用多路复用io
+    worker_connections  1024;
+}
+
+http {
+    include       mime.types;
+    default_type  text/html;
+
+    log_format  myformat  '[1]$remote_addr - [2]$remote_user [$time_local] "[3]$request" '
+                      '[4]$status $body_bytes_sent "$http_referer" '
+                      '"[5]$http_user_agent" "[6]$http_x_forwarded_for"';
+    access_log  logs/access.log  myformat;
+
+    sendfile        on; #功能：减少copy次数，以及减少用户态和内核态的切换
+    #tcp_nopush tcp_nodelay 两者互斥，在内核2.5.9以后兼容，当tcp_nopush未满并且达到阈值，nginx会强制tcp_nodelay发送数据包
+    tcp_nopush on; #需要sendfile打开才能用，功能：将数据放缓存区装满以后一起发送
+    tcp_nodelay on; #功能：不需要等待延迟，直接发送
+    keepalive_timeout  65;
+
+    #lua模块引入
+    lua_package_path "/root/lualib/?.lua;;";
+    #开启共享字段缓存，多个work之间可以共享
+    lua_shared_dict goods_cache 50m; #名字为goods_cache 50兆缓存
+    upstream lbtomcat{
+        hash &request_uri;
+        server 192.168.0.110:8083;
+        server 192.168.0.110:8084 down;
+    }
+    server {
+         listen       8082;
+         server_name  localhost;
+
+         location /goods {
+            default_type 'application/json';
+            proxy_pass http://lbtomcat;
+         }
+
+         location ~ ^/api-goods/(.*) {
+            default_type 'application/json';
+            content_by_lua_block {
+                --导入自定义lua函数库
+                local myLuaLib =  require 'myLuaLib'
+                --cjson将table对象和json字符串相互转换
+                local cjson = require "cjson"
+                -- 获取字典缓存对象
+                local goods_cache = ngx.shared.goods_cache
+                --获取id http://192.168.0.203:8081/shop/index.html?id=2
+                local id = ngx.var[1]
+
+                -- 查询字典缓存查询redis失败在去查询tomcat
+                local function read_data(key,expire,path,params)
+                    local result = goods_cache:get(key)
+                    if not result then
+                        ngx.log(ngx.ERR,"字典缓存未命中key: ",key," 尝试查询redis..")
+                        --查询redis
+                           result = myLuaLib.read_redis("192.168.0.203",6379,key)
+                        --查询成功但是key不存在
+                        if result == ngx.null then
+                            ngx.log(ngx.ERR,"redis缓存未命中key: ",key," 接着查询tomcat..")
+                            result = myLuaLib.read_http(path,params)
+                        end
+                    end
+                    -- 查询成功，更新字典缓存，设置过期时间，单位秒
+                    goods_cache:set(key,result,expire)
+                    return result
+                end
+
+                --发起查询
+                local resp = read_data("goods:id:"..id,10,"/goods/"..id,nil)
+                local resp1 = read_data("goods:stock:id:"..id,10,"/goods/stock/"..id,nil)
+
+                local goodsTable = cjson.decode(resp)
+                local goodsStockTable = cjson.decode(resp1)
+
+                for key,value in pairs(goodsStockTable) do
+                    goodsTable['stock_'..key] = value
+                end
+
+                local goodsJsonStr = cjson.encode(goodsTable)
+                ngx.say(goodsJsonStr)
+
+            }
+         }
+    }
+}
+

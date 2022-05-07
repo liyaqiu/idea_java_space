@@ -1,0 +1,26 @@
+#server:
+#  port: 8079
+spring:
+  rabbitmq:
+    #host: 192.168.0.203
+    #port: 5672
+    addresses: 192.168.0.203:5672, 192.168.0.203:5673, 192.168.0.203:5674
+    virtual-host: /
+    username: liyaqiu
+    password: 123456
+    listener:
+      simple:
+        prefetch: 1 #每次最多只能获取一条信息
+        #------------------高级配置-------------------------
+        acknowledge-mode: auto #消费者确认模式
+        # none 关闭ack.MQ假定消费者获取消息后会成功处理，因此消息投递后立即被删除
+        #manual 手动提交ack ,可以在业务代码结束后调用api发送ack
+        #auto 自动ack。由spring监测listener代码是否出现异常，没有异常则返回ack，抛异常则返回nack
+        retry: #做本地重试
+          enabled: true #开启消费者失败重试
+          initial-interval: 1000 #初次失败等待时长为1秒
+          multiplier: 3 #下次等待时长 = multiplier * last-interval  1  3  9  27
+          max-attempts: 3 #最大重试次数
+          stateless: true # true无状态；false有状态，如果业务中包含事务，这里设置为false
+logging:
+  config: classpath:log4j2.xml

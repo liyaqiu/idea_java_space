@@ -1,0 +1,29 @@
+#echo "node1" > /usr/share/nginx/html/index.html
+apiVersion: v1 #版本号
+kind: Service #类型
+metadata: #元数据
+  name: svcname
+  namespace: dev #所属命名空间
+  labels: #标签
+    svclabel: svclabel
+spec:
+  selector: #用域确定当前service代理哪些Pod
+    app: nginx-pod
+  #ClusterIP 默认值，它是k8s系自动分配的虚拟IP，只能在集群内部访问
+  #NodePort 将service通过指定的Node上的端口暴露给外部。集群外部可以访问
+  #LoadBalancer 使用外接负载均衡器完成到服务的负载分发，此模式需要外部云环境支持
+  #ExternalName 把集群外部的服务引入集群内部使用
+  type: ClusterIP
+  #仅适用于ClusterIP,NodePort,LoadBalancer类型。如果类型为 ExternalName则忽略
+  #不写IP则为随机分配IP
+  #写IP则为指定IP
+  #None无头服务（headliness）headless服务是为pod提供一个固定的地址
+  clusterIP: 10.10.10.10
+  #默认为None（轮询策略）
+  #ClientIP（同一个ip分发到同一个节点上）
+  sessionAffinity: None
+  ports: #端口信息
+    - protocol: TCP # SCTP 和 TCP（默认）
+      port: 80 # svc端口
+      targetPort: 8080 #pod端口 对于clusterIP=None 的服务，该字段将被忽略，应省略或设置为等于“端口”
+      nodePort: 30000 #pod的宿主机端口，不指定随机生成（30000-32767） 当type=NodePort 或 LoadBalancer 时，公开此服务的每个节点上的端口。通常由系统分配。如果指定，它将在未使用时分配给服务，否则创建服务将失败。如果此服务的 ServiceType 需要一个端口，默认是自动分配一个端口
