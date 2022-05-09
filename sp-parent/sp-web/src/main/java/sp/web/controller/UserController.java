@@ -1,10 +1,9 @@
 package sp.web.controller;
 
+import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.*;
 import sp.web.entity.UserEntity;
 
 import javax.servlet.http.HttpServletResponse;
@@ -33,6 +32,33 @@ public class UserController {
         return new UserEntity("liyaqiu","31");
     }
 
+    @PostMapping("/fanli")
+    public UserEntity fanli(@RequestBody UserEntity userEntity){
+        log.info("反例测试");
+        if(StringUtils.isEmpty(userEntity.getName())){
+            userEntity.setName("null");
+        }
+        if(StringUtils.isEmpty(userEntity.getAge())){
+            userEntity.setAge("null");
+        }
+        log.info("userEntity:{}",userEntity);
+        return userEntity;
+    }
+
+    @RequestMapping("/test1")
+    public String test1(){
+        log.info("jmeter-test1");
+        return "success";
+    }
+    @RequestMapping("/test2")
+    public String test2(){
+        log.info("jmeter-test2");
+        return "success";
+    }
+
+    public static void main(String[] args) {
+        System.out.println(new Gson().toJson(new UserEntity("eric","31")));
+    }
 }
 
 

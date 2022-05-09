@@ -1,10 +1,7 @@
 package sp.web.entity;
 
 import com.sun.tracing.dtrace.ArgsAttributes;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 /**
  * @author eric
@@ -14,6 +11,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class UserEntity {
     String name;
     String age;
