@@ -53,7 +53,7 @@ public class UserController {
     @RequestMapping("/test2")
     public String test2(){
         log.info("jmeter-test2");
-        return "success";
+        return "<a><b><c>eric</c></b></a>";
     }
 
     public static void main(String[] args) {
