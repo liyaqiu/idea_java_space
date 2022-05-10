@@ -1,7 +1,7 @@
-package my.com;
+package com.test;
 
+import com.test.config.MyRedisConfig;
 import lombok.extern.slf4j.Slf4j;
-import my.com.config.MyRedisConfig;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
@@ -25,6 +25,7 @@ public class MyRedisAutoConfiguretion {
     @Bean
     @ConditionalOnMissingBean(type = "redis.clients.jedis.Jedis")
     public Jedis myjedis(MyRedisConfig myRedisConfig){
+
         log.info("MyRedisAutoConfiguretion 提供了, jedis。。。。。。");
         log.info("{}",myRedisConfig);
         return new Jedis(myRedisConfig.getHost(),myRedisConfig.getPort());

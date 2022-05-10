@@ -41,6 +41,7 @@
         <module>sp-swagger2</module>
         <module>sp-web</module>
         <module>sp-web-frontend</module>
+        <module>mycat</module>
     </modules>
 
     <properties>
