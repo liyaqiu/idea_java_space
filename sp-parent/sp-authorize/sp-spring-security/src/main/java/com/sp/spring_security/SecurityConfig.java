@@ -44,7 +44,7 @@ import java.util.List;
  * @date 2022/3/19 15:02
  **/
 @Slf4j
-@Configuration(proxyBeanMethods = false)
+@Configuration(proxyBeanMethods = true)
 //@EnableGlobalMethodSecurity(securedEnabled =true,prePostEnabled = true) //启用方法权限配置
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 

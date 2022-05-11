@@ -71,3 +71,11 @@ myconfig:
   name: liyaqiu-yaml2222
   age: 16
   max: 0127 #8进制
+
+MyPoolConfig:
+  catConfig:
+    name: Tom
+    #age: 12
+  dogConfig:
+    #name: Jerry
+    age: 12

@@ -19,12 +19,5 @@ public class Launcher {
 
         ConfigurableApplicationContext context = SpringApplication.run(Launcher.class, args);
 
-
-
-
-        /*User1Dao userDao = context.getBean(User1Dao.class);
-        for (int i = 0; i < 5000000 ; i++) {
-            userDao.insert(new MyUser(i+"",i+"name",i));
-        }*/
     }
 }

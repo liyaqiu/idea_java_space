@@ -1,4 +1,4 @@
-package com.auto.config.conditional.demo;
+package com.loadbean.Conditional.MyConditional;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Condition;
@@ -13,14 +13,16 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
 public class MyCondition implements Condition {
     @Override
     public boolean matches(ConditionContext conditionContext, AnnotatedTypeMetadata annotatedTypeMetadata) {
-//        try {
-//            Class.forName("com.test.XXX");
-//            log.error("MyCondition matches");
-//        } catch (ClassNotFoundException e) {
-//            //e.printStackTrace();
-//            return false;
-//        }
-        log.error("MyCondition matches");
-        return true;
+        try {
+            //判断当前类是否存在
+            Class<?> forName = Class.forName("com.loadbean.Conditional.MyConditional.ConditionRedisEntity");
+            if(forName!=null){
+                return true;
+            }
+        } catch (ClassNotFoundException e) {
+            //e.printStackTrace();
+            return false;
+        }
+        return false;
     }
 }

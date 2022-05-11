@@ -23,6 +23,7 @@ public class MyRememberMeTokenStore implements PersistentTokenRepository {
 
 
 
+    @Override
     public synchronized void createNewToken(PersistentRememberMeToken token) {
         PersistentRememberMeToken current = seriesTokens.get(token.getSeries());
 
@@ -34,6 +35,7 @@ public class MyRememberMeTokenStore implements PersistentTokenRepository {
         seriesTokens.put(token.getSeries(), token);
     }
 
+    @Override
     public synchronized void updateToken(String series, String tokenValue, Date lastUsed) {
         PersistentRememberMeToken token = getTokenForSeries(series);
 
@@ -44,11 +46,13 @@ public class MyRememberMeTokenStore implements PersistentTokenRepository {
         seriesTokens.put(series, newToken);
     }
 
+    @Override
     public synchronized PersistentRememberMeToken getTokenForSeries(String seriesId) {
         log.info("remember me cookid {}",seriesId);
         return seriesTokens.get(seriesId);
     }
 
+    @Override
     public synchronized void removeUserTokens(String username) {
         Iterator<String> series = seriesTokens.keySet().iterator();
 

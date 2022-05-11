@@ -1,14 +1,11 @@
 package com;
 
-import com.config.MyconfigYAML2;
 import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.annotation.MapperScan;
 import org.mybatis.spring.annotation.MapperScans;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * @author lyq
@@ -23,9 +20,6 @@ public class SpringLauncher {
 
     public static void main(String[] args) {
         ConfigurableApplicationContext context = SpringApplication.run(SpringLauncher.class, args);
-
-
     }
-
 
 }
