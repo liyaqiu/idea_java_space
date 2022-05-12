@@ -14,7 +14,12 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Setter
 @ToString
 public class MyRedisConfig {
-
+    /**
+     * 主机地址
+     * */
     String host;
+    /**
+     * 主机端口
+     * */
     int port;
 }

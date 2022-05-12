@@ -79,3 +79,7 @@ MyPoolConfig:
   dogConfig:
     #name: Jerry
     age: 12
+
+MyTaskConfig:
+  time: 1
+  time2: 1

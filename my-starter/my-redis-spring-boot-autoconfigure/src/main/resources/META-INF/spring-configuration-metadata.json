@@ -1,0 +1,39 @@
+{
+  "groups": [
+    {
+      "name": "myredis",
+      "type": "com.test.config.MyRedisConfig",
+      "sourceType": "com.test.config.MyRedisConfig"
+    }
+  ],
+  "properties": [
+    {
+      "name": "myredis.host",
+      "type": "java.lang.String",
+      "description": "主机地址",
+      "sourceType": "com.test.config.MyRedisConfig"
+    },
+    {
+      "name": "myredis.port",
+      "type": "java.lang.Integer",
+      "description": "主机端口",
+      "sourceType": "com.test.config.MyRedisConfig",
+      "defaultValue": 0
+    }
+  ],
+  "hints": [
+    {
+      "name": "myredis.port",
+      "values": [
+        {
+          "value": "6379",
+          "description": "6379主机端口."
+        },
+        {
+          "value": "6380",
+          "description": "6380主机端口."
+        }
+      ]
+    }
+  ]
+}
