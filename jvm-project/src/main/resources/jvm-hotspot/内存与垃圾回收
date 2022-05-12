@@ -1,0 +1,33 @@
+内存与垃圾回收
+    JVM与Java体系结构
+        Java及JVM简介
+            JVM虚拟机分类
+                oracle收购Sun公司发行的HotSpot虚拟机
+                oracle收购了BEA发行的JRockit虚拟机
+                IBM发行J9虚拟机
+            JDK分类
+                Open JDK
+                Oracle JDK
+        虚拟机与Java虚拟机
+        JVM的整体结构
+        Java代码执行流程
+        JVM的架构模型
+        JVM的生命周期
+        JVM的发展历程
+    类加载子系统
+    运行时数据区概述及线程
+    程序计数器
+    虚拟机栈
+    本地方法接口
+    本地方法栈
+    堆
+    方法区
+    直接内存
+    执行引擎
+    StringTable
+    垃圾回收概述
+    垃圾回收相关算法
+    垃圾回收相关概念
+    垃圾回收器
+
+
