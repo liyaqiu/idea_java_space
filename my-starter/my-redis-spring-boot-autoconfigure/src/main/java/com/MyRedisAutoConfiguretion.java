@@ -1,16 +1,12 @@
-package com.test;
+package com;
 
-import com.test.config.MyRedisConfig;
+import com.config.MyRedisConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import redis.clients.jedis.Jedis;
-
-import javax.management.MXBean;
 
 /**
  * @author eric

@@ -1,4 +1,4 @@
-package com.test.config;
+package com.config;
 
 import lombok.Getter;
 import lombok.Setter;

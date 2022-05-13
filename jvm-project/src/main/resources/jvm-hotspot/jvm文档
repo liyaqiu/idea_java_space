@@ -2,3 +2,12 @@ jvm官方规范文档
     https://docs.oracle.com/javase/specs/index.html
 语言排行榜
     https://www.tiobe.com/tiobe-index/
+反编译工具
+    javap -v Test.class
+    binary viewer
+        https://binary-viewer.en.softonic.com/
+    jclasslib
+        idea
+           setting -> plugins -> jclasslib bytecode viewer
+        win10
+            https://github.com/ingokegel/jclasslib/releases
