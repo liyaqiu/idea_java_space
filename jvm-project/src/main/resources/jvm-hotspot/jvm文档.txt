@@ -11,3 +11,7 @@ jvm官方规范文档
            setting -> plugins -> jclasslib bytecode viewer
         win10
             https://github.com/ingokegel/jclasslib/releases
+
+调优手段
+    调整栈大小
+        -Xss1m
