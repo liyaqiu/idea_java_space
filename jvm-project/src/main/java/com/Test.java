@@ -16,6 +16,9 @@ public class Test {
 
     }
 
+    public static void main(String[] args) {
+
+    }
     public Test(String s) {
     }
     /*static int a3 = 0;

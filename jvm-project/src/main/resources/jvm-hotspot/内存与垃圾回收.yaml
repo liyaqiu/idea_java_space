@@ -1,0 +1,216 @@
+JVM介绍:
+  Java及JVM简介:
+    JVM虚拟机分类:
+       - oracle收购Sun公司发行的HotSpot虚拟机
+       - oracle收购了BEA发行的JRockit虚拟机
+       - IBM发行J9虚拟机
+    JDK分类:
+      - Open JDK
+      - Oracle JDK
+  JVM虚拟机:
+    - 遵循【Java规范的字节码】都可以运行在Java虚拟机上
+    - 一次编译，到处运行
+    - 自动内存管理
+    - 自动垃圾回收功能
+  Java代码执行流程: 源代码 -> Javac编译器 -> Class文件 -> 类加载器 -> 执行引擎
+  JVM的架构模型:
+    栈指令集架构:
+      - 性能差，实现简单，移植行强
+      - 典型案例:hotspot
+    寄存器指令集架构:
+      - 性能好，实现难，移植行差
+      - 典型案例:window系统,安卓的Davlik虚拟机
+  JVM的生命周期:
+    JVM启动: Java虚拟机的启动是通过【引导类加载器】创建一个初始类完成的，这个类是由虚拟机的具体实现指定的
+    JVM运行: 执行一个所谓的Java程序的时候，才真真正正的执行Java虚拟机进程
+    JVM退出:
+      - 执行程序过程中异常导致jvm退出
+      - 由操作系统出现错误导致jvm退出
+      - System.exit(0);
+      - Runtime.getRuntime().exit(0);
+      - Runtime.getRuntime().halt(0);
+JVM的整体结构:
+  上层:
+    class字节码文件:
+      功能: 由javac前端编译器编译成class字节码文件
+      组成:
+        - 类信息
+        - 常量池（Constant pool）
+    类加载子系统:
+      功能:
+        - 类加载器子系统负载从文件系统或者网络中加载Class文件，Class文件在文件开头有特定的文件标识，
+        - ClassLoader只负责class文件的加载，至于它是否可以运行，则由执行引擎（Execution Engine）决定
+        - 加载的类信息存放在方法区的内存空间，除了类的信息外，方法区中还会存放运行时常量池信息（指的是class文件中的Constant pool），
+        - 可能还包括字符串字面量和数字常量（这部分常量信息是Class文件中常量池部分的内存映射）
+      个人功能总结: 类加载子系统将class文件加载到方法区中
+      双亲委派机制:
+        功能:
+          - Java虚拟机对class文件采用的是【按需加载】的方式，也就是说当要使用该类的时候才会将它的class文件加载到内存生成class对象。
+          - 而且加载某个类的class文件时，Java虚拟机采用的是双亲委派机制，即把请求交给父类处理，它是一种任务委派模式。
+        工作原理:
+          - 如果一个类加载器收到了类加载请求，它并不会自己去先加载，而是把这个请求委托给父类的加载器去执行。
+          - 如果父类加载器还存在其父类加载器，则进一步向上委托，依次递归，请求最终将到达顶层引导类加载器。
+          - 如果父类加载器可以完成类加载任务，就成功返回，如果父类加载器无法完成加载任务，则子类加载器才会尝试自己去加载。
+        好处:
+          - 可以避免冗余加载
+          - 防止核心api篡改（当把java.lang开头的包提交到引导类的时候，引导类不会对其进行加载）
+      类的主动使用与被动使用:
+        功能: 类使用需要经历 加载->链接->初始化阶段，也就是一个类被jvm加载了，不代表初始化，当初始化的时候需要调用类clinit()
+        主动使用:
+          - 1.创建类实例
+          - 2.访问某个类或者接口的静态变量，或者对该静态变量赋值
+          - 3.调用类的静态方法
+          - 4.反射调用(比如：Class.forName("com.ClassLoader.custom.PersonEntity"))
+          - 5.初始化一个类的子类
+          - 6.Java的虚拟机启动时被标明为启动类的类
+          - 7.java.lang.invoke.MethodHandle实例的解析结果REF_getStatic,REF_putStatic,REF_invokeStatic句柄对应的类没有初始化，则初始化
+        被动使用: 除了以上情况都属于被动使用
+      一共有3个阶段:
+        加载阶段:
+          功能:
+            - 类加载器负责将class转换成DNA元数据模版
+            - 通过一个类的全限定名获取定义此类的二进制字节流
+            - 将这个字节流所代表的静态存储结构转化为方法区的运行时数据结构
+            - 在内存中生成一个代表这个类的java.lang.Class对象，作为方法区这个类的各种数据访问入口
+          类加载器分类:
+            引导类加载器:
+              引导类加载器(Bootstrap Class Loader)（C/C++语言实现）:
+                功能:
+                  - 它使用C/C++语言实现的，嵌套在JVM内部,它用来加载Java核心类库，用于提供JVM自身需要的类
+                  - 负责加载【扩展类加载器】和【系统类加载器】，并且成为他们的父类加载器
+                  - 出于安装考虑，Bootstrap引导类加载器只加载了包名为java，javax，sun等开头的类
+                加载位置:
+                    - D:/jdk1.8.0_121/jre/lib/
+                    - D:/jdk1.8.0_121/jre/lib/resources.jar
+                      D:/jdk1.8.0_121/jre/lib/rt.jar
+                      D:/jdk1.8.0_121/jre/lib/sunrsasign.jar
+                      D:/jdk1.8.0_121/jre/lib/jsse.jar
+                      D:/jdk1.8.0_121/jre/lib/jce.jar
+                      D:/jdk1.8.0_121/jre/lib/charsets.jar
+                      D:/jdk1.8.0_121/jre/lib/jfr.jar
+                通过系统属性查看: System.getProperty("sun.boot.class.path")
+                是否继承java.lang.ClassLoader: 不继承
+                父类加载器: 没有
+            自定义类加载器(sun.misc.Launcher作为入口类):
+              扩展类加载器(Extension Class Loader)（Java语言实现）:
+                功能:
+                  - Java语言编写，sun.misc.Launcher$ExtClassLoader@4f023edb
+                  - 它是程序中默认的类加载器，一般情况下用户写的类都是由它来加载
+                加载位置:
+                  - D:\jdk1.8.0_121\jre\lib\ext\;
+                  - D:\jdk1.8.0_121\jre\lib\ext\access-bridge-64.jar
+                    D:\jdk1.8.0_121\jre\lib\ext\cldrdata.jar
+                    D:\jdk1.8.0_121\jre\lib\ext\dnsns.jar
+                    D:\jdk1.8.0_121\jre\lib\ext\jaccess.jar
+                    D:\jdk1.8.0_121\jre\lib\ext\jfxrt.jar
+                    D:\jdk1.8.0_121\jre\lib\ext\localedata.jar
+                    D:\jdk1.8.0_121\jre\lib\ext\meta-index
+                    D:\jdk1.8.0_121\jre\lib\ext\nashorn.jar
+                    D:\jdk1.8.0_121\jre\lib\ext\sunec.jar
+                    D:\jdk1.8.0_121\jre\lib\ext\sunjce_provider.jar
+                    D:\jdk1.8.0_121\jre\lib\ext\sunmscapi.jar
+                    D:\jdk1.8.0_121\jre\lib\ext\sunpkcs11.jar
+                    D:\jdk1.8.0_121\jre\lib\ext\zipfs.jar
+                  - C:\Windows\Sun\Java\lib\ext\
+                  - 如果用户创建了xxx.jar放在jre/lib/ext目录下，也会被扩展类加载器加载
+                通过系统属性查看: System.getProperty("java.ext.dirs")
+                是否继承java.lang.ClassLoader: 继承
+                父类加载器: 引导类加载器
+              系统类加载器(Application Class Loader)（Java语言实现）:
+                功能: Java语言编写，sun.misc.Launcher$AppClassLoader@18b4aac2
+                加载位置:
+                  - 由-classpath指定
+                  - java -classpath xx1.jar;xx2.jar com.test.Test
+                通过系统属性查看: System.getProperty("java.class.path")
+                是否继承java.lang.ClassLoader: 继承
+                父类加载器: 扩展类加载器
+              自定义类加载器(Custom Class Loader)（Java语言实现）:
+                功能:
+                  - 实现同一个class文件不同加载器加载
+                  - 实现动态加载类
+                  - 可以对class做加密处理
+                加载位置:
+                  - 可以通过网络
+                  - 可以通过磁盤
+                是否继承java.lang.ClassLoader: 继承
+                父类加载器: 系統类加载器
+        链接阶段:
+          校验:
+            功能: 确保Class文件的字节流中包含信息符合当前虚拟机要求，保证被加载的正确性，不会危害虚拟机的自身安全
+            主要包括四种验证:
+              - 文件格式校验
+              - 元数据校验
+              - 字节码校验
+              - 符号引用校验
+          准备:
+            功能:
+              - 为类变量分配内存，并且设置该类变量的默认初始值
+                java代码定义：【这里的具体赋值需要到初始化阶段调用clinit()】
+                  static String a1 = “hello”
+                  static int a2 = 10
+                  static bl a3 = true
+                准备
+                  static String a1 = null
+                  static int a2 = 0
+                  static bl a3 = false
+              - 这里不包含用final修饰类变量,因为final修饰类变量在编译的时候就会分配，准备阶段会显示初始化
+                  java代码定义：
+                  final static String a1 = 'hello'
+                  final static int a2 = 10
+                  final static bl a3 = true
+                准备
+                  final static String a1 = 'hello'
+                  final static int a2 = 10
+                  final static bl a3 = true
+              - 这里不会为实例变量分配初始化，类变量会分配在方法区中，而实例变量是会跟随对象一起分配到堆内存中
+          解析:
+            功能:
+              - 将常量池（指的是class文件中的Constant pool）内的符号引用转换位直接引用的过程
+              - 事实上，解析操作往往会伴随着JVM在执行完初始化之后在执行
+              - 符号引用就是一组符号来描述所引用的目标，符号引用的字面量形式明确定义在Java虚拟机规范的Class文件中。
+              - 直接引用就是直接指向了目标的至臻，相对偏移量或一个间接定位到目标的句柄
+              - 解析动作主要针对类或接口,字段,类方法,接口方法,方法类型等.对应的常量池中CONSTANT_Class_info CONSTANT_Fieldref_info CONSTANT_Methodred_info等
+        初始化阶段:
+          功能:
+            - 初始化阶段就是执行类构造器方法<clinit>()的过程
+                <clinit>()作用对类变量赋值
+                static String a1 = “hello”
+                static int a2 = 10
+                static bl a3 = true
+            - 此方法不需要定义，是javac编译器自动收集类中的【所有类变量的赋值动作】和【静态代码块中的语句】合并而来
+            - 类构造器方法<clinit>()中的指令集执行顺序是根据源代码中出现的顺序执行
+                0 iconst_1
+                1 putstatic #2 <com/test/Test.a>
+                4 iconst_3
+                5 istore_0
+                6 return
+            - <clinit>()不同于类的构造器(关联:构造器是虚拟机视角下的<init>())
+            - 若该类具有父类,JVM会保证父类的<clinit>()先执行，然后在执行子类的<clinit>()
+            - 虚拟机必须保证一个类的<clinit>()方法在多线程下同步加锁
+  中层:
+    运行时数据区:
+      多个线程共享一份:
+        方法区:
+          永久代-堆内存: jdk1.6,jdk1.7用方法区
+          元空间-直接内存: jdk1.8以后
+        堆区:
+      每个线程独有一份:
+        Java虚拟机栈:
+          功能:
+            - 调用非native方法
+            - 栈帧(本地变量表,操作数栈,动态链接,方法返回地址)
+        本地方法栈:
+          功能: 调用native方法
+        程序计数器:
+          功能: 记录线程执行class字节码指令集的位置
+  下层:
+    执行引擎:
+      功能: 将高级语言(Class文件)解析成汇编语言，汇编语言在转换成机器指令，最后CPU就可以执行机器指令
+      主要包括3部分:
+        解析器:
+          功能: 利用程序计数器逐行解析字节码，将字节码解析成机器指令并且执行
+        JIT即时编译器(JIT后端编译器):
+          功能: 通过程序计数器寻找热点代码,将字节码编译成机器指令并且执行（缓存机器指令，放在方法区的CodeCache）
+        垃圾回收器:
+    本地方法接口:
+    本地方法库:

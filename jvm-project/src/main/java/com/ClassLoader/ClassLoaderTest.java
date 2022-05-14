@@ -2,6 +2,12 @@ package com.ClassLoader;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
+import sun.misc.Launcher;
+
+import java.net.URL;
+
+
+import java.util.Properties;
 
 /**
  * @author eric
@@ -9,6 +15,20 @@ import org.junit.Test;
  **/
 @Slf4j
 public class ClassLoaderTest {
+
+    /**
+     * 查看加载器加载信息
+     * */
+    @Test
+    public void test2(){
+        //查看引导类加载器加载信息
+        log.info(": {}",System.getProperty("sun.boot.class.path"));
+        //查看扩展类加载器加载信息
+        log.info(": {}",System.getProperty("java.ext.dirs"));
+        //查看系统类加载器加载信息
+        log.info(": {}",System.getProperty("java.class.path"));
+    }
+
     @Test
     public void test(){
 
@@ -18,6 +38,7 @@ public class ClassLoaderTest {
 
         //扩展类加载器 sun.misc.Launcher$ExtClassLoader@4f023edb
         ClassLoader extClassLoader = systemClassLoader.getParent();
+
         log.info("获取扩展类加载器: {}",extClassLoader);
 
         //引导类加载器 null
@@ -30,4 +51,5 @@ public class ClassLoaderTest {
         //String类是引导类加载器加载 null
         log.info("String: {}",String.class.getClassLoader());
     }
+
 }
