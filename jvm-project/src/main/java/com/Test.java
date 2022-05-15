@@ -11,6 +11,7 @@ public class Test {
        int b = 100;
    }
    public int test1(){
-       return 1000;
+       int a = 100;
+       return a;
    }
 }
