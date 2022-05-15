@@ -3,7 +3,7 @@ jvm官方规范文档
 语言排行榜
     https://www.tiobe.com/tiobe-index/
 反编译工具
-    javap -v Test.class
+    javap -v Test.class 对字节码进行解析查看
     binary viewer
         https://binary-viewer.en.softonic.com/
     jclasslib
@@ -13,5 +13,6 @@ jvm官方规范文档
             https://github.com/ingokegel/jclasslib/releases
 
 调优手段
-    调整栈大小
+    调整栈大小，避免栈OOM
         -Xss1m
+    局部变量表中的变量也是重要的垃圾回收根节点，只要被局部变量表中直接或者间接引用的对象都不会被回收
