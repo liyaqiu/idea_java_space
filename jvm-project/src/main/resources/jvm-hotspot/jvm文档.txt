@@ -11,8 +11,14 @@ jvm官方规范文档
            setting -> plugins -> jclasslib bytecode viewer
         win10
             https://github.com/ingokegel/jclasslib/releases
-
+    JDK自带工具
+        jvisualvm.exe
+        jconsole.exe
 调优手段
-    调整栈大小，避免栈OOM
-        -Xss1m
+    Java虚拟机栈参数
+        调整栈大小，避免栈OOM -Xss1m
+    堆空间
+        通常会将 -Xms -Xmx 参数配置相同的值，其目的是为了能够在Java垃圾回收机制清理完堆区后不需要重新分隔计算堆区大小，从而提高性能
+        -Xms20m -Xmx20m
     局部变量表中的变量也是重要的垃圾回收根节点，只要被局部变量表中直接或者间接引用的对象都不会被回收
+

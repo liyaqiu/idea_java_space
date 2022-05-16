@@ -1,0 +1,24 @@
+存入局部变量表指令:
+  istore_1: boolean,byte,char,short,int,float
+  lstore_1: long
+  dstore_1: double
+  astore_1: 引用类型 String Date
+方法调用指令:
+  非虚方法调用:
+    invokestatic: 调用静态方法，解析阶段确定唯一方法版本
+    invokespecial: 调用构造方法（<init>），私有方法，父类方法，解析节点确定唯一方法版本
+  虚方法调用:
+    invokevirtual: 调用所有虚方法
+    invokeinterface: 调用接口方法
+  动态调用:
+    invokedynamic: jdk1.8 动态解析出需要调用的方法，然后执行,具体代表lambda
+方法的返回指令:
+  ireturn: boolean,byte,char,short,int
+  freturn: float
+  lreturn: long
+  dreturn: double
+  areturn: 引用类型 String Date
+  return: void
+new对象指令:
+  new: 创建对象
+  newarray: 创建数组对象
