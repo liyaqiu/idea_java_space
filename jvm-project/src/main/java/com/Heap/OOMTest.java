@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * @author eric
  * @date 2022/5/17 18:38
- * -Xms300m -Xmx300m -XX:+PrintGCDetails
+ * -Xms300m -Xmx300m -XX:+PrintGCDetails -XX:SurvivorRatio=8 -XX:-UseAdaptiveSizePolicy
  *
  * 都没写则为堆区 52967K->17272K(294400K)
  *  堆区         回收前   回收后 总大小
@@ -27,7 +27,8 @@ import java.util.List;
  * [Full GC (Allocation Failure) [PSYoungGen: 0K->0K(89600K)] [ParOldGen: 122359K->122340K(204800K)] 122359K->122340K(294400K), [Metaspace: 3492K->3492K(1056768K)], 0.4266590 secs] [Times: user=3.27 sys=0.05, real=0.43 secs]
  **/
 public class OOMTest {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
+        Thread.sleep(10000);
         List<String> list  =new ArrayList<>();
         while (true){
             list.add("1111");
