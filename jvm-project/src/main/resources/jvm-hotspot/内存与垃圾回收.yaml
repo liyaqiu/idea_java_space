@@ -238,25 +238,102 @@ JVM的整体结构:
             - 数组和对象可能永远不会存储在栈上，因为栈帧中保存引用，这个引用指向对象或者数组在堆中的位置
             - 在方法结束后，堆中的对象不会被立马移除，仅仅在垃圾收集(GC)的时候才会被移除
             - 堆是GC执行垃圾的重点区域
+          正常对象内存分配过程(重点):
+            - https://www.bilibili.com/video/BV1PJ411n7xZ?p=72&spm_id_from=pageDriver
+            - new对象 -> 伊甸园 -> 幸存者区(15岁以后) -> 老年区
+            - new对象 -> 伊甸园 -> 伊甸园满了以后 -> 触发MinorGC(伊甸园区+幸存者from区)将没有引用的对象清理掉 -> 对象头的age属性加1
+                                                                                                      -> 把age=16【晋升到】老年区 -> 老年区满以后 -> 触发MajorGC将没有引用的对象清理掉
+                                                                                                      -> 把age<16存到幸存者to区(有引用的对象)
+          特殊情况对象内存分配过程(重点):
+            - new对象 -> 伊甸园
+                        放不下 -> 触发MinorGC -> 伊甸园
+                                 放不下 -> 永久代
+                                          放不下 -> 触发MajorGC -> 永久代
+                                                   放不下 -> OOM
           新生代区:
-            幸存者区(S0/S1):
+            功能:
+              - 绝大部分的Java对象的销毁都在新生代进行了
+              - IBM公司研究表明，新生代中80%的对象都是“朝生夕死”的
             伊甸园区(Eden):
+              功能:
+                - "几乎所有"Java对象都是在伊甸园区被new出来的
+            幸存者区(S0/S1):
+              功能:
+                - from区 to区
+                - 复制之后有交换，谁空谁是to
           老年代区:
+          可使用堆内存: 伊甸园区+(幸存者0区 or 幸存者1区)+老年代区
           设置堆大小(新生代+老年代):
             - https://docs.oracle.com/javase/8/docs/technotes/tools/unix/java.html
             - 堆空间的初始值 -Xms20m
             - 堆空间的最大值 -Xmx20m
-            - 通常会将 -Xms -Xmx 参数配置相同的值，其目的是为了能够在Java垃圾回收机制清理完堆区后不需要重新分隔计算堆区大小，从而提高性能
+            - 通常会将 -Xms -Xmx 参数配置相同的值，其目的是为了能够在Java垃圾回收机制清理完堆区后不需要重新分配计算堆区大小，从而提高性能
             - -Xms1024 -Xmx1024
             - -Xms20K -Xmx20K
             - -Xms20m -Xmx20m
             - -Xms1g -Xmx1g
             - 默认情况下
                初始内存 物理电脑内存大小/64
+                  long initSize = Runtime.getRuntime().totalMemory() / 1024 /1024;
                最大内存 物理电脑内存大小/4
-          是否支持GC: 支持
+                  long maxSize = Runtime.getRuntime().maxMemory() / 1024 /1024;
+            - 可以使用
+          设置伊甸园区和幸存者区占比:
+            - 关闭自适应内存策略 -XX:-UseAdaptiveSizePolicy
+            - 查看命令 jinfo -flag SurvivorRatio 11924
+            - 默认 -XX:SurvivorRatio=8 伊甸园区占8 幸存者0占1 幸存者1占1 8:1:1
+                  默认情况下显示是的占比8，实际是6，所以需要手动显式指定-XX:SurvivorRatio=8
+            - 修改 -XX:SurvivorRatio=6 伊甸园区占6 幸存者0占1 幸存者1占1 6:1:1
+          设置新生代跟老年代占比:
+            - 查看命令 jinfo -flag NewRatio 11924
+            - 默认 -XX:NewRatio=2，表示新生代占1，老年代占2，新生代占整个堆的1/3
+            - 修改 -XX:NewRatio=4，表示新生代占1，老年代占4，新生代占整个堆的1/5
+            - -Xmn400m 可以强行执行新生代的大小，如果此参数设置 -XX:NewRatio参数会失效
+          设置对象的阈值(age):
+            - 默认 -XX:MaxTenuringThreshold=15
+            - 修改 -XX:MaxTenuringThreshold=20
+          GC:
+            功能:
+              - https://www.bilibili.com/video/BV1PJ411n7xZ?p=76&spm_id_from=pageDriver
+              - 频繁在新生代区收集，很少在养老代区收集，几乎不再永久代/元空间收集
+              - JVM进行GC时，并非每次都对这（新生代，老年代，方法区(永久代/元空间)）3个区域一起回收的，大部分时候回收的都是新生代
+              - STW（stop the world）
+                  触发GC以后，会导致用户线程暂停，GC线程执行垃圾回收
+            GC回收区域划分为两种大类型（针对Hotspot的实现）:
+              - 部分收集（Partial GC）不完全收集整个Java堆的垃圾收集
+                  新生代收集（Minor GC / Young GC）只是新生代(伊甸园区，幸存者from区)的垃圾收集
+                  老年代收集（Major GC / Old GC）只是老年代的收集收集
+                    目前，只有CMS GC会有单独收集老年代的行为
+                    注意，很多时候Major GC会和Full GC混淆使用，需要具体分辨是老年代回收还是整堆回收
+                  混合收集（Mixed GC）收集整个新生代以及部分老年代的垃圾收集
+                    目前,只有G1 GC会有这种行为
+              - 整堆收集（Full GC）收集整个Java堆区(新生代收集和老年代收集)和方法区(永久代/元空间)的垃圾收集
+            MinorGC:
+              - 触发者条件是伊甸园区内存空间不足
+              - MinorGC完全等价YoungGC
+              - 收集区域:"对伊甸园区和幸存者from区进行垃圾收集"
+              - 因为Java对象"大多数具备朝生夕死"的特性，所以MinorGC非常频繁，一般回收速度也比较快
+              - MinorGC会引发STW，暂停用户线程，等待GC线程垃圾回收结束，用户线程才恢复运行
+            MajorGC:
+              - 触发者条件是老年代区内存空间不足
+              - MajorGC完全等价OldGC
+              - 收集区域:"对老年代区进行垃圾收集"
+              - 出现了MajorGC，经常会伴随至少一次MinorGC,也就是说老年代空间不足时，会先尝试触发MinorGC,如果之后空间还不足，则触发MajorGC(但非绝对的，在Parallel Scavenge收集器的收集策略里就是直接进行MajorGC，而没有进行MinorGC)
+              - MajorGC的速度一般会比MinorGC慢10倍以上，STW的时间会更长
+              - 如果MajorGC后，内存还不足，就报OOM了
+            FullGC:
+              - 收集区域:"对新生代(伊甸园区，幸存者form区)，老年代，方法区(元空间/永久代)"
+              - 触发FullGC的三种情况
+              - 1.调用System.gc()时，系统建议执行FullGC，但是不必然执行
+              - 2.老年代空间不足
+                    通过MinorGC后进入老年代的平均大小大于老年代的可用内存
+                    由伊甸园区，幸存者from区向幸存者to区复制时，对象大小大于幸存者to区可用内存，则把该对象转存到老年代，而且老年代的可用内存小于该对象大小
+              - 3.方法区空间不足
+          是否支持GC: 存在GC
           是否会出现异常:
             - 一旦堆区中的内存大小超过了"-Xmx"所指定的最大内存时，就会抛出OOM(OutOfMemoryError)异常
+            - 当老年代空间不足会触发OOM
+                  伊甸园区和幸存者区空间不足都会存到老年代区，所以堆区只有老年代会触发OOM
       3.本地方法栈(线程独享):
           功能:
             - 调用本地方法(native方法)
