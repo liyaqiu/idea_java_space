@@ -217,16 +217,113 @@ JVM的整体结构:
         - 不同的JVM对于内存的划分方式和管理机制存在着部分差异(hotspot有方法区，J9和Jrockit没有方法区)
       1.方法区(线程共享):
           功能:
-            - 永久代-堆内存: jdk1.7之前
-            - 元空间-直接内存: jdk1.8之后
-          元空间:
-            常量池:
-            方法元信息:
-            klass类元信息:
-          CodeCache:
-            功能: JIT编译产物
+            - 对于Hotspot而言，方法区还有一个别名叫非堆，所以方法区可以看作是一块独立于Java堆的内存空间
+            - 方法区与堆区一样，是各个线程共享的内存区域
+            - 方法区在JVM启动的时候被创建，并且它的实际的物理内存空间中和堆区一样都可以是不连续的
+            - 方法区的大小，跟堆空间一样，可以选择固定大小或者可扩展
+            - 方法区的大小决定了系统可以保存多少个类，如果系统顶了太多的类，会导致方法区溢出，从而抛OOM
+            - 关闭JVM就会释放这个区域的内存
+            - 它用于存储已被虚拟机加载的类型信息，常量，静态变量，即时编译器编译后的代码缓存等。。
+          永久代jdk7及之前:
+            设置永久代大小:
+              - 默认 -XX:PermSize=21m    -XX:MaxPermSize=82m
+              - 修改 -XX:PermSize=1g     -XX:MaxPermSize=1g
+              - 查看 jinfo -flag PermSize/MaxPermSize 10780
+          元空间jdk1.8之后(使用本地内存):
+            设置永久代大小:
+              - 默认 -XX:MetaspaceSize=21m    -XX:MaxMetaspaceSize=-1无限大
+              - 修改 -XX:MetaspaceSize=1g     -XX:MaxMetaspaceSize=1g
+              - 查看 jinfo -flag MetaspaceSize/MaxMetaspaceSize 10780
+              - 特别说明 只能通过jinfo -flag查看 初始值和最大值，图形界面看不到
+              - 与永久代不同，如果不指定大小，默认情况下，虚拟机会消耗尽所有的可用系统内存
+              - 对于一个64位的服务器端的JVM来说，其默认的-XX:MetaspaceSize=21m，这就是初始的高水位线，一旦触及这个水位线，就会触发Full GC将会被触发
+              - 并且卸载没用的类(即这些类对应的类加载器不在存活)，然后这个高水位线将会充值，新的高水位线的值取决于GC后释放的了多少元空间，如果释放的空间不足，
+              - 那么在不超过MaxMetaspaceSize时，释放提高该值，如果释放空间过多，则适当降低该值
+              - 如果初始化的高水位线设置过低，上述高水位线调整的情况会发生很多次，通过垃圾回授权的日志可以观察到Full GC多次调用，
+              - 为了避免频繁的GC，建议将-XX:MetaspaceSize=21m设置为一个对象较高的值
+          方法区存储内容:
+            - 类型信息
+                这里到类加载的时候还会把类加载器的信息加载进来
+                对每个加载的类型，JMV必须在方法区中存储以下类型信息
+                这个类型的完成有效名称(全类名=包名.类名)
+                这个类型的直接父类的完整有效名(java.lang.Object没有父类)
+                这个类型的修饰符(public,abstract,final的某个子集)
+                这个类型的直接口的一个有序表
+                public class com.Test
+                minor version 0
+                major version 52
+                flags ACC_PUBLIC, ACC_SUPER
+            - 运行时常量池
+            - 静态变量
+            - JIT代码缓存
+            - 域信息
+                JVM必须在方法区中保存类型的所有域的相关信息以及域的声明顺序
+                域的相关信息包括，域名称，域类型，域修饰符(public,private,protected,static,final,volatile,transient的某个子集)
+                static int i;
+                descriptor I
+                flags ACC_STATIC
+
+                static final int b;
+                descriptor I
+                flags ACC_STATIC, ACC_FINAL
+                ConstantValue int 10
+            - 方法信息
+                JVM必须保存所有方法的以下信息，同域信息一样包括声明顺序
+                方法的名称
+                方法的返回类型(int void...)
+                方法参数的数量和类型(按顺序)
+                方法的修饰符(public,private,finanl,static,protected,synchronized,natice,abstract的一个子集)
+                方法的字节码(Code),操作数栈，局部变量表以及大小(abstract和native方法除外)
+                异常表(abstract和native方法除外)
+                每个异常表处理的开始位置，结束位置，代码处理在程序计数器中的便宜地址，被捕获的异常类的常量池索引
+              public com.Test();
+              descriptor ()V
+              flags ACC_PUBLIC
+              Code
+                stack=1, locals=1, args_size=1
+                0 aload_0
+                1 invokespecial #1                  // Method java/lang/Object."<init>":()V
+                4 return
+                LineNumberTable
+                  line 7 0
+                LocalVariableTable
+                  Start  Length  Slot  Name   Signature
+                  0       5     0  this   Lcom/Test;
+
+              public static void main(java.lang.String[]) throws java.lang.InterruptedException;
+              descriptor ([Ljava/lang/String;)V
+              flags ACC_PUBLIC, ACC_STATIC
+              Code
+                stack=1, locals=3, args_size=1
+                0 bipush        10
+                2 istore_1
+                3 ldc           #2                  // String hello
+                5 astore_2
+                6 return
+                LineNumberTable
+                  line 22 0
+                  line 23 3
+                  line 24 6
+                LocalVariableTable
+                  Start  Length  Slot  Name   Signature
+                  0       7     0  args   [Ljava/lang/String;
+                  3       4     1     a   I
+                  6       1     2     b   Ljava/lang/String;
+              Exceptions
+                throws java.lang.InterruptedException
+
+              static {};
+              descriptor ()V
+              flags ACC_STATIC
+              Code
+                stack=1, locals=0, args_size=0
+                0 bipush        10
+                2 putstatic     #3                  // Field i:I
+                5 return
+                LineNumberTable
+                  line 9 0
           是否支持GC: 支持
-          是否会出现异常: 出现
+          是否会出现异常: 当元空间/永久代空间不足时，触发GC，GC还存不下该对象，触发OOM
       2.堆区(线程共享):
           功能:
             - 栈管运行，堆管存储
@@ -240,16 +337,16 @@ JVM的整体结构:
             - 堆是GC执行垃圾的重点区域
           正常对象内存分配过程(重点):
             - https://www.bilibili.com/video/BV1PJ411n7xZ?p=72&spm_id_from=pageDriver
-            - new对象 -> 伊甸园 -> 幸存者区(15岁以后) -> 老年区
-            - new对象 -> 伊甸园 -> 伊甸园满了以后 -> 触发MinorGC(伊甸园区+幸存者from区)将没有引用的对象清理掉 -> 对象头的age属性加1
+            - new对象 -> 伊甸园(TLAB) -> 伊甸园 -> 幸存者区(15岁以后) -> 老年区
+            - new对象 -> 伊甸园(TLAB) -> 伊甸园 -> 伊甸园满了以后 -> 触发MinorGC(伊甸园区+幸存者from区)将没有引用的对象清理掉 -> 对象头的age属性加1
                                                                                                       -> 把age=16【晋升到】老年区 -> 老年区满以后 -> 触发MajorGC将没有引用的对象清理掉
                                                                                                       -> 把age<16存到幸存者to区(有引用的对象)
           特殊情况对象内存分配过程(重点):
-            - new对象 -> 伊甸园
-                        放不下 -> 触发MinorGC -> 伊甸园
-                                 放不下 -> 永久代
-                                          放不下 -> 触发MajorGC -> 永久代
-                                                   放不下 -> OOM
+            - new对象 -> 伊甸园(TLAB) -> 伊甸园
+                                        放不下 -> 触发MinorGC -> 伊甸园
+                                                 放不下 -> 永久代
+                                                          放不下 -> 触发MajorGC -> 永久代
+                                                                   放不下 -> OOM
           内存分配策略(或对象晋升规则):
             - 优先分配到伊甸园区
             - 大对象直接分配到老年代
@@ -257,14 +354,20 @@ JVM的整体结构:
             - 动态对象年龄判断
                 如果幸存者区中相同年龄的所有对象带下总和大于幸存者空间的一半，年龄大于或者等于该年龄的对象可以直接进入老年代，无须等到-XX:MaxTenuringThreshold=15中要求的年龄
             - 空间分配担保
-                -XX:HandelPromotionFailure
+                在JDK7以后-XX:HandelPromotionFailure此参数不能影响到它了，但默认会有空间分配担保
+                -XX:HandelPromotionFailure=true
+                    在发生MinorGC之前，虚拟机会检查老年代最大可用的连续空间是否大于新生代所有对象的总空间。
+                      如果大于,则尝试进行一次MinorGC,但这次MinorGC依然事有风险的
+                      如果小于,则进行一次FullGC
+                -XX:HandelPromotionFailure=false
+                    直接进行一次FullGC
           新生代区:
             功能:
               - 绝大部分的Java对象的销毁都在新生代进行了
               - IBM公司研究表明，新生代中80%的对象都是“朝生夕死”的
             伊甸园区(Eden):
               功能:
-                - "几乎所有"Java对象都是在伊甸园区被new出来的
+                - 几乎所有Java对象都是在伊甸园区被new出来的
               TLAB线程私有缓冲区:
                 功能:
                   - 从内存模型角度，而不是垃圾收集的角度，对Eden区域继续进行划分，JVM为每个线程分配了一个私有缓存区，它包含在了伊甸园空间内
@@ -317,47 +420,10 @@ JVM的整体结构:
           设置对象年龄的阈值(age):
             - 默认 -XX:MaxTenuringThreshold=15
             - 修改 -XX:MaxTenuringThreshold=20
-          GC:
-            功能:
-              - https://www.bilibili.com/video/BV1PJ411n7xZ?p=76&spm_id_from=pageDriver
-              - 频繁在新生代区收集，很少在养老代区收集，几乎不再永久代/元空间收集
-              - JVM进行GC时，并非每次都对这（新生代，老年代，方法区(永久代/元空间)）3个区域一起回收的，大部分时候回收的都是新生代
-              - STW（stop the world）
-                  触发GC以后，会导致用户线程暂停，GC线程执行垃圾回收
-            GC回收区域划分为两种大类型（针对Hotspot的实现）:
-              - 部分收集（Partial GC）不完全收集整个Java堆的垃圾收集
-                  新生代收集（Minor GC / Young GC）只是新生代(伊甸园区，幸存者from区)的垃圾收集
-                  老年代收集（Major GC / Old GC）只是老年代的收集收集
-                    目前，只有CMS GC会有单独收集老年代的行为
-                    注意，很多时候Major GC会和Full GC混淆使用，需要具体分辨是老年代回收还是整堆回收
-                  混合收集（Mixed GC）收集整个新生代以及部分老年代的垃圾收集
-                    目前,只有G1 GC会有这种行为
-              - 整堆收集（Full GC）收集整个Java堆区(新生代收集和老年代收集)和方法区(永久代/元空间)的垃圾收集
-            MinorGC:
-              - 触发者条件是伊甸园区内存空间不足
-              - MinorGC完全等价YoungGC
-              - 收集区域:"对伊甸园区和幸存者from区进行垃圾收集"
-              - 因为Java对象"大多数具备朝生夕死"的特性，所以MinorGC非常频繁，一般回收速度也比较快
-              - MinorGC会引发STW，暂停用户线程，等待GC线程垃圾回收结束，用户线程才恢复运行
-            MajorGC:
-              - 触发者条件是老年代区内存空间不足
-              - MajorGC完全等价OldGC
-              - 收集区域:"对老年代区进行垃圾收集"
-              - 出现了MajorGC，经常会伴随至少一次MinorGC,也就是说老年代空间不足时，会先尝试触发MinorGC,如果之后空间还不足，则触发MajorGC(但非绝对的，在Parallel Scavenge收集器的收集策略里就是直接进行MajorGC，而没有进行MinorGC)
-              - MajorGC的速度一般会比MinorGC慢10倍以上，STW的时间会更长
-              - 如果MajorGC后，内存还不足，就报OOM了
-            FullGC:
-              - 收集区域:"对新生代(伊甸园区，幸存者form区)，老年代，方法区(元空间/永久代)"
-              - 触发FullGC的三种情况
-              - 1.调用System.gc()时，系统建议执行FullGC，但是不必然执行
-              - 2.老年代空间不足
-                    通过MinorGC后进入老年代的平均大小大于老年代的可用内存
-                    由伊甸园区，幸存者from区向幸存者to区复制时，对象大小大于幸存者to区可用内存，则把该对象转存到老年代，而且老年代的可用内存小于该对象大小
-              - 3.方法区空间不足
           是否支持GC: 存在GC
           是否会出现异常:
             - 一旦堆区中的内存大小超过了"-Xmx"所指定的最大内存时，就会抛出OOM(OutOfMemoryError)异常
-            - 当老年代空间不足会触发OOM
+            - 当老年代空间不足时，触发GC，GC还存不下该对象，会触发OOM
                   伊甸园区和幸存者区空间不足都会存到老年代区，所以堆区只有老年代会触发OOM
       3.本地方法栈(线程独享):
           功能:
@@ -520,6 +586,71 @@ JVM的整体结构:
             - 它是唯一一个在Java虚拟机规范中没有出现任何的OOM情况的区域
           是否支持GC: 不支持
           是否会出现异常: 不出现
+      堆是分配对象存储的唯一选择吗?:
+        逃逸分析技术之栈上分配:
+          功能:
+            - 在深入理解Java虚拟机中描述，随着JIT即时编译器的发展，与逃逸分析技术逐渐成熟，栈上分配，标量替换优化技术将会导致一些微妙的变化，所有的对象都分配到对上也渐渐变得不那么"绝对了"
+            - 在Java虚拟机中，对象是在Java堆中分配内存的，这个是一个普遍的认知。
+            - 但是有一种特殊情况，那就是如果经过逃逸分析后发现，一个new出来的对象并没有逃逸出方法的话，那么就可能被优化成栈上分配。这样就无序在堆上分配内存，也无序进行GC回收，这也是最常见的对外存储技术。
+            - 在JDK6u23以后的版本，默认开启了套你分析
+            - 通过逃逸分析，Java Hotspot编译器能够分析出一个new对象的引用使用范围，从而决定是否需要将这个对象分配到堆上
+            - 逃逸分析的基本行为就是分析对象的动态作用域，当一个对象在方法中被定义后，对象只在方法内部使用，则认为没有发生逃逸，反之则发生逃逸。
+        使用逃逸分析技术，编译器可以对代码做如下优化:
+          栈上分配:
+            - 将堆分配转化为栈分配，如果一个对象在子程序中被分配，要使指向该对象的指针永远不会逃逸，对象可能是栈分配的候选，而不是堆分配
+            - JIT编译器在编译期间根据逃逸分析的结果，发现如果一个对象并没有发逃逸出方法的话，就可能被优化成栈上分配(前提是栈空间能容纳的情况下，否则还是会堆分配),分配完成后，继续在调用栈内执行，最后线程结束，栈空间被回收，局部变量对象也被回收，这样久无序进行垃圾回收
+            - 测试栈上分配
+                开启逃逸分析 -Xms256m -Xmx256m -XX:+PrintGCDetails -XX:+DoEscapeAnalysis
+                    结论(在栈空间能容纳的情况下，栈上分配对象，并且不会触发MinorGC，执行时间较快)
+                关系逃逸分析 -Xms256m -Xmx256m -XX:+PrintGCDetails -XX:+DoEscapeAnalysis
+                    结论(堆上分配对象，会触发MinorGC，执行时间较慢)
+          锁消除(同步省略):
+            - 如果一个对象被发现只能从一个线程被访问到，那么对于这个对象的操作可以考虑不同步
+            - 在动态编译同步块的时候，JIT编译器可以借助逃逸分析来判断同步块所使用的锁对象是否只能够被一个线程访问而没有被被发布到其他线程，那么JIT编译器在编译这个同步代码块的时候就会取消对这个部分代码的同步。
+            - 这样就能大大一高并发性和性能，这个取消同步的过程就叫同步省略，也叫锁消除
+          分离对象或标量替换: 有的对象可能不需要作为一个连续内存结构存在也可以被访问到，那么对象的部分(或全部)可以不存储在内存，而是存储早CPU寄存器中
+          个人总结: 虽然有逃逸分析可以实现栈上分配，但是hotspot并没这样做，所以基于hotspot虚拟机来说，所有的new对象都是基于在堆上分配
+        设置逃逸分析:
+          开启: -XX:+DoEscapeAnalysis
+          关闭: -XX:-DoEscapeAnalysis
+      GC:
+        功能:
+          - https://www.bilibili.com/video/BV1PJ411n7xZ?p=76&spm_id_from=pageDriver
+          - 频繁在新生代区收集，很少在养老代区收集，几乎不再永久代/元空间收集
+          - JVM进行GC时，并非每次都对这（新生代，老年代，方法区(永久代/元空间)）3个区域一起回收的，大部分时候回收的都是新生代
+          - STW（stop the world）
+            触发GC以后，会导致用户线程暂停，GC线程执行垃圾回收
+        GC回收区域划分为两种大类型（针对Hotspot的实现）:
+          - 部分收集（Partial GC）不完全收集整个Java堆的垃圾收集
+              新生代收集（Minor GC / Young GC）只是新生代(伊甸园区，幸存者from区)的垃圾收集
+              老年代收集（Major GC / Old GC）只是老年代的收集收集
+                目前，只有CMS GC会有单独收集老年代的行为
+                注意，很多时候Major GC会和Full GC混淆使用，需要具体分辨是老年代回收还是整堆回收
+              混合收集（Mixed GC）收集整个新生代以及部分老年代的垃圾收集
+                目前,只有G1 GC会有这种行为
+          - 整堆收集（Full GC）收集整个Java堆区(新生代收集和老年代收集)和方法区(永久代/元空间)的垃圾收集
+        MinorGC:
+          - 触发者条件是伊甸园区内存空间不足
+          - MinorGC完全等价YoungGC
+          - 收集区域:"对伊甸园区和幸存者from区进行垃圾收集"
+          - 因为Java对象"大多数具备朝生夕死"的特性，所以MinorGC非常频繁，一般回收速度也比较快
+          - MinorGC会引发STW，暂停用户线程，等待GC线程垃圾回收结束，用户线程才恢复运行
+        MajorGC:
+          - 触发者条件是老年代区内存空间不足
+          - MajorGC完全等价OldGC
+          - 收集区域:"对老年代区进行垃圾收集"
+          - 出现了MajorGC，经常会伴随至少一次MinorGC,也就是说老年代空间不足时，会先尝试触发MinorGC,如果之后空间还不足，则触发MajorGC(但非绝对的，在Parallel Scavenge收集器的收集策略里就是直接进行MajorGC，而没有进行MinorGC)
+          - MajorGC的速度一般会比MinorGC慢10倍以上，STW的时间会更长
+          - 如果MajorGC后，内存还不足，就报OOM了
+        FullGC:
+          - 收集区域:"对新生代(伊甸园区，幸存者form区)，老年代，方法区(元空间/永久代)"
+          - 触发FullGC的三种情况
+          - 1.调用System.gc()时，系统建议执行FullGC，但是不必然执行
+          - 2.老年代空间不足
+                通过MinorGC后进入老年代的平均大小大于老年代的可用内存
+                由伊甸园区，幸存者from区向幸存者to区复制时，对象大小大于幸存者to区可用内存，则把该对象转存到老年代，而且老年代的可用内存小于该对象大小
+          - 3.方法区空间不足
+                对于一个64位的服务器端的JVM来说，其默认的-XX:MetaspaceSize=21m，这就是初始的高水位线，一旦触及这个水位线，就会触发Full GC
   下层:
     执行引擎:
       功能:

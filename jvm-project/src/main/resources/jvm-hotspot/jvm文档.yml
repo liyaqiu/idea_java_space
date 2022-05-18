@@ -1,7 +1,7 @@
 jvm官方规范文档: https://docs.oracle.com/javase/specs/index.html
 语言排行榜: https://www.tiobe.com/tiobe-index/
 字节码查看工具:
-  - javap -v Test.class 对字节码进行解析查看
+  - javap -v -p Test.class 对字节码进行解析查看
   - binary viewer
         https://binary-viewer.en.softonic.com/
   - jclasslib
@@ -14,17 +14,6 @@ jvm调优工具:
     - 查看jvm内存和GC使用情况 jstat -gc 5000(pid)
       S0C    S1C    S0U        S1U         EC   EU        OC        OU         MC     MU     CCSC    CCSU      YGC   YGCT    FGC    FGCT     GCT
       幸存者0 幸存者1  幸存者0使用  幸存者1使用   伊甸园 伊甸园使用  老年代     老年代使用    4480.0 770.3  384.0   75.9       0    0.000   0      0.000    0.000
-    - jvm退出后打印堆信息 -XX:+PrintGCDetails
-      Heap
-      PSYoungGen      total 179200K, used 12288K [0x00000000f3800000, 0x0000000100000000, 0x0000000100000000)
-      eden space 153600K, 8% used [0x00000000f3800000,0x00000000f44001b8,0x00000000fce00000)
-      from space 25600K, 0% used [0x00000000fe700000,0x00000000fe700000,0x0000000100000000)
-      to   space 25600K, 0% used [0x00000000fce00000,0x00000000fce00000,0x00000000fe700000)
-      ParOldGen       total 409600K, used 0K [0x00000000da800000, 0x00000000f3800000, 0x00000000f3800000)
-      object space 409600K, 0% used [0x00000000da800000,0x00000000da800000,0x00000000f3800000)
-      Metaspace       used 3400K, capacity 4496K, committed 4864K, reserved 1056768K
-      class space    used 380K, capacity 388K, committed 512K, reserved 1048576K
-    - 查看所有的参数的最终值
     - 查看幸存者区跟伊甸园区占比 jinfo -flag SurvivorRatio 11924
         -XX:SurvivorRatio=8
         关闭自适应内存策略 -XX:-UseAdaptiveSizePolicy
@@ -33,6 +22,7 @@ jvm调优工具:
         -Xmn400m 可以强行执行新生代的大小，如果此参数设置 -XX:NewRatio参数会失效
     - 查看线程私有缓冲区TLAB jinfo -flag UseTLAB 10332
         -XX:+UseTLAB
+
 
   JDK自带工具:
    - jvisualvm.exe
@@ -47,12 +37,26 @@ jvm调优工具:
   GC Easy:
 调优手段
     参数文档: https://docs.oracle.com/javase/8/docs/technotes/tools/unix/java.html
-    Java虚拟机栈参数:
+    jvm虚拟机栈参数:
         - 调整栈大小，避免栈OOM -Xss1m
         - 局部变量表中的变量也是重要的垃圾回收根节点，只要被局部变量表中直接或者间接引用的对象都不会被回收
-    堆空间:
-      - 通常会将 -Xms -Xmx 参数配置相同的值，其目的是为了能够在Java垃圾回收机制清理完堆区后不需要重新分配计算堆区大小，从而提高性能
-      - -Xms20m -Xmx20m
+    jvm参数堆空间:
+      - 设置堆空间的大小 -Xms20m -Xmx20m
+            通常会将 -Xms -Xmx 参数配置相同的值，其目的是为了能够在Java垃圾回收机制清理完堆区后不需要重新分配计算堆区大小，从而提高性能
+      - 设置伊甸园区和幸存者区占比 -XX:SurvivorRatio=8
+      - 设置新生代跟老年代占比/或者强行设置新生代大小 -XX:NewRatio=2 / -Xmn400m
+      - 设置对象年龄的阈值(age) -XX:MaxTenuringThreshold=15
+      - 打印详细的GC日志并且打印堆信息 -XX:+PrintGCDetails
+      - 打印简单GC日志 -XX:+PrintGC / -verbose:gc
+      - 打印所有的参数的默认初始值 -XX:+PrintFlagsInitial
+      - 打印所有的参数的最终值 -XX:+PrintFlagsFinal / jinfo -flag NewRatio 11924
+    jvm方法区:
+      元空间:
+        设置永久代大小:
+          - 默认 -XX:MetaspaceSize=21m    -XX:MaxMetaspaceSize=-1无限大
+          - 修改 -XX:MetaspaceSize=1g     -XX:MaxMetaspaceSize=1g
+          - 查看 jinfo -flag MetaspaceSize/MaxMetaspaceSize 10780
+          - 特别说明 只能通过jinfo -flag查看 初始值和最大值，图形界面看不到
     调优的目的:
       - 让GC执行次数减少，那么STW次数就减少(STW会导致用户线程暂停，GC线程执行垃圾回收)
       - MinorGC N分钟
@@ -78,6 +82,12 @@ jvm调优工具:
         * [ Full GC         (Ergonomics) [ PSYoungGen: 1536K->0K(89600K) ] [ ParOldGen: 203483K->122359K(204800K) ] 205019K->122359K(294400K), [ Metaspace: 3492K->3492K(1056768K) ], 0.4165691 secs ] [ Times: user=2.98 sys=0.08, real=0.42 secs ]
         * [ GC (Allocation Failure)      [ PSYoungGen: 0K->0K(89600K) ] 122359K->122359K(294400K), 0.0007324 secs ] [ Times: user=0.00 sys=0.00, real=0.00 secs ]
         * [ Full GC (Allocation Failure) [ PSYoungGen: 0K->0K(89600K) ] [ ParOldGen: 122359K->122340K(204800K) ] 122359K->122340K(294400K), [ Metaspace: 3492K->3492K(1056768K) ], 0.4266590 secs ] [ Times: user=3.27 sys=0.05, real=0.43 secs ]
+    如何解决OOM?:
+      - 要解决OOM异常或，一般的手段是首先通过内存映像分析工具，如（Eclipse-MAT）工具，对dump出来的堆转存快照进行分析，重点是确认内存中的对象是否是必要的，也就是先分清楚到底是出现了内存泄漏，还是内存溢出
+      - 如果是内存泄漏，可以进一步通过工具查看泄漏对象到GC Roots的引用链。于是就能找到泄漏对象是通过怎样的路径与GC Roots相关联并导致GC无法自动回收它们的。
+      - 掌握了泄漏对象的类型信息，以及GC Roots引用链的信息，就可以比较准确的定位出泄漏代码的位置
+      - 如果不存在内存泄漏，换句话说就是内存中的对象却是都还必须存活的，那就应当检查虚拟机的堆参数(-Xms20m -Xmx20m),与机器物理内存对比砍是否可以调大，从代码手上检查是否存在某些对象声明周期过长，
+      - 持有状态时间过长的情况，尝试减少程序运行期的内存消耗
 
 
 

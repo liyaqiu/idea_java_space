@@ -1,12 +1,13 @@
-package com.ClassLoader.custom;
+package com.方法区;
 
 import org.junit.Test;
-import sun.misc.Launcher;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author eric
@@ -14,8 +15,10 @@ import java.io.IOException;
  * 实现同一个class文件不同加载器加载
  * 实现动态加载类
  * 可以对class做加密处理
+ *  https://www.bilibili.com/video/BV1PJ411n7xZ?p=91
+ * -ea -XX:MetaspaceSize=10m -XX:MaxMetaspaceSize=10m -XX:+PrintGCDetails
  **/
-public class MyClassLoader extends ClassLoader{
+public class OOMTest extends ClassLoader{
 
     /**
      * 双亲委派机制
@@ -46,22 +49,9 @@ public class MyClassLoader extends ClassLoader{
 
     @Test
     public void test1() throws Exception {
-        Class<?> aClass = new MyClassLoader().findClass("com.ClassLoader.custom.PersonEntity");
-        Class<?> bClass = new MyClassLoader().findClass("com.ClassLoader.custom.PersonEntity");
-        System.out.println(aClass);
-        System.out.println(bClass);
-        System.out.println(aClass.getClassLoader());
-        System.out.println(aClass.getClassLoader().getParent());
-    }
-
-    @Test
-    public void test2() throws ClassNotFoundException {
-        Class<?> aClass = new MyClassLoader().findClass("com.ClassLoader.custom.PersonEntity");
-    }
-
-    public static void main(String[] args) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        Class<?> clzss = Class.forName("com.ClassLoader.custom.PersonEntity", true, new MyClassLoader());
-        Object obj = clzss.newInstance();
-        System.out.println(obj.getClass());
+        List<Object> list = new ArrayList<>();
+        for (int i = 0; i < 1000000; i++) {
+            list.add(new OOMTest().findClass("com.ClassLoader.custom.PersonEntity"));
+        }
     }
 }
