@@ -24,12 +24,16 @@ jvm调优工具:
       object space 409600K, 0% used [0x00000000da800000,0x00000000da800000,0x00000000f3800000)
       Metaspace       used 3400K, capacity 4496K, committed 4864K, reserved 1056768K
       class space    used 380K, capacity 388K, committed 512K, reserved 1048576K
+    - 查看所有的参数的最终值
     - 查看幸存者区跟伊甸园区占比 jinfo -flag SurvivorRatio 11924
-      -XX:SurvivorRatio=8
-      关闭自适应内存策略 -XX:-UseAdaptiveSizePolicy
+        -XX:SurvivorRatio=8
+        关闭自适应内存策略 -XX:-UseAdaptiveSizePolicy
     - 查看新生代跟老年代占比 jinfo -flag NewRatio 11924
-      -XX:NewRatio=2
-      -Xmn400m 可以强行执行新生代的大小，如果此参数设置 -XX:NewRatio参数会失效
+        -XX:NewRatio=2
+        -Xmn400m 可以强行执行新生代的大小，如果此参数设置 -XX:NewRatio参数会失效
+    - 查看线程私有缓冲区TLAB jinfo -flag UseTLAB 10332
+        -XX:+UseTLAB
+
   JDK自带工具:
    - jvisualvm.exe
    - jconsole.exe

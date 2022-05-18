@@ -250,6 +250,14 @@ JVM的整体结构:
                                  放不下 -> 永久代
                                           放不下 -> 触发MajorGC -> 永久代
                                                    放不下 -> OOM
+          内存分配策略(或对象晋升规则):
+            - 优先分配到伊甸园区
+            - 大对象直接分配到老年代
+            - 长期存活的对象分配到老年代
+            - 动态对象年龄判断
+                如果幸存者区中相同年龄的所有对象带下总和大于幸存者空间的一半，年龄大于或者等于该年龄的对象可以直接进入老年代，无须等到-XX:MaxTenuringThreshold=15中要求的年龄
+            - 空间分配担保
+                -XX:HandelPromotionFailure
           新生代区:
             功能:
               - 绝大部分的Java对象的销毁都在新生代进行了
@@ -257,11 +265,28 @@ JVM的整体结构:
             伊甸园区(Eden):
               功能:
                 - "几乎所有"Java对象都是在伊甸园区被new出来的
+              TLAB线程私有缓冲区:
+                功能:
+                  - 从内存模型角度，而不是垃圾收集的角度，对Eden区域继续进行划分，JVM为每个线程分配了一个私有缓存区，它包含在了伊甸园空间内
+                  - 多线程同时分配内存时，使用TLAB可以避免一系列的非线程安全问题，同时还能提升内存分配的吞吐量，因此我们可以将这种内存分配方式称之为快速分配策略
+                  - 据我所知，所有OpenJDK衍生出来的JVM都提供了TLAB的设计
+                为什么要有TLAB:
+                  - 堆区是线程共享区域，任何线程都可以访问到堆区的共享数据
+                  - 由于对象实例的创建在JVM中非常频繁，因此在并发环境下从堆区中划分内存空间是线程不安全的
+                  - 为了避免多个线程操作同一个地址，需要使用加锁等机制，进而影响分配速度。
+                  - 尽管不是所有的对象实例都能够在TLAB中成功分配内存，但JVM确实是将TLAB作为内存分配的首选
+                  - 一旦对象在TLAB空间分配内存失败时，JVM就会尝试着通过使用【加锁机制确保数据操作的原子性】，从而直接在伊甸园空间中分配内存
+                TLAB参数设置:
+                  - 查看 TLAB jinfo -flag UseTLAB 10332
+                      -XX:+UseTLAB
+                  - 默认设置 -XX:TLABSize=512k
             幸存者区(S0/S1):
               功能:
                 - from区 to区
                 - 复制之后有交换，谁空谁是to
           老年代区:
+            功能:
+              - 存放幸存者区经历过多次GC扔存活的对象
           可使用堆内存: 伊甸园区+(幸存者0区 or 幸存者1区)+老年代区
           设置堆大小(新生代+老年代):
             - https://docs.oracle.com/javase/8/docs/technotes/tools/unix/java.html
@@ -289,7 +314,7 @@ JVM的整体结构:
             - 默认 -XX:NewRatio=2，表示新生代占1，老年代占2，新生代占整个堆的1/3
             - 修改 -XX:NewRatio=4，表示新生代占1，老年代占4，新生代占整个堆的1/5
             - -Xmn400m 可以强行执行新生代的大小，如果此参数设置 -XX:NewRatio参数会失效
-          设置对象的阈值(age):
+          设置对象年龄的阈值(age):
             - 默认 -XX:MaxTenuringThreshold=15
             - 修改 -XX:MaxTenuringThreshold=20
           GC:
@@ -443,19 +468,18 @@ JVM的整体结构:
             动态链接:
               功能:
                 - 指向运行时常量池的方法引用
-                - 每一个栈帧的内部都包含一个指向运行时常量池(指的是class字节码文件中的Constant pool信息)中该栈帧所属方法的引用，包含这个引用的目的就是为了支持当前方法的代码能够实现动态链接。比如invokedynamic指令
+                - 每一个栈帧的内部都包含一个指向运行时常量池中该栈帧所属方法的引用，持有这个引用是为了支持方法调用过程中的动态链接。比如invokedynamic指令
                 - 在Java源文件被编译到字节码文件中时，所有的变量和方法的符号引用都保存在class文件的常量池中。
                 - 比如：描述一个方法调用了其他方法时，就是通过常量池中指向方法的符号引用来表示的，那么动态链接的作用就是为了将这些符号引用转换为调用方法的直接引用
-              个人功能总结: 动态链接的目的就是，当栈帧中的jvm指令被调用时，把符号引用转换为直接引用
               从字节码层面:
                 - Constant pool:
                   #1 = Methodref          #6.#17         // java/lang/Object."<init>":()V
                   #2 = Fieldref           #18.#19        // java/lang/System.out:Ljava/io/PrintStream;
                   #3 = String             #20            // 1
                   #4 = Methodref          #21.#22        // java/io/PrintStream.println:(Ljava/lang/String;)V
-                - 0: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;
+                - 0: getstatic     #2（静态解析）          // Field java/lang/System.out:Ljava/io/PrintStream;
                   3: ldc           #3                  // String 1
-                  5: invokevirtual #4                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+                  5: invokevirtual #4 (动态链接)          // Method java/io/PrintStream.println:(Ljava/lang/String;)V
                   8: return
             方法返回地址:
               功能:
