@@ -44,7 +44,7 @@ JVM介绍:
       GC线程: 这种线程对在JVM里不同的种类的垃圾收集行为提供了支持
       编译线程: 这种线程在运行时会将字节码编译成本地代码
       信号调度线程: 这种线程接收信号并发给JVM，在它内部通过调用适当的方法进行处理
-JVM的整体结构:
+JVM的整体结构/JVM内存模型:
   上层:
     class字节码文件:
       功能: 由javac前端编译器编译成class字节码文件
@@ -223,106 +223,166 @@ JVM的整体结构:
             - 方法区的大小，跟堆空间一样，可以选择固定大小或者可扩展
             - 方法区的大小决定了系统可以保存多少个类，如果系统顶了太多的类，会导致方法区溢出，从而抛OOM
             - 关闭JVM就会释放这个区域的内存
-            - 它用于存储已被虚拟机加载的类型信息，常量，静态变量，即时编译器编译后的代码缓存等。。
-          永久代jdk7及之前:
+          永久代jdk7及之前(使用JVM虚拟机内存):
             设置永久代大小:
               - 默认 -XX:PermSize=21m    -XX:MaxPermSize=82m
               - 修改 -XX:PermSize=1g     -XX:MaxPermSize=1g
               - 查看 jinfo -flag PermSize/MaxPermSize 10780
-          元空间jdk1.8之后(使用本地内存):
+          元空间jdk1.8之后(使用物理机本地内存):
             设置永久代大小:
               - 默认 -XX:MetaspaceSize=21m    -XX:MaxMetaspaceSize=-1无限大
               - 修改 -XX:MetaspaceSize=1g     -XX:MaxMetaspaceSize=1g
               - 查看 jinfo -flag MetaspaceSize/MaxMetaspaceSize 10780
               - 特别说明 只能通过jinfo -flag查看 初始值和最大值，图形界面看不到
               - 与永久代不同，如果不指定大小，默认情况下，虚拟机会消耗尽所有的可用系统内存
-              - 对于一个64位的服务器端的JVM来说，其默认的-XX:MetaspaceSize=21m，这就是初始的高水位线，一旦触及这个水位线，就会触发Full GC将会被触发
+              - 对于一个64位的服务器端的JVM来说，其默认的-XX:MetaspaceSize=21m，这就是初始的高水位线，一旦触及这个水位线，将会被触发Full GC
               - 并且卸载没用的类(即这些类对应的类加载器不在存活)，然后这个高水位线将会充值，新的高水位线的值取决于GC后释放的了多少元空间，如果释放的空间不足，
               - 那么在不超过MaxMetaspaceSize时，释放提高该值，如果释放空间过多，则适当降低该值
               - 如果初始化的高水位线设置过低，上述高水位线调整的情况会发生很多次，通过垃圾回授权的日志可以观察到Full GC多次调用，
               - 为了避免频繁的GC，建议将-XX:MetaspaceSize=21m设置为一个对象较高的值
+          永久代替换元空间好处:
+            永久代设置内存的大小很难确定:
+              - 在某些场景下，如果动态加载类过多，容易产生OOM
+              - 比如某个实际的Web工程中，因为功能点比较多，在运行过程中，要不断动态加载类，很容易出现OOM
+            永久代调优很困难:
           方法区存储内容:
-            - 类型信息
-                这里到类加载的时候还会把类加载器的信息加载进来
-                对每个加载的类型，JMV必须在方法区中存储以下类型信息
-                这个类型的完成有效名称(全类名=包名.类名)
-                这个类型的直接父类的完整有效名(java.lang.Object没有父类)
-                这个类型的修饰符(public,abstract,final的某个子集)
-                这个类型的直接口的一个有序表
-                public class com.Test
-                minor version 0
-                major version 52
-                flags ACC_PUBLIC, ACC_SUPER
-            - 运行时常量池
-            - 静态变量
-            - JIT代码缓存
-            - 域信息
-                JVM必须在方法区中保存类型的所有域的相关信息以及域的声明顺序
-                域的相关信息包括，域名称，域类型，域修饰符(public,private,protected,static,final,volatile,transient的某个子集)
-                static int i;
-                descriptor I
-                flags ACC_STATIC
+            - 类信息
+                类型信息
+                  这里到类加载的时候还会把类加载器的信息加载进来
+                  对每个加载的类型，JMV必须在方法区中存储以下类型信息
+                  这个类型的完成有效名称(全类名=包名.类名)
+                  这个类型的直接父类的完整有效名(java.lang.Object没有父类)
+                  这个类型的修饰符(public,abstract,final的某个子集)
+                  这个类型的直接口的一个有序表
+                  public class com.Test
+                  minor version 0
+                  major version 52
+                  flags ACC_PUBLIC, ACC_SUPER
+                域信息
+                  JVM必须在方法区中保存类型的所有域的相关信息以及域的声明顺序
+                  域的相关信息包括，域名称，域类型，域修饰符(public,private,protected,static,final,volatile,transient的某个子集)
+                  static int i;
+                  descriptor I
+                  flags ACC_STATIC
 
-                static final int b;
-                descriptor I
-                flags ACC_STATIC, ACC_FINAL
-                ConstantValue int 10
-            - 方法信息
-                JVM必须保存所有方法的以下信息，同域信息一样包括声明顺序
-                方法的名称
-                方法的返回类型(int void...)
-                方法参数的数量和类型(按顺序)
-                方法的修饰符(public,private,finanl,static,protected,synchronized,natice,abstract的一个子集)
-                方法的字节码(Code),操作数栈，局部变量表以及大小(abstract和native方法除外)
-                异常表(abstract和native方法除外)
-                每个异常表处理的开始位置，结束位置，代码处理在程序计数器中的便宜地址，被捕获的异常类的常量池索引
-              public com.Test();
-              descriptor ()V
-              flags ACC_PUBLIC
-              Code
-                stack=1, locals=1, args_size=1
-                0 aload_0
-                1 invokespecial #1                  // Method java/lang/Object."<init>":()V
-                4 return
-                LineNumberTable
+                  static final int b;
+                  descriptor I
+                  flags ACC_STATIC, ACC_FINAL
+                  ConstantValue int 10
+                方法信息
+                  JVM必须保存所有方法的以下信息，同域信息一样包括声明顺序
+                  方法的名称
+                  方法的返回类型(int void...)
+                  方法参数的数量和类型(按顺序)
+                  方法的修饰符(public,private,finanl,static,protected,synchronized,natice,abstract的一个子集)
+                  方法的字节码(Code),操作数栈，局部变量表以及大小(abstract和native方法除外)
+                  异常表(abstract和native方法除外)
+                  每个异常表处理的开始位置，结束位置，代码处理在程序计数器中的便宜地址，被捕获的异常类的常量池索引
+                  public com.Test();
+                  descriptor ()V
+                  flags ACC_PUBLIC
+                  Code
+                  stack=1, locals=1, args_size=1
+                  0 aload_0
+                  1 invokespecial #1                  // Method java/lang/Object."<init>":()V
+                  4 return
+                  LineNumberTable
                   line 7 0
-                LocalVariableTable
+                  LocalVariableTable
                   Start  Length  Slot  Name   Signature
                   0       5     0  this   Lcom/Test;
-
-              public static void main(java.lang.String[]) throws java.lang.InterruptedException;
-              descriptor ([Ljava/lang/String;)V
-              flags ACC_PUBLIC, ACC_STATIC
-              Code
-                stack=1, locals=3, args_size=1
-                0 bipush        10
-                2 istore_1
-                3 ldc           #2                  // String hello
-                5 astore_2
-                6 return
-                LineNumberTable
-                  line 22 0
-                  line 23 3
-                  line 24 6
-                LocalVariableTable
-                  Start  Length  Slot  Name   Signature
-                  0       7     0  args   [Ljava/lang/String;
-                  3       4     1     a   I
-                  6       1     2     b   Ljava/lang/String;
-              Exceptions
-                throws java.lang.InterruptedException
-
-              static {};
-              descriptor ()V
-              flags ACC_STATIC
-              Code
-                stack=1, locals=0, args_size=0
-                0 bipush        10
-                2 putstatic     #3                  // Field i:I
-                5 return
-                LineNumberTable
-                  line 9 0
-          是否支持GC: 支持
+            - 运行时常量池
+                字符串常量池(StringTable)存放字面量
+                常量池主要存放两大类常量，字面量和符号引用
+                    字面量比较接近Java语言层次的常量概念，如果文本字符串，被声明的为final的常量值等
+                      /**
+                        #17 = Utf8               LocalVariableTable
+                        #18 = Utf8               this
+                        #19 = Utf8               Lcom/Test;
+                        #20 = Utf8               hello 自己定义的字符串
+                        #21 = Utf8               main
+                        #22 = Utf8               ([Ljava/lang/String;)V
+                        #23 = Utf8               args
+                        #24 = Utf8               [Ljava/lang/String;
+                        #25 = Utf8               a
+                        #26 = Utf8               Ljava/lang/String;
+                        #27 = Utf8               Exceptions
+                      **/
+                    而符号引用则属于编译原理方面的概念，包括下面三类常量
+                      类和接口的全限定名
+                      字段的名称和描述符
+                      方法的名称和描述符
+                常量池，可以看做是一张表，虚拟机指令根据这张常量池表找到要执行的类名，方法名，参数类型，字面量等类型
+                常量池存储了，数量值，字符串值，类引用，字段引用，方法引用
+                一个有效的字节码文件中除了包含类的版本信息，字段，方法以及接口等描述信息外，还包含一项信息那就是常量池表，包括各种字面量，类型，域和方法的符号引用
+                常量池表是Class文件的一部分，用于存放编译前生成的各种字面量与符号引用，这部分内容将在类加载后存放到方法区的运行时常量池中
+                运行时常量池，在加载类和接口到虚拟机后，就会创建每一个类或接口对应的运行时常量池
+                JVM为每个已加载的类型(类或接口)都维护一个常量池，翅中数据项就像数组一样，是通过索引访问的
+                运行时常量池中包含了多种不同的常量，包括编译前就已经明确的数值字面量，也包括到运行期解析后才能获得的方法或者字段的引用，此时不再是常量池中的符号地址了，这里换为真实地址
+                  运行时常量池，相对于Class文件常量池的另一重要的特征是，具备动态性
+                运行时常量池类似于传统编程语言中的符号表，但是它所包含的数据却比符号表要更加丰富一些
+                  Constant pool
+                    /**
+                    #1 = Methodref          #7.#32         // java/lang/Object."<init>":()V
+                    #2 = Class              #33            // java/lang/String
+                    #3 = String             #34            // 1
+                    #4 = Methodref          #2.#35         // java/lang/String."<init>":(Ljava/lang/String;)V
+                    #5 = Fieldref           #6.#36         // com/Test.i:I
+                    #6 = Class              #37            // com/Test
+                    #7 = Class              #38            // java/lang/Object
+                    #8 = Utf8               i
+                    #9 = Utf8               I
+                    #10 = Utf8               b
+                    #11 = Utf8               ConstantValue
+                    #12 = Integer            10
+                    #13 = Utf8               <init>
+                    #14 = Utf8               ()V
+                    #15 = Utf8               Code
+                    #16 = Utf8               LineNumberTable
+                    #17 = Utf8               LocalVariableTable
+                    #18 = Utf8               this
+                    #19 = Utf8               Lcom/Test;
+                    #20 = Utf8               hello
+                    #21 = Utf8               main
+                    #22 = Utf8               ([Ljava/lang/String;)V
+                    #23 = Utf8               args
+                    #24 = Utf8               [Ljava/lang/String;
+                    #25 = Utf8               s
+                    #26 = Utf8               Ljava/lang/String;
+                    #27 = Utf8               Exceptions
+                    #28 = Class              #39            // java/lang/InterruptedException
+                    #29 = Utf8               <clinit>
+                    #30 = Utf8               SourceFile
+                    #31 = Utf8               Test.java
+                    #32 = NameAndType        #13:#14        // "<init>":()V
+                    #33 = Utf8               java/lang/String
+                    #34 = Utf8               1
+                    #35 = NameAndType        #13:#40        // "<init>":(Ljava/lang/String;)V
+                    #36 = NameAndType        #8:#9          // i:I
+                    #37 = Utf8               com/Test
+                    #38 = Utf8               java/lang/Object
+                    #39 = Utf8               java/lang/InterruptedException
+                    #40 = Utf8               (Ljava/lang/String;)V
+                      **/
+            - JIT代码缓存
+          jdk1.6及以前: 字符串常量池(String Table),静态变量(静态变量名)，存放方法区
+          jdk1.7及以后: 字符串常量池(String Table),静态变量(静态变量名)，存放堆空间
+          jdk1.7中为什么要把字符串常量池和静态变量从方法区转移到堆空间:
+            - 因为方法区回收需要FullGC,而FullGC的触发需要老年代或者永久代空间不足的时候触发，所以放在堆区，回收效率高
+            - 在我们开发中会有大量的字符串被创建字符串被创建，回收效率低，容易导致永久代内存不足，放到堆里面能够及时回收内存
+          是否支持GC:
+            - 对于一个64位的服务器端的JVM来说，其默认的-XX:MetaspaceSize=21m，这就是初始的高水位线，一旦触及这个水位线，将会被触发Full GC
+            - 有些人认为方法区是没有垃圾收集行为的，其实不然。Java虚拟机规范，对方法区的约束是非常宽松的，提到过可以不要求虚拟机在方法区中实现GC
+            - 事实上也确实有未实现或未能完整的实现方法区类型卸载的收集器存在(JDK 11时期的ZGC收集器不支持类卸载)
+            - 方法区的GC主要有2部分，一部分是常量池中不使用的常量，一部分是不在使用的类信息
+                常量的回收，Hotspot虚拟机对常量池的回收策略是很明确的，只要常量池中的常量没有被任何地方引用，就可以被回收
+                类信息的回收
+                    该类的所有的实例都已经被回收，也就是说Java堆中不存在该类及求他任何派生子类的实例
+                    加载该类的类加载器已经被回收，这个条件除非是经过精心设计的可替换类加载器的场景，如OSGI，JSP的重加载等，否则通常是很难达成的
+                    该类对应的java.lang.Class对象没有在任何地方被引用，无法在任何地方通过反射访问该类的方法
+            - Java虚拟机被允许对满足上述的三个条件的无用类进行回收，这里说的仅仅是被允许，而并不是和对象一样，没有引用就必然会回收。
+            - "关于是否要对类型进行回收，Hotspot虚拟机提供-Xnoclassgc参数进行控制，还可以使用-verbose:class以及-XX:+TraceClass-Loading -XX:+TraceClassUnLoading查看类加载和卸载信息"
+            - 在大量使用反色，动态代理（Jdk,CGLib）等字节码框架，动态生成JSP以及OSGI这类频繁的自定义类加载器场景中，通常都需要Java虚拟机具备类卸载的能力，以保证不会对方法区造成过大的内存压力
           是否会出现异常: 当元空间/永久代空间不足时，触发GC，GC还存不下该对象，触发OOM
       2.堆区(线程共享):
           功能:
@@ -395,7 +455,7 @@ JVM的整体结构:
             - https://docs.oracle.com/javase/8/docs/technotes/tools/unix/java.html
             - 堆空间的初始值 -Xms20m
             - 堆空间的最大值 -Xmx20m
-            - 通常会将 -Xms -Xmx 参数配置相同的值，其目的是为了能够在Java垃圾回收机制清理完堆区后不需要重新分配计算堆区大小，从而提高性能
+            - 通常会将 -Xms -Xmx 参数配置相同的值，其目的是为了能够在GC(Java垃圾回收机制)清理完堆区后不需要重新分配计算堆区大小，从而提高性能
             - -Xms1024 -Xmx1024
             - -Xms20K -Xmx20K
             - -Xms20m -Xmx20m
@@ -533,7 +593,7 @@ JVM的整体结构:
                   1个深度 = 4个字节=32位
             动态链接:
               功能:
-                - 指向运行时常量池的方法引用
+                - 指向运行时常量池的方法引用，目的是为了知道当前方法对应了运行时常量池的哪个方法
                 - 每一个栈帧的内部都包含一个指向运行时常量池中该栈帧所属方法的引用，持有这个引用是为了支持方法调用过程中的动态链接。比如invokedynamic指令
                 - 在Java源文件被编译到字节码文件中时，所有的变量和方法的符号引用都保存在class文件的常量池中。
                 - 比如：描述一个方法调用了其他方法时，就是通过常量池中指向方法的符号引用来表示的，那么动态链接的作用就是为了将这些符号引用转换为调用方法的直接引用
@@ -613,6 +673,66 @@ JVM的整体结构:
         设置逃逸分析:
           开启: -XX:+DoEscapeAnalysis
           关闭: -XX:-DoEscapeAnalysis
+      对象的实例化:
+        创建对象方式:
+          - new
+          - 反射
+          - clone()
+          - 反序列化方式
+          - 第三方库Objenesis
+        对象的实例化过程:
+          - 1.判断对象对应的类是否加载，链接，初始化
+                虚拟机遇到一条new指令，首先去检查这个指令的参数能否在方法区的常量池中定位到一个类的符号引用，并且检查这个符号引用代表的类
+                是否已经被加载，解析和初始化。(即判断类元信息是否存在)。如果不存在，那么在双亲委派机制下，使用当前类加载器以key(CLassLoader+包名+类名)进行查找对应的.class文件。
+                如果没有找到文件，则抛出ClassNotFoundException异常，如果找到则进行类加载，并生成对应的Class类对象
+          - 2.为对象分配内存
+                首先计算对象占用的空间大小，接着在堆中划分一块内存给新对象。
+                  如果实例成员变量是引用变量，仅分配引用变量空间即可，即4个字节大小
+                      int float char byte 引用类型(4字节)
+                      double long (8字节)
+                如果内存规整，使用指针碰撞
+                  如果内存是规整的，那么虚拟机将采用的是指针碰撞法来为对象分配内存。意思是所有用过的内存在一边，空闲的内存在另一边，中间放着一个指针
+                  作为分界点的指示器，分配内存就仅仅是吧指针向空闲的那边挪动一段与对象大小相等的距离。如果GC选择的是Serial或者ParNew这种基于压缩算法
+                  的，虚拟机采用这种分配方式，一般使用带有compact(整理)过程的收集器时，使用指针碰撞。
+                如果内存不规整，虚拟机需要维护一个列表，使用空闲列表分配
+                  如果内存是不规整的，已使用的内存和未使用的内存相互交换，那么虚拟机将采用的是空闲列表来法来为对象分配内存。
+                  意思是虚拟机维护了一个列表，记录上哪些内存块是可用的，再分配的时候从列表中找到一块足够大的空间划分给对象
+                  实例，并更新列表上的内容。这种分配方式为空闲列表
+                说明，选择哪种分配方式由Java堆是否规整决定，而Java堆是否规整又取决于垃圾回收器是否带有压缩整理功能决定
+          - 3.处理并发安全问题
+                在分配内存空间时，另外一个问题是及时保证new对象时候的线程安全性，创建对象是非常频繁的操作，虚拟机需要解决并发问题
+                虚拟机采用了两种方式解决并发问题
+                  CAS 失败重试，区域加锁，保证指针更新操作的原子性
+                  TLAB 把内存分配的动作按照线程划分在不同的空间之中进行，即每个线程在Java堆中预选分配一小块内存，称为本地线程分配缓冲区
+          - 4.初始化分配到空间
+                内存配分结束，虚拟机将分配到的内存空间都初始化为零值(意思就是成员变量都赋予默认值)(不包括对象头)，这一步保证了对象的实例字段
+                在Java代码中可以不用初始值就可以直接使用，程序能访问到这些字段的数据类型所对应的零值
+          - 5.设置对象的对象头
+               将，对象的所属类(即类的元数据信息)，对象的HashCode，对象的GC信息，对象的锁信息等数据存储在对象的对象头。
+               这个过程的具体设置方式取决于JVM实现
+          - 6.执行init方法进行初始化
+                在Java程序的视角看，初始化才正式开始。
+                初始化成员变量，执行实例化代码块，调用类的构造方法，并把堆内对象的首地址赋值给引用变量。
+      对象的内存布局:
+        对象头(Header):
+          运行时元数据(Mark Word):
+            - 哈希值(HashCode)
+            - GC分代年龄
+            - 锁状态标志
+            - 线程持有的锁
+            - 偏向线程ID
+            - 偏向时间戳
+          类型指针:
+            - 指向类元数据InstanceKlass，确定该对象所属的类型
+          说明: 如果是数组，还需要记录数组的长度
+        实例数据(Instance Data):
+          规则:
+            - 相同宽度的字段总是被分配在一起
+            - 父类中定义的变量会出现在子类之前
+            - 如果CompactFields参数为true(默认为true)，子类的窄变量可能插入到父类变量的空隙
+          说明: 它是对象真正存储的有效信息，包括程序代码中定义的各种类型的字段(包括从父类继承下来的和本身拥有的字段)
+        对齐填充(Padding): 不是必然的，也没有特别含义，仅仅祈祷占位符的作用
+      对象的访问定位:
       GC:
         功能:
           - https://www.bilibili.com/video/BV1PJ411n7xZ?p=76&spm_id_from=pageDriver

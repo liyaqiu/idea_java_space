@@ -4,12 +4,18 @@ package com;
  * @author eric
  * @date 2022/5/13 11:51
  **/
-public abstract class Test {
+public class Test {
+   int i;
+   int j;
+   {
+      i = 10000;
+      System.out.println(i);
+   }
+   public Test() {
+      i = 1000;
+   }
 
-   static int i = 10;
-   final static int b = 10;
 
-   public abstract void hello();
 
    public static void main(String[] args) throws InterruptedException {
       //-Xms300m -Xmx600m -XX:+PrintGCDetails
@@ -21,7 +27,8 @@ public abstract class Test {
 
       //Thread.sleep(500000);
 
-      int a = 10;
-      String b = "hello";
+      /*int a = 10;
+      String b = "hello";*/
+      new Test();
    }
 }
