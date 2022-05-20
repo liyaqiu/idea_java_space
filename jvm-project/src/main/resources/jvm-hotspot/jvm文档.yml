@@ -52,11 +52,15 @@ jvm调优工具:
       - 打印所有的参数的最终值 -XX:+PrintFlagsFinal / jinfo -flag NewRatio 11924
     jvm方法区:
       元空间:
-        设置永久代大小:
+        设置元空间大小:
           - 默认 -XX:MetaspaceSize=21m    -XX:MaxMetaspaceSize=-1无限大
           - 修改 -XX:MetaspaceSize=1g     -XX:MaxMetaspaceSize=1g
           - 查看 jinfo -flag MetaspaceSize/MaxMetaspaceSize 10780
           - 特别说明 只能通过jinfo -flag查看 初始值和最大值，图形界面看不到
+    设置直接内存的大小:
+      - 默认 直接内存大小 = 最大堆内存大小(-Xmx)
+      - 修改 -XX:MaxDirectMemorySize=100m
+      - 查看 jinfo -flag MaxDirectMemorySize 6296
     调优的目的:
       - 让GC执行次数减少，那么STW次数就减少(STW会导致用户线程暂停，GC线程执行垃圾回收)
       - MinorGC N分钟
@@ -88,6 +92,7 @@ jvm调优工具:
       - 掌握了泄漏对象的类型信息，以及GC Roots引用链的信息，就可以比较准确的定位出泄漏代码的位置
       - 如果不存在内存泄漏，换句话说就是内存中的对象却是都还必须存活的，那就应当检查虚拟机的堆参数(-Xms20m -Xmx20m),与机器物理内存对比砍是否可以调大，从代码手上检查是否存在某些对象声明周期过长，
       - 持有状态时间过长的情况，尝试减少程序运行期的内存消耗
+      - 如果dump文件没有堆溢出的情况，需要考虑一下是否是直接内存引起的OOM
 
 
 
