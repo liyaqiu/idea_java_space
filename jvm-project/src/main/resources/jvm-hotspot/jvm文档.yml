@@ -61,6 +61,10 @@ jvm调优工具:
       - 默认 直接内存大小 = 最大堆内存大小(-Xmx)
       - 修改 -XX:MaxDirectMemorySize=100m
       - 查看 jinfo -flag MaxDirectMemorySize 6296
+    设置String常量池数组大小:
+      - 字符串常量池是一个固定大小的哈希表(Hashtable)=数组+链表
+      - jdk6默认 -XX:StringTableSize=1009
+      - jdk7及以后默认 -XX:StringTableSize=60013
     调优的目的:
       - 让GC执行次数减少，那么STW次数就减少(STW会导致用户线程暂停，GC线程执行垃圾回收)
       - MinorGC N分钟

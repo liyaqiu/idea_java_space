@@ -161,7 +161,7 @@ JVM的整体结构/JVM内存模型:
               - 符号引用校验
           准备:
             功能:
-              - 为类变量分配内存，并且设置该类变量的默认初始值
+              - 为类变量分配内存，并且设置该类变量的零值(默认值)
                 java代码定义：【这里的具体赋值需要到初始化阶段调用clinit()】
                   static String a1 = “hello”
                   static int a2 = 10
@@ -170,7 +170,7 @@ JVM的整体结构/JVM内存模型:
                   static String a1 = null
                   static int a2 = 0
                   static bl a3 = false
-              - 这里不包含用final修饰类变量,因为final修饰类变量在编译的时候就会分配，准备阶段会显示初始化
+              - 为final修饰的类常量赋初始值
                   java代码定义：
                   final static String a1 = 'hello'
                   final static int a2 = 10
@@ -797,6 +797,101 @@ JVM的整体结构/JVM内存模型:
                 由伊甸园区，幸存者from区向幸存者to区复制时，对象大小大于幸存者to区可用内存，则把该对象转存到老年代，而且老年代的可用内存小于该对象大小
           - 3.方法区空间不足
                 对于一个64位的服务器端的JVM来说，其默认的-XX:MetaspaceSize=21m，这就是初始的高水位线，一旦触及这个水位线，就会触发Full GC
+      StringTable:
+        设置String常量池数组大小:
+          - 字符串常量池是一个固定大小的哈希表(Hashtable)=数组+链表
+          - jdk6默认 -XX:StringTableSize=1009
+          - jdk7及以后默认 -XX:StringTableSize=60013
+        String的基本特性:
+          - String在jdk8及以前用char[]数组来存储
+          - String在jdk9以后用byte[]数组来存储
+          - String用byte数组比char数组存储节约了空间
+          - String不可变特性
+              当对字符串重新赋值时，需要重新指定的内存区域赋值，不能使用原有的value进行辅助
+              当对现有的字符串进行连接操作时，也需要重新指定内存区域赋值，不能使用原有的value进行辅助
+              当调用String的replace()方法修改指定字符或字符串时，也需要重新指定的内存区域赋值，不能使用原有的value进行辅助
+          - 字符串常量池中是不会存储相同内容的字符串
+              字符串常量池是一个固定大小的哈希表(Hashtable)=数组+链表，如果存放的字符串越多，链表的越长，从而导致hash冲突概率越大。而链表越长后会造成的影响就是当调用String.intern()时性能大幅下降
+        String的内存分配:
+          - jdk6及以前，字符串放在方法区
+          - jdk7及以后，字符串放在堆区
+          - 将字符串存储到字符串常量池中2中方式
+              方式1，直接使用双引号生命出来的String对象会直接存储在字符串常量池中
+              方式2，使用String提供的intern()方法也可以直接存储在字符串常量池中
+        String都创建了哪些对象:
+          - String s1 = new String("123");
+              对象1 new String("123")
+              对象2 "123"
+          - String s2 = new String("123")+new String("456")
+              对象1 new StringBuilder()
+              对象2 new String("123")
+              对象3 "123"
+              对象4 new String("456")
+              对象5 "456"
+              对象6 new String("123456", 0, count)
+        String的拼接操作:
+          - 方式1,字面量与字面量的拼接，结果放在常量池中
+              编译期优化，javac以后就会成为String a = "123";
+                String a = "1"+"2"+"3";
+                String b = "123";
+                a == b true
+              javac编译期间优化 String d = "123456"
+                final String a = "123";
+                final String b = "456";
+                String c = "123456"
+                String d = a+b;
+                c == d true
+          - 方式2，只要是变量拼接，结果会放在堆中
+              String a = "123";
+              String b = "456";
+              String c = "123456"
+              String d = a+b;
+                等价于 new StringBuilder().append(a).append(b).toString()
+                toString()调用 new String(value, 0, count);
+                    new String(value, 0, count);
+                        此方法【不会】往字符串常量池中存String对象
+                    new String(value);
+                        此方法【会】往字符串常量池中存String对象
+              c == d false
+          - 方式3，利用intern()方式把字符串放入常量池(前提是常量池没有)
+              String a = "123";
+              String b = "456";
+              String c = "123456"
+              String d = (a+b).intern(); 将"123456"放入常量池
+              c == d true
+        intern()的使用:
+          - jdk1.6及以前intern()的使用
+              如果字符串常量池中有，则不创建，并且返回已有的对象地址
+              如果字符串常量池中没有，则创建，会把此【对象】复制一份，放入字符串常量池中，并且返回池中对象的地址
+          - jdk1.7及以后intern()的使用
+              如果字符串常量池中有，则不创建，并且返回已有的对象地址
+              如果字符串常量池中没有，则创建，会把此【对象的引用】复制一份，放入字符串常量池中，并且返回池中对象的地址
+          - 判断该字符串是否存在，如果存在则返回引用地址，如果不存在，则在字符串常量池中创建字符串，并且返回字符串常量池中字符串的引用地址
+              案例1
+                String s1 = new String("123");
+                String s2 = new String("12")+new String("3");
+                s1.intern()==s2.intern() true
+                s1.intern()=="123" true
+              案例2
+                String s2 = new String("12")+new String("3");
+                String s3 = "123"; 在字符串常量池创建
+                s2.intern(); 在字符串常量池【不创建】
+                System.out.println(s2 == s3); false
+                  s2 指向的是 堆空间new String("123")的地址
+                  s3 指向的是 字符串常量池 "123"的地址
+              案例3
+                String s2 = new String("12")+new String("3"); 等用于 new String("123", 0, count); 此方法【不会】往字符串常量池中存String对象
+                s2.intern(); 在字符串常量池【创建】
+                                  在jdk1.6是真实的在字符串常量池中创建了"123" [引用地址,"123"]
+                                  在jdk1.7/1.8只是创建了字符串常量池的【伪引用】指向了堆空间的new String("123")的地址 [引用地址,"堆对象引用地址"]
+                String s3 = "123";
+                System.out.println(s2 == s3); 所以jdk1.6为false,jdk1.7/1.8为true
+                  s2 指向的是 堆空间new String("123")的地址
+                  s3
+                    jdk1.6指向的是 字符串常量池 "123"的地址
+                    jdk1.7/1.8指向的是 字符串常量池【伪引用】，【伪引用】在指向了堆空间的new String("123")的真实引用地址
+        StringTable的垃圾回收:
+        G1中的String去重操作:
   下层:
     执行引擎:
       功能:
