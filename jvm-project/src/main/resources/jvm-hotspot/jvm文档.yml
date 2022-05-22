@@ -11,23 +11,29 @@ jvm官方规范文档: https://docs.oracle.com/javase/specs/index.html
             https://github.com/ingokegel/jclasslib/releases
 jvm调优工具:
   JDK命令行:
-    - 查看jvm内存和GC使用情况 jstat -gc 5000(pid)
-      S0C    S1C    S0U        S1U         EC   EU        OC        OU         MC     MU     CCSC    CCSU      YGC   YGCT    FGC    FGCT     GCT
-      幸存者0 幸存者1  幸存者0使用  幸存者1使用   伊甸园 伊甸园使用  老年代     老年代使用    4480.0 770.3  384.0   75.9       0    0.000   0      0.000    0.000
-    - 查看幸存者区跟伊甸园区占比 jinfo -flag SurvivorRatio 11924
-        -XX:SurvivorRatio=8
-        关闭自适应内存策略 -XX:-UseAdaptiveSizePolicy
-    - 查看新生代跟老年代占比 jinfo -flag NewRatio 11924
-        -XX:NewRatio=2
-        -Xmn400m 可以强行执行新生代的大小，如果此参数设置 -XX:NewRatio参数会失效
-    - 查看线程私有缓冲区TLAB jinfo -flag UseTLAB 10332
-        -XX:+UseTLAB
-
-
+    jstat:
+      - 查看jvm内存和GC使用情况 jstat -gc 5000(pid)
+        S0C    S1C    S0U        S1U         EC   EU        OC        OU         MC     MU     CCSC    CCSU      YGC   YGCT    FGC    FGCT     GCT
+        幸存者0 幸存者1  幸存者0使用  幸存者1使用   伊甸园 伊甸园使用  老年代     老年代使用    4480.0 770.3  384.0   75.9       0    0.000   0      0.000    0.000
+    jinfo:
+      - 查看幸存者区跟伊甸园区占比 jinfo -flag SurvivorRatio 11924
+          -XX:SurvivorRatio=8
+          关闭自适应内存策略 -XX:-UseAdaptiveSizePolicy
+      - 查看新生代跟老年代占比 jinfo -flag NewRatio 11924
+          -XX:NewRatio=2
+          -Xmn400m 可以强行执行新生代的大小，如果此参数设置 -XX:NewRatio参数会失效
+      - 查看线程私有缓冲区TLAB jinfo -flag UseTLAB 10332
+          -XX:+UseTLAB
+    jmap:
   JDK自带工具:
-   - jvisualvm.exe
-   - jconsole.exe
-  Eclipse-MAT: Memory Analuzer Tool
+    - jvisualvm.exe
+    - jconsole.exe
+  Eclipse-MAT(Memory Analuzer Tool):
+    - 它是一款功能强大的Java堆内存分析器，用于查找内存泄漏以及查看内存消耗情况
+    - MAT是以及Eclipse开发的，是一款免费的性能分析工具
+    - 下载地址 http://www.eclipse.org/mat
+    - 下载地址 http://www.eclipse.org/mat/previousReleases.php
+    - 下载地址 https://archive.eclipse.org/mat/1.8/rcp/MemoryAnalyzer-1.8.0.20180604-win32.win32.x86_64.zip
   Jprofiler:
     window安装: Jprofiler
     idea集成Jprofiler:
@@ -35,44 +41,46 @@ jvm调优工具:
   Java Flight Recorder:
   GCViewer:
   GC Easy:
-调优手段
-    参数文档: https://docs.oracle.com/javase/8/docs/technotes/tools/unix/java.html
-    jvm虚拟机栈参数:
-        - 调整栈大小，避免栈OOM -Xss1m
-        - 局部变量表中的变量也是重要的垃圾回收根节点，只要被局部变量表中直接或者间接引用的对象都不会被回收
-    jvm参数堆空间:
-      - 设置堆空间的大小 -Xms20m -Xmx20m
-            通常会将 -Xms -Xmx 参数配置相同的值，其目的是为了能够在Java垃圾回收机制清理完堆区后不需要重新分配计算堆区大小，从而提高性能
-      - 设置伊甸园区和幸存者区占比 -XX:SurvivorRatio=8
-      - 设置新生代跟老年代占比/或者强行设置新生代大小 -XX:NewRatio=2 / -Xmn400m
-      - 设置对象年龄的阈值(age) -XX:MaxTenuringThreshold=15
-      - 打印详细的GC日志并且打印堆信息【程序正常退出时打印】 -XX:+PrintGCDetails
-      - 打印字符串常量池的信息【程序正常退出时打印】 -XX:+PrintStringTableStatistics
-      - 打印简单GC日志 -XX:+PrintGC / -verbose:gc
-      - 打印所有的参数的默认初始值 -XX:+PrintFlagsInitial
-      - 打印所有的参数的最终值 -XX:+PrintFlagsFinal / jinfo -flag NewRatio 11924
-    jvm方法区:
-      元空间:
-        设置元空间大小:
-          - 默认 -XX:MetaspaceSize=21m    -XX:MaxMetaspaceSize=-1无限大
-          - 修改 -XX:MetaspaceSize=1g     -XX:MaxMetaspaceSize=1g
-          - 查看 jinfo -flag MetaspaceSize/MaxMetaspaceSize 10780
-          - 特别说明 只能通过jinfo -flag查看 初始值和最大值，图形界面看不到
-    设置直接内存的大小:
-      - 默认 直接内存大小 = 最大堆内存大小(-Xmx)
-      - 修改 -XX:MaxDirectMemorySize=100m
-      - 查看 jinfo -flag MaxDirectMemorySize 6296
-    设置String常量池数组大小:
-      - 字符串常量池是一个固定大小的哈希表(Hashtable)=数组+链表
-      - jdk6默认 -XX:StringTableSize=1009
-      - jdk7及以后默认 -XX:StringTableSize=60013
-      - 打印字符串常量池的信息【程序正常退出时打印】 -XX:+PrintStringTableStatistics
+调优手段:
+    参数设置:
+      参数文档: https://docs.oracle.com/javase/8/docs/technotes/tools/unix/java.html
+      jvm虚拟机栈参数:
+          - 调整栈大小，避免栈OOM -Xss1m
+          - 局部变量表中的变量也是重要的垃圾回收根节点，只要被局部变量表中直接或者间接引用的对象都不会被回收
+      jvm参数堆空间:
+        - 设置堆空间的大小 -Xms20m -Xmx20m
+              通常会将 -Xms -Xmx 参数配置相同的值，其目的是为了能够在Java垃圾回收机制清理完堆区后不需要重新分配计算堆区大小，从而提高性能
+        - 设置伊甸园区和幸存者区占比 -XX:SurvivorRatio=8
+        - 设置新生代跟老年代占比/或者强行设置新生代大小 -XX:NewRatio=2 / -Xmn400m
+        - 设置对象年龄的阈值(age) -XX:MaxTenuringThreshold=15
+        - 打印详细的GC日志并且打印堆信息【程序正常退出时打印】 -XX:+PrintGCDetails
+        - 打印字符串常量池的信息【程序正常退出时打印】 -XX:+PrintStringTableStatistics
+        - 打印简单GC日志 -XX:+PrintGC / -verbose:gc
+        - 打印所有的参数的默认初始值 -XX:+PrintFlagsInitial
+        - 打印所有的参数的最终值 -XX:+PrintFlagsFinal / jinfo -flag NewRatio 11924
+        - 在程序出现OOM的时候生成dump文件(java_pid15508.hprof) -XX:+HeapDumpOnOutOfMemoryError
+      jvm方法区:
+        元空间:
+          设置元空间大小:
+            - 默认 -XX:MetaspaceSize=21m    -XX:MaxMetaspaceSize=-1无限大
+            - 修改 -XX:MetaspaceSize=1g     -XX:MaxMetaspaceSize=1g
+            - 查看 jinfo -flag MetaspaceSize/MaxMetaspaceSize 10780
+            - 特别说明 只能通过jinfo -flag查看 初始值和最大值，图形界面看不到
+      设置直接内存的大小:
+        - 默认 直接内存大小 = 最大堆内存大小(-Xmx)
+        - 修改 -XX:MaxDirectMemorySize=100m
+        - 查看 jinfo -flag MaxDirectMemorySize 6296
+      设置String常量池数组大小:
+        - 字符串常量池是一个固定大小的哈希表(Hashtable)=数组+链表
+        - jdk6默认 -XX:StringTableSize=1009
+        - jdk7及以后默认 -XX:StringTableSize=60013
+        - 打印字符串常量池的信息【程序正常退出时打印】 -XX:+PrintStringTableStatistics
     调优的目的:
       - 让GC执行次数减少，那么STW次数就减少(STW会导致用户线程暂停，GC线程执行垃圾回收)
       - MinorGC N分钟
       - MaiorGC和FullGC N*10倍以上分钟
       - FullGC是开发或者调优尽量要避免的，这样暂停时间会短一些
-    GC日志分析:
+    PrintGCDetails日志分析:
       - * "-Xms300m -Xmx300m -XX:+PrintGCDetails"
         *
         * 都没写则为堆区 52967K->17272K(294400K)
@@ -99,7 +107,17 @@ jvm调优工具:
       - 如果不存在内存泄漏，换句话说就是内存中的对象却是都还必须存活的，那就应当检查虚拟机的堆参数(-Xms20m -Xmx20m),与机器物理内存对比砍是否可以调大，从代码手上检查是否存在某些对象声明周期过长，
       - 持有状态时间过长的情况，尝试减少程序运行期的内存消耗
       - 如果dump文件没有堆溢出的情况，需要考虑一下是否是直接内存引起的OOM
-
+    dump文件获取的2中方式:
+      jmap方式: jmap -dump:format=b,live,file=test1.bin 2680
+      jvisualvm方式: 监视器选项 -> 右上角找到dump按钮 -> 左边栏目找到dump文件另存为
+      使用参数方式: 在程序出现OOM的时候生成dump文件(java_pid15508.hprof) -XX:+HeapDumpOnOutOfMemoryError
+    MAT与查看GC Roots溯源:
+      - 1。需要准备dump文件
+      - 2.打开MAT工具 -> Open Query Browser -> Java Basics -> GC Roots
+    JProfiler查看GC Roots溯源:
+      - idea集成JProfiler,直接运行 -> Live Memory -> All Object
+                                                        -> View -> Mark Current Value
+                                                        -> 手动触发Run GC观察对象变化
 
 
 

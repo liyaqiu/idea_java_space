@@ -7,6 +7,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author lyq
  * @date 2021/12/4 12:34
@@ -18,8 +21,8 @@ public class Launcher {
 
     public static void main(String[] args) {
         ConfigurableApplicationContext context = SpringApplication.run(Launcher.class, args);
-    }
 
+    }
 
 }
 
