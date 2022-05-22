@@ -46,7 +46,8 @@ jvm调优工具:
       - 设置伊甸园区和幸存者区占比 -XX:SurvivorRatio=8
       - 设置新生代跟老年代占比/或者强行设置新生代大小 -XX:NewRatio=2 / -Xmn400m
       - 设置对象年龄的阈值(age) -XX:MaxTenuringThreshold=15
-      - 打印详细的GC日志并且打印堆信息 -XX:+PrintGCDetails
+      - 打印详细的GC日志并且打印堆信息【程序正常退出时打印】 -XX:+PrintGCDetails
+      - 打印字符串常量池的信息【程序正常退出时打印】 -XX:+PrintStringTableStatistics
       - 打印简单GC日志 -XX:+PrintGC / -verbose:gc
       - 打印所有的参数的默认初始值 -XX:+PrintFlagsInitial
       - 打印所有的参数的最终值 -XX:+PrintFlagsFinal / jinfo -flag NewRatio 11924
@@ -65,6 +66,7 @@ jvm调优工具:
       - 字符串常量池是一个固定大小的哈希表(Hashtable)=数组+链表
       - jdk6默认 -XX:StringTableSize=1009
       - jdk7及以后默认 -XX:StringTableSize=60013
+      - 打印字符串常量池的信息【程序正常退出时打印】 -XX:+PrintStringTableStatistics
     调优的目的:
       - 让GC执行次数减少，那么STW次数就减少(STW会导致用户线程暂停，GC线程执行垃圾回收)
       - MinorGC N分钟
