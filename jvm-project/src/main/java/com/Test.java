@@ -31,23 +31,10 @@ public class Test {
       // s1  10  20
       //老年代 - 200 400
       // List<Object> list = new ArrayList<>();
-       new Thread(new Runnable() {
-           @SneakyThrows
-           @Override
-           public void run() {
-               while (true){
-                   Thread.sleep(1000);
-                   log.info("循环: {}","1");
-               }
-           }
-       }).start();
-
-       while (true){
-           test();
-           new Scanner(System.in).next();
-           System.gc();
-       }
-   }
+      Integer i = 10;
+      Integer j = 20;
+      System.out.println(i + j);
+    }
 
 
 }
