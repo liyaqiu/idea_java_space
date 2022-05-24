@@ -24,6 +24,8 @@ jvm调优工具:
           -Xmn400m 可以强行执行新生代的大小，如果此参数设置 -XX:NewRatio参数会失效
       - 查看线程私有缓冲区TLAB jinfo -flag UseTLAB 10332
           -XX:+UseTLAB
+      - 查看JVM使用了哪款GC
+          jinfo -flag UseParallelGC 17752
     jmap:
   JDK自带工具:
     - jvisualvm.exe
@@ -75,6 +77,16 @@ jvm调优工具:
         - jdk6默认 -XX:StringTableSize=1009
         - jdk7及以后默认 -XX:StringTableSize=60013
         - 打印字符串常量池的信息【程序正常退出时打印】 -XX:+PrintStringTableStatistics
+      GC参数设置:
+        - 查看GC使用 -XX:+PrintCommandLineFlags
+        - 查看GC使用 jinfo -flag UseParallelGC 17752
+        - 修改方式1
+            -XX:+UseParallelGC == Parallel Scavenge（新生代）
+            -XX:+UseParallelOldGC == Parallel Old（老生代）
+        - 修改方式2
+            -XX:+UseParallelGC 等同于 (-XX:+UseParallelGC)+(-XX:+UseParallelOldGC)
+        - 修改方式3
+            -XX:+UseG1GC == G1（新生代+老年代）
     调优的目的:
       - 让GC执行次数减少，那么STW次数就减少(STW会导致用户线程暂停，GC线程执行垃圾回收)
       - MinorGC N分钟

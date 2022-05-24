@@ -34,6 +34,7 @@ public class Test {
       Integer i = 10;
       Integer j = 20;
       System.out.println(i + j);
+      Thread.sleep(Integer.MAX_VALUE);
     }
 
 

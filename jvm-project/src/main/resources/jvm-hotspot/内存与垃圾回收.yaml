@@ -1272,19 +1272,60 @@ JVM的整体结构/JVM内存模型:
           功能:
             - 垃圾回收器没有在规范中进行过多的规定，可以由不同的厂商，不同版本的 JVM来实现
             - 由于JDK的版本处于高速迭代过程中，因此Java发展至今已经衍生了众多GC版本
-          并发GC:
-            - 从GC角度来看，用户线程和垃圾收集线程并发执行(交替执行)
-            - 但是某一时刻其实用户线程也是处于暂停状态，只是说相对于并行GC来说，暂停时间较短
-            - CMS
-            - G1
-          并行GC:
-            - 从GC角度来看，多条垃圾收集线程并行工作，但此时用户线程处于暂停状态
-            - ParNew
-            - Parallel Scavenge
-            - Parallel Old
-          串行GC:
-            - 从GC角度来看，1条垃圾收集线程并行工作，但此时用户线程处于暂停状态
-            - Serial
+          7款经典的垃圾回收器:
+            串行GC:
+              - 从GC角度来看，1条垃圾收集线程并行工作，但此时用户线程处于暂停状态
+              - Serial（新生代）
+              - Serial Old（老生代）
+            并行GC:
+              - 从GC角度来看，多条垃圾收集线程并行工作，但此时用户线程处于暂停状态
+              - Parallel Scavenge（新生代）
+              - Parallel Old（老生代）
+              - ParNew （新生代）
+            并发GC:
+              - 从GC角度来看，用户线程和垃圾收集线程并发执行(交替执行)
+              - 但是某一时刻其实用户线程也是处于暂停状态，只是说相对于并行GC来说，暂停时间较短
+              - CMS（老生代）
+              - G1（新生代+老年代）
+            GC组合使用:
+              JDK7及以前GC组合使用:
+                - Serial（新生代）+ Serial Old（老生代）
+                - Serial（新生代）+ CMS（老生代）-> 后备方案 Serial Old（老生代）
+                - ParNew（新生代）+ Serial Old（老生代）
+                - ParNew（新生代）+ CMS（老生代）-> 后备方案 Serial Old（老生代）
+                - Parallel Scavenge （新生代）+ Parallel Old（老生代）
+                - Parallel Scavenge （新生代）+ Serial Old（老生代）
+                - G1 （新生代+老年代）
+              JDK8的GC组合使用:
+                - Serial（新生代）+ Serial Old（老生代）
+                - Serial（新生代）+ CMS（老生代）-> 后备方案 Serial Old（老生代） 标记为弃用
+                - ParNew（新生代）+ Serial Old（老生代） 标记为弃用
+                - ParNew（新生代）+ CMS（老生代）-> 后备方案 Serial Old（老生代）
+                - Parallel Scavenge （新生代）+ Parallel Old（老生代） 【默认使用】
+                - Parallel Scavenge （新生代）+ Serial Old（老生代）
+                - G1 （新生代+老年代）
+              JDK9的GC组合使用:
+                - Serial（新生代）+ Serial Old（老生代）
+                - ParNew（新生代）+ CMS（老生代）-> 后备方案 Serial Old（老生代）
+                - Parallel Scavenge （新生代）+ Parallel Old（老生代）
+                - Parallel Scavenge （新生代）+ Serial Old（老生代）
+                - G1 （新生代+老年代） 【默认使用】
+              JDK14的GC组合使用:
+                - Serial（新生代）+ Serial Old（老生代）
+                - ParNew（新生代）+ CMS（老生代）-> 后备方案 Serial Old（老生代） 删除了CMS
+                - Parallel Scavenge （新生代）+ Parallel Old（老生代）
+                - Parallel Scavenge （新生代）+ Serial Old（老生代） 标记为弃用
+                - G1 （新生代+老年代）
+            GC参数设置:
+              - 查看GC使用 -XX:+PrintCommandLineFlags
+              - 查看GC使用 jinfo -flag UseParallelGC 17752
+              - 修改方式1
+                  -XX:+UseParallelGC == Parallel Scavenge（新生代）
+                  -XX:+UseParallelOldGC == Parallel Old（老生代）
+              - 修改方式2
+                  -XX:+UseParallelGC 等同于 (-XX:+UseParallelGC)+(-XX:+UseParallelOldGC)
+              - 修改方式3
+                  -XX:+UseG1GC == G1（新生代+老年代）
           GC分类与性能指标:
             GC分类:
               按线程数分类:
@@ -1308,12 +1349,19 @@ JVM的整体结构/JVM内存模型:
                 - 年轻代垃圾回收器
                 - 老年代垃圾回收器
             性能指标:
-              功能: 一款优秀的收集器通常最多满足以下两项指标
+              功能:
+                - 一款优秀的收集器通常在最大的吞吐量有限的情况下，降低暂停时间
+                - 不幸的是，高吞吐量和低暂停时间是一个反比例
+                    如果选择吞吐量优先，必然需要降低内存回收的执行频率，但是这样会导致GC需要更长的展厅时间来执行内存回收
+                    如果选择低延迟优先，那么位了降低每次执行内存回收的暂停时间，也只能频繁的执行内存回收，但这又引起了吞吐量下降
+                - 在设计或者使用GC算法时，我们必须确定目标，一个算法只能针对吞吐量或者暂停时间来考虑，在或者在吞吐量和暂停时间找到一个折中点
               指标:
                 - 吞吐量
                     运行用户代码的时间占用总运行时间的比例(总运行时间=用户代码时间+GC回收时间)
-                - 暂停时间(STW总时间)
+                    这种情况下，单次GC的时间可能较长，但是总的吞吐量较高
+                - 暂停时间
                     执行垃圾收集时，用户线程被暂停的时间
+                    这种情况下，单次GC的时间可能较短，但是总的吞吐量较低
                 - 内存占用
                     Java堆区所占用的内存大小
           不同的垃圾回收器概述:
