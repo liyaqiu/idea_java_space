@@ -15,17 +15,7 @@ jvm调优工具:
       - 查看jvm内存和GC使用情况 jstat -gc 5000(pid)
         S0C    S1C    S0U        S1U         EC   EU        OC        OU         MC     MU     CCSC    CCSU      YGC   YGCT    FGC    FGCT     GCT
         幸存者0 幸存者1  幸存者0使用  幸存者1使用   伊甸园 伊甸园使用  老年代     老年代使用    4480.0 770.3  384.0   75.9       0    0.000   0      0.000    0.000
-    jinfo:
-      - 查看幸存者区跟伊甸园区占比 jinfo -flag SurvivorRatio 11924
-          -XX:SurvivorRatio=8
-          关闭自适应内存策略 -XX:-UseAdaptiveSizePolicy
-      - 查看新生代跟老年代占比 jinfo -flag NewRatio 11924
-          -XX:NewRatio=2
-          -Xmn400m 可以强行执行新生代的大小，如果此参数设置 -XX:NewRatio参数会失效
-      - 查看线程私有缓冲区TLAB jinfo -flag UseTLAB 10332
-          -XX:+UseTLAB
-      - 查看JVM使用了哪款GC
-          jinfo -flag UseParallelGC 17752
+    jinfo:  jinfo -flag SurvivorRatio 11924
     jmap:
   JDK自带工具:
     - jvisualvm.exe
@@ -47,15 +37,17 @@ jvm调优工具:
     参数设置:
       参数文档: https://docs.oracle.com/javase/8/docs/technotes/tools/unix/java.html
       jvm虚拟机栈参数:
-          - 调整栈大小，避免栈OOM -Xss1m
+          - 调整栈大小，避免栈溢出 -Xss1m
           - 局部变量表中的变量也是重要的垃圾回收根节点，只要被局部变量表中直接或者间接引用的对象都不会被回收
       jvm参数堆空间:
-        - 设置堆空间的大小 -Xms20m -Xmx20m
+        - 设置堆空间的大小 -Xms20m -Xmx20m / -XX:InitialHeapSize=10m -XX:MaxHeapSize=10m
               通常会将 -Xms -Xmx 参数配置相同的值，其目的是为了能够在Java垃圾回收机制清理完堆区后不需要重新分配计算堆区大小，从而提高性能
-        - 设置伊甸园区和幸存者区占比 -XX:SurvivorRatio=8
-        - 设置新生代跟老年代占比/或者强行设置新生代大小 -XX:NewRatio=2 / -Xmn400m
+        - 设置伊甸园区和幸存者区占比/关闭自适应内存策略 -XX:SurvivorRatio=8 / -XX:-UseAdaptiveSizePolicy
+        - 设置新生代跟老年代占比/或者强行设置新生代大小 -XX:NewRatio=2 / -Xmn400m(-XX:MaxNewSize=10m)
         - 设置对象年龄的阈值(age) -XX:MaxTenuringThreshold=15
+        - 开启/设置线程私有缓冲区 -XX:+UseTLAB / -XX:TLABSize=512k
         - 打印详细的GC日志并且打印堆信息【程序正常退出时打印】 -XX:+PrintGCDetails
+        - 打印设置过的参数 -XX:+PrintCommandLineFlags
         - 打印字符串常量池的信息【程序正常退出时打印】 -XX:+PrintStringTableStatistics
         - 打印简单GC日志 -XX:+PrintGC / -verbose:gc
         - 打印所有的参数的默认初始值 -XX:+PrintFlagsInitial
@@ -79,14 +71,18 @@ jvm调优工具:
         - 打印字符串常量池的信息【程序正常退出时打印】 -XX:+PrintStringTableStatistics
       GC参数设置:
         - 查看GC使用 -XX:+PrintCommandLineFlags
-        - 查看GC使用 jinfo -flag UseParallelGC 17752
         - 修改方式1
-            -XX:+UseParallelGC == Parallel Scavenge（新生代）
-            -XX:+UseParallelOldGC == Parallel Old（老生代）
+            jinfo -flag UseParallelGC 17752
+            jinfo -flag UseParallelOldGC 17752
+            -XX:+UseParallelGC 等同于 Parallel Scavenge（新生代）
+            -XX:+UseParallelOldGC 等同于 Parallel Old（老生代）
+            -XX:+UseParallelGC 等同于 Parallel Scavenge（新生代）+ Parallel Old（老生代）
         - 修改方式2
-            -XX:+UseParallelGC 等同于 (-XX:+UseParallelGC)+(-XX:+UseParallelOldGC)
+           jinfo -flag UseG1GC 15064
+           -XX:+UseG1GC == G1（新生代+老年代）
         - 修改方式3
-            -XX:+UseG1GC == G1（新生代+老年代）
+            jinfo -flag UseSerialGC 15064
+            -XX:+UseSerialGC 等同于 Serial（新生代）+ Serial Old（老生代）
     调优的目的:
       - 让GC执行次数减少，那么STW次数就减少(STW会导致用户线程暂停，GC线程执行垃圾回收)
       - MinorGC N分钟

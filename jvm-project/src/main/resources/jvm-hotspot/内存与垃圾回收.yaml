@@ -441,7 +441,7 @@ JVM的整体结构/JVM内存模型:
                   - 一旦对象在TLAB空间分配内存失败时，JVM就会尝试着通过使用【加锁机制确保数据操作的原子性】，从而直接在伊甸园空间中分配内存
                 TLAB参数设置:
                   - 查看 TLAB jinfo -flag UseTLAB 10332
-                      -XX:+UseTLAB
+                  - 开启或关闭 -XX:+UseTLAB默认开启
                   - 默认设置 -XX:TLABSize=512k
             幸存者区(S0/S1):
               功能:
@@ -460,6 +460,7 @@ JVM的整体结构/JVM内存模型:
             - -Xms20K -Xmx20K
             - -Xms20m -Xmx20m
             - -Xms1g -Xmx1g
+            - -XX:InitialHeapSize=10m -XX:MaxHeapSize=10m
             - 默认情况下
                初始内存 物理电脑内存大小/64
                   long initSize = Runtime.getRuntime().totalMemory() / 1024 /1024;
@@ -477,6 +478,7 @@ JVM的整体结构/JVM内存模型:
             - 默认 -XX:NewRatio=2，表示新生代占1，老年代占2，新生代占整个堆的1/3
             - 修改 -XX:NewRatio=4，表示新生代占1，老年代占4，新生代占整个堆的1/5
             - -Xmn400m 可以强行执行新生代的大小，如果此参数设置 -XX:NewRatio参数会失效
+            - -XX:MaxNewSize=10m 可以强行执行新生代的大小，如果此参数设置 -XX:NewRatio参数会失效
           设置对象年龄的阈值(age):
             - 默认 -XX:MaxTenuringThreshold=15
             - 修改 -XX:MaxTenuringThreshold=20
@@ -960,6 +962,9 @@ JVM的整体结构/JVM内存模型:
         什么是内存溢出:
           - 有可能是内存泄漏导致的
           - 有可能是在创建对象，内存不足导致的
+        什么是STW(Stop The World):
+          - GC在进行标记和清除的时候需要STW
+          - CMS例外，它在初始标记和重新标记阶段需要STW，在并发标记和并发清理的时候允许GC线程和用户线程同时执行
         早期垃圾回收:
           - 在早起的C/C++时代，垃圾回收基本上是手工进行的，开发人员可以使用new关键字进行内存的申请，并使用delete关键字进行内存的释放。
           - 这种方式可以灵活控制释放的时间，但是会给开发人员带来频繁申请和释放内存的管理负担，倘若有一处内存区域由于程序员编码的问题忘记回收，那么就会导致内存泄漏，垃圾对象永远被清除，随着系统运行时间的不断增长，垃圾对象所消耗的内存可能持续上升，指导出现内存溢出并造成应用程序奔溃
@@ -1274,58 +1279,195 @@ JVM的整体结构/JVM内存模型:
             - 由于JDK的版本处于高速迭代过程中，因此Java发展至今已经衍生了众多GC版本
           7款经典的垃圾回收器:
             串行GC:
-              - 从GC角度来看，1条垃圾收集线程并行工作，但此时用户线程处于暂停状态
-              - Serial（新生代）
-              - Serial Old（老生代）
+              功能: 从GC角度来看，1条垃圾收集线程并行工作，但此时用户线程处于暂停状态
+              Serial:
+                功能:
+                  - Serial
+                  - Serial回收器是最基本，历史最悠久的垃圾回收器。JDK1.3之前回收新生代唯一的选择
+                  - Serial回收器最为Hotspot中Client模式下的默认新生代垃圾回收器
+                  - Serial回收器采用复制算法，串行回收和和StopTheWorld机制的方式执行内存回收
+                  - 除了年轻代之外，Serial回收器还提供用于执行老年代垃圾收集的Serial Old回收器。
+                  - Serial Old回收器同样也采用了串行回收和StopTheWorld机制，只不过内存回收算法使用的是标记压缩算法
+                  - Serial Old是运行在Client模式下默认的老年代垃圾回收器
+                  - Serial Old在Server模式下主要有两个用途
+                      第一，与新生代的Parallel Scavenge配合使用
+                      第二，作为老年代的CMS回收器的后备方案
+                优势:
+                  - 在单核CPU场景下，简单高效，省去了GC线程的上下文切换开销
+                  - 运行在Client模式下的虚拟机是个不错的选择
+                  - 在用户的桌面应用场景中，可用内存一般不大(几十兆到几百兆)，可以在较短时间内完成垃圾回收，只要不频繁发生，使用串行回收器是可以接受的。
+                总结:
+                  - 这种垃圾回收器大家了解，现在已经不同串行的了，而且在限定的单核CPU才可以用，现在都不是单核CPU时代了
+                  - 对于交互较强的应用而言，这种垃圾回收器是不能接受的。一般在Java Web应用程序中是不会采用串行垃圾收集器的
+                Serial（新生代）: 复制算法，串行回收(单线程)，StopTheWorld机制
+                Serial Old（老年代）: 标记压缩算法，串行回收(单线程)，StopTheWorld机制
             并行GC:
-              - 从GC角度来看，多条垃圾收集线程并行工作，但此时用户线程处于暂停状态
-              - Parallel Scavenge（新生代）
-              - Parallel Old（老生代）
-              - ParNew （新生代）
+              功能:
+                - 从GC角度来看，多条垃圾收集线程并行工作，但此时用户线程处于暂停状态
+              ParNew （新生代）:
+                功能:
+                  - 如果说Serial GC是年轻代的单线程垃圾收回器，那么ParNew回收器则是Serial回收器的多线程版本。
+                  - Par是Parallel的缩写，New只能处理新生代
+                  - ParNew回收器除了采用并行回收的方式回收内存外，ParNew和Serial两款垃圾回收器之间几乎任何区别。
+                  - ParNew回收器在年轻代同样也是采用复制算法，StopTheWorld机制
+                  - 对于新生代，回收次数频繁，使用并行回收方式(多线程)高效率
+                优势:
+                  - 多核CPU场景下使用ParNew
+                  - ParNew回收器运行在CPU多核环境下，由于可充分利用多核心等物理硬件资源优势，可以更快的完成垃圾回收，提升程序的吞吐量
+                  - 但是在单核CPU的环境下，ParNew回收器不比Serial回收器高效。因为ParNew并行回收的时候需要进行多线程切换，从而导致开销更大。
+                ParNew （新生代）: 复制算法，并行回收(多线程)，StopTheWorld机制
+              Parallel:
+                功能:
+                  - 吞吐量优先
+                  - Hotspot的年轻代除了Parnew是并行回收器以外，还有Parallel Scavenge回收器
+                  - Parallel Scavenge回收器同样也采用了复制算法，并行回收，StopTheWorld机制
+                  - Parallel Scavenge和ParNew不同，Parallel Scavenge回收器的目标是达到一个可控制的吞吐量，它也被称为吞吐量优先的垃圾回收器
+                  - Parallel Scavenge可以自适应调节策略，是和ParNew一个重要的区别
+                  - Parallel回收器在JDK1.6时提供了用于执行老年代垃圾回收器Parallel Old，用来代替老年代的Serial Old
+                  - Parallel Old回收器采用标记压缩算法，并行回收，StopTheWorld机制
+                  - 在JDK8中默认使用Parallel Scavenge + Parallel Old
+                优点:
+                  - 高吞吐量则可以高效率的利用CPU时间，尽快完成程序运算任务。
+                  - 主要适合【后台运算而不需要太多交互的任务】，因此最常见在服务器环境中使用。例如，批量处理，订单处理，工资支付，科学计算的应用程序
+                  - 在吞吐量优先的场景中，Parallel Scavenge 和 Parallel Old的组合，在Server模式下的内存回收性能很不错。
+                Parallel Scavenge（新生代）: 复制算法，并行回收(多线程)，StopTheWorld机制，自适应调节策略
+                Parallel Old（老年代）: 标记压缩算法，并行回收(多线程)，StopTheWorld机制，自适应调节策略
             并发GC:
-              - 从GC角度来看，用户线程和垃圾收集线程并发执行(交替执行)
-              - 但是某一时刻其实用户线程也是处于暂停状态，只是说相对于并行GC来说，暂停时间较短
-              - CMS（老生代）
-              - G1（新生代+老年代）
+              功能:
+                - 从GC角度来看，用户线程和垃圾收集线程并发执行(交替执行)
+                - 但是某一时刻其实用户线程也是处于暂停状态，只是说相对于并行GC来说，暂停时间较短
+              CMS（老年代）:
+                功能:
+                  - 在JDK1.5时期，Hotspot退出了一款在强交互应用中几乎可认为有划时代意义的垃圾回收器CMS(Concurrent Mark Sweep)
+                  - CMS是Hotspot虚拟机中第一款真正意义上的并发回收器，它第一次实现了让GC线程和用户线程同时工作。
+                  - CMS回收器是关注点是尽可能缩短垃圾回收时用户线程的暂停时间，暂停时间越短(低延迟)就适合与用户交互的程序，良好的响应速度能提升用户体验。
+                  - 不幸的是，CMS作为老年代的收集器，却无法与JDK1.4中已经存在的新生代收集器Parallel Scavenge配合使用，所以在JDK1.5中使用CMS来回收老年代的时候，新生代只能选择ParNew或者Serial搭配使用
+                  - 在G1出现之前，CMS使用还是非常广泛，一直到今天，仍然有很多系统使用CMS
+                  - 尽管CMS回收器采用的是并发回收(非独占式)，但是在其初始化标记和重新标记这两个节点中仍然需要SWT机制暂停用户线程，不过暂停时间并不会太长，因此可以说明目前所有的垃圾回收器都做不到不需要STW，只是尽可能的缩短SWT的时间。
+                  - 由于最耗时的并发标记与并发清除阶段都不需要暂停用户线程，所以整体的回收是低延迟的。
+                  - 另外，由于在并发回收阶段用户线程没有中断，所以在CMS回收过程中，还应该确保用户线程有足够的内存使用。
+                  - 因此，CMS回收器不能像其他回收器那样等到老年代几乎完全被填满了在进行回收，而是当堆内训使用率达到某一阈值时，便开始进行回收，以确保用户线程在CMS工作过程中依然有足够的空间。
+                  - 但是CMS运行期间预留的内存无法满足程序需要，就会出现一次Concurrent Mode Failure失败，这时虚拟机将启动后备方案,临时启动Serial Old回收器来重新进行老年代的垃圾回收，这样停止时间就会变得很长了。
+                  - CMS回收器采用了标记清除算法，这意味着每次执行了GC以后，由于内训回收无用对象所占用的内存空间既有可能是不连续的一些内存块，不可避免的将会产生一些内存碎片。那么CMS在为新对象分配内存空间时，不能使用指针碰撞方式了，只能使用空间列表执行内存分配。
+                CMS用的是标记清理算法，为什么不使用标记压缩算法?:
+                  - 其实答案很简单，因为当并发清除的时候，用户线程也在同时执行，如果用标记压缩算法会对内存碎片整理，就会造成内存分配上的资源抢占。
+                CMS工作原理:
+                  - CMS整个过程比之前的收集器要复杂，整个过程分为4个主要阶段
+                  - 1.初始标记
+                        这个阶段中，需要暂停所有用户线程
+                        这个阶段的主要任务仅仅是标记出所有GC Root。
+                        一旦标记完成之后，就会恢复用户线程，由于只是标记出所有GC Root，所以速度非常快。
+                  - 2.并发标记
+                        这个阶段中，用户线程与GC线程并发执行
+                        从GC Roots的直接关联的对象开始遍历整个对象图的过程
+                        这个过程耗时较长，但是【不需要暂停用户线程】，可以与GC线程一起并发执行。
+                  - 3.重新标记
+                        这个阶段中，需要暂停所有用户线程
+                        由于在并发标记阶段中，用户线程会和GC线程同时执行，有可能会对之前并发标记过的 GCRoots有所修改。
+                        因此为了修正并发标记期间因用户线程继续运行而导致标记产生变动的那一部分对象的标记记录(对之前的标记过的GC Roots修正，而不是用户线程产生的新垃圾(浮动垃圾))。
+                        这个阶段的暂停时间比初始标记时间长一些，比并发标记时间段一些
+                  - 4.并发清除
+                        这个阶段中，用户线程与GC线程并发执行
+                        此阶段清理删除掉标记阶段判断的已经死亡的对象，释放内存空间。
+                        由于不需要移动存活对象，所以这个阶段也是可以与用户线程同时并发的。
+                优点:
+                  - 并发清理，低延迟
+                  - 目前多Java应用集中在B/S服架构上，这类应用尤其重视服务的响应速度，希望系统暂停时间最短，以给用户带来较好的体验。
+                  - CMS收集器非常适合交互场景多的应用
+                缺点:
+                  - 会产生内存碎片，导致并发清除后，用户线程可用的空间不足，在无法分配大对象的情况下，不得不提前触发Full GC
+                  - CMS回收器对CPU资源非常敏感，在并发阶段，它虽然不会导致用户线程暂停，但是会因为占用了一部分线程而导致用户线程减少，从而总吞吐量会降低。
+                  - CMS回收器无法处理浮动垃圾，可能出现Concurrent Mode Failure 失败而导致另一次Full GC的产生，在并发标记阶段由于用户线程和GC线程同时运行，那么在并发阶段如果用户线程产生新的垃圾对象，CMS将无法对这些垃圾进行标记，最终会导致这些新产生的垃圾对象没有被及时回收，只能由下次GC在进行垃圾回收。
+                CMS（老年代）: 标记清除算法，并发回收，StopTheWorld机制
+              G1（新生代+老年代）:
             GC组合使用:
               JDK7及以前GC组合使用:
-                - Serial（新生代）+ Serial Old（老生代）
-                - Serial（新生代）+ CMS（老生代）-> 后备方案 Serial Old（老生代）
-                - ParNew（新生代）+ Serial Old（老生代）
-                - ParNew（新生代）+ CMS（老生代）-> 后备方案 Serial Old（老生代）
-                - Parallel Scavenge （新生代）+ Parallel Old（老生代）
-                - Parallel Scavenge （新生代）+ Serial Old（老生代）
+                - Serial（新生代）+ Serial Old（老年代）
+                - Serial（新生代）+ CMS（老年代）-> 后备方案 Serial Old（老年代）
+                - ParNew（新生代）+ Serial Old（老年代）
+                - ParNew（新生代）+ CMS（老年代）-> 后备方案 Serial Old（老年代）
+                - Parallel Scavenge （新生代）+ Parallel Old（老年代）
+                - Parallel Scavenge （新生代）+ Serial Old（老年代）
                 - G1 （新生代+老年代）
               JDK8的GC组合使用:
-                - Serial（新生代）+ Serial Old（老生代）
-                - Serial（新生代）+ CMS（老生代）-> 后备方案 Serial Old（老生代） 标记为弃用
-                - ParNew（新生代）+ Serial Old（老生代） 标记为弃用
-                - ParNew（新生代）+ CMS（老生代）-> 后备方案 Serial Old（老生代）
-                - Parallel Scavenge （新生代）+ Parallel Old（老生代） 【默认使用】
-                - Parallel Scavenge （新生代）+ Serial Old（老生代）
+                - Serial（新生代）+ Serial Old（老年代）
+                - Serial（新生代）+ CMS（老年代）-> 后备方案 Serial Old（老年代）
+                - ParNew（新生代）+ Serial Old（老年代） 标记为弃用
+                - ParNew（新生代）+ CMS（老年代）-> 后备方案 Serial Old（老年代）
+                - Parallel Scavenge （新生代）+ Parallel Old（老年代） 【默认使用】
+                - Parallel Scavenge （新生代）+ Serial Old（老年代）
                 - G1 （新生代+老年代）
               JDK9的GC组合使用:
-                - Serial（新生代）+ Serial Old（老生代）
-                - ParNew（新生代）+ CMS（老生代）-> 后备方案 Serial Old（老生代）
-                - Parallel Scavenge （新生代）+ Parallel Old（老生代）
-                - Parallel Scavenge （新生代）+ Serial Old（老生代）
+                - Serial（新生代）+ Serial Old（老年代）
+                - ParNew（新生代）+ CMS（老年代）-> 后备方案 Serial Old（老年代） 标记弃用
+                - Parallel Scavenge （新生代）+ Parallel Old（老年代）
+                - Parallel Scavenge （新生代）+ Serial Old（老年代）
                 - G1 （新生代+老年代） 【默认使用】
               JDK14的GC组合使用:
-                - Serial（新生代）+ Serial Old（老生代）
-                - ParNew（新生代）+ CMS（老生代）-> 后备方案 Serial Old（老生代） 删除了CMS
-                - Parallel Scavenge （新生代）+ Parallel Old（老生代）
-                - Parallel Scavenge （新生代）+ Serial Old（老生代） 标记为弃用
+                - Serial（新生代）+ Serial Old（老年代）
+                - ParNew（新生代）+ CMS（老年代）-> 后备方案 Serial Old（老年代） 删除了CMS
+                - Parallel Scavenge （新生代）+ Parallel Old（老年代）
+                - Parallel Scavenge （新生代）+ Serial Old（老年代） 标记为弃用
                 - G1 （新生代+老年代）
             GC参数设置:
-              - 查看GC使用 -XX:+PrintCommandLineFlags
-              - 查看GC使用 jinfo -flag UseParallelGC 17752
-              - 修改方式1
-                  -XX:+UseParallelGC == Parallel Scavenge（新生代）
-                  -XX:+UseParallelOldGC == Parallel Old（老生代）
-              - 修改方式2
-                  -XX:+UseParallelGC 等同于 (-XX:+UseParallelGC)+(-XX:+UseParallelOldGC)
-              - 修改方式3
-                  -XX:+UseG1GC == G1（新生代+老年代）
+              - 打印设置过的参数 -XX:+PrintCommandLineFlags
+              - 方式1(SerialGC)
+                  查看 jinfo -flag UseSerialGC 15064
+                  修改 -XX:+UseSerialGC 等同于 Serial（新生代）+ Serial Old（老年代）
+              - 方式2(ParNewGC)
+                  查看 jinfo -flag UseParNewGC 15064
+                  查看 jinfo -flag UseConcMarkSweepGC 15064
+                  查看 jinfo -flag ParallelGCThreads 17812
+                  修改 -XX:+UseParNewGC（新生代） 等同于 ParNew（新生代）+ Serial Old（老年代）
+                  修改 -XX:+UseParNewGC（新生代） -XX:+UseConcMarkSweepGC（老年代） 等同于 ParNew（新生代）+ CMS（老年代）+ Serial Old（老年代）
+                  修改ParNew并行回收GC线程数，此值最好小于等于CPU个数 -XX:ParallelGCThreads=25
+                      默认当CPU个数小于8，默认等于CPU个数
+                      默认当CPU个数大于8，3+[5*CPU个数/8]
+              - 方式3(ParallelGC)(吞吐量优先)
+                  查看 jinfo -flag UseParallelGC 17752
+                  查看 jinfo -flag UseParallelOldGC 17752
+                  修改 -XX:+UseParallelGC -XX:+UseParallelOldGC 等同于 Parallel Scavenge（新生代）+ Parallel Old（老年代）
+                  修改 -XX:+UseParallelGC 等同于 Parallel Scavenge（新生代）+ Parallel Old（老年代）
+                  修改 -XX:+UseParallelOldGC 等同于 Parallel Scavenge（新生代）+ Parallel Old（老年代）
+                  修改年轻代并行回收GC线程数，此值最好小于等于CPU个数 -XX:ParallelGCThreads=25
+                      默认当CPU个数小于8，默认等于CPU个数
+                      默认当CPU个数大于8，3+[5*CPU个数/8]
+                  修改
+                      -XX:MaxGCPauseMillis
+                        设置回收器的最大停顿时间(STW时间)，单位是毫秒。
+                        为了尽可能的吧停顿时间控制MaxGCPauseMillis以内，回收器在工作时会调整Java堆大小或者其他一些参数
+                        对于用户来说，停顿时间越短体验越好。但是在服务器端，我们注重高并发，整体的吞吐量。
+                      -XX:GCTimeRatio
+                        设置垃圾回收时间占总时间的比例 = 1/(N+1)
+                        N取值为(0-100),默认为99，也就是垃圾回收时间不超过1%
+                        与-XX:MaxGCPauseMillis参数有一定矛盾性，暂停时间越长，GCTimeRatio参数就容易超过设定的比例
+                      -XX:+UseAdaptiveSizePolicy
+                        设置Parallel Scavenge回收器的自适应调节策略
+                        在这种模式下，年轻代的大小，伊甸园区和幸存者区的比例，晋升老年代对象年龄等参数会被自动调整，已达到在堆大小，吞吐量和停顿时间之间的平衡点
+                        在手动调优比较困难的场合，可以直接使用这种自适应的方式，仅指定虚拟机的最大堆，目标的吞吐量(GCTimeRatio)和停顿时间(MaxGCPauseMillis),让虚拟机自己完成调优工作。
+              - 方式4(CMS GC)(低延迟优先)
+                  查看 jinfo -flag UseConcMarkSweepGC 17752
+                  查看 jinfo -flag UseParNewGC 17752
+                  修改 -XX:+UseConcMarkSweepGC（老年代） 等同于 ParNew（新生代）+ CMS（老年代）+ Serial Old（老年代）
+                  修改
+                    -XX:CMSInitiatingOccupancyFraction=-1
+                      设置堆内存使用率的阈值，一旦到达该阈值，触发GC，通过该选项可以有效降低Full GC的发生
+                          默认值为-1，则以-XX:CMSTriggerRatio=80为准
+                          设置-XX:CMSInitiatingOccupancyFraction=20，则阈值为20%
+                          JDK5及以前默认值为68，即当老年代的空间使用率达到68%时，会触发GC，JDK6及以上版本默认值为92%
+                          如果用户线程使用内存较慢，则可以设置一个稍微大的阈值，大的阈值可以有效降低GC频率的触发，减少老年代回收的次数，可以较为明显的改善应用程序性能。
+                          如果用户线程使用内存较快，则可以设置一个稍微小的阈值，避免CMS出现(Concurrent Mode Failure失败)导致Serial Old GC发生。
+                    -XX:+UseCMSCompactAtFullCollection(默认开启)
+                      用于指定在执行玩Full GC后对内存空间进行压缩整理，避免内存碎片的产生。不过由于内存碎片整理桂城无法并发执行，所以带来的问题就是暂停时间变得更长。
+                        -XX:CMSFullGCsBeforeCompaction=0
+                            设置在执行多少次Full GC后对内存空间进行压缩整理。默认没0，代表每次Full GC都会整理内存碎片
+                    -XX:ParallelCMSThreads=10
+                      设置CMS的GC线程数
+                      CMS默认启动的线程数是(ParallelGCThreads+3)/4
+                      ParallelGCThreads是年轻代并行回收器的线程数，当CPU资源比较紧张时，受到CMS回收器的GC线程的影响，应用程序的性能在垃圾回收阶段可能会非常糟糕。
+              - 方式5(G1)
+                  查看 jinfo -flag UseG1GC 15064
+                  修改 -XX:+UseG1GC == G1（新生代+老年代）
           GC分类与性能指标:
             GC分类:
               按线程数分类:
@@ -1365,11 +1507,6 @@ JVM的整体结构/JVM内存模型:
                 - 内存占用
                     Java堆区所占用的内存大小
           不同的垃圾回收器概述:
-          Serial回收器(串行回收):
-          ParNew回收器(并行回收):
-          Parallel回收器(吞吐量优先):
-          CMS回收器(低延迟):
-          G1回收器(区域化分代式):
           垃圾回收器总结:
           GC日志分析:
           垃圾回收器的新发展:
