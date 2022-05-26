@@ -9,7 +9,7 @@ jvm官方规范文档: https://docs.oracle.com/javase/specs/index.html
            setting -> plugins -> jclasslib bytecode viewer
         win10
             https://github.com/ingokegel/jclasslib/releases
-jvm调优工具:
+jvm工具:
   JDK命令行:
     jstat:
       - 查看jvm内存和GC使用情况 jstat -gc 5000(pid)
@@ -31,23 +31,21 @@ jvm调优工具:
     idea集成Jprofiler:
       setting -> plugin -> Jprofiler
   Java Flight Recorder:
-  GCViewer:
-  GC Easy:
-调优手段:
+JVM常规:
     参数设置:
       参数文档: https://docs.oracle.com/javase/8/docs/technotes/tools/unix/java.html
       GC日志参数:
         常用:
           - -XX:+PrintGCDetails 打印详细的GC日志并且在程序退出时打印堆信息
+          - -verbose:gc / -XX:+PrintGC  精简日志
           - -XX:+PrintGCDateStamps 打印时间 2022-05-26T16:50:53.187+0800
-          - -XX:+PrintGCTimeStamps 打印程序运行阶段，所有GC次数加起来一共消耗了多长时间 0.294
+          - -XX:+PrintGCTimeStamps 打印jvm启动以后多少秒后触发的gc 24.244
           - -XX:+PrintHeapAtGC 打印触发GC后堆内存的前后对比
           - -Xloggc:D:/gc.log GC日志文件的输出路径
           - -XX:+HeapDumpOnOutOfMemoryError 在程序出现OOM的时候生成dump文件(java_pid15508.hprof)
           - -XX:+PrintStringTableStatistics 打印字符串常量池的信息【程序正常退出时打印】
         不常用:
           - -XX:+PrintCommandLineFlags 打印设置过的参数
-          - -XX:+PrintGC / -verbose:gc 打印简单GC日志
           - -XX:+PrintFlagsInitial 打印所有的参数的默认初始值
           - -XX:+PrintFlagsFinal 打印所有的参数的最终值
       虚拟机栈参数:
@@ -163,38 +161,59 @@ jvm调优工具:
       - MinorGC N分钟
       - MaiorGC和FullGC N*10倍以上分钟
       - FullGC是开发或者调优尽量要避免的，这样暂停时间会短一些
-    日志分析:
-      PrintGCDetails日志分析:
-        - * "-Xms300m -Xmx300m -XX:+PrintGCDetails"
-          *
-          * 都没写则为堆区 52967K->17272K(294400K)
-          *  堆区         回收前   回收后 总大小
-          * PSYoungGen: 52967K->1240K(89600K)
-          *  新生代区     回收前   回收后 总大小
-          * ParOldGen: 151239K->81797K(204800K)
-          *  老年代区     回收前   回收后 总大小
-          * Metaspace: 3492K->3492K(1056768K)
-          *  元空间     回收前   回收后 总大小
-          * 0.4266590 secs GC
-          *  垃圾回收时间
-          * [ GC (Allocation Failure)      [ PSYoungGen: 52967K->1240K(89600K) ] 52967K->17272K(294400K), 0.0488906 secs ] [ Times: user=1.17 sys=0.00, real=0.05 secs ]
-          * [ GC (Allocation Failure)      [ PSYoungGen: 62801K->1080K(89600K) ] 214040K->152319K(294400K), 0.0262948 secs ] [ Times: user=0.30 sys=0.02, real=0.03 secs ]
-          * [ GC (Allocation Failure)      [ PSYoungGen: 1080K->1048K(89600K) ] 152319K->152287K(294400K), 0.0300708 secs ] [ Times: user=0.31 sys=0.02, real=0.03 secs ]
-          * [ Full GC (Allocation Failure) [ PSYoungGen: 1048K->0K(89600K) ] [ ParOldGen: 151239K->81797K(204800K) ] 152287K->81797K(294400K), [ Metaspace: 3492K->3492K(1056768K) ], 0.2752555 secs ] [ Times: user=1.31 sys=0.00, real=0.28 secs ]
-          * [ Full GC         (Ergonomics) [ PSYoungGen: 1536K->0K(89600K) ] [ ParOldGen: 203483K->122359K(204800K) ] 205019K->122359K(294400K), [ Metaspace: 3492K->3492K(1056768K) ], 0.4165691 secs ] [ Times: user=2.98 sys=0.08, real=0.42 secs ]
-          * [ GC (Allocation Failure)      [ PSYoungGen: 0K->0K(89600K) ] 122359K->122359K(294400K), 0.0007324 secs ] [ Times: user=0.00 sys=0.00, real=0.00 secs ]
-          * [ Full GC (Allocation Failure) [ PSYoungGen: 0K->0K(89600K) ] [ ParOldGen: 122359K->122340K(204800K) ] 122359K->122340K(294400K), [ Metaspace: 3492K->3492K(1056768K) ], 0.4266590 secs ] [ Times: user=3.27 sys=0.05, real=0.43 secs ]
-      dump文件获取的3种方式:
-        jmap方式: jmap -dump:format=b,live,file=test1.bin 2680
-        jvisualvm方式: 监视器选项 -> 右上角找到dump按钮 -> 左边栏目找到dump文件另存为
-        使用参数方式: 在程序出现OOM的时候生成dump文件(java_pid15508.hprof) -XX:+HeapDumpOnOutOfMemoryError
-        MAT与查看GC Roots溯源:
-          - 1。需要准备dump文件
-          - 2.打开MAT工具 -> Open Query Browser -> Java Basics -> GC Roots
-        JProfiler查看GC Roots溯源:
-          - idea集成JProfiler,直接运行 -> Live Memory -> All Object
-                                                          -> View -> Mark Current Value
-                                                          -> 手动触发Run GC观察对象变化
+    在线日志分析:
+      PrintGCDetails日志:
+        - "-Xms300m -Xmx300m -XX:+PrintGCDetails
+          都没写则为堆区 52967K->17272K(294400K)
+            堆区         回收前   回收后 总大小
+          PSYoungGen: 52967K->1240K(89600K)
+            新生代区     回收前   回收后 总大小
+          ParOldGen: 151239K->81797K(204800K)
+            老年代区     回收前   回收后 总大小
+          Metaspace: 3492K->3492K(1056768K)
+            元空间     回收前   回收后 总大小
+          0.4266590 secs 指具体GC消耗时间
+          Times: user=1.17 指垃圾收集器花费的所有CPU时间(用户态回收耗时)
+          sys=0.02 指花费在等待系统调用或者系统事件的时间(内核态回收耗时)
+          real=0.05 secs 指GC从开始到结束的时间，包括其他进程占用时间片的实际时间(GC整个过程总耗时)
+          垃圾回收时间
+          [ GC (Allocation Failure)      [ PSYoungGen: 52967K->1240K(89600K) ] 52967K->17272K(294400K), 0.0488906 secs ] [ Times: user=1.17 sys=0.00, real=0.05 secs ]
+          [ GC (Allocation Failure)      [ PSYoungGen: 62801K->1080K(89600K) ] 214040K->152319K(294400K), 0.0262948 secs ] [ Times: user=0.30 sys=0.02, real=0.03 secs ]
+          [ GC (Allocation Failure)      [ PSYoungGen: 1080K->1048K(89600K) ] 152319K->152287K(294400K), 0.0300708 secs ] [ Times: user=0.31 sys=0.02, real=0.03 secs ]
+          [ Full GC (Allocation Failure) [ PSYoungGen: 1048K->0K(89600K) ] [ ParOldGen: 151239K->81797K(204800K) ] 152287K->81797K(294400K), [ Metaspace: 3492K->3492K(1056768K) ], 0.2752555 secs ] [ Times: user=1.31 sys=0.00, real=0.28 secs ]
+          [ Full GC         (Ergonomics) [ PSYoungGen: 1536K->0K(89600K) ] [ ParOldGen: 203483K->122359K(204800K) ] 205019K->122359K(294400K), [ Metaspace: 3492K->3492K(1056768K) ], 0.4165691 secs ] [ Times: user=2.98 sys=0.08, real=0.42 secs ]
+          [ GC (Allocation Failure)      [ PSYoungGen: 0K->0K(89600K) ] 122359K->122359K(294400K), 0.0007324 secs ] [ Times: user=0.00 sys=0.00, real=0.00 secs ]
+          [ Full GC (Allocation Failure) [ PSYoungGen: 0K->0K(89600K) ] [ ParOldGen: 122359K->122340K(204800K) ] 122359K->122340K(294400K), [ Metaspace: 3492K->3492K(1056768K) ], 0.4266590 secs ] [ Times: user=3.27 sys=0.05, real=0.43 secs ]
+          "
+      verbose:gc/PrintGC日志:
+        - "
+        7278K 回收前堆大小
+        6750K 回收后堆大小
+        9216K 当前堆的总大小
+        [GC (Allocation Failure)  7278K->6750K(9216K), 0.0009638 secs]
+        [Full GC (Ergonomics)  7949K->2949K(9216K), 0.0195486 secs]
+        "
+    GC日志文件分析:
+      "
+        -Xloggc:D:/gc.log GC日志文件的输出路径
+         常用工具:
+          GCViewer
+            https://github.com/chewiebug/GCViewer
+          GC Easy
+            https://gceasy.io/
+          GCHisto，GCLogViewer，HP就meter，grabagecat等。
+      "
+    离线dump内存文件分析获取的3种方式:
+      jmap方式: jmap -dump:format=b,live,file=test1.bin 2680
+      jvisualvm方式: 监视器选项 -> 右上角找到dump按钮 -> 左边栏目找到dump文件另存为
+      使用参数方式: 在程序出现OOM的时候生成dump文件(java_pid15508.hprof) -XX:+HeapDumpOnOutOfMemoryError
+      MAT与查看GC Roots溯源:
+        - 1。需要准备dump文件
+        - 2.打开MAT工具 -> Open Query Browser -> Java Basics -> GC Roots
+      JProfiler查看GC Roots溯源:
+        - idea集成JProfiler,直接运行 -> Live Memory -> All Object
+                                                        -> View -> Mark Current Value
+                                                        -> 手动触发Run GC观察对象变化
     如何解决OOM?:
       - 要解决OOM异常或，一般的手段是首先通过内存映像分析工具，如（Eclipse-MAT）工具，对dump出来的堆转存快照进行分析，重点是确认内存中的对象是否是必要的，也就是先分清楚到底是出现了内存泄漏，还是内存溢出
       - 如果是内存泄漏，可以进一步通过工具查看泄漏对象到GC Roots的引用链。于是就能找到泄漏对象是通过怎样的路径与GC Roots相关联并导致GC无法自动回收它们的。

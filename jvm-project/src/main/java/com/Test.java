@@ -16,9 +16,10 @@ import java.util.Scanner;
 @Slf4j
 public class Test {
 
-    public static void test(){
-        for (int i = 0; i < 3; i++) {
+    public static void test() throws InterruptedException {
+        for (int i = 0; i < 300; i++) {
             byte[] b = new byte[1024*1024*1];
+            Thread.sleep(1000);
         }
     }
 
@@ -36,9 +37,11 @@ public class Test {
       System.out.println(i + j);
       */
        // Thread.sleep(Integer.MAX_VALUE);
+
         test();
         String s = "123";
         String s1 = "123";
+        System.out.println("end....");
     }
 
 
