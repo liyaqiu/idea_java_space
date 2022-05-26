@@ -16,11 +16,11 @@ import java.util.Scanner;
 @Slf4j
 public class Test {
 
-    /*public static void test(){
-        for (int i = 0; i < 100; i++) {
+    public static void test(){
+        for (int i = 0; i < 3; i++) {
             byte[] b = new byte[1024*1024*1];
         }
-    }*/
+    }
 
     public static void  main(String[] args) throws InterruptedException {
       //-Xms30m -Xmx30m -XX:+PrintGCDetails -XX:+HeapDumpOnOutOfMemoryError
@@ -36,6 +36,7 @@ public class Test {
       System.out.println(i + j);
       */
        // Thread.sleep(Integer.MAX_VALUE);
+        test();
         String s = "123";
         String s1 = "123";
     }
