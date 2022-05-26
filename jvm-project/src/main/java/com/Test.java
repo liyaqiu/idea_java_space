@@ -35,7 +35,9 @@ public class Test {
       Integer j = 20;
       System.out.println(i + j);
       */
-        Thread.sleep(Integer.MAX_VALUE);
+       // Thread.sleep(Integer.MAX_VALUE);
+        String s = "123";
+        String s1 = "123";
     }
 
 

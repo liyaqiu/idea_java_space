@@ -70,19 +70,88 @@ jvm调优工具:
         - jdk7及以后默认 -XX:StringTableSize=60013
         - 打印字符串常量池的信息【程序正常退出时打印】 -XX:+PrintStringTableStatistics
       GC参数设置:
-        - 查看GC使用 -XX:+PrintCommandLineFlags
-        - 修改方式1
-            jinfo -flag UseParallelGC 17752
-            jinfo -flag UseParallelOldGC 17752
-            -XX:+UseParallelGC 等同于 Parallel Scavenge（新生代）
-            -XX:+UseParallelOldGC 等同于 Parallel Old（老生代）
-            -XX:+UseParallelGC 等同于 Parallel Scavenge（新生代）+ Parallel Old（老生代）
-        - 修改方式2
-           jinfo -flag UseG1GC 15064
-           -XX:+UseG1GC == G1（新生代+老年代）
-        - 修改方式3
-            jinfo -flag UseSerialGC 15064
-            -XX:+UseSerialGC 等同于 Serial（新生代）+ Serial Old（老生代）
+        - 打印设置过的参数 -XX:+PrintCommandLineFlags
+        - 方式1(SerialGC)
+            查看 jinfo -flag UseSerialGC 15064
+            修改 -XX:+UseSerialGC 等同于 Serial（新生代）+ Serial Old（老年代）
+        - 方式2(ParNewGC)
+            查看 jinfo -flag UseParNewGC 15064
+            查看 jinfo -flag UseConcMarkSweepGC 15064
+            查看 jinfo -flag ParallelGCThreads 17812
+            修改 -XX:+UseParNewGC（新生代） 等同于 ParNew（新生代）+ Serial Old（老年代）
+            修改 -XX:+UseParNewGC（新生代） -XX:+UseConcMarkSweepGC（老年代） 等同于 ParNew（新生代）+ CMS（老年代）+ Serial Old（老年代）
+            修改ParNew并行回收GC线程数，此值最好小于等于CPU个数 -XX:ParallelGCThreads=25
+                默认当CPU个数小于8，默认等于CPU个数
+                默认当CPU个数大于8，3+[5*CPU个数/8]
+        - 方式3(ParallelGC)(吞吐量优先)
+            查看 jinfo -flag UseParallelGC 17752
+            查看 jinfo -flag UseParallelOldGC 17752
+            修改 -XX:+UseParallelGC -XX:+UseParallelOldGC 等同于 Parallel Scavenge（新生代）+ Parallel Old（老年代）
+            修改 -XX:+UseParallelGC 等同于 Parallel Scavenge（新生代）+ Parallel Old（老年代）
+            修改 -XX:+UseParallelOldGC 等同于 Parallel Scavenge（新生代）+ Parallel Old（老年代）
+            修改年轻代并行回收GC线程数，此值最好小于等于CPU个数 -XX:ParallelGCThreads=25
+                默认当CPU个数小于8，默认等于CPU个数
+                默认当CPU个数大于8，3+[5*CPU个数/8]
+            修改
+                -XX:MaxGCPauseMillis
+                  设置回收器的最大停顿时间(STW时间)，单位是毫秒。
+                  为了尽可能的吧停顿时间控制MaxGCPauseMillis以内，回收器在工作时会调整Java堆大小或者其他一些参数
+                  对于用户来说，停顿时间越短体验越好。但是在服务器端，我们注重高并发，整体的吞吐量。
+                -XX:GCTimeRatio
+                  设置垃圾回收时间占总时间的比例 = 1/(N+1)
+                  N取值为(0-100),默认为99，也就是垃圾回收时间不超过1%
+                  与-XX:MaxGCPauseMillis参数有一定矛盾性，暂停时间越长，GCTimeRatio参数就容易超过设定的比例
+                -XX:+UseAdaptiveSizePolicy
+                  设置Parallel Scavenge回收器的自适应调节策略
+                  在这种模式下，年轻代的大小，伊甸园区和幸存者区的比例，晋升老年代对象年龄等参数会被自动调整，已达到在堆大小，吞吐量和停顿时间之间的平衡点
+                  在手动调优比较困难的场合，可以直接使用这种自适应的方式，仅指定虚拟机的最大堆，目标的吞吐量(GCTimeRatio)和停顿时间(MaxGCPauseMillis),让虚拟机自己完成调优工作。
+        - 方式4(CMS GC)(低延迟优先)
+            查看 jinfo -flag UseConcMarkSweepGC 17752
+            查看 jinfo -flag UseParNewGC 17752
+            修改 -XX:+UseConcMarkSweepGC（老年代） 等同于 ParNew（新生代）+ CMS（老年代）+ Serial Old（老年代）
+            修改
+              -XX:CMSInitiatingOccupancyFraction=-1
+                设置堆内存使用率的阈值，一旦到达该阈值，触发GC，通过该选项可以有效降低Full GC的发生
+                    默认值为-1，则以-XX:CMSTriggerRatio=80为准
+                    设置-XX:CMSInitiatingOccupancyFraction=20，则阈值为20%
+                    JDK5及以前默认值为68，即当老年代的空间使用率达到68%时，会触发GC，JDK6及以上版本默认值为92%
+                    如果用户线程使用内存较慢，则可以设置一个稍微大的阈值，大的阈值可以有效降低GC频率的触发，减少老年代回收的次数，可以较为明显的改善应用程序性能。
+                    如果用户线程使用内存较快，则可以设置一个稍微小的阈值，避免CMS出现(Concurrent Mode Failure失败)导致Serial Old GC发生。
+              -XX:+UseCMSCompactAtFullCollection(默认开启)
+                用于指定在执行玩Full GC后对内存空间进行压缩整理，避免内存碎片的产生。不过由于内存碎片整理桂城无法并发执行，所以带来的问题就是暂停时间变得更长。
+                  -XX:CMSFullGCsBeforeCompaction=0
+                      设置在执行多少次Full GC后对内存空间进行压缩整理。默认没0，代表每次Full GC都会整理内存碎片
+              -XX:ParallelCMSThreads=10
+                设置CMS并发时候的GC线程数
+                CMS默认启动的线程数是(ParallelGCThreads+3)/4
+                ParallelGCThreads是年轻代并行回收器的线程数，当CPU资源比较紧张时，受到CMS回收器的GC线程的影响，应用程序的性能在垃圾回收阶段可能会非常糟糕。
+        - 方式5(G1)
+            查看 jinfo -flag UseG1GC 15064
+            修改 -XX:+UseG1GC == G1（新生代+老年代）
+            修改
+              -XX:G1HeapReginSize
+                  设置每个区域的大小，【值是2的次幂】(意思是说每一个区域的大小要为2的次幂 1MB 2MB 4MB 8MB 16MB 32MB)，范围是1MB到32MB之间，目标是根据最小的Java堆大小划分出来约2048个区域。默认是堆内存的1/2000
+                  比如-XX:G1HeapReginSize=2  堆大小4096 = 2048*2
+              -XX:MaxGCPauseMillis
+                  设置期望达到的最大GC停顿时间(G1回收器会尽力实现，但不保证达到)，默认值是200ms
+              -XX:ParallelGCThread
+                  设置GC并行执行的线程数(用户线程会暂停，GC线程执行，简称STW)，最多设置为8
+              -XX:ConcGCThreads
+                  设置并发标记的线程数(用户线程与GC线程可以同时执行)，将n设置为并行垃圾回收线程数
+                  (ParallelGCThreads)的1/4左右
+              -XX:InitiatingHeapOccupancyPercent
+                  设置触发并发GC周期的Java堆暂用率的阈值。超过此值，就会触发GC，默认为45
+            G1的设计原则就是简化JVM性能调优，开发人员只需要简单的散步即可完成调优
+              1.开启G1垃圾回收器 -XX:+UseG1GC
+              2.设置堆的最大内存 -Xms6g -Xmx6g
+              3.设置最大的暂停时间 -XX:MaxGCPauseMillis
+            G1优化建议
+              新生代大小
+                避免使用-XX:NewRatio=2 / -Xmn400m(-XX:MaxNewSize=10m)等相关选项显示设置年轻代大小
+                固定年轻代大小会覆盖暂停时间目标
+              暂停时间目标不要太过苛刻
+                G1的吞吐量目标是90%的引用程序时间和10%的垃圾回收时间
+                评估G1的吞吐量时，暂停时间目标不要太严苛，目标太过严苛表示你愿意承受更多的垃圾回收频率，而且这些会直接影响到吞吐量。
     调优的目的:
       - 让GC执行次数减少，那么STW次数就减少(STW会导致用户线程暂停，GC线程执行垃圾回收)
       - MinorGC N分钟
@@ -115,6 +184,19 @@ jvm调优工具:
       - 如果不存在内存泄漏，换句话说就是内存中的对象却是都还必须存活的，那就应当检查虚拟机的堆参数(-Xms20m -Xmx20m),与机器物理内存对比砍是否可以调大，从代码手上检查是否存在某些对象声明周期过长，
       - 持有状态时间过长的情况，尝试减少程序运行期的内存消耗
       - 如果dump文件没有堆溢出的情况，需要考虑一下是否是直接内存引起的OOM
+    如何选择垃圾回收器:
+      GC使用场景使用总结:
+        - 单核CPU场景，选择Serial GC = (Serial GC + Serial Old GC)
+        - 多核CPU+吞吐量场景，选择 Parallel GC = (Parallel Scavenge GC + Parallel Old GC)
+        - 多核CPU+低延迟场景，选择CMS = (ParallelNew GC + Concurren Mark Sweep GC)
+        - 多核CPU+低延迟场景+吞吐量场景+内存大于6GB场景，选择G1
+      建议:
+        - 1.优先调整堆大小让JVM自适应完成。
+        - 2.如果内存小于100M，使用串行收集器
+        - 3.如果是单核，单机程序，并且没有停顿时间的要求，串行收集器
+        - 4.如果是多核CPU，需要高吞吐量，允许暂停时间超过1秒，选择并行收集器或者JVM自己选择
+        - 5.如果是多核CPU，追求底暂停时间，需要快速响应(比如延迟不能超过1秒，互联网应用)，使用并发收集器。(CMS+ParNew)或者G1
+        - 6.现有互联网的项目，基本都是使用G1，在满足暂停时间的同时，尽可能提高最大吞吐量
     dump文件获取的2中方式:
       jmap方式: jmap -dump:format=b,live,file=test1.bin 2680
       jvisualvm方式: 监视器选项 -> 右上角找到dump按钮 -> 左边栏目找到dump文件另存为
