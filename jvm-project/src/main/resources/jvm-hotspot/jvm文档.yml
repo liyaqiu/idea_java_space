@@ -1,7 +1,7 @@
 jvm官方规范文档: https://docs.oracle.com/javase/specs/index.html
 语言排行榜: https://www.tiobe.com/tiobe-index/
 字节码查看工具:
-  - javap -v -p Test.class 对字节码进行解析查看
+  - javap -v -p Test.class > D:/study/jvm/class.txt 对字节码进行解析查看
   - binary viewer
         https://binary-viewer.en.softonic.com/
   - jclasslib
