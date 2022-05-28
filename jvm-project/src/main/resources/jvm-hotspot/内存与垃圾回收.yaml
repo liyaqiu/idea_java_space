@@ -62,7 +62,7 @@ JVM的整体结构/JVM内存模型:
           System.out.println(x==y);
           "
       前端编译器:
-        - javac，全量式前端编译器
+        - javac，全量式前端编译器 javc -g xxx.java 生成局部变量表(idea默认用) / javc xxx.java 不生成生成局部变量表
         - idea默认用javac，全量式前端编译器
         - eclipse默认用ECJ，增量式前端编译器
       字节码文件的生成:
@@ -70,11 +70,11 @@ JVM的整体结构/JVM内存模型:
         - 前端编译器主要任务就是负责将复合Java语言规范的Java代码转换为复合JVM规范的字节码文件。
         - javac是一个能够将Java源代码编译为字节码的前端编译器。
         - Javac编译器在将Java源码编译为一个有效的字节码文件过程中经历了4个步骤，分别是词法解析，语法解析，语义解析，生成字节码。
-      字节码指令:
+      字节码指令格式:
         - Java虚拟机的指令由一个字节长度的，代表着某种特定的操作含义的操作码，以及跟随其后的0个或多个代表此操作所需的参数的操作数所构成。
         - 特殊指令 = 操作码(astore_0)
         - 普通指令 = 操作码+操作数(astore 5)
-      字节码格式:
+      字节码存储格式:
         - Class的结构不像XML等描述语言，由于它没有任何分隔符号。所以在其中的数据项，无论是字节顺序还是数量，都被严格限定的，哪个字节代表什么含义，长度是什么，先后顺序如何，都不允许被改变。
         - Class文件格式采用一种类似于C语言结构体的方式进行数据存储，这种结构只有两种数据类型，无符号数和表。
             无符号数
@@ -85,6 +85,26 @@ JVM的整体结构/JVM内存模型:
               表用于描述有层次关系的复合结构的数据，整个Class文件本质上就是一张表。
               由于表没有固定长度，所以通常会在其前面加上个数说明
       字节码结构:
+        官方结构: "
+          ClassFile {
+            u4             magic;
+            u2             minor_version;
+            u2             major_version;
+            u2             constant_pool_count;
+            cp_info        constant_pool[constant_pool_count-1];
+            u2             access_flags;
+            u2             this_class;
+            u2             super_class;
+            u2             interfaces_count;
+            u2             interfaces[interfaces_count];
+            u2             fields_count;
+            field_info     fields[fields_count];
+            u2             methods_count;
+            method_info    methods[methods_count];
+            u2             attributes_count;
+            attribute_info attributes[attributes_count];
+            }
+        "
         类基本信息:
           魔术:
             - "u4 magic;"
@@ -126,17 +146,17 @@ JVM的整体结构/JVM内存模型:
               - "
                           常量	                      标志              描述
                       CONSTANT_Class	               7            类或接口的符号引用
-                      CONSTANT_Fieldref	           9            字段的符号引用
+                      CONSTANT_Fieldref	               9            字段的符号引用
                       CONSTANT_Methodref	           10           类中方法的符号引用
                       CONSTANT_InterfaceMethodref	   11           接口中方法的符号引用
                       CONSTANT_String	               8            字符串类型字面量
-                      CONSTANT_Integer	           3            整形字面量
+                      CONSTANT_Integer	               3            整形字面量
                       CONSTANT_Float	               4            浮点型字面量
-                      CONSTANT_Long	               5            长整型字面量
+                      CONSTANT_Long	                   5            长整型字面量
                       CONSTANT_Double	               6            双精度浮点型字面量
-                      CONSTANT_NameAndType	       12           字段或方法的符号引用
-                      CONSTANT_Utf8	               1            UTF-8编码的字符串
-                      CONSTANT_MethodHandle	       15           表示方法句柄
+                      CONSTANT_NameAndType	           12           字段或方法的符号引用
+                      CONSTANT_Utf8	                   1            UTF-8编码的字符串
+                      CONSTANT_MethodHandle	           15           表示方法句柄
                       CONSTANT_MethodType	           16           标识方法类型
                       CONSTANT_InvokeDynamic	       18           表示一个动态方法调用点
                     "

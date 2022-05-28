@@ -1,14 +1,14 @@
 jvm官方规范文档: https://docs.oracle.com/javase/specs/index.html
 语言排行榜: https://www.tiobe.com/tiobe-index/
 字节码查看工具:
-  - javap -v -p Test.class > D:/study/jvm/class.txt 对字节码进行解析查看
-  - binary viewer
-        https://binary-viewer.en.softonic.com/
-  - jclasslib
-        idea
-           setting -> plugins -> jclasslib bytecode viewer
-        win10
-            https://github.com/ingokegel/jclasslib/releases
+  javap:
+    - javap -v -p Test.class > D:/study/jvm/class.txt 对字节码进行解析查看(查看私有的)
+    - javap -v  Test.class > D:/study/jvm/class.txt 对字节码进行解析查看
+  binary viewer: https://binary-viewer.en.softonic.com/
+  jclasslib:
+    - idea setting -> plugins -> jclasslib bytecode viewer
+    - win10 https://github.com/ingokegel/jclasslib/releases
+
 jvm工具:
   JDK命令行:
     jstat:

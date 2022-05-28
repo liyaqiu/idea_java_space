@@ -28,12 +28,17 @@ public class Test implements Serializable {
       System.out.println(i + j);
       */
        // Thread.sleep(Integer.MAX_VALUE);
-        String s = "123";
+
     }
 
-    public static class Son{
-        public void test(){
-            System.out.println(s);
+    public void test(){
+        int a = 100;
+        int b = 200;
+        {
+            int c = 300;
+        }
+        {
+            int s = 300;
         }
     }
 

@@ -1,9 +1,82 @@
-存入局部变量表指令:
+官方文档: https://docs.oracle.com/javase/specs/jvms/se16/html/jvms-6.html#jvms-6.5.astore_n
+字节码指令格式:
+  - Java字节码对于虚拟机，就好像汇编语言对于计算机，属于基本执行指令。
+  - Java虚拟机的指令，由一个字节长度的代表着某种特定操作含义的数字(称为操作码)，以及跟随其后的0个或多个代表此操作所需的参数(称为操作数)而构成。
+  - 由于限制了Java虚拟机操作码的长度为1个字节(0-255)，这意味这jvm指令集的操作码总数不能超过256个。
+  - Java虚拟机的指令由一个字节长度的，代表着某种特定的操作含义的操作码，以及跟随其后的0个或多个代表此操作所需的参数的操作数所构成。
+  - 特殊指令 = 操作码(astore_0)
+  - 普通指令 = 操作码+操作数(astore 5)
+  - 操作码占1字节，操作数占2个字节
+  - 从不同维度看指令 astore_0 = 75 (0x4b)
+        从操作码层面看 astore_0
+        从字节码10进制看 75
+        从字节码十六进制层面看 0x4b
+执行引擎执行字节码的伪代码: "
+    do{
+        程序计数器+1;
+        根据程序计数器的位置，从字节码流中取出操作码;
+        if(字节码存在操作数)从字节码流中取出操作数;
+        执行操作码所定义的操作;
+    }while(字节码长度>0);
+  "
+
+操作码:
+  入栈与出栈操作码:
+    局部变量表入栈:
+      - iload 4 将局部变量表中索引为4的int型的值压入操作数栈
+      - lload 4 将局部变量表中索引为4的long型的值压入操作数栈
+      - fload 4 将局部变量表中索引为4的float型的值压入操作数栈
+      - dload 4 将局部变量表中索引为4的double型的值压入操作数栈
+      - aload 4 将局部变量表中索引为4的引用类型的值压入操作数栈
+      - xload_0,xload_1,xload_2,xload_3
+    常量入栈:
+      const:
+        - iconst_m1 将int型常量-1压入操作数栈
+        - iconst_0 将int型常量0压入操作数栈
+        - iconst_1 将int型常量1压入操作数栈
+        - iconst_2 将int型常量2压入操作数栈
+        - iconst_3 将int型常量3压入操作数栈
+        - iconst_4 将int型常量4压入操作数栈
+        - iconst_5 将int型常量5压入操作数栈
+        - lconst_0 将long型常量0压入操作数栈
+        - lconst_1 将long整型常量1压入操作数栈
+        - fconst_0 将float型常量0压入操作数栈
+        - fconst_1 将float型常量1压入操作数栈
+        - fconst_2 将float型常量2压入操作数栈
+        - dconst_0 将double型常量0压入操作数栈
+        - dconst_1 将double型常量1压入操作数栈
+        - aconst_null 将引用类型常量null压入操作数栈
+      push:
+        - bipush (-128~127) 将int型-128~127常量压入操作数栈
+        - sipush (-32768~32767) 将int型-32768~32767常量压入操作数栈
+      ldc(从运行时常量池压栈):
+        - ldc/ldc_w int(>32768) 将int型32768常量压入操作数栈
+        - ldc/ldc_w float 将float型的值常量压入操作数栈
+        - ldc/ldc_w String 将引用类型的值常量压入操作数栈
+        - ldc2_w long 将long型的值常量压入操作数栈
+        - ldc2_w double 将double型的值常量压入操作数栈
+    出栈到局部变量表:
+      - istore 4 将操作数栈的栈顶int型的值弹出，并存储到局部变量表索引为4的位置
+      - lstore 4 将操作数栈的栈顶long型的值弹出，并存储到局部变量表索引为4的位置
+      - fstore 4 将操作数栈的栈顶float型的值弹出，并存储到局部变量表索引为4的位置
+      - dstore 4 将操作数栈的栈顶double型的值弹出，并存储到局部变量表索引为4的位置
+      - astore 4 将操作数栈的栈顶引用类型的值弹出，并存储到局部变量表索引为4的位置
+      - xstore_0,xstore_1,xstore_2,xstore_3
+  算术操作码:
+  类型转换操作码:
+  对象创建与访问操作码:
+  方法调用与返回操作码:
+  操作数栈管理操作码:
+  比较控制操作码:
+  异常处理操作码:
+  同步控制操作码:
+
+存入局部变量表操作码:
   istore_1: boolean,byte,char,short,int,float
   lstore_1: long
   dstore_1: double
   astore_1: 引用类型 String Date
-方法调用指令:
+方法调用操作码:
   非虚方法调用:
     invokestatic: 调用静态方法，解析阶段确定唯一方法版本
     invokespecial: 调用构造方法（<init>），私有方法，父类方法，解析节点确定唯一方法版本
@@ -12,13 +85,13 @@
     invokeinterface: 调用接口方法
   动态调用:
     invokedynamic: jdk1.8 动态解析出需要调用的方法，然后执行,具体代表lambda
-方法的返回指令:
+方法的返回操作码:
   ireturn: boolean,byte,char,short,int
   freturn: float
   lreturn: long
   dreturn: double
   areturn: 引用类型 String Date
   return: void
-new对象指令:
+new对象操作码:
   new: 创建对象
   newarray: 创建数组对象
