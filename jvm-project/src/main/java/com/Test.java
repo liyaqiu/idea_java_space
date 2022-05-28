@@ -1,11 +1,6 @@
 package com;
 
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.io.Serializable;
 
 /**
  * @author eric
@@ -13,10 +8,10 @@ import java.util.Scanner;
  * -XX:CompileThreshold=1500
  * -XX:-UseCounterDecay
  **/
-@Slf4j
-public class Test {
+public class Test implements Serializable {
 
-
+    public static String s = "123";
+    final static String s1 = "eeee";
 
 
     public static void  main(String[] args) throws InterruptedException {
@@ -36,5 +31,10 @@ public class Test {
         String s = "123";
     }
 
+    public static class Son{
+        public void test(){
+            System.out.println(s);
+        }
+    }
 
 }
