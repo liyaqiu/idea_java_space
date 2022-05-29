@@ -1,6 +1,8 @@
 package com;
 
+import javax.print.attribute.standard.MediaSize;
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * @author eric
@@ -10,8 +12,6 @@ import java.io.Serializable;
  **/
 public class Test implements Serializable {
 
-    public static String s = "123";
-    final static String s1 = "eeee";
 
 
     public static void  main(String[] args) throws InterruptedException {
@@ -28,18 +28,30 @@ public class Test implements Serializable {
       System.out.println(i + j);
       */
        // Thread.sleep(Integer.MAX_VALUE);
+        Hello hello = new Hello();
+        hello.test("456");
+
+
+
 
     }
 
-    public void test(){
-        int a = 100;
-        int b = 200;
-        {
-            int c = 300;
-        }
-        {
-            int s = 300;
-        }
-    }
+
+
 
 }
+
+
+class Hello {
+
+
+    public synchronized String test(String str) {
+        return "123";
+    }
+
+
+    public synchronized String test2(String str) {
+        return "123";
+    }
+}
+
