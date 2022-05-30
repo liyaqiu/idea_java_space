@@ -3,6 +3,10 @@ package com;
 import javax.print.attribute.standard.MediaSize;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.net.ProtocolException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 /**
  * @author eric
@@ -11,10 +15,10 @@ import java.math.BigDecimal;
  * -XX:-UseCounterDecay
  **/
 public class Test implements Serializable {
+    List<String> list2 = new ArrayList<>();
 
 
-
-    public static void  main(String[] args) throws InterruptedException {
+    public static void  main(String[] args)  throws InterruptedException{
       //-Xms30m -Xmx30m -XX:+PrintGCDetails -XX:+HeapDumpOnOutOfMemoryError
       //jinfo -flag MaxDirectMemorySize 6296
       //新生代 - 100 200
@@ -28,17 +32,22 @@ public class Test implements Serializable {
       System.out.println(i + j);
       */
        // Thread.sleep(Integer.MAX_VALUE);
-        Hello hello = new Hello();
-        hello.test("456");
-
 
 
 
     }
 
+    public synchronized static void test(){
+        List<String> list = new ArrayList<>();
+        list.add("");
+    }
+    public static void test1(){
 
-
-
+        synchronized (new Object()){
+            List list = new ArrayList();
+            list.add("");
+        }
+    }
 }
 
 
