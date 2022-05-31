@@ -312,26 +312,6 @@ JVM的整体结构/JVM内存模型:
               - 字节码校验
               - 符号引用校验
           准备:
-            功能:
-              - 为类变量分配内存，并且设置该类变量的零值(默认值)
-                java代码定义：【这里的具体赋值需要到初始化阶段调用clinit()】
-                  static String a1 = “hello”
-                  static int a2 = 10
-                  static bl a3 = true
-                准备
-                  static String a1 = null
-                  static int a2 = 0
-                  static bl a3 = false
-              - 为final修饰的类常量赋初始值
-                  java代码定义：
-                  final static String a1 = 'hello'
-                  final static int a2 = 10
-                  final static bl a3 = true
-                准备
-                  final static String a1 = 'hello'
-                  final static int a2 = 10
-                  final static bl a3 = true
-              - 这里不会为实例变量分配初始化，类变量会分配在方法区中，而实例变量是会跟随对象一起分配到堆内存中
           解析:
             功能:
               - 将常量池（指的是class文件中的Constant pool）内的符号引用转换为直接引用(真实的内存地址)的过程

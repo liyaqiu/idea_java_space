@@ -15,9 +15,17 @@ import java.util.Scanner;
  * -XX:-UseCounterDecay
  **/
 public class Test implements Serializable {
-    List<String> list2 = new ArrayList<>();
 
+   /* final static int i = 123;
+    final static String str = "123";*/
+    public static final  String str1 ;
+    static {
 
+        str1 = "123";
+
+    }
+    /*String s = "123";*/
+   // final static String Str1 = new String("hello");
     public static void  main(String[] args)  throws InterruptedException{
       //-Xms30m -Xmx30m -XX:+PrintGCDetails -XX:+HeapDumpOnOutOfMemoryError
       //jinfo -flag MaxDirectMemorySize 6296
@@ -33,34 +41,31 @@ public class Test implements Serializable {
       */
        // Thread.sleep(Integer.MAX_VALUE);
 
-
+       /* System.out.println(Hello.a);
+        System.out.println(Hello.str);*/
 
     }
 
-    public synchronized static void test(){
-        List<String> list = new ArrayList<>();
-        list.add("");
-    }
-    public static void test1(){
 
-        synchronized (new Object()){
-            List list = new ArrayList();
-            list.add("");
-        }
-    }
 }
 
 
 class Hello {
 
+    public static final String str = "hello";
+    public static final int a = 123;
 
-    public synchronized String test(String str) {
-        return "123";
+    public static  int b = new Integer(1);
+
+    /*static {
+        System.out.println("clinit方法执行，类初始化");
+    }
+    */
+
+
+    public void test1(){
+
     }
 
-
-    public synchronized String test2(String str) {
-        return "123";
-    }
 }
 
