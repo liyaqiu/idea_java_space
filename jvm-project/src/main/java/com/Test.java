@@ -4,6 +4,7 @@ import javax.print.attribute.standard.MediaSize;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.net.ProtocolException;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -26,7 +27,7 @@ public class Test implements Serializable {
     }
     /*String s = "123";*/
    // final static String Str1 = new String("hello");
-    public static void  main(String[] args)  throws InterruptedException{
+    public static void  main(String[] args) throws InterruptedException, ClassNotFoundException, IllegalAccessException, InstantiationException {
       //-Xms30m -Xmx30m -XX:+PrintGCDetails -XX:+HeapDumpOnOutOfMemoryError
       //jinfo -flag MaxDirectMemorySize 6296
       //新生代 - 100 200
@@ -43,7 +44,21 @@ public class Test implements Serializable {
 
        /* System.out.println(Hello.a);
         System.out.println(Hello.str);*/
+       /* Class.forName("com.Hello").getClass();
+        Class.forName("com.Hello").newInstance();*/
+        //System.out.println(Class.forName("com.Hello") == Hello.class);
+        System.out.println();
 
+
+       /*new Hello();*/
+        //Class.forName("com.Hello");
+      /*  System.out.println(Hello.class.getClassLoader());
+        System.out.println(Class.forName("com.Hello").getClassLoader());
+        Hello hello = new Hello();
+        System.out.println(hello);
+        System.out.println(new Hello().getClass());*/
+        System.out.println(new Hello().getClass().getClassLoader().loadClass("com.Hello").newInstance());
+        System.out.println(new Hello().getClass().getClassLoader().loadClass("com.Hello").newInstance());
     }
 
 
@@ -57,10 +72,9 @@ class Hello {
 
     public static  int b = new Integer(1);
 
-    /*static {
+    static {
         System.out.println("clinit方法执行，类初始化");
     }
-    */
 
 
     public void test1(){
