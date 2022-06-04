@@ -1674,10 +1674,11 @@ JVM的整体结构/JVM内存模型:
                   修改
                       -XX:MaxGCPauseMillis
                         设置回收器的最大停顿时间(STW时间)，单位是毫秒。
-                        为了尽可能的吧停顿时间控制MaxGCPauseMillis以内，回收器在工作时会调整Java堆大小或者其他一些参数
+                        为了尽可能的把停顿时间控制MaxGCPauseMillis以内，回收器在工作时会调整Java堆大小或者其他一些参数
                         对于用户来说，停顿时间越短体验越好。但是在服务器端，我们注重高并发，整体的吞吐量。
                       -XX:GCTimeRatio
-                        设置垃圾回收时间占总时间的比例 = 1/(N+1)
+                        设置垃圾回收时间占总时间的比例，GC时间 = 1/(N+1)
+                        吞吐量为1-1/(1+n)，-XX:GCTimeRatio=n
                         N取值为(0-100),默认为99，也就是垃圾回收时间不超过1%
                         与-XX:MaxGCPauseMillis参数有一定矛盾性，暂停时间越长，GCTimeRatio参数就容易超过设定的比例
                       -XX:+UseAdaptiveSizePolicy

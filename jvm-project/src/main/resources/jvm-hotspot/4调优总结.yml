@@ -1,4 +1,4 @@
-jvm官方规范文档: https://docs.oracle.com/javase/specs/index.html
+JVM官方规范文档: https://docs.oracle.com/javase/specs/index.html
 语言排行榜: https://www.tiobe.com/tiobe-index/
 字节码查看工具:
   javap:
@@ -8,29 +8,25 @@ jvm官方规范文档: https://docs.oracle.com/javase/specs/index.html
   jclasslib:
     - idea setting -> plugins -> jclasslib bytecode viewer
     - win10 https://github.com/ingokegel/jclasslib/releases
-
-jvm工具:
-  JDK命令行:
+JVM监控及诊断工具:
+  命令行工具(JDK提供):
     jstat:
-      - 查看jvm内存和GC使用情况 jstat -gc 5000(pid)
-        S0C    S1C    S0U        S1U         EC   EU        OC        OU         MC     MU     CCSC    CCSU      YGC   YGCT    FGC    FGCT     GCT
-        幸存者0 幸存者1  幸存者0使用  幸存者1使用   伊甸园 伊甸园使用  老年代     老年代使用    4480.0 770.3  384.0   75.9       0    0.000   0      0.000    0.000
-    jinfo:  jinfo -flag SurvivorRatio 11924
+    jinfo:
     jmap:
-  JDK自带工具:
-    - jvisualvm.exe
-    - jconsole.exe
-  Eclipse-MAT(Memory Analuzer Tool):
-    - 它是一款功能强大的Java堆内存分析器，用于查找内存泄漏以及查看内存消耗情况
-    - MAT是以及Eclipse开发的，是一款免费的性能分析工具
-    - 下载地址 http://www.eclipse.org/mat
-    - 下载地址 http://www.eclipse.org/mat/previousReleases.php
-    - 下载地址 https://archive.eclipse.org/mat/1.8/rcp/MemoryAnalyzer-1.8.0.20180604-win32.win32.x86_64.zip
-  Jprofiler:
-    window安装: Jprofiler
-    idea集成Jprofiler:
-      setting -> plugin -> Jprofiler
-  Java Flight Recorder:
+  监控工具:
+    JDK:
+      - jvisualvm.exe
+      - jconsole.exe
+    Eclipse-MAT(Memory Analuzer Tool):
+      - 它是一款功能强大的Java堆内存分析器，用于查找内存泄漏以及查看内存消耗情况
+      - MAT是以及Eclipse开发的，是一款免费的性能分析工具
+      - 下载地址 http://www.eclipse.org/mat
+      - 下载地址 http://www.eclipse.org/mat/previousReleases.php
+      - 下载地址 https://archive.eclipse.org/mat/1.8/rcp/MemoryAnalyzer-1.8.0.20180604-win32.win32.x86_64.zip
+    Jprofiler:
+      window安装: Jprofiler
+      idea集成Jprofiler: setting -> plugin -> Jprofiler
+    Java Flight Recorder:
 JVM常规:
     参数设置:
       参数文档: https://docs.oracle.com/javase/8/docs/technotes/tools/unix/java.html
@@ -45,10 +41,11 @@ JVM常规:
           - -XX:+HeapDumpOnOutOfMemoryError 在程序出现OOM的时候生成dump文件(java_pid15508.hprof)
           - -XX:+PrintStringTableStatistics 打印字符串常量池的信息【程序正常退出时打印】
         不常用:
-          - -XX:+PrintCommandLineFlags 打印设置过的参数
-          - -XX:+PrintFlagsInitial 打印所有的参数的默认初始值
+          - -XX:+PrintCommandLineFlags 打印命令行设置过的参数
+          - -XX:+PrintFlagsInitial 打印所有的参数的默认初始值(不执行用户代码)
           - -XX:+PrintFlagsFinal 打印所有的参数的最终值
           - -XX:+TraceClassLoading 打印当前JVM加载的所有类信息
+          - -XX:-UsePerfData 使用该参数jsp和jstat无法获取该Java进程
       虚拟机栈参数:
           - 调整栈大小，避免栈溢出 -Xss1m
           - 局部变量表中的变量也是重要的垃圾回收根节点，只要被局部变量表中直接或者间接引用的对象都不会被回收
@@ -100,10 +97,11 @@ JVM常规:
             修改
                 -XX:MaxGCPauseMillis
                   设置回收器的最大停顿时间(STW时间)，单位是毫秒。
-                  为了尽可能的吧停顿时间控制MaxGCPauseMillis以内，回收器在工作时会调整Java堆大小或者其他一些参数
+                  为了尽可能的把停顿时间控制MaxGCPauseMillis以内，回收器在工作时会调整Java堆大小或者其他一些参数
                   对于用户来说，停顿时间越短体验越好。但是在服务器端，我们注重高并发，整体的吞吐量。
                 -XX:GCTimeRatio
-                  设置垃圾回收时间占总时间的比例 = 1/(N+1)
+                  设置垃圾回收时间占总时间的比例，GC时间 = 1/(N+1)
+                  吞吐量为1-1/(1+n)，-XX:GCTimeRatio=n
                   N取值为(0-100),默认为99，也就是垃圾回收时间不超过1%
                   与-XX:MaxGCPauseMillis参数有一定矛盾性，暂停时间越长，GCTimeRatio参数就容易超过设定的比例
                 -XX:+UseAdaptiveSizePolicy
@@ -162,7 +160,7 @@ JVM常规:
       - MinorGC N分钟
       - MaiorGC和FullGC N*10倍以上分钟
       - FullGC是开发或者调优尽量要避免的，这样暂停时间会短一些
-    在线日志分析:
+    GC控制台日志分析:
       PrintGCDetails日志:
         - "-Xms300m -Xmx300m -XX:+PrintGCDetails
           都没写则为堆区 52967K->17272K(294400K)
@@ -202,12 +200,13 @@ JVM常规:
             https://github.com/chewiebug/GCViewer
           GC Easy
             https://gceasy.io/
-          GCHisto，GCLogViewer，HP就meter，grabagecat等。
+          GCHisto，GCLogViewer，HPmeter，grabagecat等。
       "
-    离线dump内存文件分析获取的3种方式:
+    dump文件(堆转储快照文件)分析获取的3种方式:
       jmap方式: jmap -dump:format=b,live,file=test1.bin 2680
       jvisualvm方式: 监视器选项 -> 右上角找到dump按钮 -> 左边栏目找到dump文件另存为
       使用参数方式: 在程序出现OOM的时候生成dump文件(java_pid15508.hprof) -XX:+HeapDumpOnOutOfMemoryError
+    对dump文件(堆转储快照文件)的溯源:
       MAT与查看GC Roots溯源:
         - 1。需要准备dump文件
         - 2.打开MAT工具 -> Open Query Browser -> Java Basics -> GC Roots

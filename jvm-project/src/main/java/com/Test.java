@@ -1,5 +1,7 @@
 package com;
 
+import com.ClassLoader.custom.MyClassLoader;
+
 import javax.print.attribute.standard.MediaSize;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -17,14 +19,6 @@ import java.util.Scanner;
  **/
 public class Test implements Serializable {
 
-   /* final static int i = 123;
-    final static String str = "123";*/
-    public static final  String str1 ;
-    static {
-
-        str1 = "123";
-
-    }
     /*String s = "123";*/
    // final static String Str1 = new String("hello");
     public static void  main(String[] args) throws InterruptedException, ClassNotFoundException, IllegalAccessException, InstantiationException {
@@ -35,51 +29,24 @@ public class Test implements Serializable {
       // s0  10  20
       // s1  10  20
       //老年代 - 200 400
-      // List<Object> list = new ArrayList<>();
-      /*Integer i = 10;
-      Integer j = 20;
-      System.out.println(i + j);
-      */
-       // Thread.sleep(Integer.MAX_VALUE);
+        new Scanner(System.in).next();
+        for (int i = 0; i < 100000 ; i++) {
+            new MyClassLoader().loadClass("com.ClassLoader.custom.PersonEntity");
+            int b = i;
+            System.out.println(b);
+        }
+        System.out.println("类加载完毕");
+        new Scanner(System.in).next();
+        System.gc();
+        System.out.println("GC完毕");
 
-       /* System.out.println(Hello.a);
-        System.out.println(Hello.str);*/
-       /* Class.forName("com.Hello").getClass();
-        Class.forName("com.Hello").newInstance();*/
-        //System.out.println(Class.forName("com.Hello") == Hello.class);
-        System.out.println();
+        Thread.sleep(Integer.MAX_VALUE);
 
-
-       /*new Hello();*/
-        //Class.forName("com.Hello");
-      /*  System.out.println(Hello.class.getClassLoader());
-        System.out.println(Class.forName("com.Hello").getClassLoader());
-        Hello hello = new Hello();
-        System.out.println(hello);
-        System.out.println(new Hello().getClass());*/
-        System.out.println(new Hello().getClass().getClassLoader().loadClass("com.Hello").newInstance());
-        System.out.println(new Hello().getClass().getClassLoader().loadClass("com.Hello").newInstance());
     }
 
 
 }
 
 
-class Hello {
 
-    public static final String str = "hello";
-    public static final int a = 123;
-
-    public static  int b = new Integer(1);
-
-    static {
-        System.out.println("clinit方法执行，类初始化");
-    }
-
-
-    public void test1(){
-
-    }
-
-}
 
