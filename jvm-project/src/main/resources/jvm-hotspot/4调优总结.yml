@@ -1,5 +1,93 @@
 JVM官方规范文档: https://docs.oracle.com/javase/specs/index.html
 语言排行榜: https://www.tiobe.com/tiobe-index/
+概述篇:
+  背景说明:
+    生产环境中的问题:
+      - 生产环境发生了内存溢出该如何处理?
+      - 生产环境应该给服务器分配多少内存合适?
+      - 如何对垃圾回授权的性能进行调优?
+      - 生产环境CPU负载过高该如何处理?
+      - 生产环境应该给应用分配多少线程合适?
+      - 不加log，如何确定请求是否执行了某一行代码?
+      - 不加log，如何实现查看某个方法的入参与返回值?
+    为什么要调优:
+      - 防止出现OOM
+      - 解决OOM
+      - 减少Full GC频繁出现
+    不同阶段的考虑:
+      - 上线前
+      - 项目运行阶段
+      - 线上出现OOM
+  调优概述:
+    监控的依据:
+      - 运行日志
+      - 异常堆栈
+      - GC日志
+      - 线程快粘
+      - 堆转储快照
+    调优的大方向:
+      - 合理的编写代码
+      - 合理使用硬件资源
+      - 合理的进行JVM调优
+  性能调优的步骤:
+    第一步,性能监控(发现问题):
+      功能:
+        - GC频繁
+        - CPU负载过高
+        - OOM
+        - 内存泄漏
+        - 死锁
+        - 程序响应时间较长
+      描述:
+        - 一种【非入侵】方式收集运行性能数据的方式
+        - 监控通常是指一种在生产、质量评估或者开发环境下实施带有预防或主动性的活动
+        - 当应用相关人员提出性能问题却没有提供足够多的线索时，首先我们需要进行性能监控，随后是分析。
+    第二步,性能分析(排查问题):
+      功能:
+        - 打印GC日志，通过GCviewer、GC Easy、GCHisto、GCLogViewer、HPmeter，grabagecat等工具老分析日志信息
+        - 灵活运用命令行工具， jstack、jmap、jinfo等
+        - dump出堆文件，使用内存分析工具分析文件
+        - 使用Arthas、jconsole、JVisualVM来实时查看JVM状态
+        - jstack查看对战信息
+      描述:
+        - 一种【入侵】方式收集运行性能数据的方式，它会影响应用的吞吐量或响应性。
+        - 性能分析是针对性能问题的答复结果，关注的范围通常比性能监控更加集中。
+        - 性能分析很少在生产环境下进行，通常是在质量评估、系统测试或者开发环境下进行。
+    第三步,性能调优(解决问题):
+      功能:
+        - 适当增加内存，根据业务背景选择垃圾回收器
+        - 优化代码，控制内存使用
+        - 增加机器，分散节点压力
+        - 合理设置线程池线程数量
+        - 使用中间件提高程序效率，比如缓存，消息队列等。
+      描述:
+        - 一种为改善应用响应性或者吞吐量而更改参数、源代码、属性配置的活动，性能调优是在性能空间，性能分析之后的活动。
+  性能评估/测试指标:
+    响应时间(暂停时间):
+      - "
+        从应用角度看，响应时间，提交请求和响应请求的过程占用的时间。一般比较关注平均响应时间。
+          打开一个站点，几秒
+          数据库查询一条记录(有索引)，十几毫秒
+          机械磁盘一次寻址定位，4毫秒
+          从机械磁盘顺序读取1M数据，2毫秒
+          从SSD磁盘顺序读取1M数据，0.3毫秒
+          从远程分布式换成Redis读取一个数据，0.5毫秒
+          从内存读取1M数据，十几微妙
+          Java程序本地方法调用，几微秒
+          网络传输2kb数据，1微秒
+      "
+      - "
+        从JVM GC角度看，暂停时间，执行垃圾收集暂停的时间(STW)
+        设置参数: -XX:MaxGCPauseMillis
+      "
+    吞吐量:
+      - 对单位时间内完成的工作量(请求)的量度
+      - 在GC中，运行用户代码的时间占总运行时间的比例(总时间=用户线程+GC线程)，吞吐量为1-1/(1+n)，-XX:GCTimeRatio=n
+    并发数:
+      - 同一时刻，对服务器有实际交互的请求数
+      - 大概1000人同时在线，估计并发数在5%-15%之间(50-150之间)
+    内存占用:
+      - Java堆区所占的内存大小
 字节码查看工具:
   javap:
     - javap -v -p Test.class > D:/study/jvm/class.txt 对字节码进行解析查看(查看私有的)
@@ -9,24 +97,226 @@ JVM官方规范文档: https://docs.oracle.com/javase/specs/index.html
     - idea setting -> plugins -> jclasslib bytecode viewer
     - win10 https://github.com/ingokegel/jclasslib/releases
 JVM监控及诊断工具:
-  命令行工具(JDK提供):
-    jstat:
-    jinfo:
-    jmap:
-  监控工具:
-    JDK:
-      - jvisualvm.exe
-      - jconsole.exe
-    Eclipse-MAT(Memory Analuzer Tool):
-      - 它是一款功能强大的Java堆内存分析器，用于查找内存泄漏以及查看内存消耗情况
-      - MAT是以及Eclipse开发的，是一款免费的性能分析工具
-      - 下载地址 http://www.eclipse.org/mat
-      - 下载地址 http://www.eclipse.org/mat/previousReleases.php
-      - 下载地址 https://archive.eclipse.org/mat/1.8/rcp/MemoryAnalyzer-1.8.0.20180604-win32.win32.x86_64.zip
-    Jprofiler:
-      window安装: Jprofiler
-      idea集成Jprofiler: setting -> plugin -> Jprofiler
-    Java Flight Recorder:
+  命令行工具:
+    常用:
+      jps:
+        功能:
+          - 查看Java进程信息
+        使用:
+          - jps 查看正在运行的Java进程
+          - jps -q 查看JVM pid
+          - jps -l 查看完整类名或完整的jar包路径
+          - jps -m 输出虚拟机进程启动时传递给main(String[] args)的参数
+          - jps -v 输出虚拟机进程启动时的JVM参数，比如-Xms20m -Xmx20m
+      jstat:
+        功能:
+          - 查看JVM统计信息
+          - jstat用于监视JVM各种运行状态信息，它可以显示本地或者远程虚拟机进程中的类加载、内存、垃圾收集、JIT编译等运行数据。
+          - 垃圾回收器会主动将jstat需要的摘要数据保存至固定位置之中，而jstat只需要直接读取即可。
+          - 在没有GUI图形界面，只提供了纯文本控制台环境的服务器上，它是运行期定位虚拟机性能问题的首先工具。常用于检测垃圾回收问题以及内存泄漏问题。
+        重点总结:
+          方案1(分析是否会触发OOM场景):
+            - -t参数可以获得一段时间内程序执行的时间。t
+            - GCT可以根据-t来计算出在段时间内GC一共花费了多少时间。gct
+            - gct/t=GC占用的比例，如果该比例超过20%说明目前堆的压力比较大，如果比例超过90%，则说明堆里几乎没有可用空间，随时都可以能触发OOM。
+          方案2(分析是否存在内存泄漏):
+            - 在长时间运行的Java程序中，可以运行jstat命令连续获取多行性能数据，并取这N行数据中的OU列的最小值(已占用老年代的内存)。
+            - 然后，每隔一段较长的时间重复一次上述操作，获取多组OU最小值。如果这些OU值呈现上涨趋势，则说明改Java程序的老年代内存已经在不断上涨没有被GC回收掉
+            - 因此很可能存在内存泄漏问题，最后会导致OOM的发生。
+        使用:
+          类装载相关:
+            - jstat -class 5168 查看类加载信息和卸载信息，以及卸载消耗的时间
+            - jstat -class 5168 1000 每隔1000毫秒打印一次
+            - jstat -class 5168 1000 10 一共打印10次结束
+            - jstat -class -t 5168 1000 10 输出程序一共运行了多少秒(-t timestamp)
+            - jstat -class -t -h3 5168 1000 10 每隔3行数据打印表头信息
+          垃圾回收相关:
+            gc:
+              使用:
+                - jstat -gc 5168 查看GC相关信息，(伊甸园区，幸存者区，老年代，方法区)
+                - jstat -gc 5168 1000 每隔1000毫秒打印一次
+                - jstat -gc 5168 1000 10 一共打印10次结束
+                - jstat -gc -t 5168 1000 10 输出程序一共运行了多少秒(-t timestamp)
+                - jstat -gc -t -h3 5168 1000 10 每隔3行数据打印表头信息
+              说明:
+                - S0C   幸存者0区总大小，字节
+                - S1C   幸存者1区总大小，字节
+                - S0U   幸存者0区使用大小，字节
+                - S1U   幸存者1区使用大小，字节
+                - EC    伊甸园区总大小，字节
+                - EU    伊甸园区使用大小，字节
+                - OC    老年代总大小，字节
+                - OU    老年代使用大小，字节
+                - MC    方法区总大小
+                - MU    方法区使用大小
+                - CCSC  压缩类空间总大小
+                - CCSU  压缩类空间使用大小
+                - YGC   MinorGC次数
+                - YGCT  N次MinorGC花费总时间，秒
+                - FGC   FullGC次数
+                - FGCT  N次FullGC花费总时间，秒
+                - GCT   N次GC花费总时间，秒(N次MinorGC花费总时间+N次FullGC花费总时间)
+            gcutil:
+              使用:
+                - jstat -gcutil 5168 关注堆的各个区域使用占比情况
+                - jstat -gcutil 5168 1000 每隔1000毫秒打印一次
+                - jstat -gcutil 5168 1000 10 一共打印10次结束
+                - jstat -gcutil -t 5168 1000 10 输出程序一共运行了多少秒(-t timestamp)
+                - jstat -gcutil -t -h3 5168 1000 10 每隔3行数据打印表头信息
+              说明:
+                - S0    幸存者0区使用大小，字节，占比
+                - S1    幸存者1区使用大小，字节，占比
+                - E     伊甸园区使用大小，字节，占比
+                - O     老年代使用大小，字节，占比
+                - M     方法区使用大小占比
+                - CCS   压缩类空间使用大小占比
+                - YGC   MinorGC次数
+                - YGCT  N次MinorGC花费总时间，秒
+                - FGC   FullGC次数
+                - FGCT  N次FullGC花费总时间，秒
+                - GCT   N次GC花费总时间，秒(N次MinorGC花费总时间+N次FullGC花费总时间)
+            gccause:
+              使用:
+                - jstat -gccause 5168 关注堆的各个区域使用占比情况和GC当前发生或最后一次发生的原因
+                - jstat -gccause 5168 1000 每隔1000毫秒打印一次
+                - jstat -gccause 5168 1000 10 一共打印10次结束
+                - jstat -gccause -t 5168 1000 10 输出程序一共运行了多少秒(-t timestamp)
+                - jstat -gccause -t -h3 5168 1000 10 每隔3行数据打印表头信息
+              说明:
+                - S0    幸存者0区使用大小，字节，占比
+                - S1    幸存者1区使用大小，字节，占比
+                - E     伊甸园区使用大小，字节，占比
+                - O     老年代使用大小，字节，占比
+                - M     方法区使用大小占比
+                - CCS   压缩类空间使用大小占比
+                - YGC   MinorGC次数
+                - YGCT  N次MinorGC花费总时间，秒
+                - FGC   FullGC次数
+                - FGCT  N次FullGC花费总时间，秒
+                - GCT   N次GC花费总时间，秒(N次MinorGC花费总时间+N次FullGC花费总时间)
+                - LGCC  发生GC的原因
+                - GCC   未知
+            gcnew: 显示新生代GC状态
+            gcnewcapacity: 显示内存与-gcnew基本相同，主要关注使用到的最大，最小空间
+            gcold: 显示老年代GC状态
+            gcoldcapacity: 显示内存与-gcold基本相同，主要关注使用到的最大，最小空间
+            gcpermcapacity: 显示永久代的最大最小空间，JDK7及以前使用
+          JIT相关:
+            - jstat -compiler 5168 查看JIT编译器编译的方法、耗时等信息。
+            - jstat -compiler 5168 1000 每隔1000毫秒打印一次
+            - jstat -compiler 5168 1000 10 一共打印10次结束
+            - jstat -compiler -t 5168 1000 10 输出程序一共运行了多少秒(-t timestamp)
+            - jstat -compiler -t -h3 5168 1000 10 每隔3行数据打印表头信息
+            - ------------------------------------------------------
+            - jstat -printcompilation 5168 输出已经被JIT编译的方法
+            - jstat -printcompilation 5168 1000 每隔1000毫秒打印一次
+            - jstat -printcompilation 5168 1000 10 一共打印10次结束
+            - jstat -printcompilation -t 5168 1000 10 输出程序一共运行了多少秒(-t timestamp)
+            - jstat -printcompilation -t -h3 5168 1000 10 每隔3行数据打印表头信息
+      jinfo:
+        功能:
+          - 查看JVM的配置参数信息，也可用于设置JVM配置参数。
+        使用:
+          查看参数:
+            - jinfo -sysprops 3604 查看JVM环境信息，等同于用Java(System.getProperties())
+            - jinfo -flags 3604 查看曾经给JVM赋过的参数，Non-default VM flags 非默认参数(一般是指系统给设置+用户设置的)，Command line 通过命令行设置的参数
+            - jinfo -flag InitialHeapSize 3604 查看具体参数的值
+          修改参数:
+            - 查看可被修改的参数 java -XX:+PrintFlagsFinal -version | findStr "manageable"
+            - 查看可被修改的参数 java -XX:+PrintFlagsFinal -version | grep "manageable"
+            - "
+                针对布尔型的修改
+                  jinfo -flag PrintGCDetails 3604 查看具体参数的值
+                    jinfo -flag  +PrintGCDetails 3604
+                    jinfo -flag  -PrintGCDetails 3604
+                针对数值型的修改
+                  jinfo -flag MinHeapFreeRatio 3604 查看具体参数的值
+                    jinfo -flag MinHeapFreeRatio=100 3604
+              "
+      jmap:
+        功能:
+          - 主要用于导出dump文件(堆存储快照文件)
+          - 它还可以获取目标Java进程的内存相关信息，包括Java堆各个区域的使用情况、堆中对象的统计信息。类加载信息等。
+          - 由于jmap将访问堆中的所有对象，为了保证在此过程中不被用户线程干扰，jmap需要借助安全点机制，让所有用户线程在不改变堆中数据的状态。也就是说，由jmap到处的堆快照必定是安全点位置，这个可能会导致基于改堆快照的分析结果存在偏差。
+        使用:
+          - 当一下指令执行没有任何响应的情况下加-F强制执行
+          - jmap -dump:format=b,file=/root/test1.hprof 2680 生成堆转储文件
+          - jmap -dump:format=b,live,file=/root/test1.hprof 2680 生成堆转储文件(只保存堆中存活对象)
+          - jmap -heap 11508 > d:a.txt 显示当前堆分配以及使用情况
+          - jmap -histo 11508 > d:b.txt 显示关于某个类模版实例，new对象实例是个数以及字节大小
+          - jmap -permstat 11508 查看系统的ClassLoader信息，linux下使用,jdk7级以前使用
+          - jmap -finalizerinfo 11508 查看堆积在finalizer队列中的对象，linux下使用
+      jstack:
+        功能:
+          - 打印栈空间线程快照
+          - 线程状态，重点关注 BLOCKED，阻塞状态有可能会导致死锁。
+        使用:
+          - jstack 10580 > /root/abc.tdump 打印栈空间线程快照，查看线程状态，是否出现死锁问题。
+          - jstack -F 10580 当请求没响应的时候，执行强制执行。
+          - jstack -l 10580 显示关于锁的附加信息
+          - jstack -m 10580 如果有调用到本地方法的话，可以显示C/C++的堆栈
+    不常用:
+      jcmd:
+        功能:
+          - 多功能命令行
+          - 它是一个多功能的工具，可以用来实现前面除了jstat之外的所有命令的功能。
+        使用:
+          - jcmd help
+          - jcmd 类似于 jps
+          - jcmd 2432 help
+          - jcmd 2432 Thread.print  类似于jstack
+          - jcmd 2432 VM.command_line
+      jhat:
+        功能:
+          - jdk自带堆分析工具
+          - jhat命令与jmap命令搭配使用，用于分析jmap生成的堆转储快照文件(dump文件)。
+          - jhat内置了一个微型的http/HTML服务器
+          - JDK9及以后被删除，官方建议用VisualVM代替
+        使用:
+          - jhat  D:abc.hprof  http://localhost:7000
+          - jhat -port 8888 D:abc.hprof  http://localhost:8888
+      jstatd:
+        功能:
+          - 远程主机信息收集
+          - 之前的命令只涉及到监控本机的Java应用程序，而这些工具(jps、jstat)还可以支持远程使用。
+          - jstatd是一个RMI服务端程序，它的作用相当于代理服务器，建立本地计算机与远程监控工具的通讯。
+        使用:
+  图形化工具:
+    常用:
+      visualvm:
+        功能:
+          - visualvm是一款功能强大的多合一故障和性能监控可视化工具，取代了jconsole工具。
+          - 插件安装地址(https://visualvm.github.io/pluginscenters.html)
+          - 可以生成dump文件保存到本地，以及加载dump文件进行分析
+        jdk:
+          - jvisualvm.exe
+          - 设置jdk8版本插件更新地址(http://visualvm.github.io/archive/uc/8u40/updates.xml.gz)
+          - 需要安装的插件(Visual GC)
+        visualvm:
+          - 下载visualvm(https://visualvm.github.io/index.html)
+          - 设置VisualVM2.1.1版本插件更新地址(https://visualvm.github.io/uc/release211/updates.xml.gz)
+          - 需要安装的插件(VisualGC、Mbeans)
+        idea:
+          - 集成到idea中，plugins(VisualVM Launcher)
+      Eclipse-MAT(Memory Analuzer Tool):
+        - 它是一款功能强大的Java堆内存分析工具，用于查找内存泄漏以及查看内存消耗情况
+        - MAT是以及Eclipse开发的，是一款免费的性能分析工具
+        - 下载地址 http://www.eclipse.org/mat
+        - 下载地址 http://www.eclipse.org/mat/previousReleases.php
+        - 下载地址 https://archive.eclipse.org/mat/1.8/rcp/MemoryAnalyzer-1.8.0.20180604-win32.win32.x86_64.zip
+      Jprofiler:
+        window安装: Jprofiler
+        idea集成Jprofiler: setting -> plugin -> Jprofiler
+      Arthas:
+        - 阿里巴巴开源的Java诊断工具。
+    不常用:
+      jconsole:
+        - jdk自带 jconsole.exe
+        - 官方文档 https://docs.oracle.com/javase/7/docs/technotes/guides/management/jconsole.html
+      jmc:
+        - jdk自带 jmc.exe
+      Btrace:
+        - Java运行时追踪工具，可以在不停机的情况下，跟踪指定的方法调用，构造函数调用和系统内存信息等。
 JVM常规:
     参数设置:
       参数文档: https://docs.oracle.com/javase/8/docs/technotes/tools/unix/java.html
@@ -38,7 +328,7 @@ JVM常规:
           - -XX:+PrintGCTimeStamps 打印jvm启动以后多少秒后触发的gc 24.244
           - -XX:+PrintHeapAtGC 打印触发GC后堆内存的前后对比
           - -Xloggc:D:/gc.log GC日志文件的输出路径
-          - -XX:+HeapDumpOnOutOfMemoryError 在程序出现OOM的时候生成dump文件(java_pid15508.hprof)
+          - -XX:+HeapDumpOnOutOfMemoryError  -XX:HeapDumpPath=D:/abc.hprof 在程序出现OOM(意味着之前出现过GC，所以只有存活对象)的时候生成dump文件
           - -XX:+PrintStringTableStatistics 打印字符串常量池的信息【程序正常退出时打印】
         不常用:
           - -XX:+PrintCommandLineFlags 打印命令行设置过的参数
@@ -203,9 +493,9 @@ JVM常规:
           GCHisto，GCLogViewer，HPmeter，grabagecat等。
       "
     dump文件(堆转储快照文件)分析获取的3种方式:
-      jmap方式: jmap -dump:format=b,live,file=test1.bin 2680
-      jvisualvm方式: 监视器选项 -> 右上角找到dump按钮 -> 左边栏目找到dump文件另存为
-      使用参数方式: 在程序出现OOM的时候生成dump文件(java_pid15508.hprof) -XX:+HeapDumpOnOutOfMemoryError
+      jmap方式: jmap -dump:format=b,live,file=test1.hprof 2680
+      visualvm方式: 监视选项 -> 右上角找到dump按钮 -> 左边栏目找到dump文件另存为
+      使用参数方式: 在程序出现OOM(意味着之前出现过GC，所以只有存活对象)的时候生成dump文件-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=D:/abc.hprof
     对dump文件(堆转储快照文件)的溯源:
       MAT与查看GC Roots溯源:
         - 1。需要准备dump文件
