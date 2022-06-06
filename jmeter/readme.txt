@@ -1,0 +1,1 @@
+用jmeter软件打开test1.jmx文件即可

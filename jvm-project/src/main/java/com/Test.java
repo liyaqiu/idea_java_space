@@ -18,6 +18,9 @@ import java.util.concurrent.locks.LockSupport;
 public class Test implements Serializable {
     static  Object lock1 = new Object();
     static  Object lock2 = new Object();
+    static ArrayList<Class> arr = new ArrayList<>();
+    static ArrayList<Father> fathers = new ArrayList<>();
+    static ArrayList<Father> fathers1 = fathers;
     /*String s = "123";*/
    // final static String Str1 = new String("hello");
     public static void  main(String[] args) throws InterruptedException, ClassNotFoundException, IllegalAccessException, InstantiationException {
@@ -28,10 +31,19 @@ public class Test implements Serializable {
       // s0  10  20
       // s1  10  20
       //老年代 - 200 400
-        Father father = new Father();
-        ArrayList<Class> arr = new ArrayList<>();
-        for (int i = 0; i < 200; i++) {
-            arr.add(new MyClassLoader().loadClass("com.ClassLoader.custom.PersonEntity"));
+
+
+
+
+        new Scanner(System.in).next();
+
+        Class a = new MyClassLoader().loadClass("com.ClassLoader.custom.PersonEntity");
+        Object o = a.newInstance();
+        Object o2 = a.newInstance();
+        Class b =  new MyClassLoader().loadClass("com.ClassLoader.custom.PersonEntity");
+        for (int i = 0; i < 200000; i++) {
+            //arr.add(new MyClassLoader().loadClass("com.ClassLoader.custom.PersonEntity"));
+            fathers.add(new Father());
         }
 
         Thread.sleep(Integer.MAX_VALUE);
@@ -73,10 +85,11 @@ public class Test implements Serializable {
 
 
 
+
 }
 
 class Father{
-    byte[] b = new byte[1024*1024*100];
+    byte[] b = new byte[1024*1024*10];
 }
 class Son extends Father{
 

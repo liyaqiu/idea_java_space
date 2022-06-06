@@ -48,6 +48,7 @@ public class UserController {
     @RequestMapping("/test1")
     public String test1(){
         log.info("jmeter-test1");
+        byte[] b = new byte[1024*1024*1];
         return "success";
     }
     @RequestMapping("/test2")
