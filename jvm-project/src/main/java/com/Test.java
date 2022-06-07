@@ -21,6 +21,8 @@ public class Test implements Serializable {
     static ArrayList<Class> arr = new ArrayList<>();
     static ArrayList<Father> fathers = new ArrayList<>();
     static ArrayList<Father> fathers1 = fathers;
+    static int a = 1000;
+    int b =200;
     /*String s = "123";*/
    // final static String Str1 = new String("hello");
     public static void  main(String[] args) throws InterruptedException, ClassNotFoundException, IllegalAccessException, InstantiationException {
@@ -36,13 +38,19 @@ public class Test implements Serializable {
 
 
         new Scanner(System.in).next();
-
+        fathers.add(new Father());
+        fathers.add(new Father());
+        fathers.add(new Father());
+        fathers.add(new Father());
+        new Scanner(System.in).next();
+        Test test = new Test();
         Class a = new MyClassLoader().loadClass("com.ClassLoader.custom.PersonEntity");
         Object o = a.newInstance();
         Object o2 = a.newInstance();
         Class b =  new MyClassLoader().loadClass("com.ClassLoader.custom.PersonEntity");
         for (int i = 0; i < 200000; i++) {
             //arr.add(new MyClassLoader().loadClass("com.ClassLoader.custom.PersonEntity"));
+            Thread.sleep(1000);
             fathers.add(new Father());
         }
 
@@ -89,7 +97,7 @@ public class Test implements Serializable {
 }
 
 class Father{
-    byte[] b = new byte[1024*1024*10];
+    byte[] b = new byte[1024*1024*1];
 }
 class Son extends Father{
 
