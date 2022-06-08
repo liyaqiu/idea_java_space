@@ -163,162 +163,283 @@ JVM监控及诊断工具:
     - 线程信息，包括线程的调用栈及此线程的线程局部变量
   命令行工具:
     常用:
-      jps:
+      Arthas:
         功能:
-          - 查看Java进程信息
+          - 阿里巴巴开源的Java诊断工具，在线排查问题，无需重启，动态跟踪Java代码，实时监控JVM状态。
+          - 支持Linux/Mac/Windows
+          - 官方文档 https://arthas.aliyun.com/zh-cn/
+          - "下载地址
+                离线下载所有jar包
+                  https://github.com/alibaba/arthas/releases
+                需要在线下载相关jar包
+                  wget https://alibaba.github.io/arthas/arthas-boot.jar
+                  wget https://arthas.gitee.io/arthas-boot.jar "
+          - " Linux下相关目录
+                rm -rf ~/.arthas
+                rm -rf ~/logs
+                rm -rf ~/arthas-output "
+        解决的问题:
+          - 这个类从哪个jar包加载的？为什么会报各种类相关的Exception？
+          - 我改的代码为什么没有执行到？难道是我设commit？分支搞错了？
+          - 遇到问题无法上线Debug，难道只能通过加日志再重新发布吗？
+          - 线上遇到某个用户的数据处理有问题，但线程同样无法debug，线下无法重现，或者线下重现复杂度高！
+          - 是否有一个全局视角来查看系统的运行状况？
+          - 有什么办法可以监控到JVM的实时运行状态？
+          - 怎么快速定位应用热点，生成火焰图？
         使用:
-          - jps 查看正在运行的Java进程
-          - jps -q 查看JVM pid
-          - jps -l 查看完整类名或完整的jar包路径
-          - jps -m 输出虚拟机进程启动时传递给main(String[] args)的参数
-          - jps -v 输出虚拟机进程启动时的JVM参数，比如-Xms20m -Xmx20m
-      jstat:
-        功能:
-          - 查看JVM统计信息
-          - jstat用于监视JVM各种运行状态信息，它可以显示本地或者远程虚拟机进程中的类加载、内存、垃圾收集、JIT编译等运行数据。
-          - 垃圾回收器会主动将jstat需要的摘要数据保存至固定位置之中，而jstat只需要直接读取即可。
-          - 在没有GUI图形界面，只提供了纯文本控制台环境的服务器上，它是运行期定位虚拟机性能问题的首先工具。常用于检测垃圾回收问题以及内存泄漏问题。
-        重点总结:
-          方案1(分析是否会触发OOM场景):
-            - -t参数可以获得一段时间内程序执行的时间。t
-            - GCT可以根据-t来计算出在段时间内GC一共花费了多少时间。gct
-            - gct/t=GC占用的比例，如果该比例超过20%说明目前堆的压力比较大，如果比例超过90%，则说明堆里几乎没有可用空间，随时都可以能触发OOM。
-          方案2(分析是否存在内存泄漏):
-            - 在长时间运行的Java程序中，可以运行jstat命令连续获取多行性能数据，并取这N行数据中的OU列的最小值(已占用老年代的内存)。
-            - 然后，每隔一段较长的时间重复一次上述操作，获取多组OU最小值。如果这些OU值呈现上涨趋势，则说明改Java程序的老年代内存已经在不断上涨没有被GC回收掉
-            - 因此很可能存在内存泄漏问题，最后会导致OOM的发生。
-        使用:
-          类装载相关:
-            - jstat -class 5168 查看类加载信息和卸载信息，以及卸载消耗的时间
-            - jstat -class 5168 1000 每隔1000毫秒打印一次
-            - jstat -class 5168 1000 10 一共打印10次结束
-            - jstat -class -t 5168 1000 10 输出程序一共运行了多少秒(-t timestamp)
-            - jstat -class -t -h3 5168 1000 10 每隔3行数据打印表头信息
-          垃圾回收相关:
-            gc:
-              使用:
-                - jstat -gc 5168 查看GC相关信息，(伊甸园区，幸存者区，老年代，方法区)
-                - jstat -gc 5168 1000 每隔1000毫秒打印一次
-                - jstat -gc 5168 1000 10 一共打印10次结束
-                - jstat -gc -t 5168 1000 10 输出程序一共运行了多少秒(-t timestamp)
-                - jstat -gc -t -h3 5168 1000 10 每隔3行数据打印表头信息
-              说明:
-                - S0C   幸存者0区总大小，字节
-                - S1C   幸存者1区总大小，字节
-                - S0U   幸存者0区使用大小，字节
-                - S1U   幸存者1区使用大小，字节
-                - EC    伊甸园区总大小，字节
-                - EU    伊甸园区使用大小，字节
-                - OC    老年代总大小，字节
-                - OU    老年代使用大小，字节
-                - MC    方法区总大小
-                - MU    方法区使用大小
-                - CCSC  压缩类空间总大小
-                - CCSU  压缩类空间使用大小
-                - YGC   MinorGC次数
-                - YGCT  N次MinorGC花费总时间，秒
-                - FGC   FullGC次数
-                - FGCT  N次FullGC花费总时间，秒
-                - GCT   N次GC花费总时间，秒(N次MinorGC花费总时间+N次FullGC花费总时间)
-            gcutil:
-              使用:
-                - jstat -gcutil 5168 关注堆的各个区域使用占比情况
-                - jstat -gcutil 5168 1000 每隔1000毫秒打印一次
-                - jstat -gcutil 5168 1000 10 一共打印10次结束
-                - jstat -gcutil -t 5168 1000 10 输出程序一共运行了多少秒(-t timestamp)
-                - jstat -gcutil -t -h3 5168 1000 10 每隔3行数据打印表头信息
-              说明:
-                - S0    幸存者0区使用大小，字节，占比
-                - S1    幸存者1区使用大小，字节，占比
-                - E     伊甸园区使用大小，字节，占比
-                - O     老年代使用大小，字节，占比
-                - M     方法区使用大小占比
-                - CCS   压缩类空间使用大小占比
-                - YGC   MinorGC次数
-                - YGCT  N次MinorGC花费总时间，秒
-                - FGC   FullGC次数
-                - FGCT  N次FullGC花费总时间，秒
-                - GCT   N次GC花费总时间，秒(N次MinorGC花费总时间+N次FullGC花费总时间)
-            gccause:
-              使用:
-                - jstat -gccause 5168 关注堆的各个区域使用占比情况和GC当前发生或最后一次发生的原因
-                - jstat -gccause 5168 1000 每隔1000毫秒打印一次
-                - jstat -gccause 5168 1000 10 一共打印10次结束
-                - jstat -gccause -t 5168 1000 10 输出程序一共运行了多少秒(-t timestamp)
-                - jstat -gccause -t -h3 5168 1000 10 每隔3行数据打印表头信息
-              说明:
-                - S0    幸存者0区使用大小，字节，占比
-                - S1    幸存者1区使用大小，字节，占比
-                - E     伊甸园区使用大小，字节，占比
-                - O     老年代使用大小，字节，占比
-                - M     方法区使用大小占比
-                - CCS   压缩类空间使用大小占比
-                - YGC   MinorGC次数
-                - YGCT  N次MinorGC花费总时间，秒
-                - FGC   FullGC次数
-                - FGCT  N次FullGC花费总时间，秒
-                - GCT   N次GC花费总时间，秒(N次MinorGC花费总时间+N次FullGC花费总时间)
-                - LGCC  发生GC的原因
-                - GCC   未知
-            gcnew: 显示新生代GC状态
-            gcnewcapacity: 显示内存与-gcnew基本相同，主要关注使用到的最大，最小空间
-            gcold: 显示老年代GC状态
-            gcoldcapacity: 显示内存与-gcold基本相同，主要关注使用到的最大，最小空间
-            gcpermcapacity: 显示永久代的最大最小空间，JDK7及以前使用
-          JIT相关:
-            - jstat -compiler 5168 查看JIT编译器编译的方法、耗时等信息。
-            - jstat -compiler 5168 1000 每隔1000毫秒打印一次
-            - jstat -compiler 5168 1000 10 一共打印10次结束
-            - jstat -compiler -t 5168 1000 10 输出程序一共运行了多少秒(-t timestamp)
-            - jstat -compiler -t -h3 5168 1000 10 每隔3行数据打印表头信息
-            - ------------------------------------------------------
-            - jstat -printcompilation 5168 输出已经被JIT编译的方法
-            - jstat -printcompilation 5168 1000 每隔1000毫秒打印一次
-            - jstat -printcompilation 5168 1000 10 一共打印10次结束
-            - jstat -printcompilation -t 5168 1000 10 输出程序一共运行了多少秒(-t timestamp)
-            - jstat -printcompilation -t -h3 5168 1000 10 每隔3行数据打印表头信息
-      jinfo:
-        功能:
-          - 查看JVM的配置参数信息，也可用于设置JVM配置参数。
-        使用:
-          查看参数:
-            - jinfo -sysprops 3604 查看JVM环境信息，等同于用Java(System.getProperties())
-            - jinfo -flags 3604 查看曾经给JVM赋过的参数，Non-default VM flags 非默认参数(一般是指系统给设置+用户设置的)，Command line 通过命令行设置的参数
-            - jinfo -flag InitialHeapSize 3604 查看具体参数的值
-          修改参数:
-            - 查看可被修改的参数 java -XX:+PrintFlagsFinal -version | findStr "manageable"
-            - 查看可被修改的参数 java -XX:+PrintFlagsFinal -version | grep "manageable"
-            - "
-                针对布尔型的修改
-                  jinfo -flag PrintGCDetails 3604 查看具体参数的值
-                    jinfo -flag  +PrintGCDetails 3604
-                    jinfo -flag  -PrintGCDetails 3604
-                针对数值型的修改
-                  jinfo -flag MinHeapFreeRatio 3604 查看具体参数的值
-                    jinfo -flag MinHeapFreeRatio=100 3604
+          启动:
+            - cd arthas-bin/
+            - java -jar arthas-boot.jar
+            - 如果链接失败，需要查看cat arthas.properties 在去链接 java -jar arthas-boot.jar --target-ip 192.168.88.12
+            - java -jar arthas-boot.jar -h 查看帮助文档
+          命令:
+            功能:
+              - 查看官方文档 https://arthas.aliyun.com/doc/advanced-use.html#id2
+            基础命令:
+              - help    查看命令帮助信息
+              - cat     打印文件内容，和linux里的cat命令类似
+              - echo    打印参数，和linux里的echo命令类似
+              - grep    匹配查找，和linux里的grep命令类似
+              - base64  base64编码转换，和linux里的base64命令类似
+              - tee     复制标准输入到标准输出和指定的文件，和linux里的tee命令类似
+              - pwd     返回当前的工作目录，和linux命令类似
+              - cls     清空当前屏幕区域
+              - session 查看当前会话的信息
+              - reset   重置增强类，将被 Arthas 增强过的类全部还原，Arthas 服务端关闭时会重置所有增强过的类
+              - version 输出当前目标 Java 进程所加载的 Arthas 版本号
+              - history 打印命令历史
+              - quit    退出当前 Arthas 客户端，其他 Arthas 客户端不受影响
+              - stop    关闭 Arthas 服务端，所有 Arthas 客户端全部退出
+              - keymap  Arthas快捷键列表及自定义快捷键
+            jvm相关:
+              - "
+                dashboard   当前系统的实时数据面板
+                    dashboard -h
+                    dashboard 查看数据面板
+                    dashboard -i 1000 每1秒打印一次
+                    dashboard -i 1000 -n 5 一共打印5次
               "
-      jmap:
-        功能:
-          - 主要用于导出dump文件(堆存储快照文件)
-          - 它还可以获取目标Java进程的内存相关信息，包括Java堆各个区域的使用情况、堆中对象的统计信息。类加载信息等。
-          - 由于jmap将访问堆中的所有对象，为了保证在此过程中不被用户线程干扰，jmap需要借助安全点机制，让所有用户线程在不改变堆中数据的状态。也就是说，由jmap到处的堆快照必定是安全点位置，这个可能会导致基于改堆快照的分析结果存在偏差。
-        使用:
-          - 当一下指令执行没有任何响应的情况下加-F强制执行
-          - jmap -dump:format=b,file=/root/test1.hprof 2680 生成堆转储文件
-          - jmap -dump:format=b,live,file=/root/test1.hprof 2680 生成堆转储文件(只保存堆中存活对象)
-          - jmap -heap 11508 > d:a.txt 显示当前堆分配以及使用情况
-          - jmap -histo 11508 > d:b.txt 显示关于某个类模版实例，new对象实例是个数以及字节大小
-          - jmap -permstat 11508 查看系统的ClassLoader信息，linux下使用,jdk7级以前使用
-          - jmap -finalizerinfo 11508 查看堆积在finalizer队列中的对象，linux下使用
-      jstack:
-        功能:
-          - 打印栈空间线程快照
-          - 线程状态，重点关注 BLOCKED，阻塞状态有可能会导致死锁。
-        使用:
-          - jstack 10580 > /root/abc.tdump 打印栈空间线程快照，查看线程状态，是否出现死锁问题。
-          - jstack -F 10580 当请求没响应的时候，执行强制执行。
-          - jstack -l 10580 显示关于锁的附加信息
-          - jstack -m 10580 如果有调用到本地方法的话，可以显示C/C++的堆栈
+              - "
+                thread      查看当前 JVM 的线程堆栈信息
+                    thread -h
+                    thread 查看线程状态
+                    thread -i 2000 在2秒钟内这些线程的CPU使用率
+                    thread -i 2000 -n 2 在2秒内，使用CPU最多的2个线程
+                    thread --state BLOCKED 检查阻塞线程是否发生死锁
+              "
+              - jvm         查看当前 JVM 的信息
+              - "
+                sysprop     查看和修改JVM的系统属性  类似于 jinfo -sysprops 3604 查看JVM环境信息，等同于用Java(System.getProperties())
+                    sysprop -h
+                    sysprop file.encoding  查看某一个具体属性
+              "
+              - sysenv      查看JVM的环境变量
+              - vmoption    查看和修改JVM里诊断相关的option
+              - perfcounter 查看当前 JVM 的Perf Counter信息
+              - logger      查看和修改logger
+              - getstatic   查看类的静态属性
+              - ognl        执行ognl表达式
+              - mbean       查看 Mbean 的信息
+              - "
+                heapdump    dump java heap, 类似jmap命令的heap dump功能
+                    heapdump --live
+                    heapdump --live /tmp/dump.hprof
+              "
+              - vmtool      从jvm里查询对象，执行forceGc
+            class/classloader相关:
+              - "
+                sc          查看JVM已加载的类信息
+                    sc * 查看加载了多少类
+                    sc com.* 查看com包下的所有类
+                    sc -d *Test 查看具体某个类相关信息
+                    sc -d -f *Test 查看这个类的相关类变量和实例变量
+              "
+              - "
+                sm          查看已加载类的方法信息
+                    sm  com.Test 查看这个类的方法信息
+                    sm -d  com.Test testA 查看某个方法细节
+              "
+              - "
+                jad         反编译指定已加载类的源码
+                    jad com.Test 查看类的源码
+                    jad com.Test testB 查看某个方法的源码
+              "
+              - mc          内存编译器，内存编译.java文件为.class文件
+              - retransform 加载外部的.class文件，retransform到JVM里
+              - redefine    加载外部的.class文件，redefine到JVM里
+              - dump   dump 已加载类的 byte code 到特定目录
+              - "
+                classloader 查看classloader的继承树，urls，类加载信息，使用classloader去getResource
+                    classloader 查看类加载器都加载了多少类版本。
+                    classloader -l 查看更加详细的信息
+                    classloader -c 73d16e93 查看具体某个类加载器的都加载了哪些jar文件
+              "
+            monitor/watch/trace相关:
+              - 请注意，这些命令，都通过字节码增强技术来实现的，会在指定类的方法中插入一些切面来实现数据统计和观测，因此在线上、预发使用时，请尽量明确需要观测的类、方法以及条件，诊断结束要执行 stop 或将增强过的类执行 reset 命令。
+              - monitor 方法执行监控
+              - watch   方法执行数据观测
+              - trace   方法内部调用路径，并输出方法路径上的每个节点上耗时
+              - stack   输出当前方法被调用的调用路径
+              - tt      方法执行数据的时空隧道，记录下指定方法每次调用的入参和返回信息，并能对这些不同的时间下调用进行观测
+            profiler/火焰图:
+              - profiler 使用async-profiler对应用采样，生成火焰图
+      JDK:
+        jps:
+          功能:
+            - 查看Java进程信息
+          使用:
+            - jps 查看正在运行的Java进程
+            - jps -q 查看JVM pid
+            - jps -l 查看完整类名或完整的jar包路径
+            - jps -m 输出虚拟机进程启动时传递给main(String[] args)的参数
+            - jps -v 输出虚拟机进程启动时的JVM参数，比如-Xms20m -Xmx20m
+        jstat:
+          功能:
+            - 查看JVM统计信息
+            - jstat用于监视JVM各种运行状态信息，它可以显示本地或者远程虚拟机进程中的类加载、内存、垃圾收集、JIT编译等运行数据。
+            - 垃圾回收器会主动将jstat需要的摘要数据保存至固定位置之中，而jstat只需要直接读取即可。
+            - 在没有GUI图形界面，只提供了纯文本控制台环境的服务器上，它是运行期定位虚拟机性能问题的首先工具。常用于检测垃圾回收问题以及内存泄漏问题。
+          重点总结:
+            方案1(分析是否会触发OOM场景):
+              - -t参数可以获得一段时间内程序执行的时间。t
+              - GCT可以根据-t来计算出在段时间内GC一共花费了多少时间。gct
+              - gct/t=GC占用的比例，如果该比例超过20%说明目前堆的压力比较大，如果比例超过90%，则说明堆里几乎没有可用空间，随时都可以能触发OOM。
+            方案2(分析是否存在内存泄漏):
+              - 在长时间运行的Java程序中，可以运行jstat命令连续获取多行性能数据，并取这N行数据中的OU列的最小值(已占用老年代的内存)。
+              - 然后，每隔一段较长的时间重复一次上述操作，获取多组OU最小值。如果这些OU值呈现上涨趋势，则说明改Java程序的老年代内存已经在不断上涨没有被GC回收掉
+              - 因此很可能存在内存泄漏问题，最后会导致OOM的发生。
+          使用:
+            类装载相关:
+              - jstat -class 5168 查看类加载信息和卸载信息，以及卸载消耗的时间
+              - jstat -class 5168 1000 每隔1000毫秒打印一次
+              - jstat -class 5168 1000 10 一共打印10次结束
+              - jstat -class -t 5168 1000 10 输出程序一共运行了多少秒(-t timestamp)
+              - jstat -class -t -h3 5168 1000 10 每隔3行数据打印表头信息
+            垃圾回收相关:
+              gc:
+                使用:
+                  - jstat -gc 5168 查看GC相关信息，(伊甸园区，幸存者区，老年代，方法区)
+                  - jstat -gc 5168 1000 每隔1000毫秒打印一次
+                  - jstat -gc 5168 1000 10 一共打印10次结束
+                  - jstat -gc -t 5168 1000 10 输出程序一共运行了多少秒(-t timestamp)
+                  - jstat -gc -t -h3 5168 1000 10 每隔3行数据打印表头信息
+                说明:
+                  - S0C   幸存者0区总大小，字节
+                  - S1C   幸存者1区总大小，字节
+                  - S0U   幸存者0区使用大小，字节
+                  - S1U   幸存者1区使用大小，字节
+                  - EC    伊甸园区总大小，字节
+                  - EU    伊甸园区使用大小，字节
+                  - OC    老年代总大小，字节
+                  - OU    老年代使用大小，字节
+                  - MC    方法区总大小
+                  - MU    方法区使用大小
+                  - CCSC  压缩类空间总大小
+                  - CCSU  压缩类空间使用大小
+                  - YGC   MinorGC次数
+                  - YGCT  N次MinorGC花费总时间，秒
+                  - FGC   FullGC次数
+                  - FGCT  N次FullGC花费总时间，秒
+                  - GCT   N次GC花费总时间，秒(N次MinorGC花费总时间+N次FullGC花费总时间)
+              gcutil:
+                使用:
+                  - jstat -gcutil 5168 关注堆的各个区域使用占比情况
+                  - jstat -gcutil 5168 1000 每隔1000毫秒打印一次
+                  - jstat -gcutil 5168 1000 10 一共打印10次结束
+                  - jstat -gcutil -t 5168 1000 10 输出程序一共运行了多少秒(-t timestamp)
+                  - jstat -gcutil -t -h3 5168 1000 10 每隔3行数据打印表头信息
+                说明:
+                  - S0    幸存者0区使用大小，字节，占比
+                  - S1    幸存者1区使用大小，字节，占比
+                  - E     伊甸园区使用大小，字节，占比
+                  - O     老年代使用大小，字节，占比
+                  - M     方法区使用大小占比
+                  - CCS   压缩类空间使用大小占比
+                  - YGC   MinorGC次数
+                  - YGCT  N次MinorGC花费总时间，秒
+                  - FGC   FullGC次数
+                  - FGCT  N次FullGC花费总时间，秒
+                  - GCT   N次GC花费总时间，秒(N次MinorGC花费总时间+N次FullGC花费总时间)
+              gccause:
+                使用:
+                  - jstat -gccause 5168 关注堆的各个区域使用占比情况和GC当前发生或最后一次发生的原因
+                  - jstat -gccause 5168 1000 每隔1000毫秒打印一次
+                  - jstat -gccause 5168 1000 10 一共打印10次结束
+                  - jstat -gccause -t 5168 1000 10 输出程序一共运行了多少秒(-t timestamp)
+                  - jstat -gccause -t -h3 5168 1000 10 每隔3行数据打印表头信息
+                说明:
+                  - S0    幸存者0区使用大小，字节，占比
+                  - S1    幸存者1区使用大小，字节，占比
+                  - E     伊甸园区使用大小，字节，占比
+                  - O     老年代使用大小，字节，占比
+                  - M     方法区使用大小占比
+                  - CCS   压缩类空间使用大小占比
+                  - YGC   MinorGC次数
+                  - YGCT  N次MinorGC花费总时间，秒
+                  - FGC   FullGC次数
+                  - FGCT  N次FullGC花费总时间，秒
+                  - GCT   N次GC花费总时间，秒(N次MinorGC花费总时间+N次FullGC花费总时间)
+                  - LGCC  发生GC的原因
+                  - GCC   未知
+              gcnew: 显示新生代GC状态
+              gcnewcapacity: 显示内存与-gcnew基本相同，主要关注使用到的最大，最小空间
+              gcold: 显示老年代GC状态
+              gcoldcapacity: 显示内存与-gcold基本相同，主要关注使用到的最大，最小空间
+              gcpermcapacity: 显示永久代的最大最小空间，JDK7及以前使用
+            JIT相关:
+              - jstat -compiler 5168 查看JIT编译器编译的方法、耗时等信息。
+              - jstat -compiler 5168 1000 每隔1000毫秒打印一次
+              - jstat -compiler 5168 1000 10 一共打印10次结束
+              - jstat -compiler -t 5168 1000 10 输出程序一共运行了多少秒(-t timestamp)
+              - jstat -compiler -t -h3 5168 1000 10 每隔3行数据打印表头信息
+              - ------------------------------------------------------
+              - jstat -printcompilation 5168 输出已经被JIT编译的方法
+              - jstat -printcompilation 5168 1000 每隔1000毫秒打印一次
+              - jstat -printcompilation 5168 1000 10 一共打印10次结束
+              - jstat -printcompilation -t 5168 1000 10 输出程序一共运行了多少秒(-t timestamp)
+              - jstat -printcompilation -t -h3 5168 1000 10 每隔3行数据打印表头信息
+        jinfo:
+          功能:
+            - 查看JVM的配置参数信息，也可用于设置JVM配置参数。
+          使用:
+            查看参数:
+              - jinfo -sysprops 3604 查看JVM环境信息，等同于用Java(System.getProperties())
+              - jinfo -flags 3604 查看曾经给JVM赋过的参数，Non-default VM flags 非默认参数(一般是指系统给设置+用户设置的)，Command line 通过命令行设置的参数
+              - jinfo -flag InitialHeapSize 3604 查看具体参数的值
+            修改参数:
+              - 查看可被修改的参数 java -XX:+PrintFlagsFinal -version | findStr "manageable"
+              - 查看可被修改的参数 java -XX:+PrintFlagsFinal -version | grep "manageable"
+              - "
+                  针对布尔型的修改
+                    jinfo -flag PrintGCDetails 3604 查看具体参数的值
+                      jinfo -flag  +PrintGCDetails 3604
+                      jinfo -flag  -PrintGCDetails 3604
+                  针对数值型的修改
+                    jinfo -flag MinHeapFreeRatio 3604 查看具体参数的值
+                      jinfo -flag MinHeapFreeRatio=100 3604
+                "
+        jmap:
+          功能:
+            - 主要用于导出dump文件(堆存储快照文件)
+            - 它还可以获取目标Java进程的内存相关信息，包括Java堆各个区域的使用情况、堆中对象的统计信息。类加载信息等。
+            - 由于jmap将访问堆中的所有对象，为了保证在此过程中不被用户线程干扰，jmap需要借助安全点机制，让所有用户线程在不改变堆中数据的状态。也就是说，由jmap到处的堆快照必定是安全点位置，这个可能会导致基于改堆快照的分析结果存在偏差。
+          使用:
+            - 当一下指令执行没有任何响应的情况下加-F强制执行
+            - jmap -dump:format=b,file=/root/test1.hprof 2680 生成堆转储文件
+            - jmap -dump:format=b,live,file=/root/test1.hprof 2680 生成堆转储文件(只保存堆中存活对象)
+            - jmap -heap 11508 > d:a.txt 显示当前堆分配以及使用情况
+            - jmap -histo 11508 > d:b.txt 显示关于某个类模版实例，new对象实例是个数以及字节大小
+            - jmap -permstat 11508 查看系统的ClassLoader信息，linux下使用,jdk7级以前使用
+            - jmap -finalizerinfo 11508 查看堆积在finalizer队列中的对象，linux下使用
+        jstack:
+          功能:
+            - 打印栈空间线程快照
+            - 线程状态，重点关注 BLOCKED，阻塞状态有可能会导致死锁。
+          使用:
+            - jstack 10580 > /root/abc.tdump 打印栈空间线程快照，查看线程状态，是否出现死锁问题。
+            - jstack -F 10580 当请求没响应的时候，执行强制执行。
+            - jstack -l 10580 显示关于锁的附加信息
+            - jstack -m 10580 如果有调用到本地方法的话，可以显示C/C++的堆栈
     不常用:
       jcmd:
         功能:
@@ -459,8 +580,6 @@ JVM监控及诊断工具:
           CPU Views(CPU视图):
           Threads(线程视图):
           Mointors&Locks(检测器&锁):
-      Arthas:
-        - 阿里巴巴开源的Java诊断工具。
     不常用:
       jconsole:
         - jdk自带 jconsole.exe

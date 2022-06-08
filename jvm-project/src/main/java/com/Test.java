@@ -4,9 +4,10 @@ import com.ClassLoader.custom.MyClassLoader;
 import lombok.SneakyThrows;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
 /**
@@ -21,6 +22,7 @@ public class Test implements Serializable {
     static ArrayList<Class> arr = new ArrayList<>();
     static ArrayList<Father> fathers = new ArrayList<>();
     static ArrayList<Father> fathers1 = fathers;
+    static LinkedBlockingDeque queue = new LinkedBlockingDeque();
     static int a = 1000;
     int b =200;
     /*String s = "123";*/
@@ -43,20 +45,8 @@ public class Test implements Serializable {
         fathers.add(new Father());
         fathers.add(new Father());
         new Scanner(System.in).next();
-        Test test = new Test();
-        Class a = new MyClassLoader().loadClass("com.ClassLoader.custom.PersonEntity");
-        Object o = a.newInstance();
-        Object o2 = a.newInstance();
-        Class b =  new MyClassLoader().loadClass("com.ClassLoader.custom.PersonEntity");
-        for (int i = 0; i < 200000; i++) {
-            //arr.add(new MyClassLoader().loadClass("com.ClassLoader.custom.PersonEntity"));
-            Thread.sleep(1000);
-            fathers.add(new Father());
-        }
 
-        Thread.sleep(Integer.MAX_VALUE);
-
-      /*  new Thread(new Runnable() {
+        new Thread(new Runnable() {
             @SneakyThrows
             @Override
             public void run() {
@@ -70,7 +60,25 @@ public class Test implements Serializable {
             public void run() {
                 testB();
             }
-        }).start();*/
+        }).start();
+
+        new Thread(new Runnable() {
+            @SneakyThrows
+            @Override
+            public void run() {
+                queue.take();
+            }
+        },"mythread").start();
+
+        for (int i = 0; i < 200000; i++) {
+            //arr.add(new MyClassLoader().loadClass("com.ClassLoader.custom.PersonEntity"));
+            Thread.sleep(1000);
+            fathers.add(new Father());
+        }
+
+        Thread.sleep(Integer.MAX_VALUE);
+
+
     }
 
 
