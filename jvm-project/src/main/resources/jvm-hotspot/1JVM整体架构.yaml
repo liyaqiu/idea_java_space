@@ -600,7 +600,7 @@ JVM的整体结构/JVM内存模型:
                   long maxSize = Runtime.getRuntime().maxMemory() / 1024 /1024;
             - 可以使用
           设置伊甸园区和幸存者区占比:
-            - 关闭自适应内存策略 -XX:-UseAdaptiveSizePolicy
+            - 默认开启自动调节伊甸园区和幸存者区内存占比 -XX:-UseAdaptiveSizePolicy
             - 查看命令 jinfo -flag SurvivorRatio 11924
             - 默认 -XX:SurvivorRatio=8 伊甸园区占8 幸存者0占1 幸存者1占1 8:1:1
                   默认情况下显示是的占比8，实际是6，所以需要手动显式指定-XX:SurvivorRatio=8
@@ -760,7 +760,7 @@ JVM的整体结构/JVM内存模型:
           设置栈大小:
             - 默认Linux/macOS = 1024kb
             - 默认Windows = 没有明确说明
-            - -Xss1m
+            - -Xss1m / -XX:ThreadStackSize=1m
             - -Xss1024k
             - -Xss1048576
       5.程序计数器(线程独享):

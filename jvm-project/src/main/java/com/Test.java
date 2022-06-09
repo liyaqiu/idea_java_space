@@ -28,7 +28,7 @@ public class Test implements Serializable {
     /*String s = "123";*/
    // final static String Str1 = new String("hello");
     public static void  main(String[] args) throws InterruptedException, ClassNotFoundException, IllegalAccessException, InstantiationException {
-      //-Xms30m -Xmx30m -XX:+PrintGCDetails -XX:+HeapDumpOnOutOfMemoryError  -XX:HeapDumpPath=D:/abc.hprof
+      //-Xms30m -Xmx30m -XX:+PrintGCDetails -XX:+HeapDumpOnOutOfMemoryError  -XX:+HeapDumpBeforeFullGC -XX:+HeapDumpAfterFullGC -XX:HeapDumpPath=D:/abc.hprof
       //jinfo -flag MaxDirectMemorySize 6296
       //新生代 - 100 200
       // 伊甸园区 80  160
@@ -38,8 +38,7 @@ public class Test implements Serializable {
 
 
 
-
-        new Scanner(System.in).next();
+        /*new Scanner(System.in).next();
         fathers.add(new Father());
         fathers.add(new Father());
         fathers.add(new Father());
@@ -70,15 +69,14 @@ public class Test implements Serializable {
             }
         },"mythread").start();
 
+
+
+        Thread.sleep(Integer.MAX_VALUE);*/
+
         for (int i = 0; i < 200000; i++) {
             //arr.add(new MyClassLoader().loadClass("com.ClassLoader.custom.PersonEntity"));
-            Thread.sleep(1000);
             fathers.add(new Father());
         }
-
-        Thread.sleep(Integer.MAX_VALUE);
-
-
     }
 
 

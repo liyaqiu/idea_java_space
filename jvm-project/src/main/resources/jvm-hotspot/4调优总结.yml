@@ -250,6 +250,7 @@ JVM监控及诊断工具:
               - "
                 sc          查看JVM已加载的类信息
                     sc * 查看加载了多少类
+                    sc * | wc -l 查看加载了多少类
                     sc com.* 查看com包下的所有类
                     sc -d *Test 查看具体某个类相关信息
                     sc -d -f *Test 查看这个类的相关类变量和实例变量
@@ -588,9 +589,17 @@ JVM监控及诊断工具:
         - jdk自带 jmc.exe
       Btrace:
         - Java运行时追踪工具，可以在不停机的情况下，跟踪指定的方法调用，构造函数调用和系统内存信息等。
-JVM常规:
+JVM运行时参数:
+    JVM参数类型:
+      - 标准化 【-】开头，稳定，java help
+      - 非标准化，【-X】开头，相对稳定，java -X help
+      - 非标准化，【-XX】开头，不稳定，分为布尔型以及赋值型2大类
     参数设置:
       参数文档: https://docs.oracle.com/javase/8/docs/technotes/tools/unix/java.html
+      设置Hotspot模式:
+        - -Xint 完全采用解析器模式执行程序
+        - -Xcomp 完全采用即时编译器模式执行程序。如果即时编译器出现问题，解析器会接入执行
+        - -Xmixed 采用解析器+即时编译器的混合模式共同执行程序
       GC日志参数:
         常用:
           - -XX:+PrintGCDetails 打印详细的GC日志并且在程序退出时打印堆信息
@@ -599,22 +608,23 @@ JVM常规:
           - -XX:+PrintGCTimeStamps 打印jvm启动以后多少秒后触发的gc 24.244
           - -XX:+PrintHeapAtGC 打印触发GC后堆内存的前后对比
           - -Xloggc:D:/gc.log GC日志文件的输出路径
-          - -XX:+HeapDumpOnOutOfMemoryError  -XX:HeapDumpPath=D:/abc.hprof 在程序出现OOM(意味着之前出现过GC，所以只有存活对象)的时候生堆转储快照文件(dump文件)
-          - -XX:+HeapDumpBeforeFullGC -XX:HeapDumpPath=D:/abc.hprof 在程序出现FullGC 之前生成堆转储快照文件(dump文件)
+          - -XX:+HeapDumpOnOutOfMemoryError  -XX:HeapDumpPath=D:/abc.hprof 在程序出现OOM(意味着之前出现过GC，所以只有存活对象)的时候生堆转储快照文件(dump文件) (可以使用jinfo -flag临时加上)
+          - -XX:+HeapDumpBeforeFullGC -XX:HeapDumpPath=D:/abc.hprof 在程序出现FullGC 之前生成堆转储快照文件(dump文件) (可以使用jinfo -flag临时加上)
+          - -XX:+HeapDumpAfterFullGC -XX:HeapDumpPath=D:/abc.hprof 在程序出现FullGC 之后生成堆转储快照文件(dump文件) (可以使用jinfo -flag临时加上)
           - -XX:+PrintStringTableStatistics 打印字符串常量池的信息【程序正常退出时打印】
         不常用:
           - -XX:+PrintCommandLineFlags 打印命令行设置过的参数
           - -XX:+PrintFlagsInitial 打印所有的参数的默认初始值(不执行用户代码)
-          - -XX:+PrintFlagsFinal 打印所有的参数的最终值
+          - -XX:+PrintFlagsFinal 打印所有的参数的最终值（默认不包括-XX:+UnlockDiagnosticVMOptions和-XX:+UnlockExperimentalVMOptions参数）,可以组合使用
           - -XX:+TraceClassLoading 打印当前JVM加载的所有类信息
           - -XX:-UsePerfData 使用该参数jsp和jstat无法获取该Java进程
       虚拟机栈参数:
-          - 调整栈大小，避免栈溢出 -Xss1m
+          - 调整栈大小，避免栈溢出 -Xss1m / -XX:ThreadStackSize=1m
           - 局部变量表中的变量也是重要的垃圾回收根节点，只要被局部变量表中直接或者间接引用的对象都不会被回收
       堆区参数:
         设置堆大小: -Xms20m -Xmx20m / -XX:InitialHeapSize=10m -XX:MaxHeapSize=10m
         新生代和老年代占比: -XX:NewRatio=2 / -Xmn400m(-XX:MaxNewSize=10m) 设置新生代跟老年代占比/或者强行设置新生代大小
-        伊甸园区和幸存者区占比: -XX:SurvivorRatio=8 / -XX:-UseAdaptiveSizePolicy 设置伊甸园区和幸存者区占比/关闭自适应内存策略
+        伊甸园区和幸存者区占比: -XX:SurvivorRatio=8 / -XX:-UseAdaptiveSizePolicy 设置伊甸园区和幸存者区占比/默认开启自动调节伊甸园区和幸存者区内存占比
         开启/设置线程私有缓冲区: -XX:+UseTLAB / -XX:TLABSize=512k
         设置对象年龄的阈值: -XX:MaxTenuringThreshold=15
       方法区:
@@ -766,8 +776,9 @@ JVM常规:
       jmap方式: jmap -dump:format=b,live,file=test1.hprof 2680
       visualvm方式: 监视选项 -> 右上角找到dump按钮 -> 左边栏目找到dump文件另存为
       使用参数方式:
-        - 在程序出现OOM(意味着之前出现过GC，所以只有存活对象)的时候生成堆转储快照文件(dump文件) -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=D:/abc.hprof
-        - 在程序出现FullGC 之前生成堆转储文件 -XX:+HeapDumpBeforeFullGC -XX:HeapDumpPath=D:/abc.hprof
+        - 在程序出现OOM(意味着之前出现过GC，所以只有存活对象)的时候生成堆转储快照文件(dump文件) -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=D:/abc.hprof (可以使用jinfo -flag临时加上)
+        - 在程序出现FullGC 之前生成堆转储文件 -XX:+HeapDumpBeforeFullGC -XX:HeapDumpPath=D:/abc.hprof (可以使用jinfo -flag临时加上)
+        - 在程序出现FullGC 之后生成堆转储文件 -XX:+HeapDumpAfterFullGC -XX:HeapDumpPath=D:/abc.hprof (可以使用jinfo -flag临时加上)
       MAT方式: File -> Acquire Heap Dump
     对dump文件(堆转储快照文件)的溯源:
       MAT与查看GC Roots溯源:
