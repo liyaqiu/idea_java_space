@@ -21,6 +21,7 @@ public class Test implements Serializable {
     static  Object lock2 = new Object();
     static ArrayList<Class> arr = new ArrayList<>();
     static ArrayList<Father> fathers = new ArrayList<>();
+    static ArrayList<Object> objects = new ArrayList<>();
     static ArrayList<Father> fathers1 = fathers;
     static LinkedBlockingDeque queue = new LinkedBlockingDeque();
     static int a = 1000;
@@ -35,7 +36,8 @@ public class Test implements Serializable {
       // s0  10  20
       // s1  10  20
       //老年代 - 200 400
-
+        // 600  200 400
+        // 600  225 375
 
 
         /*new Scanner(System.in).next();
@@ -72,11 +74,11 @@ public class Test implements Serializable {
 
 
         Thread.sleep(Integer.MAX_VALUE);*/
-
         for (int i = 0; i < 200000; i++) {
             //arr.add(new MyClassLoader().loadClass("com.ClassLoader.custom.PersonEntity"));
             fathers.add(new Father());
         }
+
     }
 
 

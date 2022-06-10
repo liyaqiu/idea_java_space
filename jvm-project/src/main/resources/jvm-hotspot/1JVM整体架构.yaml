@@ -372,6 +372,10 @@ JVM的整体结构/JVM内存模型:
               - 那么在不超过MaxMetaspaceSize时，释放提高该值，如果释放空间过多，则适当降低该值
               - 如果初始化的高水位线设置过低，上述高水位线调整的情况会发生很多次，通过垃圾回授权的日志可以观察到Full GC多次调用，
               - 为了避免频繁的GC，建议将-XX:MetaspaceSize=21m设置为一个对象较高的值
+            其他参数:
+              -XX+UseCompressedOops 压缩对象指针(默认开启)
+              - -XX+UseCompressedClassPointers 压缩类指针(默认开启)
+              - -XX:CompressedClassSpaceSize 设置Klass Metaspace大小，默认为1G
           永久代替换元空间好处:
             永久代设置内存的大小很难确定:
               - 在某些场景下，如果动态加载类过多，容易产生OOM
@@ -575,6 +579,7 @@ JVM的整体结构/JVM内存模型:
                   - 查看 TLAB jinfo -flag UseTLAB 10332
                   - 开启或关闭 -XX:+UseTLAB默认开启
                   - 默认设置 -XX:TLABSize=512k
+                  - -XX:+PrintTLAB 打印TLAB的使用情况
             幸存者区(S0/S1):
               功能:
                 - from区 to区
@@ -609,8 +614,10 @@ JVM的整体结构/JVM内存模型:
             - 查看命令 jinfo -flag NewRatio 11924
             - 默认 -XX:NewRatio=2，表示新生代占1，老年代占2，新生代占整个堆的1/3
             - 修改 -XX:NewRatio=4，表示新生代占1，老年代占4，新生代占整个堆的1/5
-            - -Xmn400m 可以强行执行新生代的大小，如果此参数设置 -XX:NewRatio参数会失效
-            - -XX:MaxNewSize=10m 可以强行执行新生代的大小，如果此参数设置 -XX:NewRatio参数会失效
+            - -XX:NewRatio=2 新生代与老年代占比
+            - -Xmn400m 新生代初始化大小和最大大小(NewRatio参数失效)
+            - -XX:NewSize=400m 初始化新生代大小(NewRatio参数失效)
+            - -XX:MaxNewSize=400m 最大新生代大小(NewRatio参数失效)
           设置对象年龄的阈值(age):
             - 默认 -XX:MaxTenuringThreshold=15
             - 修改 -XX:MaxTenuringThreshold=20
@@ -760,9 +767,10 @@ JVM的整体结构/JVM内存模型:
           设置栈大小:
             - 默认Linux/macOS = 1024kb
             - 默认Windows = 没有明确说明
-            - -Xss1m / -XX:ThreadStackSize=1m
-            - -Xss1024k
-            - -Xss1048576
+            - -XX:ThreadStackSize=1m 设置栈大小
+            - -Xss1m  设置栈大小
+            - -Xss1024k 设置栈大小
+            - -Xss1048576 设置栈大小
       5.程序计数器(线程独享):
           功能:
             - 也叫PC寄存器(Program Counter Register)
@@ -1668,14 +1676,16 @@ JVM的整体结构/JVM内存模型:
                   修改 -XX:+UseParallelGC -XX:+UseParallelOldGC 等同于 Parallel Scavenge（新生代）+ Parallel Old（老年代）
                   修改 -XX:+UseParallelGC 等同于 Parallel Scavenge（新生代）+ Parallel Old（老年代）
                   修改 -XX:+UseParallelOldGC 等同于 Parallel Scavenge（新生代）+ Parallel Old（老年代）
-                  修改年轻代并行回收GC线程数，此值最好小于等于CPU个数 -XX:ParallelGCThreads=25
-                      默认当CPU个数小于8，默认等于CPU个数
-                      默认当CPU个数大于8，3+[5*CPU个数/8]
                   修改
+                      -XX:ParallelGCThreads=25
+                        设置年轻代并行回收GC线程数，此值最好小于等于CPU个数
+                        默认当CPU个数小于8，默认等于CPU个数
+                        默认当CPU个数大于8，3+[5*CPU个数/8]
                       -XX:MaxGCPauseMillis
                         设置回收器的最大停顿时间(STW时间)，单位是毫秒。
                         为了尽可能的把停顿时间控制MaxGCPauseMillis以内，回收器在工作时会调整Java堆大小或者其他一些参数
                         对于用户来说，停顿时间越短体验越好。但是在服务器端，我们注重高并发，整体的吞吐量。
+                        ParallelGC主打吞吐量，所以此参数设置需谨慎
                       -XX:GCTimeRatio
                         设置垃圾回收时间占总时间的比例，GC时间 = 1/(N+1)
                         吞吐量为1-1/(1+n)，-XX:GCTimeRatio=n
@@ -1721,7 +1731,7 @@ JVM的整体结构/JVM内存模型:
                         (ParallelGCThreads)的1/4左右
                     -XX:InitiatingHeapOccupancyPercent
                         设置触发并发GC周期的Java堆暂用率的阈值。超过此值，就会触发GC，默认为45
-                  G1的设计原则就是简化JVM性能调优，开发人员只需要简单的散步即可完成调优
+                  G1的设计原则就是简化JVM性能调优，开发人员只需要简单的几步即可完成调优
                     1.开启G1垃圾回收器 -XX:+UseG1GC
                     2.设置堆的最大内存 -Xms6g -Xmx6g
                     3.设置最大的暂停时间 -XX:MaxGCPauseMillis

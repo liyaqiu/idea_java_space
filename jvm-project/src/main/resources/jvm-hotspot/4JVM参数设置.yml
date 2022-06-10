@@ -600,7 +600,7 @@ JVM运行时参数:
         - -Xint 完全采用解析器模式执行程序
         - -Xcomp 完全采用即时编译器模式执行程序。如果即时编译器出现问题，解析器会接入执行
         - -Xmixed 采用解析器+即时编译器的混合模式共同执行程序
-      GC日志参数:
+      日志参数:
         常用:
           - -XX:+PrintGCDetails 打印详细的GC日志并且在程序退出时打印堆信息
           - -verbose:gc / -XX:+PrintGC  精简日志
@@ -611,38 +611,78 @@ JVM运行时参数:
           - -XX:+HeapDumpOnOutOfMemoryError  -XX:HeapDumpPath=D:/abc.hprof 在程序出现OOM(意味着之前出现过GC，所以只有存活对象)的时候生堆转储快照文件(dump文件) (可以使用jinfo -flag临时加上)
           - -XX:+HeapDumpBeforeFullGC -XX:HeapDumpPath=D:/abc.hprof 在程序出现FullGC 之前生成堆转储快照文件(dump文件) (可以使用jinfo -flag临时加上)
           - -XX:+HeapDumpAfterFullGC -XX:HeapDumpPath=D:/abc.hprof 在程序出现FullGC 之后生成堆转储快照文件(dump文件) (可以使用jinfo -flag临时加上)
+          - -XX:OnOutOfMemoryError=/root/serverRestart.sh 在出现OOM的时候执行脚本文件，参考脚本https://www.bilibili.com/video/BV1PJ411n7xZ?p=369&spm_id_from=pageDriver&vd_source=cc17fab1d456bc3958dcb51e2fdd520b
           - -XX:+PrintStringTableStatistics 打印字符串常量池的信息【程序正常退出时打印】
         不常用:
           - -XX:+PrintCommandLineFlags 打印命令行设置过的参数
           - -XX:+PrintFlagsInitial 打印所有的参数的默认初始值(不执行用户代码)
-          - -XX:+PrintFlagsFinal 打印所有的参数的最终值（默认不包括-XX:+UnlockDiagnosticVMOptions和-XX:+UnlockExperimentalVMOptions参数）,可以组合使用
+          - -XX:+PrintFlagsFinal 打印所有的运行时参数的最终值（默认不包括-XX:+UnlockDiagnosticVMOptions和-XX:+UnlockExperimentalVMOptions参数）,可以组合使用
+          - -XX:+PrintVMOptions 打印VMOptions设置的参数
           - -XX:+TraceClassLoading 打印当前JVM加载的所有类信息
           - -XX:-UsePerfData 使用该参数jsp和jstat无法获取该Java进程
-      虚拟机栈参数:
-          - 调整栈大小，避免栈溢出 -Xss1m / -XX:ThreadStackSize=1m
-          - 局部变量表中的变量也是重要的垃圾回收根节点，只要被局部变量表中直接或者间接引用的对象都不会被回收
-      堆区参数:
-        设置堆大小: -Xms20m -Xmx20m / -XX:InitialHeapSize=10m -XX:MaxHeapSize=10m
-        新生代和老年代占比: -XX:NewRatio=2 / -Xmn400m(-XX:MaxNewSize=10m) 设置新生代跟老年代占比/或者强行设置新生代大小
-        伊甸园区和幸存者区占比: -XX:SurvivorRatio=8 / -XX:-UseAdaptiveSizePolicy 设置伊甸园区和幸存者区占比/默认开启自动调节伊甸园区和幸存者区内存占比
-        开启/设置线程私有缓冲区: -XX:+UseTLAB / -XX:TLABSize=512k
-        设置对象年龄的阈值: -XX:MaxTenuringThreshold=15
+          - -XX:+PrintTenuringDistribution 让JVM在每次进行MinorGC后打印出当前使用的幸存者区中对象的年龄分布
+          - -XX:+PrintGCApplicationStoppedTime 打印GC时线程的暂停时间
+          - -XX:+PrintGCApplicationConcurrentTime 垃圾回收之前打印出应用未中断的执行时间
+          - -XX:+PrintReferenceGC 记录回收了多少种不同引用类型的引用
+          - -XX:+UseGCLogFileRotation 启用GC日志文件的自动转储
+          - -XX:+NumberOfGClogFIle=1 GC日志文件的循环数目
+          - -XX:+GCLogFileSize=1M 控制GC日志文件的大小
+          - -XX:-DisableExplicitGC 是否禁用手动触发System.gc()，默认不禁用
+          - -XX:+PrintTLAB 打印TLAB的使用情况
+          - -XX:+UseLargePages 开启使用大页面
+          - -XX:+UseBiasedLocking 开启偏向锁
+      栈区:
+        - -Xss1m 设置栈大小
+        - -XX:ThreadStackSize=1m 设置栈大小
+      堆区:
+        堆:
+          - -Xms20m 设置堆初始化大小
+          - -Xmx20m 设置堆最大大小
+          - -XX:InitialHeapSize=10m 设置堆初始化大小
+          - -XX:MaxHeapSize=10m 设置堆最大大小
+        新生代:
+          - -XX:NewRatio=2 新生代与老年代占比
+          - -Xmn400m 新生代初始化大小和最大大小(NewRatio参数失效)(官方推荐3/8)
+          - -XX:NewSize=400m 初始化新生代大小(NewRatio参数失效)
+          - -XX:MaxNewSize=400m 最大新生代大小(NewRatio参数失效)
+        伊甸园区和幸存者区(不推荐设置):
+          - -XX:SurvivorRatio=8 设置伊甸园区和幸存者区占比
+          - -XX:-UseAdaptiveSizePolicy 关闭自动调节伊甸园区和幸存者区内存占比(默认开启)
+        GC相关参数:
+          - -XX:MaxTenuringThreshold=15 设置幸存者区对象年龄的阈值
+          - -XX:TargetSurvivorRatio=50 每次MinorGC结束后幸存者区中占用空间的期望比例
+          - -XX:PretenureSizeThreadshold=1024 设置让大于此阈值的对象直接分配在老年代，单位字节(只对Serial、ParNew回收器有效)
+        线程私有缓冲区:
+          - -XX:+UseTLAB 默认开启，在伊甸园区中分配
+          - -XX:TLABSize=512k 设置线程私有缓冲区大小
+          - -XX:+PrintTLAB 打印TLAB的使用情况
       方法区:
+        永久代:
+          - 默认 -XX:PermSize=21m    -XX:MaxPermSize=82m
+          - 修改 -XX:PermSize=1g     -XX:MaxPermSize=1g
         元空间:
-          设置元空间大小:
-            - 默认 -XX:MetaspaceSize=21m    -XX:MaxMetaspaceSize=-1无限大
-            - 修改 -XX:MetaspaceSize=1g     -XX:MaxMetaspaceSize=1g
-            - 查看 jinfo -flag MetaspaceSize/MaxMetaspaceSize 10780
-            - 特别说明 只能通过jinfo -flag查看 初始值和最大值，图形界面看不到
+          - 默认 -XX:MetaspaceSize=21m    -XX:MaxMetaspaceSize=-1无限大
+          - 修改 -XX:MetaspaceSize=1g     -XX:MaxMetaspaceSize=1g
+          - 查看 jinfo -flag MetaspaceSize/MaxMetaspaceSize 10780
+          - 特别说明 只能通过jinfo -flag查看 初始值和最大值，图形界面看不到
+          - -XX+UseCompressedOops 压缩对象指针(默认开启)
+          - -XX+UseCompressedClassPointers 压缩类指针(默认开启)
+          - -XX:CompressedClassSpaceSize 设置Klass Metaspace大小，默认为1G
       设置直接内存的大小:
+        - 主要使用场景NIO-API
         - 默认 直接内存大小 = 最大堆内存大小(-Xmx)
         - 修改 -XX:MaxDirectMemorySize=100m
         - 查看 jinfo -flag MaxDirectMemorySize 6296
-      设置String常量池数组大小:
+      设置字符串常量池数组大小:
+        - 1.6及以前在方法区，1.7及以后在堆区
         - 字符串常量池是一个固定大小的哈希表(Hashtable)=数组+链表
         - jdk6默认 -XX:StringTableSize=1009
         - jdk7及以后默认 -XX:StringTableSize=60013
         - 打印字符串常量池的信息【程序正常退出时打印】 -XX:+PrintStringTableStatistics
+      设置JITCodeCache大小:
+        - -XX:InitialCodeCacheSize=2m 指定热点代码缓存大小
+        - -XX:ReservedCodeCacheSize=240m 指定热点代码缓存大小
+        - -XX:+UseCodeCacheFlushing 当缓存满的时候，是否清楚之前的缓存。如果禁用，当缓存满的时候存不下，就会让解析器去执行，效率低下。
       GC参数设置:
         - 打印设置过的参数 -XX:+PrintCommandLineFlags
         - 方式1(SerialGC)
@@ -663,14 +703,16 @@ JVM运行时参数:
             修改 -XX:+UseParallelGC -XX:+UseParallelOldGC 等同于 Parallel Scavenge（新生代）+ Parallel Old（老年代）
             修改 -XX:+UseParallelGC 等同于 Parallel Scavenge（新生代）+ Parallel Old（老年代）
             修改 -XX:+UseParallelOldGC 等同于 Parallel Scavenge（新生代）+ Parallel Old（老年代）
-            修改年轻代并行回收GC线程数，此值最好小于等于CPU个数 -XX:ParallelGCThreads=25
-                默认当CPU个数小于8，默认等于CPU个数
-                默认当CPU个数大于8，3+[5*CPU个数/8]
             修改
+                -XX:ParallelGCThreads=25
+                  设置年轻代并行回收GC线程数，此值最好小于等于CPU个数
+                  默认当CPU个数小于8，默认等于CPU个数
+                  默认当CPU个数大于8，3+[5*CPU个数/8]
                 -XX:MaxGCPauseMillis
                   设置回收器的最大停顿时间(STW时间)，单位是毫秒。
                   为了尽可能的把停顿时间控制MaxGCPauseMillis以内，回收器在工作时会调整Java堆大小或者其他一些参数
                   对于用户来说，停顿时间越短体验越好。但是在服务器端，我们注重高并发，整体的吞吐量。
+                  ParallelGC主打吞吐量，所以此参数设置需谨慎
                 -XX:GCTimeRatio
                   设置垃圾回收时间占总时间的比例，GC时间 = 1/(N+1)
                   吞吐量为1-1/(1+n)，-XX:GCTimeRatio=n
@@ -716,7 +758,7 @@ JVM运行时参数:
                   (ParallelGCThreads)的1/4左右
               -XX:InitiatingHeapOccupancyPercent
                   设置触发并发GC周期的Java堆暂用率的阈值。超过此值，就会触发GC，默认为45
-            G1的设计原则就是简化JVM性能调优，开发人员只需要简单的散步即可完成调优
+            G1的设计原则就是简化JVM性能调优，开发人员只需要简单的几步即可完成调优
               1.开启G1垃圾回收器 -XX:+UseG1GC
               2.设置堆的最大内存 -Xms6g -Xmx6g
               3.设置最大的暂停时间 -XX:MaxGCPauseMillis
