@@ -605,7 +605,7 @@ JVM运行时参数:
           - -XX:+PrintGCDetails 打印详细的GC日志并且在程序退出时打印堆信息
           - -verbose:gc / -XX:+PrintGC  精简日志
           - -XX:+PrintGCDateStamps 打印时间 2022-05-26T16:50:53.187+0800
-          - -XX:+PrintGCTimeStamps 打印jvm启动以后多少秒后触发的gc 24.244
+          - -XX:+PrintGCTimeStamps 打印jvm启动以后多少秒后触发的gc 24.244，可以利用此参数求出用户的吞吐量
           - -XX:+PrintHeapAtGC 打印触发GC后堆内存的前后对比
           - -Xloggc:D:/gc.log GC日志文件的输出路径
           - -XX:+HeapDumpOnOutOfMemoryError  -XX:HeapDumpPath=D:/abc.hprof 在程序出现OOM(意味着之前出现过GC，所以只有存活对象)的时候生堆转储快照文件(dump文件) (可以使用jinfo -flag临时加上)
@@ -645,7 +645,7 @@ JVM运行时参数:
           - -Xmn400m 新生代初始化大小和最大大小(NewRatio参数失效)(官方推荐3/8)
           - -XX:NewSize=400m 初始化新生代大小(NewRatio参数失效)
           - -XX:MaxNewSize=400m 最大新生代大小(NewRatio参数失效)
-        伊甸园区和幸存者区(不推荐设置):
+        伊甸园区和幸存者区:
           - -XX:SurvivorRatio=8 设置伊甸园区和幸存者区占比
           - -XX:-UseAdaptiveSizePolicy 关闭自动调节伊甸园区和幸存者区内存占比(默认开启)
         GC相关参数:
@@ -775,18 +775,23 @@ JVM运行时参数:
       - MaiorGC和FullGC N*10倍以上分钟
       - FullGC是开发或者调优尽量要避免的，这样暂停时间会短一些
     GC控制台日志分析:
-      PrintGCDetails日志:
-        - "-Xms300m -Xmx300m -XX:+PrintGCDetails
+      PrintGCDetails日志: "
+          -Xms300m -Xmx300m -XX:+PrintGCDetails
+
           都没写则为堆区 52967K->17272K(294400K)
-            堆区         回收前   回收后 总大小
+            堆区        回收前   回收后 总大小(伊甸园区+幸存者其中一个区+老年代)
+
           PSYoungGen: 52967K->1240K(89600K)
-            新生代区     回收前   回收后 总大小
+            新生代区     回收前   回收后 总大小(伊甸园区+幸存者其中一个区)
+
           ParOldGen: 151239K->81797K(204800K)
             老年代区     回收前   回收后 总大小
+
           Metaspace: 3492K->3492K(1056768K)
             元空间     回收前   回收后 总大小
+
           0.4266590 secs 指具体GC消耗时间
-          Times: user=1.17 指垃圾收集器花费的所有CPU时间(用户态回收耗时)
+          user=1.17 指垃圾收集器花费的所有CPU时间(用户态回收耗时)
           sys=0.02 指花费在等待系统调用或者系统事件的时间(内核态回收耗时)
           real=0.05 secs 指GC从开始到结束的时间，包括其他进程占用时间片的实际时间(GC整个过程总耗时)
           垃圾回收时间
@@ -798,8 +803,7 @@ JVM运行时参数:
           [ GC (Allocation Failure)      [ PSYoungGen: 0K->0K(89600K) ] 122359K->122359K(294400K), 0.0007324 secs ] [ Times: user=0.00 sys=0.00, real=0.00 secs ]
           [ Full GC (Allocation Failure) [ PSYoungGen: 0K->0K(89600K) ] [ ParOldGen: 122359K->122340K(204800K) ] 122359K->122340K(294400K), [ Metaspace: 3492K->3492K(1056768K) ], 0.4266590 secs ] [ Times: user=3.27 sys=0.05, real=0.43 secs ]
           "
-      verbose:gc/PrintGC日志:
-        - "
+      verbose:gc/PrintGC日志: "
         7278K 回收前堆大小
         6750K 回收后堆大小
         9216K 当前堆的总大小

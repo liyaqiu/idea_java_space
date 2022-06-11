@@ -47,13 +47,7 @@ public class Test implements Serializable {
         fathers.add(new Father());
         new Scanner(System.in).next();
 
-        new Thread(new Runnable() {
-            @SneakyThrows
-            @Override
-            public void run() {
-                testA();
-            }
-        }).start();
+
 
         new Thread(new Runnable() {
             @SneakyThrows
@@ -74,9 +68,22 @@ public class Test implements Serializable {
 
 
         Thread.sleep(Integer.MAX_VALUE);*/
+
+        Thread thread = new Thread(new Runnable() {
+            @SneakyThrows
+            @Override
+            public void run() {
+                while (true) {
+                    System.out.println("12312");
+                    LockSupport.park();
+
+                }
+            }
+        });
+        thread.start();
         for (int i = 0; i < 200000; i++) {
-            //arr.add(new MyClassLoader().loadClass("com.ClassLoader.custom.PersonEntity"));
-            fathers.add(new Father());
+            new Scanner(System.in).next();
+            LockSupport.unpark(thread);
         }
 
     }
