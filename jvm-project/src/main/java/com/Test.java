@@ -6,6 +6,7 @@ import lombok.SneakyThrows;
 import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
@@ -84,6 +85,8 @@ public class Test implements Serializable {
         for (int i = 0; i < 200000; i++) {
             new Scanner(System.in).next();
             LockSupport.unpark(thread);
+            CopyOnWriteArrayList<String> strings = new CopyOnWriteArrayList<>();
+            strings.add("123");
         }
 
     }

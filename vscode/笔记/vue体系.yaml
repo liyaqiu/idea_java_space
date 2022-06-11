@@ -1,0 +1,63 @@
+官方: https://cn.vuejs.org/
+Vue安装:
+  安装vue:
+    - 开发版本(有警告，有提示) 下载vue.js文件 https://cn.vuejs.org/js/vue.js
+    - 生产版本(无警告，无提示) 下载vue.js文件 https://cn.vuejs.org/js/vue.min.js
+  安装google浏览器插件:
+    - 方式1 打开开发者窗口chrome://extensions/，然后直接拖拽Vue.crx到google开发者窗口
+    - 方式2 在plugins包目录下，将Vue.crx改名为Vue.zip，解压即可
+  vscode插件安装:
+    - 插件[vue]，安装代码提示
+    - 插件[vscode-icons],显示文件夹管理图标
+    - 插件[Auto Close Tag]，自动补全html标签
+    - 插件[Auto Rename Tag]，自动改名标签
+    - 插件[Chinese]，汉化vscode
+    - 插件[Live Server]，网页服务器
+    - 插件[open in browser]，从vscode选项打开浏览器
+Vue基础:
+  功能:
+    - 一个容器只能对应一个vue实例对象
+  el2种方式:
+    - 方式1 el:'#box'
+    - 方式2 objInstance.$mount('#box')
+  data3种方式:
+    - "
+      方式1,对象式
+        data: {
+           name: 'eric'
+        }
+    "
+    - "
+      方式2，函数式，函数必须返回一个对象
+        data:function() {
+            return{
+                name:'eric'
+            }
+        }
+    "
+    - "
+      方式3，函数式，函数必须返回一个对象
+        data() {
+            return{
+                name:'eric'
+            }
+        }
+    "
+  模版语法:
+    插值语法:
+      功能:
+        - 给【标签体】使用
+      使用:
+        - {{xxx}}
+    指令语法:
+      功能:
+        - 给【标签体、标签属性、标签绑定事件】使用
+      数据绑定:
+        - v-bind:xx，单向数据绑定，可简写为【:xx】
+        - v-model:value，双向数据绑定，可以简写为【v-model】一般用在交互标签，文本框，单选框，多选框，它们都有一个value属性可以绑定。
+
+Vue-cli:
+Vue-router:
+Vuex:
+Element-UI:
+Vue3:

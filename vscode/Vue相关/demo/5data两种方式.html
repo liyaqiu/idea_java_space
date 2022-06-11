@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../js/vue.js"></script>
+</head>
+<body>
+
+    <div id="box">
+        <h1>hello {{name}} </h1>
+    </div>
+
+    <script>
+        //设置为 false 以阻止 vue 在启动时生成生产提示。
+        Vue.config.productionTip = false;
+       
+        
+
+        //创建Vue实例
+        new Vue({
+            el: '#box',  //绑定容器，等同于el: document.getElementById("box")
+            //方式1
+            /* data: {
+                name: 'eric'
+            } */
+            //方式2
+            /* data:function() {
+                return{
+                    name:'eric'
+                }
+            } */
+            //方式3
+            data() {
+                return{
+                    name:'eric'
+                }
+            }
+        })
+        //方式2
+    </script>
+</body>
+</html>
+

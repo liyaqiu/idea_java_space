@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../js/vue.js"></script>
+</head>
+<body>
+    <div id="box">
+        <h1>插值语法</h1>
+        <h1>hello, {{name}} </h1>
+
+
+        <hr>
+        
+        <h1>指令语法</h1>
+        <a v-bind:href="school.url1">点我1<br>
+        <a :href="school.url2">点我2<br>
+    </div>
+
+    <script>
+        //设置为 false 以阻止 vue 在启动时生成生产提示。
+        Vue.config.productionTip = false;
+       
+        //创建Vue实例
+        new Vue({
+            el: '#box',  //绑定容器，等同于el: document.getElementById("box")
+            data: {
+                name: 'eric',
+                school: {
+                    url1: 'http://www.baidu.com',
+                    url2: 'http://www.baidu.com'
+                }
+            }
+        })
+    </script>
+</body>
+</html>
