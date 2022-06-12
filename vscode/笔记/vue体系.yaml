@@ -7,7 +7,7 @@ Vue安装:
     - 方式1 打开开发者窗口chrome://extensions/，然后直接拖拽Vue.crx到google开发者窗口
     - 方式2 在plugins包目录下，将Vue.crx改名为Vue.zip，解压即可
   vscode插件安装:
-    - 插件[vue]，安装代码提示
+    - 插件[Vue 3 Snippets]，安装代码提示
     - 插件[vscode-icons],显示文件夹管理图标
     - 插件[Auto Close Tag]，自动补全html标签
     - 插件[Auto Rename Tag]，自动改名标签
@@ -17,6 +17,11 @@ Vue安装:
 Vue基础:
   功能:
     - 一个容器只能对应一个vue实例对象
+  MVVM:
+    - M代表模型，是data中的数据
+    - V代表视频，是模版代码
+    - VM代表模型视图，代表Vue实例，data中所有的属性都在VM身上，VM身上的所有属性都可以在Vue模版中直接使用。
+  数据代理: "Object.defineProperty(person,'age',{}"
   el2种方式:
     - 方式1 el:'#box'
     - 方式2 objInstance.$mount('#box')
@@ -48,14 +53,56 @@ Vue基础:
       功能:
         - 给【标签体】使用
       使用:
-        - {{xxx}}
+        - {{xxx}} 调用data的属性
+        - {{xxx()}} 调用methods的方法
     指令语法:
       功能:
         - 给【标签体、标签属性、标签绑定事件】使用
       数据绑定:
         - v-bind:xx，单向数据绑定，可简写为【:xx】
         - v-model:value，双向数据绑定，可以简写为【v-model】一般用在交互标签，文本框，单选框，多选框，它们都有一个value属性可以绑定。
-
+      事件处理:
+        点击事件:
+          功能:
+            - v-on:click="showInfo" 为标签绑定一个showInfo函数，可简写为 【@click="showInfo"】，传参的写法@click="showInfo($event,'hello',128)
+          修饰符:
+            - prevent 阻止默认时间(常用) v-on:click.prevent、@click.prevent
+            - stop 阻止事件冒泡(常用) v-on:click.stop、@click.stop
+            - once 事件只触发一次(常用) v-on:click.once、@click.once
+            - capture 使用事件的捕获模式
+            - self 只有event.target是当前操作的元素时才触发时间
+            - passive 时间的默认行为立即执行，无需等待事件回调执行完毕
+          修饰符组合使用:
+            - 假设需要阻止冒泡和阻止默认时间 @click.stop.prevent="showInfo"
+        键盘事件:
+          功能:
+            - v-on:keyup="showInfo"，简写为【@keyup="showInfo"】 按下键盘弹起触发
+            - v-on:keydown 按下键盘触发，简写为【@keydown="showInfo"】 按下键盘弹起触发
+          修饰符:
+            - enter 回车键 @keyup.enter
+            - delete 退格键 @keyup.delete
+            - esc 退出键
+            - space 空格键
+            - tab 换行键，需要配合@keydown使用才出效果
+            - up 上键
+            - down 下键
+            - left 左键
+            - right 右键
+          特殊修饰符:
+            - ctrl
+            - alt
+            - shift
+            - meta window键
+            - 以上按键配合keyup使用，需要加上其他键组合才能触发
+            - 以上按键配合keydown使用，可以正常使用
+          修饰符组合使用:
+            - 假设需要ctrl+y才能触发事件 @keyup.ctrl.y="showInfo"
+  计算属性:
+    - 实现原理借助了数据代理方法实现。
+    - get函数只执行第一次，后续如果在获取就会从缓存中获取，执行效率高。
+  监视属性:
+    - 可以监视data中的属性，当属性发生变化时，触发handler函数的执行
+    - 可以监视computed中的计算属性，当属性发生变化时，触发handler函数的执行
 Vue-cli:
 Vue-router:
 Vuex:

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../js/vue.js"></script>
+    <title>Document</title>
+</head>
+<body>
+    <div id="root">
+        我是:{{name}}
+        年龄是:{{age}}
+        <hr>
+        你的名字:<input type="text" v-bind:value="name" disabled="true">
+        请输入你的名字:<input type="text" v-model="name">
+    </div>
+    <script>
+        Vue.config.productionTip = false ;
+        var fun = function(){
+            return {
+                name: 'liyaqiu',
+                age: 23
+            }
+        }
+        new Vue({
+            el: '#root',
+            data:fun
+        });
+    </script>
+
+</body>
+</html>
