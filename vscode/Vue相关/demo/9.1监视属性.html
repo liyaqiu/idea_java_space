@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../js/vue.js"></script>
+</head>
+<body>
+
+    <div id="box">
+        data属性<input type="text" v-model="name">
+        <hr>
+        计算属性{{name2}}
+    </div>
+
+    <script>
+        //设置为 false 以阻止 vue 在启动时生成生产提示。
+        Vue.config.productionTip = false;
+       
+        //创建Vue实例
+        const vm = new Vue({
+            el: '#box',  //绑定容器，等同于el: document.getElementById("box")
+            data: {
+                name: 'eric'
+            },
+            computed:{
+                name2(){
+                    return this.name
+                }
+            },
+            //方式1
+            watch:{
+                name:{
+                    //immediate:true, //初始化的时候让handler调用一次
+                    handler(newValue,oldValue){
+                        console.log('监视了data属性',newValue,oldValue)
+                    }
+                }
+            }
+        })
+        //方式2
+        vm.$watch('name2',{
+            //immediate:true, //初始化的时候让handler调用一次
+            handler(newValue,oldValue){
+                console.log('监视了计算属性',newValue,oldValue)
+            }
+        })
+    </script>
+</body>
+</html>
+

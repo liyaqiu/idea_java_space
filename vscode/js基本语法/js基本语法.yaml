@@ -1,0 +1,76 @@
+预解析:
+  - var和function提升到当前作用域最前面
+  - var 只提升，不赋值
+  - function 只提升，不执行
+作用域链:
+  - 调用变量的时候采用就近原则查找
+变量声明:
+  - 方式1 var a = 100; 局部变量
+  - 方式2 b = 200; 全局变量声明,会覆盖作用域链上的变量
+  - "
+    方式3
+    var a = 10,b = 10,c = 10;
+    等价于
+    var a;
+    var b;
+    var c;
+    a = 10;
+    b = 10;
+    c = 10;
+  "
+  - "
+    方式4
+    var a = b = c = 10; 等价于
+    var a; //这里做了预解析
+    c = 10; //全局变量声明并赋值
+    b = c; //全局变量声明并赋值
+    a = b;
+  "
+对象声明方式:
+  - "
+    方式1
+      var obj = {
+      get: function(){
+          alert(arguments[0])
+      },
+      post: function(){
+          alert('post')
+      },
+      getName: 'name'
+      }
+      obj.get($.getName);
+  "
+  - "
+    方式3
+      function Obj(name,age,fun){
+        this.name = name;
+        this.age = age;
+        this.get = fun;
+      }
+      使用方式1
+        var obj1 = new Obj('eric','31',function(){
+          alert('hello');
+        });
+        obj1.get();
+      使用方式2
+        var obj2 = Object;
+        obj2.get = function(){
+          alert('hello');
+        }
+        $.get();
+  "
+箭头函数与普通函数:
+  箭头函数:
+    - 箭头函数没有this对象
+    - 箭头函会往作用域链上找，直到获取到this对象为止
+  普通函数:
+    - 普通函数有this对象，哪个对象调用它this就哪个对象
+es6新特性:
+  let变量声明:
+    - 预编译不会进行变量提升
+    - 同一作用域下不能重复定义同样变量
+  const常量声明(块作用域):
+    - 跟java用法一样
+  反引号(``):
+    - 支持字符串换行拼接
+    - 支持${name}获取变量值

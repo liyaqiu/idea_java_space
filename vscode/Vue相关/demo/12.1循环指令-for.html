@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../js/vue.js"></script>
+</head>
+<body>
+    
+    <div id="box">
+        
+        <ul>
+            <!-- 遍历数组 -->
+            <!-- <li v-for="car in cars" :key="car.id">
+                {{car.name}}--{{car.price}}
+            </li> -->
+            <!-- <li v-for="(car,index) of cars" :key="index">
+                {{car.name}}--{{car.price}}
+            </li> -->
+            <li v-for="(car,index) in cars" :key="index+1">
+                {{car.name}}--{{car.price}}
+            </li>
+            <hr>
+            <!-- 遍历对象 -->
+            <li v-for="(value,key) in person" :key="key+10">
+                {{key}}---{{value}}
+            </li>
+            <hr>
+            <!-- 遍历字符串 -->
+            <li v-for="(value,index) in 'hello-world'" :key="index+100">
+                {{index}}---{{value}}
+            </li>
+            <hr>
+            <!-- 遍历具体次数 -->
+            <li v-for="(index,num) in 3" :key="index+1000">
+                {{index}}---{{num}}
+            </li>
+        </ul>
+    </div>
+
+    <script>
+        //设置为 false 以阻止 vue 在启动时生成生产提示。
+        Vue.config.productionTip = false;
+       
+        //创建Vue实例
+        new Vue({
+            el: '#box',  //绑定容器，等同于el: document.getElementById("box")
+            data: {
+                name: 'eric',
+                cars:[
+                    {id:'001',name:'奥迪',price: 1800},
+                    {id:'002',name:'宝马',price: 2800},
+                    {id:'003',name:'奔驰',price: 3800}
+                ],
+                person:{
+                    name:'eric',
+                    age:31
+                }
+            }
+        })
+    </script>
+</body>
+</html>
+

@@ -11,7 +11,9 @@ import java.util.concurrent.ThreadFactory;
 public class Test2 {
     public static void main(String[] args) {
 
-        ExecutorService service = Executors.newFixedThreadPool(10, new ThreadFactory() {
+        System.out.println("abc".indexOf(""));
+
+        /*ExecutorService service = Executors.newFixedThreadPool(10, new ThreadFactory() {
             int i = 0;
 
             @Override
@@ -34,16 +36,11 @@ public class Test2 {
                     test();
                 }
             });
-        }
+        }*/
 
     }
     public synchronized static void test(){
-        System.out.println("hello");
-        try {
-            Thread.sleep(Integer.MAX_VALUE);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
     }
 }
 

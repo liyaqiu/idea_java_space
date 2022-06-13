@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../js/vue.js"></script>
+</head>
+<body>
+    
+    <div id="box">
+        <input type="text" v-model="keyword">
+        <ul>
+            <!-- 遍历数组 -->
+            <li v-for="(car,index) in filterCars" :key="car.id">
+                {{car.name}}--{{car.price}}
+            </li>
+        </ul>
+    </div>
+
+    <script>
+        //设置为 false 以阻止 vue 在启动时生成生产提示。
+        Vue.config.productionTip = false;
+       
+        //创建Vue实例
+        new Vue({
+            el: '#box',  //绑定容器，等同于el: document.getElementById("box")
+            data: {
+                keyword: '',
+                cars:[
+                    {id:'001',name:'奥迪',price: 1800},
+                    {id:'002',name:'宝马',price: 2800},
+                    {id:'004',name:'宝骏',price: 2800},
+                    {id:'003',name:'奔驰',price: 3800}
+                ],
+                filterCars:[]
+            },
+            watch:{
+                'keyword':{
+                    immediate:true,
+                    handler(newVal){
+                        this.filterCars = this.cars.filter((car)=>{
+                            /* indexOf 
+                                "abc".ifdexOf('') 返回0 
+                                "abc".ifdexOf('a') 返回0 
+                                "abc".ifdexOf('d') 返回-1
+                            */
+                            return car.name.indexOf(newVal)!=-1
+                        })
+                    }
+                }
+            }
+        })
+    </script>
+</body>
+</html>
+

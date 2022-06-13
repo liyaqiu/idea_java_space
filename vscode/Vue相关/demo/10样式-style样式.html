@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../js/vue.js"></script>
+</head>
+<style>
+    .basic{
+        width: 200px;
+        height: 200px;
+        border: solid  rgba(26, 25, 26, 0.416);
+    }
+    /* .案例{
+        background: rgb(35, 35, 212);
+        font-size: 100px;
+    } */
+</style>
+<body>
+    
+
+
+    <div id="box" class="basic" :style="styleObj">
+        你好
+    </div>
+    <div id="box1" class="basic" :style="[styleObj,styleObj1]">
+        你好
+    </div>
+    
+    <script>
+        //设置为 false 以阻止 vue 在启动时生成生产提示。
+        Vue.config.productionTip = false;
+       
+        //创建Vue实例
+        new Vue({
+            el: '#box',  //绑定容器，等同于el: document.getElementById("box")
+            data: {
+                styleObj:{
+                    background: 'red',
+                    fontSize: '100px'
+                }
+            }
+        })
+        //创建Vue实例
+        new Vue({
+            el: '#box1',  //绑定容器，等同于el: document.getElementById("box")
+            data: {
+                styleObj:{
+                    background: 'green',
+                },
+                styleObj1:{
+                    fontSize: '50px'
+                }
+            }
+        })
+    </script>
+</body>
+</html>
+

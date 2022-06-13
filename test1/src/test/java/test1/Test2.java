@@ -22,5 +22,8 @@ public class Test2 {
     public void test02(){
         boolean bl = true;
         Assert.assertEquals(bl, true);
+        System.out.println(bl);
     }
+
+
 }

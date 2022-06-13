@@ -9,7 +9,8 @@
 <body>
     
     <div id="box">
-        <h1>hello {{name}} </h1>
+        <h1 v-show="num%2===0">hello {{name}} </h1>
+        <button @click="num++">点击</button>
     </div>
 
     <script>
@@ -20,7 +21,8 @@
         new Vue({
             el: '#box',  //绑定容器，等同于el: document.getElementById("box")
             data: {
-                name: 'eric'
+                name:'eric',
+                num: 0
             }
         })
     </script>

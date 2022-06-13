@@ -7,9 +7,9 @@
     <script src="../js/vue.js"></script>
 </head>
 <body>
-    
+
     <div id="box">
-        <h1>hello {{name}} </h1>
+        data属性<input type="text" v-model="person.name">
     </div>
 
     <script>
@@ -17,11 +17,23 @@
         Vue.config.productionTip = false;
        
         //创建Vue实例
-        new Vue({
+        const vm = new Vue({
             el: '#box',  //绑定容器，等同于el: document.getElementById("box")
             data: {
-                name: 'eric'
+                person:{
+                    name:'eric'
+                }
+            },
+            //方式1
+            watch:{
+                "person.name"(newValue,oldValue){
+                    console.log('简写1',newValue,oldValue);
+                }
             }
+        })
+        //方式2
+        vm.$watch('person.name',function(newValue,oldValue){
+            //console.log('简写2',newValue,oldValue)
         })
     </script>
 </body>

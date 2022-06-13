@@ -9,9 +9,9 @@
 <body>
 
     <div id="box">
-        data属性<input type="text" v-model="name">
+        demo1.adderss属性<input type="text" v-model="demo1.adderss">
         <hr>
-        计算属性{{name2}}
+        demo1.size属性<input type="text" v-model:value="demo1.size">
     </div>
 
     <script>
@@ -22,28 +22,34 @@
         const vm = new Vue({
             el: '#box',  //绑定容器，等同于el: document.getElementById("box")
             data: {
-                name: 'eric'
-            },
-            computed:{
-                name2(){
-                    return this.name
+                name: 'eric',
+                demo1:{
+                    adderss: "北京市",
+                    size:100
                 }
             },
             //方式1
             watch:{
-                name:{
+                'demo1.adderss':{
                     //immediate:true, //初始化的时候让handler调用一次
                     handler(newValue,oldValue){
-                        console.log('监视了data属性',newValue,oldValue)
+                        console.log('demo1.adderss',newValue,oldValue)
+                    }
+                },
+                'demo1':{
+                    //immediate:true, //初始化的时候让handler调用一次
+                    deep:true, //监测多层属性
+                    handler(newValue,oldValue){
+                        console.log('demo1',newValue,oldValue)
                     }
                 }
             }
         })
         //方式1
-        vm.$watch('name2',{
+        vm.$watch('demo1.size',{
             //immediate:true, //初始化的时候让handler调用一次
             handler(newValue,oldValue){
-                console.log('监视了计算属性',newValue,oldValue)
+                console.log('demo1.size',newValue,oldValue)
             }
         })
     </script>
