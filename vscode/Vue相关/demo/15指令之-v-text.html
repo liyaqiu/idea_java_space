@@ -10,6 +10,9 @@
     
     <div id="box">
         <h1>hello {{name}} </h1>
+        <h1 v-text="demo1">无意义的文本</h1>
+        <h1 v-text="demo2">无意义的文本</h1><!-- 不支持标签解析，并且会替换标签体内容 -->
+        <h1 v-html="demo2">无意义的文本</h1><!-- 支持标签解析，并且会替换标签体内容 -->
     </div>
 
     <script>
@@ -20,7 +23,9 @@
         new Vue({
             el: '#box',  //绑定容器，等同于el: document.getElementById("box")
             data: {
-                name: 'eric'
+                name: 'eric',
+                demo1: 'eric',
+                demo2: '<h1>eric</h1>'
             }
         })
         

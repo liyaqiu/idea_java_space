@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <button id="bt">32</button>
+    <button id="bt2">点我</button>
+    <script>
+       let data = {
+            name:'eric'
+       }
+       const obs = new ObserverData(data)
+       let vm = {}
+       vm.data  = data = obs
+       function ObserverData(obj){
+        const keys = Object.keys(obj)
+        keys.forEach((k)=>{
+            Object.defineProperty(this,k,{
+                get(){
+                    return obj[k]
+                },
+                set(val){
+                    document.getElementById("bt").innerHTML = val
+                    obj[k] = val
+                }
+            })
+        })
+       }
+       document.getElementById('bt2').onclick = function(){
+            obs['name'] = 'hello'
+       }
+    </script>
+</body>
+</html>
+

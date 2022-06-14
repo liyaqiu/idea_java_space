@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../js/vue.js"></script>
+    <script src="../js/dayjs.min.js"></script>
+</head>
+<body>
+    
+    <div id="box">
+        姓名:<h1>hello {{person.name}} </h1>
+        <h2>生日格式1: {{person.birthday | filterDemo1 }}</h2>
+        <h2>生日格式2: {{person.birthday | filterDemo1('YYYY/MM/DD') }}</h2>
+        <h2>生日格式3: {{person.birthday | filterDemo1('YYYY/MM/DD') | filterDemo2('/')}}</h2>
+    </div>
+
+    <script>
+        //设置为 false 以阻止 vue 在启动时生成生产提示。
+        Vue.config.productionTip = false;
+        //定义全局过滤器
+        Vue.filter('filterDemo2',function(value,splitSymbol){
+            return value.replaceAll(splitSymbol,'-')
+        })
+        //创建Vue实例
+       const vm = new Vue({
+            el: '#box',  //绑定容器，等同于el: document.getElementById("box")
+            data: {
+                person:{
+                    name:'eric',
+                    birthday: Date.now()
+                }
+            },
+            //定义局部过滤器
+            filters:{
+                filterDemo1(val,foramtStr='YYYY/MM/DD HH:mm:ss'){
+                    return dayjs(val).format(foramtStr)
+                }
+            }
+        })
+        
+    </script>
+</body>
+</html>
+

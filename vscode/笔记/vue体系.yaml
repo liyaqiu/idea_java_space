@@ -1,4 +1,6 @@
-官方: https://cn.vuejs.org/
+官方:
+  - https://cn.vuejs.org/
+  - bootcdn.cn 可以下载一些常用的js库文件
 Vue安装:
   安装vue:
     - 开发版本(有警告，有提示) 下载vue.js文件 https://cn.vuejs.org/js/vue.js
@@ -21,7 +23,17 @@ Vue基础:
     - M代表模型，是data中的数据
     - V代表视频，是模版代码
     - VM代表模型视图，代表Vue实例，data中所有的属性都在VM身上，VM身上的所有属性都可以在Vue模版中直接使用。
-  数据代理: "Object.defineProperty(person,'age',{}"
+  监视数据原理:
+    功能:
+      - vue会监视data中所有层次的数据
+    数据代理:
+      - "Object.defineProperty(person,'age',{}"
+    监视对象:
+      - 利用数据代理方式生成getter setter函数，实现监视。
+      - 如果需要对VM对象增加属性，需要使用Vue.set()/vm.$set()进行追加
+    监视数组:
+      - 通过包装原有数组的7个函数进行功能增强。
+      - 如果需要对VM对象增加属性，需要使用push/pop/shift/unshift/splice/sort/reverse或者使用Vue.set()/vm.$set()进行追加
   el2种方式:
     - 方式1 el:'#box'
     - 方式2 objInstance.$mount('#box')
@@ -59,8 +71,16 @@ Vue基础:
       功能:
         - 给【标签体、标签属性、标签绑定事件】使用
       数据绑定:
-        - v-bind:xx，单向数据绑定，可简写为【:xx】
-        - v-model:value，双向数据绑定，可以简写为【v-model】一般用在交互标签，文本框，单选框，多选框，它们都有一个value属性可以绑定。
+        单向绑定:
+          功能:
+            - v-bind:xx，单向数据绑定，可简写为【:xx】
+        双向绑定:
+          功能:
+            - v-model:value，双向数据绑定，可以简写为【v-model】一般用在交互标签，文本框，单选框，多选框，它们都有一个value属性可以绑定。
+          修饰符:
+            - number 将字符串转换为数字，v-model.number
+            - lazy 失去焦段后触发，v-model.lazy
+            - trim 去头尾空格,v-model.trim
       事件处理:
         点击事件:
           功能:
@@ -97,6 +117,16 @@ Vue基础:
             - 以上按键配合keydown使用，可以正常使用
           修饰符组合使用:
             - 假设需要ctrl+y才能触发事件 @keyup.ctrl.y="showInfo"
+        表单提交事件:
+          功能:
+            - v-on:submit 可以简写为@submit
+          修饰符:
+            - prevent 阻止默认时间(常用) v-on:click.prevent、@click.prevent
+            - stop 阻止事件冒泡(常用) v-on:click.stop、@click.stop
+            - once 事件只触发一次(常用) v-on:click.once、@click.once
+            - capture 使用事件的捕获模式
+            - self 只有event.target是当前操作的元素时才触发时间
+            - passive 时间的默认行为立即执行，无需等待事件回调执行完毕
       控制指令:
         if:
           功能:
@@ -121,10 +151,18 @@ Vue基础:
         注意:
           - 一般:key不要用index，除非你能保证新生成的数据不会对原来的数据进行打乱(逆序添加或者删除)。否则当vue在进行虚拟dom节点对比的时候会出问题，并且执行效率低下
           - 为了保险起见尽量用到数据的我唯一ID
+      插入标签体内容指令:
+        v-text:
+          - 不支持标签解析，并且会替换标签体内容
+        v-html:
+          - 支持标签解析，并且会替换标签体内容
+          - 存在安全隐患
+  API:
+    - Vue.set() 给某一个对象增长属性，对象不能是Vue实例或者Vue实例的根数据对象
   计算属性:
     - 实现原理借助了数据代理方法实现。
     - get函数只执行第一次，后续如果在获取就会从缓存中获取，执行效率高。
-  监视属性:
+  利用watch机制监视属性:
     - 可以监视data中的属性，当属性发生变化时，触发handler函数的执行
     - 可以监视computed中的计算属性，当属性发生变化时，触发handler函数的执行
   计算属性与监视属性总结:

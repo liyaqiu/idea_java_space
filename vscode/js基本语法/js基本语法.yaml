@@ -38,10 +38,10 @@
       },
       getName: 'name'
       }
-      obj.get($.getName);
+      obj.get(obj.getName);
   "
   - "
-    方式3
+    方式2
       function Obj(name,age,fun){
         this.name = name;
         this.age = age;
