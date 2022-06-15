@@ -7,9 +7,11 @@
     <script src="../js/vue.js"></script>
 </head>
 <body>
-
+    
     <div id="box">
-        <h1>hello {{name}} </h1>
+        初始值<h1 v-once>hello {{num}} </h1>
+        修改值<h1>hello {{num}} </h1>
+        <button @click="num++">点击++</button>
     </div>
 
     <script>
@@ -17,18 +19,13 @@
         Vue.config.productionTip = false;
        
         //创建Vue实例
-        const objInstance = new Vue({
-            //方式1
-            //el: '#box',  //绑定容器，等同于el: document.getElementById("box")
+        new Vue({
+            el: '#box',  //绑定容器，等同于el: document.getElementById("box")
             data: {
-                name: 'eric'
+                num: 1000
             }
         })
-        console.log(objInstance)
-        setTimeout(() => {
-            //方式2
-            objInstance.$mount('#box') 
-        }, 1000);
+        
     </script>
 </body>
 </html>

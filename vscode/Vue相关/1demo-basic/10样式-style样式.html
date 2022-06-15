@@ -20,7 +20,7 @@
 <body>
     
 
-
+    <!-- <div id="box" class="basic" :style="{background}"> -->
     <div id="box" class="basic" :style="styleObj">
         你好
     </div>
@@ -36,6 +36,7 @@
         new Vue({
             el: '#box',  //绑定容器，等同于el: document.getElementById("box")
             data: {
+                background: 'red',
                 styleObj:{
                     background: 'red',
                     fontSize: '100px'

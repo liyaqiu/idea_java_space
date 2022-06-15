@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../js/vue.js"></script>
+</head>
+<body>
+   
+    <div id="box">
+        num当前数值:<h1>{{num}} </h1>
+        当前10倍数值:<h1  v-demo2="num" ></h1>
+        <button  @click="num++">num++点击我</button>
+        <hr>
+        num1当前数值:<h1>{{num1}} </h1>
+        <button @click="num1++">num1++点击我</button>
+    </div>
+
+    <script>
+        //设置为 false 以阻止 vue 在启动时生成生产提示。
+        Vue.config.productionTip = false;
+       
+        //创建Vue实例
+        new Vue({
+            el: '#box',  //绑定容器，等同于el: document.getElementById("box")
+            data: {
+                num:1,
+                num1:1
+            },
+            directives:{
+                demo2:{
+                    //指令与元素绑定时会执行
+                    bind(element,binding){
+                        console.log('bind',element,binding)
+                        element.innerText = binding.value*10
+                    },
+                    //指令所在元素被插入页面时执行
+                    inserted(element,binding){
+                        console.log('inserted',element,binding)
+                    },
+                    //指令所在的模版被重新解释时会执行
+                    update(element,binding){
+                        console.log('update',element,binding)
+                        element.innerText = binding.value*10
+                    }
+                }
+            }
+        })
+        
+    </script>
+</body>
+</html>
+
