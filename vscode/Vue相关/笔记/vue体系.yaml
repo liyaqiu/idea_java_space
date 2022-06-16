@@ -215,7 +215,7 @@ Vue基础:
       "
     destroyed:
   API:
-    - Vue.set() 给某一个对象增长属性，对象不能是Vue实例或者Vue实例的根数据对象
+    - Vue.set()、this.$set、VM.$set 给某一个对象增长属性，对象不能是Vue实例或者Vue实例的根数据对象
   计算属性:
     - 实现原理借助了数据代理方法实现。
     - get函数只执行第一次，后续如果在获取就会从缓存中获取，执行效率高。
@@ -231,6 +231,22 @@ Vue组件:
   组件与组件化:
     - 实现应用中局部功能代码和资源的集合(html、css、js、mp3、image)
     - 功能复用
+  单文件组件:
+    - 一个文件中有且只有1个组件
+  非单文件组件:
+    - 一个文件中包含N个组件
+  组件使用:
+    - 创建组件 Vue.extend
+    - 局部注册组件components/全局注册 Vue.component
+    - 使用组件<demo1></demo1>
+  关于VueCompnent(简称VC实例对象):
+    - school组件本质是一个名为VueComponent的构造函数，而且不是程序员定义的，是Vue.extend生成的。
+    - 我们只需要写<school/>或<school></school>，Vue解析时会帮我们创建school组件的实例对象，即Vue帮我们执行的 new VueComponent(options)
+    - 特别注意，每次调用Vue.extend，返回的都是一个全新的VueComponent
+    - new Vue的this指向Vue实例对象，组件配置中的this指向VueComponent实例对象
+  VC和VM区别:
+    - VC不可以绑定el，而且VC的data属性必须要返回一个对象的函数
+    - VM可以绑定el,data可以写返回一个对象的函数，或者直接是对象形式
 Vue-cli:
 Vue-router:
 Vuex:

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+
+        //var a1 = "123.44"
+        //var a1 = true //true转为1，false转位0
+        //var a1 = null //null转为0
+        //var a1 = "0b11"
+        var a1 = "" //空字符串转为0
+        
+        //方式1
+        //Number()函数，对于转换不了的转为NaN
+        var a2 = Number(a1)
+
+        window.console.log('a1 |',a1,'|',typeof a1)
+        window.console.log('a2 |',a2,'|',typeof a2)
+
+
+        //方式2
+        var a3 = "123.584px"
+        var a4 = parseInt(a3) //parseFloat parseInt
+        window.console.log('a3 |',a3,'|',typeof a3)
+        window.console.log('a4 |',a4,'|',typeof a4)
+    </script>
+</head>
+<body>
+    
+</body>
+</html>

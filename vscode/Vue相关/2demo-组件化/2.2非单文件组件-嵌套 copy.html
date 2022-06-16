@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../js/vue.js"></script>
+</head>
+<body>
+    
+    <div id="box">
+    </div>
+
+    <script>
+        Vue.config.productionTip = false;
+        
+        //第一步，创建组件
+        const demo1 = { //省略Vue.extend()，但是底层还是会调用Vue.extend()
+            name: 'component-demo1', //这里会替换默认的组件名字
+            data(){
+                return {
+                    name:'demo1'
+                }
+            },
+            template:`
+                <div>
+                    <h1>hello {{name}}</h1>
+                </div>
+            `
+        }
+        //第一步，创建组件
+        const demo2 = { //省略Vue.extend()，但是底层还是会调用Vue.extend()
+            data(){
+                return {
+                    name:'demo2'
+                }
+            },
+            template:`
+                <div>
+                    <h1>hello {{name}}</h1> 
+                    <demo1></demo1>   
+                </div>
+            `,
+            components:{
+                demo1
+            }
+        }
+
+        const app ={
+            template:`
+                <demo2></demo2>
+            `,
+            components:{
+                demo2
+            }
+        }
+
+        //第二步，全局注册组件
+        Vue.component('demo2',demo2);
+
+        new Vue({
+            el: '#box', 
+            template:`<app></app>`,
+            //第二步，局部注册组件
+            components:{
+                app, //简写，等于 demo1:demo1
+            }
+        })
+    </script>
+</body>
+</html>
+

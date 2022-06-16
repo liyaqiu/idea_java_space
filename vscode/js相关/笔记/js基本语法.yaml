@@ -1,0 +1,37 @@
+JS介绍:
+  - JavaScript遵循ECMAScript规范
+  - 一个完成的JavaScript有3部分组成，ECMAScript、DOM、BOM
+  - JavaScript是一门解析型语言，基于原型的面向对象语言
+JS六种数据类型:
+  基本数据类型:
+    - String
+    - Boolean
+    - Number
+    - Null
+    - Undefined
+  引用数据类型:
+    - Object
+JS二进制/八进制/十六进制赋值:
+  - 八进制 0 或 0o 或 0O
+  - 十六进制 0x 或 0X
+  - 二进制 0b 或者 0B
+类型转换:
+  转换为String:
+    - 方式1 xx.toString(); 不能将null和undefined转换
+    - 方式2 String(); 此方式可以转任意类型
+  转换为Number:
+    - "
+      方式1 Number()函数
+        true转为1，false转位0
+        null转为0
+        空字符串转为0
+        对于转换不了的转为NaN
+        非十进制转字符串为十进制
+    "
+    - "
+      方式2
+        parseFloat('123.456px')
+        parseInt('123.456px')
+          对于字符串，逐个解析，遇到非数字则返回，当解析结果为0个数值，则返回NaN
+          对于非字符串，则将它先转换为字符串在进行解析，所以最后返回NaN
+    "

@@ -11,7 +11,6 @@ import java.util.concurrent.ThreadFactory;
 public class Test2 {
     public static void main(String[] args) {
 
-        System.out.println("abc".indexOf(""));
 
         /*ExecutorService service = Executors.newFixedThreadPool(10, new ThreadFactory() {
             int i = 0;
