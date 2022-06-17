@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        //只拿左边第一个进行boolean转换，如果true，返回右边的，右边是啥类型返回啥类型
+        console.log('true&&false |',true&&false,'| ',typeof (true&&false))
+        console.log('true&&11 |',true&&11,'| ',typeof (true&&11))
+        console.log('true&&NaN |',true&&NaN,'| ',typeof (true&&NaN))
+        console.log('true&&undefined |',true&&undefined,'| ',typeof (true&&undefined))
+        console.log('true&&Infinity |',true&&Infinity,'| ',typeof (true&&Infinity))
+        console.log('true&&"hello" |',true&&"hello",'| ',typeof (true&&"11"))
+        console.log('true&&new Object() |',true&&new Object(),'| ',typeof (true&&new Object()))
+        //console.log('true&&alert(1)" |',true&&alert(1),'| ',typeof (true&&alert(1)))
+
+        console.log('-------------------------------------------')
+        //为true
+        /* window.console.log('true |',Boolean(true))
+        window.console.log('Infinity |',Boolean(Infinity))
+        window.console.log('-Infinity |',Boolean(-Infinity))
+        window.console.log('123 |',Boolean(123))
+        window.console.log('-123 |',Boolean(-123))
+        window.console.log('new Object |',Boolean(new Object))
+        window.console.log('hello |',Boolean('hello')) */
+        console.log('Infinity&&返回我 |',Infinity&&'返回我','| ',typeof (Infinity&&'返回我'))
+        console.log('-Infinity&&返回我 |',-Infinity&&'返回我','| ',typeof (-Infinity&&'返回我'))
+        console.log('123&&返回我 |',123&&'返回我','| ',typeof (123&&'返回我'))
+        console.log('-123&&返回我 |',-123&&'返回我','| ',typeof (-123&&'返回我'))
+        console.log('new Object()&&返回我 |',new Object()&&'返回我','| ',typeof (new Object()&&'返回我'))
+        console.log('"hello"&&返回我 |',"hello"&&'返回我','| ',typeof ("hello"&&'返回我'))
+
+        console.log('-------------------------------------------')
+        /* //为false
+        window.console.log('false |',Boolean(false))
+        window.console.log('null |',Boolean(null))
+        window.console.log('NaN |',Boolean(NaN))
+        window.console.log('0 |',Boolean(0))
+        window.console.log('"" |',Boolean(""))
+        window.console.log('undefined |',Boolean(undefined)) */
+        //只拿左边第一个进行boolean转换，如果false，返回左边的，左边是啥类型返回啥类型
+        console.log('false&&返回我 |',false&&'返回我','| ',typeof (false&&'返回我'))
+        console.log('null&&返回我 |',null&&'返回我','| ',typeof (null&&'返回我'))
+        console.log('NaN&&返回我 |',NaN&&'返回我','| ',typeof (NaN&&'返回我'))
+        console.log('""&&返回我 |',""&&'返回我','| ',typeof (""&&'返回我'))
+        console.log('undefined&&返回我 |',undefined&&'返回我','| ',typeof (undefined&&'返回我'))
+    </script>
+</head>
+<body>
+    
+</body>
+</html>

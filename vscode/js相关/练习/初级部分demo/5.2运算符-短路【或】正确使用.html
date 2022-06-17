@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        //只拿左边第一个进行boolean转换，如果true，返回左边的，左边是啥类型返回啥类型
+        //为true
+        /* window.console.log('true |',Boolean(true))
+        window.console.log('Infinity |',Boolean(Infinity))
+        window.console.log('-Infinity |',Boolean(-Infinity))
+        window.console.log('123 |',Boolean(123))
+        window.console.log('-123 |',Boolean(-123))
+        window.console.log('new Object |',Boolean(new Object))
+        window.console.log('hello |',Boolean('hello')) */
+        console.log('true||返回我 |',true||'返回我','| ',typeof (true||'返回我'))
+        console.log('Infinity||返回我 |',Infinity||'返回我','| ',typeof (Infinity||'返回我'))
+        console.log('-Infinity||返回我 |',-Infinity||'返回我','| ',typeof (-Infinity||'返回我'))
+        console.log('123||返回我 |',123||'返回我','| ',typeof (123||'返回我'))
+        console.log('-123||返回我 |',-123||'返回我','| ',typeof (-123||'返回我'))
+        console.log('new Object()||返回我 |',new Object()||'返回我','| ',typeof (new Object()||'返回我'))
+        console.log('"hello"||返回我 |',"hello"||'返回我','| ',typeof ("hello"||'返回我'))
+
+        console.log('-------------------------------------------')
+
+        //只拿左边第一个进行boolean转换，如果false，返回右边的，右边是啥类型返回啥类型
+        console.log('false||false |',false||false,'| ',typeof (false||false))
+        console.log('false||11 |',false||11,'| ',typeof (false||11))
+        console.log('false||NaN |',false||NaN,'| ',typeof (false||NaN))
+        console.log('false||undefined |',false||undefined,'| ',typeof (false||undefined))
+        console.log('false||Infinity |',false||Infinity,'| ',typeof (false||Infinity))
+        console.log('false||"hello" |',false||"hello",'| ',typeof (false||"11"))
+        console.log('false||new Object() |',false||new Object(),'| ',typeof (false||new Object()))
+        //console.log('false||alert(1)" |',false||alert(1),'| ',typeof (false||alert(1)))
+        console.log('-------------------------------------------')
+        /* //为false
+        window.console.log('false |',Boolean(false))
+        window.console.log('null |',Boolean(null))
+        window.console.log('NaN |',Boolean(NaN))
+        window.console.log('0 |',Boolean(0))
+        window.console.log('"" |',Boolean(""))
+        window.console.log('undefined |',Boolean(undefined)) */
+        console.log('false||返回我 |',false||'返回我','| ',typeof (false||'返回我'))
+        console.log('null||null |',null||'返回我','| ',typeof (null||null))
+        console.log('NaN||返回我 |',NaN||'返回我','| ',typeof (NaN||'返回我'))
+        console.log('""||返回我 |',""||'返回我','| ',typeof (""||'返回我'))
+        console.log('undefined||返回我 |',undefined||'返回我','| ',typeof (undefined||'返回我'))
+    </script>
+</head>
+<body>
+    
+</body>
+</html>

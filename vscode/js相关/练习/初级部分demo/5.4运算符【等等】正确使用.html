@@ -7,7 +7,7 @@
     <title>Document</title>
     <script>
         //为0
-        window.console.log('false |',Number(false))
+        /* window.console.log('false |',Number(false))
         window.console.log('null |',Number(null))
         window.console.log('0 |',Number(0))
         window.console.log('"" |',Number(""))
@@ -34,7 +34,20 @@
         window.console.log('parseInt(123.584px)  |',parseInt('123.584px',10))
         window.console.log('parseFloat(123.584px)  |',parseFloat('123.584px',10))
         //返回NaN
-        window.console.log('""  |',parseFloat('',10))
+        window.console.log('""  |',parseFloat('',10)) */
+        
+        
+        //为true
+        console.log('1==true @',1==true)
+        console.log('"1"==true @',"1"==true)
+        console.log('"2"=="2" @',"2"=="2")
+        console.log('Infinity==Infinity @',Infinity==Infinity)
+        console.log('null==undefined @',null==undefined)
+        console.log('null==null @',null==null)
+        //其他情况为false
+        console.log('NaN==NaN @',NaN==NaN)
+        console.log('null==0 @',null==0)
+        console.log('null=="undefined" @',null=='undefined')
     </script>
 </head>
 <body>

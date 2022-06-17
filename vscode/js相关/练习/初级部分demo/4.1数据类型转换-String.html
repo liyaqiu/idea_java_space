@@ -6,26 +6,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <script>
-        
-        //var a1 = new Object()
-        //var a1 = 123
-        var a1 = NaN
+    
+        //能调用toString()
+        window.console.log('false |',false.toString(),typeof false.toString())
+        window.console.log('NaN |',NaN.toString())
+        window.console.log('"" |',"".toString())
+        window.console.log('true |',true.toString())
+        window.console.log('Infinity |',Infinity.toString())
+        window.console.log('-Infinity |',-Infinity.toString())
+        window.console.log('new Object |',new Object().toString())
 
-        //方式1，次方式不能将null和undefined转换
-        var a2 = a1.toString();
-        
-        window.console.log('a1 |',a1,'|',typeof a1)
-        window.console.log('a2 |',a2,'|',typeof a2)
+        //不能调用toString()
+        //window.console.log('null |',null.toString())
+        //window.console.log('undefined |',undefined.toString())
+        //window.console.log('数值 |',数值.toString())
 
-        //方式2，此方式可以转任意类型
-        //对于Number和Bollean实际上还是调用toString()
-        //对于Null和Undefined实际上是直接转换为字符的"null"和"undefined"
-        //var a3 = String(null);
-        //var a3 = String(NaN);
-        //var a3 = String(undefined);
-        var a3 = String(Object);
+        console.log('-------------------------------------------------')
 
-        window.console.log('a3 |',a3,'|',typeof a3)
+        window.console.log('false |',String(false))
+        window.console.log('null |',String(null))
+        window.console.log('NaN |',String(NaN))
+        window.console.log('0 |',String(0))
+        window.console.log('"" |',String(""))
+        window.console.log('undefined |',String(undefined))
+        window.console.log('true |',String(true))
+        window.console.log('Infinity |',String(Infinity))
+        window.console.log('-Infinity |',String(-Infinity))
+        window.console.log('123 |',String(123))
+        window.console.log('-123 |',String(-123))
+        window.console.log('new Object |',String(new Object))
+        window.console.log('hello |',String('hello'))
     </script>
 </head>
 <body>
