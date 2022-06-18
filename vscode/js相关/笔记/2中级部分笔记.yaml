@@ -63,12 +63,14 @@
     - 函数也是一个对象,而且它是一个特殊对象，可以保存代码块和属性
     - 调用函数语法 = 函数对象()
     - 在调用函数时，解析器不会检查实际参数的类型以及实际参数的个数
+    - 函数型参可以接收(基本数据类型、对象类型、函数类型)
   方式1:
     - 通过函数对象创建函数，并将想要封装的代码以字符串的方式传递给构造函数
     - `
         写法1
         new Function("console.log('我的第1个函数')")();
         写法2
+        //存放函数引用地址的变量fun，调用函数fun()
         var fun = new Function("console.log('我的第2个函数');");
         fun()
         console.log(fun,typeof fun)
@@ -77,14 +79,16 @@
     - 通过function来创建函数
     - `
         写法1
+        //存放函数引用地址的变量fun1，调用函数fun1()
         function fun1(){
-        console.log('我的第3个函数');
+          console.log('我的第3个函数');
         }
         fun1();
         //console.log(fun1,typeof fun1)
         写法2
+        //存放函数引用地址的变量fun2，调用函数fun2()
         var fun2 = function(){
-        console.log('我的第4个函数');
+          console.log('我的第4个函数');
         }
         fun2();
         //console.log(fun2,typeof fun2)
