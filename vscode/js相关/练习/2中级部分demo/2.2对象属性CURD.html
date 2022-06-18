@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+
+        function MyObject(){
+            this.name = 'eric'; 
+        }
+        obj = new MyObject();
+        console.log(obj,typeof obj)
+
+        obj.age = 18 //增加对象属性
+        obj['sex'] = '男' //增加对象属性
+        obj[(1>2||alert(1))] = "乱七八糟"
+        console.log('查询对象属性obj.age |',obj.age)
+
+        obj.age = 30 //修改对象属性
+        console.log('查询对象属性obj["age"] |',obj["age"])
+
+        delete obj['age'] //删除对象属性
+        console.log('查询对象中一个未定义的属性，会返回undefined |',obj.age)
+        
+        console.log("age" in obj)
+        
+    </script>
+</head>
+<body>
+    
+</body>
+</html>

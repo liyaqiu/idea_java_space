@@ -1,0 +1,91 @@
+对象分类:
+  内建对象:
+    - 由ECMAScript标准中定义的对象，在任何的ECMAScript的实现中都可以使用
+    - 比如 Math String Number Boolean Function Object..
+  宿主对象:
+    - 由JS的运行环境提供的对象，目前来讲主要指浏览器提供的对象
+    - 比如 BOM DOM
+  自定义对象:
+    - 由开发人员自己创建的对象
+对象:
+  对象的创建:
+    方式1:
+      - 利用构造函数来创建对象
+      - `
+          function MyObject(){
+            this.age = 18,
+            this.sex = '男',
+            this["tip"] = 'hello-world',
+            this[1<2] = 'true'
+          }
+          obj = new MyObject()
+          obj.name = 'eric'
+          console.log(obj,typeof obj)
+        `
+    方式2:
+      - 利用【{}】来创建
+      - "
+          var tip = 'hello-world'
+          obj = {
+              age:18,
+              'sex': '男',
+              tip
+          }
+          obj.name = 'eric'
+          obj[1<2] = 'false'
+          console.log(obj,typeof obj)
+        "
+  对象的属性:
+    功能:
+      - 对象的属性可以是任意的命名方式，不需要遵守标识符规范，例如obj.null ,obj.undefine
+      - 操作对象的属性可以使用【点方式或者['']方式】进行操作
+    检查属性:
+      - 可以检查一个对象是否含有该属性，有则返回true，没有返回false
+      - console.log("age" in obj)
+    属性操作:
+      方式1:
+        - 增 obj.name = 18
+        - 删 delete obj.name
+        - 改 obj.name = 19
+        - 查 obj.name
+      方式2(非常灵活):
+        - ['']方式，
+        - 可以定义一些另类的属性，比如 obj['123'] = 1000
+        - 可以存放，任意类型变量、字符串、表达式，但最终都会隐式转换为字符串类型
+        - 增 obj['sex'] = '男'
+        - 删 delete obj['sex']
+        - 改 obj['sex'] = 20
+        - 查 obj['sex']
+  对象的属性值:
+    - 可以是任意类型的值
+函数:
+  功能:
+    - 函数也是一个对象,而且它是一个特殊对象，可以保存代码块和属性
+    - 调用函数语法 = 函数对象()
+    - 在调用函数时，解析器不会检查实际参数的类型以及实际参数的个数
+  方式1:
+    - 通过函数对象创建函数，并将想要封装的代码以字符串的方式传递给构造函数
+    - `
+        写法1
+        new Function("console.log('我的第1个函数')")();
+        写法2
+        var fun = new Function("console.log('我的第2个函数');");
+        fun()
+        console.log(fun,typeof fun)
+      `
+  方式2:
+    - 通过function来创建函数
+    - `
+        写法1
+        function fun1(){
+        console.log('我的第3个函数');
+        }
+        fun1();
+        //console.log(fun1,typeof fun1)
+        写法2
+        var fun2 = function(){
+        console.log('我的第4个函数');
+        }
+        fun2();
+        //console.log(fun2,typeof fun2)
+      `
