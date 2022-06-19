@@ -8,7 +8,7 @@
     <script>
         //方式1，通过函数对象创建函数
             new Function("console.log('我的第1个函数')")();
-
+          
             //存放函数引用地址的变量fun，调用函数fun()
             var fun = new Function("console.log('我的第2个函数');");
             fun()
@@ -29,6 +29,12 @@
             fun2();
             //console.log(fun2,typeof fun2)
 
+            //创建立即执行函数
+           (function(name){
+                console.log(name,'我的第5个函数');
+            })('eric')
+
+            
     </script>
 </head>
 <body>

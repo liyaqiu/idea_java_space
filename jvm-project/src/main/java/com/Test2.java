@@ -13,10 +13,17 @@ import java.util.concurrent.ThreadFactory;
  * @date 2022/6/8 16:59
  **/
 public class Test2 {
+    int a = 200;
+
+    public void test3(){
+        //int a = 10;
+        System.out.println(a);
+    }
+
     public static void main(String[] args) {
         //List<String> list = new ArrayList<String>();
         Object o = new Object();
-       // list.add("123");
+        // list.add("123");
 
         /*ExecutorService service = Executors.newFixedThreadPool(10, new ThreadFactory() {
             int i = 0;

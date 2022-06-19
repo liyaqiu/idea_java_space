@@ -8,14 +8,14 @@
     <script>
 
         function MyObject(){
-            this.name = 'eric'; 
+            this.name = 'eric';
         }
         obj = new MyObject();
         console.log(obj,typeof obj)
 
         obj.age = 18 //增加对象属性
         obj['sex'] = '男' //增加对象属性
-        obj[(1>2||alert(1))] = "乱七八糟"
+        obj[(1>2||console.log('乱七八糟'))] = "乱七八糟"
         console.log('查询对象属性obj.age |',obj.age)
 
         obj.age = 30 //修改对象属性
@@ -23,9 +23,13 @@
 
         delete obj['age'] //删除对象属性
         console.log('查询对象中一个未定义的属性，会返回undefined |',obj.age)
+        console.log('检查该对象是否有这个属性 |',"age" in obj) 
         
-        console.log("age" in obj)
-        
+        obj.fun = function(name){
+            console.log(name,'我是一个方法')
+        }
+        obj.fun('eric')//调用该对象的一个方法
+
     </script>
 </head>
 <body>

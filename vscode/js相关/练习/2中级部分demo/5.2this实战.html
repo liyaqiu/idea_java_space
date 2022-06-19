@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        
+        function addAttr(){
+            this['a1'] = 'eric11'
+            this.a2 = 'eric2'
+            var obj = this;
+            obj.a3 = 'eric3'
+            obj['a4'] = 'eric4'
+            this.fun = function(){
+                this.aaaaaaaaaaaa = 'aaaaaaaaaaaaaaaa'
+            }
+        }
+        
+        /* var obj = new addAttr();
+        var a1 = obj.fun
+        a1();
+        console.log(obj)
+        console.log(window) */
+
+        var abc = addAttr
+        abc()
+        
+        //console.log(obj)
+        console.log(window) 
+
+        
+    </script>
+</head>
+<body>
+    
+</body>
+</html>

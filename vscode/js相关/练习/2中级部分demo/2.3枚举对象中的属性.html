@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <script>
-        //方式1，利用构造函数创建对象
-        var obj = new String();
+        //方式1，利用构造函数才创建对象
+        /* var obj = new String();
         console.log(obj,typeof obj)
         
         obj = new Number();
@@ -18,28 +18,27 @@
 
         obj = new Object();
         obj.name = 'eric'
-        console.log(obj,typeof obj)
+        console.log(obj,typeof obj) */
         
         function MyObject(size){
-            var obj = this;
-            this.age = 18;
+            this.age = 18,
             this.sex = '男';
-            this["tip"] = 'hello-world';
+            this["tip"] = 'hello-world',
             this[1<2] = 'true';
-            this.size = size;
-            this['obj1'] = {};
-            this['obj2'] = new Object();
-            this['fun'] = function(){
-                console.log("添加属性")
-                this.bbbbbbbbbbbbbbbb = 'bbbbbbbbbbbbbbbb'
-            }
+            this.size = size
+            this['obj1'] = {}
+            this['obj2'] = new Object()
+            this['fun'] = function(a,b,c){}
         }
         obj = new MyObject('17寸')
         obj.name = 'eric'
-        
         console.log(obj,typeof obj)
-        /* console.log(obj instanceof MyObject)
-        console.log(obj instanceof Object) */
+        
+        for(var attr in obj){
+            console.log('属性名:',attr,' 属性值:',obj[attr],'属性类型:',typeof obj[attr])
+        }
+
+        console.log('-------------------------------------')
 
         //方式2
         var tip = 'hello-world'
@@ -50,16 +49,15 @@
             'obj1':{},
             'obj2': new Object(),
             fun(){}, //方法简写
-            fun1:function(){
-                console.log("添加属性")
-                this.aaaaaaaaaaaaaa = 'aaaaaaaaaaaaaa'
-            }
-            
+            fun1:function(){}
         }
         obj.name = 'eric'
         obj[1<2] = "false"
         console.log(obj,typeof obj)
-        
+        for(var attr in obj){
+            console.log('属性名:',attr,' 属性值:',obj[attr],'属性类型:',typeof obj[attr])
+        }
+
     </script>
 </head>
 <body>
