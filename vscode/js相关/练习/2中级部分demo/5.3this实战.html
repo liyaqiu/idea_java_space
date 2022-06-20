@@ -13,22 +13,36 @@
             var obj = this;
             obj.a3 = 'eric3'
             obj['a4'] = 'eric4'
-            this.fun = function(){
+            this.fun = function(name1,name2){
+                console.log(name1,name2)
                 this.aaaaaaaaaaaa = 'aaaaaaaaaaaaaaaa'
             }
         }
         
-        /* var obj = new addAttr();
-        var a1 = obj.fun
-        a1();
+        var obj = new addAttr();
+
+        //方式1，属性添加到当前对象上
+        /* obj.fun('eric1','eric2')
         console.log(obj)
         console.log(window) */
 
-        var abc = addAttr
-        abc()
+        //方式2，属性添加到window上
+        /* var a1 = obj.fun
+        a1('eric1','eric2');
+        console.log(obj)
+        console.log(window) */
+
+        //方式3，属性添加到我指定的对象上
+        var myObj = new Object()
+        var a1 = obj.fun
+        a1.call(myObj,'eric1','eric2') //a1.apply(myObj,['eric1','eric2']) 
+        console.log(myObj)
+        console.log(obj)
+        console.log(window)
+
+
         
-        //console.log(obj)
-        console.log(window) 
+
 
         
     </script>

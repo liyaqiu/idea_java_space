@@ -2,6 +2,8 @@ package com;
 
 
 
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -13,16 +15,14 @@ import java.util.concurrent.ThreadFactory;
  * @date 2022/6/8 16:59
  **/
 public class Test2 {
-    int a = 200;
 
-    public void test3(){
-        //int a = 10;
-        System.out.println(a);
-    }
 
     public static void main(String[] args) {
         //List<String> list = new ArrayList<String>();
         Object o = new Object();
+        int[][] i = new int[10][];
+        i[0][5] = 10;
+        System.out.println("输出："+i[0][5]);
         // list.add("123");
 
         /*ExecutorService service = Executors.newFixedThreadPool(10, new ThreadFactory() {

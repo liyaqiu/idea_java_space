@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        
+        var arr = new Array();
+
+        //往数组尾部添加元素
+        arr[arr.length] = 1
+        arr[arr.length] = 2
+        
+        console.log(arr)
+
+
+        //创建数组
+        var arr = new Array();
+            arr[+false] = 1
+            arr[+true] = 2
+            arr[(1>2)+2] = 3
+            arr[3] = 4
+            arr[4] = function(){
+                this.aaaaaaaaaaaaaaaa = 'aaaaaaaaaaaaaaaaaaaaa'
+            }
+            arr["4"]()
+            var fun = arr["4"];
+            fun()
+            console.log('创建数组',arr,'   |',window)
+        arr = Array();
+            arr['0'] = 1
+            arr['1'] = 2
+            arr['2'] = 3
+            arr['3'] = 4
+            console.log('创建数组',arr)
+        arr = [1,2,3,4]
+            console.log('创建数组',arr)
+
+        //二维数组
+        arr = [[1,2,3],[4,5,6],[7,8,9]]
+        console.log(arr[0][0])
+        
+    </script>
+</head>
+<body>
+    
+</body>
+</html>

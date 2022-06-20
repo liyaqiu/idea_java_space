@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        
+        //往Object类原型上添加属性
+
+        //方式1
+        Object.prototype.name1 = 'eric1'
+        //方式2
+        new Object().__proto__.name2 = 'eric2'
+        //方式3
+        var obj1 = {}
+        obj1.__proto__.name3 = 'eric3'
+        //方式4
+        function MyObject(){}
+        new MyObject().__proto__.__proto__.name4 = 'eric4'
+        //方式5
+        MyObject.prototype.__proto__.name5 = 'eric5'
+
+
+        console.log(Object.prototype)
+        
+    </script>
+</head>
+<body>
+    
+</body>
+</html>

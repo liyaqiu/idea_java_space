@@ -17,9 +17,7 @@
         console.log('obj2.__proto__.num |',obj2.__proto__.num)
         console.log('原型是否相等',obj1.__proto__ === obj2.__proto__)
         console.log('------------------------------------------')
-
-
-
+     
         //案例2
         function MyObject(){}
         let obj3 = new MyObject();
@@ -28,7 +26,7 @@
         MyObject.prototype.say = function(){
             this.aaaaaaaaaa = 'aaaaaaaaaaaaaaaaaaa'
         }
-
+       
         obj3.say();
         console.log('obj3',obj3)
 
@@ -38,6 +36,14 @@
         console.log('原型是否相等',MyObject.prototype === obj3.__proto__)
         console.log('原型是否相等',obj4.__proto__ === obj3.__proto__)
 
+
+        //检查对象实例或者类是否有属性
+        console.log(MyObject.hasOwnProperty('prototype'))
+        console.log('num' in MyObject)
+        for(var attr in MyObject){
+            
+        }
+        
     </script>
 </head>
 <body>
