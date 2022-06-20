@@ -7,27 +7,27 @@
     <title>Document</title>
     <script>
         //为0
-        window.console.log('false |',Number(false))
-        window.console.log('null |',Number(null))
-        window.console.log('0 |',Number(0))
-        window.console.log('"" |',Number(""))
-        window.console.log('"0" |',Number("0"))
+        window.console.log('false |',new Number(false))
+        window.console.log('null |',new Number(null))
+        window.console.log('0 |',new Number(0))
+        window.console.log('"" |',new Number(""))
+        window.console.log('"0" |',new Number("0"))
         window.console.log('-----------------------------------')
 
         //为1
-        window.console.log('true |',Number(true))
+        window.console.log('true |',new Number(true))
         window.console.log('-----------------------------------')
         //为NaN
-        window.console.log('NaN |',Number(NaN))
-        window.console.log('undefined |',Number(undefined))
-        window.console.log('new Object |',Number(new Object))
-        window.console.log('123hello123 |',Number('123hello123'))
-        window.console.log('"true" |',Number("true"))
-        window.console.log('"false" |',Number("false"))
+        window.console.log('NaN |',new Number(NaN))
+        window.console.log('undefined |',new Number(undefined))
+        window.console.log('new Object |',new Number(new Object))
+        window.console.log('123hello123 |',new Number('123hello123'))
+        window.console.log('"true" |',new Number("true"))
+        window.console.log('"false" |',new Number("false"))
         window.console.log('-----------------------------------')
         //为Infinity
-        window.console.log('Infinity |',Number(Infinity))
-        window.console.log('Infinity |',Number(-Infinity))
+        window.console.log('Infinity |',new Number(Infinity))
+        window.console.log('Infinity |',new Number(-Infinity))
         window.console.log('-----------------------------------')
         //方式2 
         //将参数转换为字符串以后进行逐个转换，遇到非数字就停止转换，并10进制方式转换

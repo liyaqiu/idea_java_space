@@ -13,8 +13,9 @@
             var obj = this;
             obj.a3 = 'eric3'
             obj['a4'] = 'eric4'
-            this.fun = function(name1,name2){
-                console.log(name1,name2)
+            this.fun = function(){
+                console.log(arguments,arguments.length)
+                
                 this.aaaaaaaaaaaa = 'aaaaaaaaaaaaaaaa'
             }
         }

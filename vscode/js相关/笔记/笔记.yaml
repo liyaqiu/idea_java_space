@@ -37,68 +37,68 @@ JS介绍:
 
           console.log('-------------------------------------------------')
 
-          window.console.log('false |',String(false))
-          window.console.log('null |',String(null))
-          window.console.log('NaN |',String(NaN))
-          window.console.log('0 |',String(0))
-          window.console.log('"" |',String(""))
-          window.console.log('undefined |',String(undefined))
-          window.console.log('true |',String(true))
-          window.console.log('Infinity |',String(Infinity))
-          window.console.log('-Infinity |',String(-Infinity))
-          window.console.log('123 |',String(123))
-          window.console.log('-123 |',String(-123))
-          window.console.log('new Object |',String(new Object))
-          window.console.log('hello |',String('hello'))
+          window.console.log('false |',new String(false))
+          window.console.log('null |',new String(null))
+          window.console.log('NaN |',new String(NaN))
+          window.console.log('0 |',new String(0))
+          window.console.log('"" |',new String(""))
+          window.console.log('undefined |',new String(undefined))
+          window.console.log('true |',new String(true))
+          window.console.log('Infinity |',new String(Infinity))
+          window.console.log('-Infinity |',new String(-Infinity))
+          window.console.log('123 |',new String(123))
+          window.console.log('-123 |',new String(-123))
+          window.console.log('new Object |',new String(new Object))
+          window.console.log('hello |',new String('hello'))
       "
       转换为Number: `
         //为0
-        window.console.log('false |',Number(false))
-        window.console.log('null |',Number(null))
-        window.console.log('0 |',Number(0))
-        window.console.log('"" |',Number(""))
-        window.console.log('"0" |',Number("0"))
+        window.console.log('false |',new Number(false))
+        window.console.log('null |',new Number(null))
+        window.console.log('0 |',new Number(0))
+        window.console.log('"" |',new Number(""))
+        window.console.log('"0" |',new Number("0"))
         window.console.log('-----------------------------------')
 
         //为1
-        window.console.log('true |',Number(true))
+        window.console.log('true |',new Number(true))
         window.console.log('-----------------------------------')
         //为NaN
-        window.console.log('NaN |',Number(NaN))
-        window.console.log('undefined |',Number(undefined))
-        window.console.log('new Object |',Number(new Object))
-        window.console.log('123hello123 |',Number('123hello123'))
-        window.console.log('"true" |',Number("true"))
-        window.console.log('"false" |',Number("false"))
+        window.console.log('NaN |',new Number(NaN))
+        window.console.log('undefined |',new Number(undefined))
+        window.console.log('new Object |',new Number(new Object))
+        window.console.log('123hello123 |',new Number('123hello123'))
+        window.console.log('"true" |',new Number("true"))
+        window.console.log('"false" |',new Number("false"))
         window.console.log('-----------------------------------')
         //为Infinity
-        window.console.log('Infinity |',Number(Infinity))
-        window.console.log('Infinity |',Number(-Infinity))
+        window.console.log('Infinity |',new Number(Infinity))
+        window.console.log('Infinity |',new Number(-Infinity))
         window.console.log('-----------------------------------')
         //方式2
         //将参数转换为字符串以后进行逐个转换，遇到非数字就停止转换，并10进制方式转换
         window.console.log('parseInt(123.584px)  |',parseInt('123.584px',10))
         window.console.log('parseFloat(123.584px)  |',parseFloat('123.584px',10))
         //返回NaN
-        window.console.log('""  |',parseFloat('',10)) `
+        window.console.log('""  |',parseFloat('',10))
       转换为Boolean:
         - "
             //为false
-            window.console.log('false |',Boolean(false))
-            window.console.log('null |',Boolean(null))
-            window.console.log('NaN |',Boolean(NaN))
-            window.console.log('0 |',Boolean(0))
-            window.console.log('"" |',Boolean(""))
-            window.console.log('undefined |',Boolean(undefined))
+            window.console.log('false |',new Boolean(false))
+            window.console.log('null |',new Boolean(null))
+            window.console.log('NaN |',new Boolean(NaN))
+            window.console.log('0 |',new Boolean(0))
+            window.console.log('"" |',new Boolean(""))
+            window.console.log('undefined |',new Boolean(undefined))
 
             //为true
-            window.console.log('true |',Boolean(true))
-            window.console.log('Infinity |',Boolean(Infinity))
-            window.console.log('-Infinity |',Boolean(-Infinity))
-            window.console.log('123 |',Boolean(123))
-            window.console.log('-123 |',Boolean(-123))
-            window.console.log('new Object |',Boolean(new Object))
-            window.console.log('hello |',Boolean('hello'))
+            window.console.log('true |',new Boolean(true))
+            window.console.log('Infinity |',new Boolean(Infinity))
+            window.console.log('-Infinity |',new Boolean(-Infinity))
+            window.console.log('123 |',new Boolean(123))
+            window.console.log('-123 |',new Boolean(-123))
+            window.console.log('new Object |',new Boolean(new Object))
+            window.console.log('hello |',new Boolean('hello'))
       "
     隐式类型转换(运算符):
       先转换为Number类型在运算:
@@ -350,7 +350,7 @@ JS介绍:
     对象分类:
       内建对象:
         - 由ECMAScript标准中定义的对象，在任何的ECMAScript的实现中都可以使用
-        - 比如 Math String Number Boolean Function Array Object..
+        - 比如 Array Math Date String Number Boolean Function Object..
       宿主对象:
         - 由JS的运行环境提供的对象，目前来讲主要指浏览器提供的对象
         - 比如 BOM DOM
@@ -462,6 +462,32 @@ JS介绍:
         - 2.将新的对象设置为函数中的this，在构造函数中可以使用this来引用新建对象
         - 3.逐行执行函数中的代码
         - 4.将新建的对象作为返回值返回
+      构造函数之java转换:
+        - 其实构造函数可以看成一个java类
+        - Demefun.attr  为一个类添加方法
+        - new Demefun().attr 为一个对象添加方法
+    函数中this对象:
+      - 解析器会为每个函数隐式传递一个this对象
+      - 根据函数的调用方式不同this指向不同
+      - "
+         以方法方式调用，this指向的是当前对象  obj.fun()
+         以new方式调用，this指向的是当前对象  new fun()
+         以函数方式调用，this指向window对象  fun()
+         调用函数对象的call方法，this为传入的对象，testFun.call(obj,'arg1','arg2')
+         调用函数对象的apply方法，this为传入的对象 testFun.apply(obj,['arg1','arg2'])
+      "
+    函数中arguments对象:
+      - 解析器会为每个函数隐式传递一个arguments对象
+      - "
+          function fun1(){
+              console.log('@@@@',arguments)
+              console.log('传入参数的实际大小',arguments.length)
+              console.log('当前函数对象',arguments.callee)
+              return arguments.callee
+          }
+
+          var fun2 = fun1('eric1','eric2')
+          console.log(fun2 === fun1) "
     函数的调用方式:
       - fun(arg1,arg2)
       - fun.call(obj,arg1,arg2)
@@ -506,15 +532,7 @@ JS介绍:
           console.log('我是一个函数，而且我会被提前声明')
           }
         `
-  this的指向:
-    - 根据函数的调用方式不同this指向不同
-    - "
-        以方法方式调用，this指向的是当前对象  obj.fun()
-        以new方式调用，this指向的是当前对象  new fun()
-        以函数方式调用，this指向window对象  fun()
-        调用函数对象的call方法，this为传入的对象，testFun.call(obj,'arg1','arg2')
-        调用函数对象的apply方法，this为传入的对象 testFun.apply(obj,['arg1','arg2'])
-    "
+
   原型对象:
     功能:
       - 原型对象可以复用方法或者属性，减少方法或者属性直接绑定到对象实例上。

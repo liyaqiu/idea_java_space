@@ -23,19 +23,19 @@
 
         console.log('-------------------------------------------------')
 
-        window.console.log('false |',String(false))
-        window.console.log('null |',String(null))
-        window.console.log('NaN |',String(NaN))
-        window.console.log('0 |',String(0))
-        window.console.log('"" |',String(""))
-        window.console.log('undefined |',String(undefined))
-        window.console.log('true |',String(true))
-        window.console.log('Infinity |',String(Infinity))
-        window.console.log('-Infinity |',String(-Infinity))
-        window.console.log('123 |',String(123))
-        window.console.log('-123 |',String(-123))
-        window.console.log('new Object |',String(new Object))
-        window.console.log('hello |',String('hello'))
+        window.console.log('false |',new String(false))
+        window.console.log('null |',new String(null))
+        window.console.log('NaN |',new String(NaN))
+        window.console.log('0 |',new String(0))
+        window.console.log('"" |',new String(""))
+        window.console.log('undefined |',new String(undefined))
+        window.console.log('true |',new String(true))
+        window.console.log('Infinity |',new String(Infinity))
+        window.console.log('-Infinity |',new String(-Infinity))
+        window.console.log('123 |',new String(123))
+        window.console.log('-123 |',new String(-123))
+        window.console.log('new Object |',new String(new Object))
+        window.console.log('hello |',new String('hello'))
     </script>
 </head>
 <body>
