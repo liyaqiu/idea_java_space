@@ -670,4 +670,13 @@ JS介绍:
         // /^[0-9A-z]{5,9}@[a-z]{2}\.com$/  //默认情况下 .代表任意字符
         //console.log(/^[0-9A-z]{5,9}@[a-z]{2}\.com$/.test('12345@qq.com'))
     "
+  DOM对象:
+    功能:
+      - DOM Document Object Model 文档对象模型
+    节点:
+      文档节点(nodeName=#document  nodeType=9 nodeVaule=null): 整个HTML文档
+      元素节点(nodeName=标签名      nodeType=1 nodeVaule=null): 标签
+      属性节点(nodeName=属性名      nodeType=2 nodeVaule=属性值): 标签属性
+      文本节点(nodeName=#text      nodeType=3 nodeVaule=文本内容): 标签体
+
 
