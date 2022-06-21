@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.regex.Pattern;
 
 /**
  * @author eric
@@ -18,12 +19,11 @@ public class Test2 {
 
 
     public static void main(String[] args) {
+
         //List<String> list = new ArrayList<String>();
-        Object o = new Object();
-        int[][] i = new int[10][];
-        i[0][5] = 10;
-        System.out.println("输出："+i[0][5]);
+
         // list.add("123");
+        System.out.println("361234567@qq.com".matches("^[0-9A-z]{5,9}@[a-z]{2}\\.com$"));
 
         /*ExecutorService service = Executors.newFixedThreadPool(10, new ThreadFactory() {
             int i = 0;
