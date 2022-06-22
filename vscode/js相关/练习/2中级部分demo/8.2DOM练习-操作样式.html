@@ -24,21 +24,18 @@
     
 
     window.onload = function(){
-       var obj = {}
-       obj.a = document.getElementById("addbt")
-       //修改内联样式=对象属性，无法读取样式表(style)中的样式
-       obj.a.style.fontSize = "20px"
-       //读取内联样式=对象属性，无法读取样式表(style)中的样式
-       //console.log(obj.a.style.fontSize)
-
-       //获取该对象最终生效的样式，该对象是只读的，不允许修改，如果需要修改，用内联样式修改
-       //obj.a.currentStyle.width 只有ie浏览器支持
-        obj.b = window.getComputedStyle(obj.a,null)
-        console.log(obj.b.width)
-        console.log(obj)
+        //修改样式方式1，根据元素属性来更改样式
+        //document.getElementById('addbt').className = 'btclass1'
         
-        //总结，一般用getComputedStyle这种方式读取属性，用内联样式方式来修改
+        //修改样式方式2，修改元素内联样式
+        //document.getElementById('addbt').style.fontSize = "20px"
+      
+        //读取样式方式1，根据内联样式读取
+        //console.log(document.getElementById('addbt').style.fontSize)
 
+        //读取样式方式2，获取该元素最终生效的样式，该对象是只读的，不允许修改
+        //console.log(document.getElementById('addbt').currentStyle.width) 只有ie浏览器支持
+        //console.log(window.getComputedStyle(document.getElementById('addbt'),null).width) 非ie都支持
     }
    </script>
 </head>
