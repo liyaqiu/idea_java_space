@@ -2,6 +2,7 @@ JS介绍:
   - JavaScript遵循ECMAScript规范
   - 一个完成的JavaScript有3部分组成，ECMAScript、DOM、BOM
   - JavaScript是一门解析型语言，基于原型的面向对象语言
+  - js下载 https://www.bootcdn.cn/jquery/
   - 参考文档 https://www.w3cschool.cn/javascript/js-ex-objects.html
   - 参考文档 https://www.w3cschool.cn/jsref/jsref-obj-number.html
 初级:
@@ -673,10 +674,27 @@ JS介绍:
   DOM对象:
     功能:
       - DOM Document Object Model 文档对象模型
-    节点:
-      文档节点(nodeName=#document  nodeType=9 nodeVaule=null): 整个HTML文档
-      元素节点(nodeName=标签名      nodeType=1 nodeVaule=null): 标签
-      属性节点(nodeName=属性名      nodeType=2 nodeVaule=属性值): 标签属性
-      文本节点(nodeName=#text      nodeType=3 nodeVaule=文本内容): 标签体
+      - window.document对象
+    节点对象:
+      文档节点对象(nodeName=#document  nodeType=9 nodeVaule=null)
+      元素节点对象(nodeName=标签名      nodeType=1 nodeVaule=null)
+      属性节点对象(nodeName=属性名      nodeType=2 nodeVaule=属性值)
+      文本节点对象(nodeName=#text      nodeType=3 nodeVaule=文本内容)
+    修改元素样式:
+      - "
+        var obj = {}
+        obj.a = document.getElementById('addbt')
+        //修改内联样式=对象属性，无法读取样式表(style)中的样式
+        obj.a.style.fontSize = '20px'
+        //读取内联样式=对象属性，无法读取样式表(style)中的样式
+        //console.log(obj.a.style.fontSize)
 
+        //获取该对象最终生效的样式，该对象是只读的，不允许修改，如果需要修改，用内联样式修改
+        //obj.a.currentStyle.width 只有ie浏览器支持
+        obj.b = window.getComputedStyle(obj.a,null)
+        console.log(obj.b.width)
+        console.log(obj)
+
+        //总结，一般用getComputedStyle这种方式读取属性，用内联样式方式来修改
+      "
 

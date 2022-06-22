@@ -22,10 +22,6 @@ public class Launcher {
 
     public static void main(String[] args) {
         ConfigurableApplicationContext context = SpringApplication.run(Launcher.class, args);
-        for (int i = 0; i < 5; i++) {
-            new Scanner(System.in).next();
-            System.gc();
-        }
     }
 
 }

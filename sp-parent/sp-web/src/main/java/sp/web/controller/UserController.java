@@ -56,6 +56,12 @@ public class UserController {
         log.info("jmeter-test2");
         return "<a><b><c>eric</c></b></a>";
     }
+    @RequestMapping("/test3")
+    public String test3(){
+        log.info("jmeter-test2");
+        return "hanshu1('hello-world')";
+    }
+
 
     public static void main(String[] args) {
         System.out.println(new Gson().toJson(new UserEntity("eric","31")));

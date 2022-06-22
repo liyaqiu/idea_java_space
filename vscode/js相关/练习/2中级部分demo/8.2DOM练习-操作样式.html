@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .btclass{
+            width: 50px;
+            height: 50px;;
+        }
+        .btclass1{
+            width: 150px;
+            height: 150px;;
+        }
+        .btclass2{
+            width: 250px;
+            height: 250px;;
+        }
+    </style>
+   <script>
+    
+    
+
+    window.onload = function(){
+       var obj = {}
+       obj.a = document.getElementById("addbt")
+       //修改内联样式=对象属性，无法读取样式表(style)中的样式
+       obj.a.style.fontSize = "20px"
+       //读取内联样式=对象属性，无法读取样式表(style)中的样式
+       //console.log(obj.a.style.fontSize)
+
+       //获取该对象最终生效的样式，该对象是只读的，不允许修改，如果需要修改，用内联样式修改
+       //obj.a.currentStyle.width 只有ie浏览器支持
+        obj.b = window.getComputedStyle(obj.a,null)
+        console.log(obj.b.width)
+        console.log(obj)
+        
+        //总结，一般用getComputedStyle这种方式读取属性，用内联样式方式来修改
+
+    }
+   </script>
+</head>
+<body>
+    <button id="addbt" class="btclass">样式</button>
+    <div id="divv"></div>
+</body>
+</html>

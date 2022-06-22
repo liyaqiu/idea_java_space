@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<style>
+    div{
+        width: 100px;
+        height: 100px;
+        border: solid red;
+    }
+</style>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+   <script>
+    window.onload = function(){
+        console.log('document@',document.__proto__)
+        console.log('document@',document.__proto__.__proto__)
+        console.log('document@',document.__proto__.__proto__.__proto__)
+        console.log('document@',document.__proto__.__proto__.__proto__.__proto__)
+        console.log('document@',document.__proto__.__proto__.__proto__.__proto__.__proto__)
+
+        console.log('-------------------------------------')
+
+        var obj = {}
+
+
+        obj.image = document.createElement("img")
+        console.log('image@',obj.image.__proto__)
+        console.log('image@',obj.image.__proto__.__proto__)
+        console.log('image@',obj.image.__proto__.__proto__.__proto__)
+        console.log('image@',obj.image.__proto__.__proto__.__proto__.__proto__)
+        console.log('image@',obj.image.__proto__.__proto__.__proto__.__proto__.__proto__)
+        console.log('image@',obj.image.__proto__.__proto__.__proto__.__proto__.__proto__.__proto__)
+        console.log('-------------------------------------')
+
+        obj.button = document.createElement("button")
+        console.log('button@',obj.button.__proto__)
+        console.log('button@',obj.button.__proto__.__proto__)
+        console.log('button@',obj.button.__proto__.__proto__.__proto__)
+        console.log('button@',obj.button.__proto__.__proto__.__proto__.__proto__)
+        console.log('button@',obj.button.__proto__.__proto__.__proto__.__proto__.__proto__)
+        console.log('button@',obj.button.__proto__.__proto__.__proto__.__proto__.__proto__.__proto__)
+       
+       
+        var aElementNodeObj
+        var aTextNodeObj
+        var buttonObj
+        var box = document.getElementById("box")
+        //添加子节点
+        document.getElementById("addbt").onclick = function(){
+            aElementNodeObj = document.createElement("a")
+            aTextNodeObj = document.createTextNode("hello-world")
+            aElementNodeObj.appendChild(aTextNodeObj)
+            //aElementNodeObj.innerHTML = "hello-world"
+            //box.innerHTML = "<button>123</button>"
+            box.appendChild(aElementNodeObj)
+            
+        }
+
+        //更改子节点
+        document.getElementById("updatebt").onclick = function(){
+            buttonObj = document.createElement("button")
+            buttonObj.appendChild(aTextNodeObj)
+            box.replaceChild(buttonObj,aElementNodeObj)
+        }
+
+        //删除子节点
+        document.getElementById("removebt").onclick = function(){
+            buttonObj.parentNode.removeChild(buttonObj)
+        }
+        
+
+        //查询节点
+        var bt1 = document.getElementById("bt")
+        var bt2 = document.querySelector("#bt") //可以根据css选择器方式查询，找一个元素
+        var bt3 = document.querySelector("body button") 
+        var bt4 = document.querySelectorAll("body button") //可以根据css选择器方式查询，找多个元素
+        
+       
+    }
+   </script>
+</head>
+<body>
+    
+    <div id="box"></div>
+    <button id="addbt">添加子节点</button>
+    <button id="updatebt">修改子节点</button>
+    <button id="removebt">删除子节点</button>
+</body>
+</html>
