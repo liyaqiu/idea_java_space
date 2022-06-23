@@ -24,7 +24,11 @@ public class Test2 {
         //List<String> list = new ArrayList<String>();
 
         // list.add("123");
+
+
+
         System.out.println("361234567@qq.com".matches("^[0-9A-z]{5,9}@[a-z]{2}\\.com$"));
+
 
         /*ExecutorService service = Executors.newFixedThreadPool(10, new ThreadFactory() {
             int i = 0;

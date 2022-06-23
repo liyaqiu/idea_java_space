@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        
+        
+    </style>
+   <script>
+    window.onload = function(){
+       //当某个元素获取了焦点，键盘事件才可以生效
+        document.getElementById('in').onkeydown = function(event){
+            console.log(event.key,event.keyCode,event.ctrlKey)
+            if(!(event.keyCode>=48 && event.keyCode<=57)){
+                if(event.keyCode == 8){
+                    return true
+                }
+                return false //阻止默认事件
+            }
+        }
+    }
+   </script>
+</head>
+<body>
+    <input type="text" name="" id="in">
+</body>
+</html>

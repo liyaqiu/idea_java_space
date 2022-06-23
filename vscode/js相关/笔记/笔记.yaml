@@ -359,7 +359,8 @@ JS介绍:
         - 比如 Array Math Date String Number Boolean Function RegExp Object..
       宿主对象:
         - 由JS的运行环境提供的对象，目前来讲主要指浏览器提供的对象
-        - 比如 BOM DOM
+        - DOM(文档对象模型)，主要操作标签元素,document
+        - BOM(浏览器对象模型)，主要操作浏览器，Window、Navigator、Location、History、Screen
       自定义对象:
         - 由开发人员自己创建的对象
     对象的创建:
@@ -481,6 +482,29 @@ JS介绍:
          以函数方式调用，this指向window对象  fun()
          调用函数对象的call方法，this为传入的对象，testFun.call(obj,'arg1','arg2')
          调用函数对象的apply方法，this为传入的对象 testFun.apply(obj,['arg1','arg2'])
+      "
+    函数中的this对象之调用者改变:
+      - "
+        //假设如下代码为框架代码，我们不能去修改
+         function Vue(fun){
+              fun()
+         }
+
+         //用户使用框架代码
+         //方式1
+           /* function myFun(){
+                console.log(this) //window
+           }
+            new Vue(myFun) */
+         //方式2
+           function myFun(){
+                console.log(this) //当前对象
+           }
+
+           var obj = {}
+           new Vue(function(){
+                myFun.apply(obj) //改变了myFun函数的调用方式
+           })
       "
     函数中arguments对象:
       - 解析器会为每个函数隐式传递一个arguments对象
@@ -671,15 +695,16 @@ JS介绍:
         // /^[0-9A-z]{5,9}@[a-z]{2}\.com$/  //默认情况下 .代表任意字符
         //console.log(/^[0-9A-z]{5,9}@[a-z]{2}\.com$/.test('12345@qq.com'))
     "
+  取消默认行为: 一般可以用return false
   DOM对象:
     功能:
       - DOM Document Object Model 文档对象模型
       - window.document对象
     节点对象:
-      文档节点对象(nodeName=#document  nodeType=9 nodeVaule=null)
-      元素节点对象(nodeName=标签名      nodeType=1 nodeVaule=null)
-      属性节点对象(nodeName=属性名      nodeType=2 nodeVaule=属性值)
-      文本节点对象(nodeName=#text      nodeType=3 nodeVaule=文本内容)
+      - 文档节点对象(nodeName=#document  nodeType=9 nodeVaule=null)
+      - 元素节点对象(nodeName=标签名      nodeType=1 nodeVaule=null)
+      - 属性节点对象(nodeName=属性名      nodeType=2 nodeVaule=属性值)
+      - 文本节点对象(nodeName=#text      nodeType=3 nodeVaule=文本内容)
     修改和读取元素样式:
       - "
         //修改样式方式1，根据元素属性来更改样式
@@ -695,4 +720,71 @@ JS介绍:
         //console.log(document.getElementById('addbt').currentStyle.width) 只有ie浏览器支持
         //console.log(window.getComputedStyle(document.getElementById('addbt'),null).width) 非ie都支持
       "
+    事件:
+      事件对象:
+        - 每元素绑定事件以后，当浏览器调用改事件函数的时候会传递事件对象到函数里面(event)
+      事件冒泡:
+        功能:
+          - 每个元素都会有默认事件函数，所以当对某个函数触发相应的事件时，都会有冒泡的产生。如果需要该元素不支持冒泡，可以使用event.cancelBubble = true; 停止冒泡
+          - 所谓的冒泡值的就是事件的向上传导，当后代元素上的时间被触发时，其所有的父元素相同的事件都会被触发。
+        事件委派:
+          - 利用冒泡原理来实现事件的委派
+          - 当很多子元素需要绑定事件时，可以考虑把时间绑定在它的父元素标签中。
+      事件传播:
+        捕获阶段:
+          - 在捕获阶段时，从最外层的祖先元素开始(document|window)，向目标元素进行事件的捕获
+          - 使用document.getElementById('div1').addEventListener('click',function(event){},true)
+        冒泡阶段:
+          - 时间从目标元素向祖先元素传递，依次触发祖先元素上的事件
+          - 使用document.getElementById('div1').onclick
+          - 使用document.getElementById('div1').addEventListener('click',function(event){},false)
+        ie8及以前:
+          - 冒泡阶段(由目标元素向祖先元素传递事件)
+        ie9及以后+其他浏览器:
+          - 捕获阶段(由祖先元素向目标元素触发事件)
+          - 冒泡阶段(由目标元素向祖先元素传递事件)
+    元素绑定事件方式:
+      - "
+        方式1
+          document.getElementById('div1').onclick = function(event){
+                if(!event){
+                    event = window.event //ie8及以下的event对象是在window身上
+                }
+                console.log(000)
+           }
+         方式2
+           document.getElementById('div1').addEventListener('click',function(event){
+                if(!event){
+                    event = window.event //ie8及以下的event对象是在window身上
+                }
+                console.log(111)
+           },false)
 
+           //参数1 不要写onclick
+           //参数2 回调函数
+           //参数3 true捕获阶段触发，false冒泡阶段触发
+           document.getElementById('div1').addEventListener('click',function(event){
+                if(!event){
+                    event = window.event //ie8及以下的event对象是在window身上
+                }
+                console.log(222)
+           },false)
+           //document.getElementById('div1').attachEvent('onclick',function(){})   ie8及以前
+      "
+  BOM对象:
+    Window:
+      - 代表的是整个浏览器的窗口，同时window也是网页中的全局对象
+      - 获取对象方式 window
+    Navigator:
+      - 代表的是当前浏览器的信息，通过该对象可以识别不同的浏览器
+      - 获取对象方式 window.navigator
+    Location:
+      - 代表当前浏览器的地址栏信息，可以通过location对象获取地址栏信息，或者操作浏览器跳转页面
+      - 获取对象方式 window.location
+    History:
+      - 代表浏览器的历史记录，可以通过该对象来操作浏览器的历史记录
+      - 由于隐私原因，该对象不能获取到具体的历史记录，只能是操作浏览器向前或者向后翻页，并且历史记录只有在当次访问有效
+      - 获取对象方式 window.history
+    Screen:
+      - 代表用户的屏幕信息，通过该多少可以获取到用户的显示器相关信息
+      - 获取对象方式 window.screen

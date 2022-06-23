@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #div1{
+            width: 200px;
+            height: 200px;
+            background-color: red;
+        }
+        #div2{
+            width: 200px;
+            height: 200px;
+            background-color: rgb(0, 255, 76);
+        }
+    </style>
+   <script>
+    window.onload = function(){
+        
+        document.getElementById('div1').onclick = function(event){
+            if(!event){
+                event = window.event //ie8及以下的event对象是在window身上
+            }
+            console.log(000)
+       }
+       document.getElementById('div1').addEventListener('click',function(event){
+            if(!event){
+                event = window.event //ie8及以下的event对象是在window身上
+            }
+            console.log(111)
+       },false)
+
+       //参数1 不要写onclick
+       //参数2 回调函数
+       //参数3 true则为捕获之前触发，false捕获之后触发
+       document.getElementById('div1').addEventListener('click',function(event){
+            if(!event){
+                event = window.event //ie8及以下的event对象是在window身上
+            }
+            console.log(222)
+       },false)
+
+       //document.getElementById('div1').attachEvent('onclick',function(){})   ie8及以前
+
+    }
+   </script>
+</head>
+<body>
+    <div id="div1">hello</div>
+</body>
+</html>
