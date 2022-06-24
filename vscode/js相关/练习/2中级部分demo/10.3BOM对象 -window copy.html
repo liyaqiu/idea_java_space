@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        console.log(window)
+        
+        window.onload = function(){
+            //方式1 间隔执行多次
+                var clock1
+                document.getElementById("openbt").onclick = function(){
+                    window.clearInterval(clock1) //开启定时器之前关闭上一个，避免开启多个
+                    //参数1  函数
+                    //参数2  间隔毫秒
+                    clock1 = window.setInterval(function(){
+                        console.log(1)
+                    },5000)
+                }
+                document.getElementById("closebt").onclick = function(){
+                    window.clearInterval(clock1)
+                }
+            //方式2 只执行一次
+                /* document.getElementById("openbt").onclick = function(){
+                    window.clearTimeout(clock1)
+                    //参数1  函数
+                    //参数2  间隔毫秒
+                    clock1 = window.setTimeout(function(){
+                        console.log(2)
+                    },5000)
+                }
+                document.getElementById("closebt").onclick = function(){
+                    window.clearTimeout(clock1)
+                } */
+        }
+    </script>
+</head>
+<body>
+    <button id="openbt">开启定时器</button>
+    <button id="closebt">关闭定时器</button>
+</body>
+</html>

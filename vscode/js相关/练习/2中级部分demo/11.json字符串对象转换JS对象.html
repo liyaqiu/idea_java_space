@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        /* 
+            JSON(JavaScript Object Notation) JS对象表示法 
+            JSON和JS对象的格式一样，只不过JSON的属性名必须是加【双引号】
+
+            JSON分类
+                1.对象{}字符串
+                2.数组[]字符串
+            JSON属性值
+                1.字符串
+                2.数值
+                3.布尔值
+                4.null
+                5.普通对象
+                6.数组对象
+        */
+
+        //分类1
+            /* var jsonStrObj = '{"name":"eric","age":16,"isMen":true,"hobbies":["打球","打游戏","踢球"],"friends":[{"name":"jerry","age":16,"family":null},{"name":"tom","age":18,"family":null}]}'
+            //JSON 转换 JS对象
+            var jsObj = JSON.parse(jsonStrObj)
+            console.log(jsObj)
+            //JS对象转JSON
+            var jsonStr = JSON.stringify(jsObj)
+            console.log(jsonStr) */
+        //分类2
+            /* var jsonStrArr = '["eric",{"hobbies":["打球","打游戏","踢球"]}]'
+            var jsArr = JSON.parse(jsonStrArr)
+            console.log(jsArr) */
+
+        //ie7及以下没有JSON对象，可以引入json2.js，eval函数有安全隐患
+            var jsonStrObj = '{"name":"eric","age":16,"isMen":true,"hobbies":["打球","打游戏","踢球"],"friends":[{"name":"jerry","age":16,"family":null},{"name":"tom","age":18,"family":null}]}'
+            /* //JSON 转换 JS对象
+            var jsObj = window.eval("("+jsonStrObj+")")
+            console.log(jsObj)
+            //JS对象转JSON
+            var jsonStr = JSON.stringify(jsObj)
+            console.log(jsonStr) */
+            
+      console.log(window)
+    </script>
+</head>
+<body>
+    
+</body>
+</html>

@@ -15,6 +15,11 @@
 
         //代表当前浏览器的地址栏信息，可以通过location对象获取地址栏信息，或者操作浏览器跳转页面
         console.log(window.location)
+        //window.location.href = 'https://www.baidu.com'//生成历史记录
+        //window.location.assign('https://www.baidu.com')//生成历史记录
+        //window.location.replace('https://www.baidu.com')//不生成历史记录
+        //window.location.reload() //默认刷新，保留缓存
+        //window.location.reload(true) //强制刷新，，不保留缓存
 
         //代表浏览器的历史记录，可以通过该对象来操作浏览器的历史记录
         //由于隐私原因，该对象不能获取到具体的历史记录，只能是操作浏览器向前或者向后翻页，并且历史记录只有在当次访问有效
@@ -27,6 +32,5 @@
     </script>
 </head>
 <body>
-    
 </body>
 </html>

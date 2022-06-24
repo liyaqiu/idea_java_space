@@ -436,6 +436,12 @@ JS介绍:
           console.log(fun,typeof fun)
           `
       方式2:
+        - `
+          通过eval函数执行js字符串代码
+          function hello(){console.log('我的第3个函数');}
+          var result = window.eval("hello()")
+          `
+      方式3:
         - 通过function来创建函数
         - `
           写法1-声明式
@@ -788,3 +794,39 @@ JS介绍:
     Screen:
       - 代表用户的屏幕信息，通过该多少可以获取到用户的显示器相关信息
       - 获取对象方式 window.screen
+  JSON对象: `
+        JSON(JavaScript Object Notation) JS对象表示法
+        JSON和JS对象的格式一样，只不过JSON的属性名必须是加【双引号】
+
+        JSON分类
+          1.对象{}字符串
+          2.数组[]字符串
+        JSON属性值
+          1.字符串
+          2.数值
+          3.布尔值
+          4.null
+          5.普通对象
+          6.数组对象
+
+        //分类1
+          var jsonStrObj = '{"name":"eric","age":16,"isMen":true,"hobbies":["打球","打游戏","踢球"],"friends":[{"name":"jerry","age":16,"family":null},{"name":"tom","age":18,"family":null}]}'
+          var jsObj = JSON.parse(jsonStrObj)
+          console.log(jsObj)
+          var jsonStr = JSON.stringify(jsObj)
+          console.log(jsonStr)
+        //分类2
+          /* var jsonStrArr = '["eric",{"hobbies":["打球","打游戏","踢球"]}]'
+          var jsArr = JSON.parse(jsonStrArr)
+          console.log(jsArr) */
+
+        //ie7及以下没有JSON对象，可以引入json2.js，eval函数有安全隐患
+          var jsonStrObj = '{"name":"eric","age":16,"isMen":true,"hobbies":["打球","打游戏","踢球"],"friends":[{"name":"jerry","age":16,"family":null},{"name":"tom","age":18,"family":null}]}'
+          /* //JSON 转换 JS对象
+          var jsObj = window.eval("("+jsonStrObj+")")
+          console.log(jsObj)
+          //JS对象转JSON
+          var jsonStr = JSON.stringify(jsObj)
+          console.log(jsonStr) */
+      `
+高级:

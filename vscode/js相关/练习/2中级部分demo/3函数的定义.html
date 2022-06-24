@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <script>
+        
         //方式1，通过函数对象创建函数
             new Function("console.log('我的第1个函数')")();
           
@@ -13,25 +14,27 @@
             var fun = new Function("console.log('我的第2个函数');");
             fun()
             //console.log(fun,typeof fun)
-
-        //方式2，通过function方式创建函数
+        //方式2，通过eval函数执行js字符串代码
+            function hello(){console.log('我的第3个函数');}
+            var result = window.eval("hello()")
+        //方式3，通过function方式创建函数
             //存放函数引用地址的变量fun1，调用函数fun1()
             function fun1(){
-                console.log('我的第3个函数');
+                console.log('我的第4个函数');
             }
             fun1();
             //console.log(fun1,typeof fun1)
             
             //存放函数引用地址的变量fun2，调用函数fun2()
             var fun2 = function(){
-                console.log('我的第4个函数');
+                console.log('我的第5个函数');
             }
             fun2();
             //console.log(fun2,typeof fun2)
 
             //创建立即执行函数
            (function(name){
-                console.log(name,'我的第5个函数');
+                console.log(name,'我的第6个函数');
             })('eric')
 
             
