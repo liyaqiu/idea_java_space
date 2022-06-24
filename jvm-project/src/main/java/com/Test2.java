@@ -16,6 +16,9 @@ import java.util.regex.Pattern;
  * @author eric
  * @date 2022/6/8 16:59
  **/
+class Person{
+    public String aaa1 ;
+}
 public class Test2 {
 
 
@@ -26,8 +29,9 @@ public class Test2 {
         // list.add("123");
 
 
-
-        System.out.println("361234567@qq.com".matches("^[0-9A-z]{5,9}@[a-z]{2}\\.com$"));
+        Person person = new Person();
+        String aaa2 = person.aaa1;
+        //System.out.println("361234567@qq.com".matches("^[0-9A-z]{5,9}@[a-z]{2}\\.com$"));
 
 
         /*ExecutorService service = Executors.newFixedThreadPool(10, new ThreadFactory() {
