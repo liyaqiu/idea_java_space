@@ -21,11 +21,27 @@
         //停止计时器
         console.timeEnd(timaName) */
         
+        function Obj(){
 
-
+        }
+        
+        
+        /* console.log(new Obj().__proto__.constructor === Obj.prototype.constructor)
+        console.log(Object.prototype.constructor)
+        console.log(Object()) */
+        //console.log(new Obj())
+        
     </script>
 </head>
 <body>
-    
+    <button id="bt">hello</button>
+    <script>
+        var ii = {}
+        function abc(){}
+       
+        function aa(){}
+        console.log(aa.__proto__ === abc.__proto__)
+        console.log(new aa().__proto__ == aa.prototype)
+    </script>
 </body>
 </html>

@@ -17,20 +17,35 @@ import java.util.regex.Pattern;
  * @date 2022/6/8 16:59
  **/
 class Person{
-    public String aaa1 ;
+    static {
+        try {
+            System.out.println("213");
+            Thread.sleep(100000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    public static String aaa1 = "123";
+    public static void test(String name){
+        System.out.println();
+    }
+}
+class Son1 extends Person{
+    public static String aaa1 = "456";
 }
 public class Test2 {
 
 
     public static void main(String[] args) {
+        Person person = new Person();
 
         //List<String> list = new ArrayList<String>();
 
         // list.add("123");
 
 
-        Person person = new Person();
-        String aaa2 = person.aaa1;
+       /* Person person = new Person();
+        String aaa2 = person.aaa1;*/
         //System.out.println("361234567@qq.com".matches("^[0-9A-z]{5,9}@[a-z]{2}\\.com$"));
 
 
