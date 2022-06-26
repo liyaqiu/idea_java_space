@@ -6,42 +6,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <script>
-        //window.alert('弹窗输出')
-        //document.write("向body标签输出内容")
-        //var result = window.prompt('请输入')
         
-
-        //console相关
-        /* window.console.log('控制台输出')
-        
-
-        var timaName = '计时器';
-        //开启计时器
-        console.time(timaName)
-        //停止计时器
-        console.timeEnd(timaName) */
-        
-        function Obj(){
-
+        function Hello(){
+            this.ins = '实例对象'
         }
+        console.log(Hello.prototype)
+        Hello.prototype = null
+        console.log(Hello.prototype)
+        var HelloPrototype = {
+            name:'eric',
+            age:21
+        }
+        Hello.prototype = document.createElement('a')
+
+        //console.log(Hello.prototype)
+
+        var obj = new Hello()
+        console.log('@@@',obj)
         
-        
-        /* console.log(new Obj().__proto__.constructor === Obj.prototype.constructor)
-        console.log(Object.prototype.constructor)
-        console.log(Object()) */
-        //console.log(new Obj())
-        
+
     </script>
 </head>
 <body>
-    <button id="bt">hello</button>
-    <script>
-        var ii = {}
-        function abc(){}
-       
-        function aa(){}
-        console.log(aa.__proto__ === abc.__proto__)
-        console.log(new aa().__proto__ == aa.prototype)
-    </script>
+    
 </body>
 </html>

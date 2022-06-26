@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+       //实例对象的隐式原型__proto__ === 该构造函数的显示原型prototype
+       
+       var FuntionClass = new Function() // 等同于 function FuntionClass(){} 等同于 var FuntionClass = function(){}
+
+       function MyFun(){}
+        
+       //true 
+       console.log(Function.prototype === Function.__proto__) //例外，大Function的显示原型 ===大Function的隐式原型
+       //true
+       console.log('!!!',Object.__proto__       === Function.prototype)
+       console.log('!!!',Boolean.__proto__      === Function.prototype)
+       console.log('!!!',MyFun.__proto__        === Function.prototype)
+       console.log('!!!',FuntionClass.__proto__ === Function.prototype)
+       
+        
+        var fun1 = new Object()
+        var fun2 = new Boolean()
+        var fun3 = new MyFun()
+        var fun4 = new FuntionClass()
+
+        //true
+        console.log(fun1.__proto__ === Object.prototype) //例外，Object原型对象不是Object，是一个特殊的对象
+        console.log(fun2.__proto__ === Boolean.prototype)
+        console.log(fun3.__proto__ === MyFun.prototype)
+        console.log(fun4.__proto__ === FuntionClass.prototype)
+
+      
+        //定义在Object原型上，可以被任何实例对象访问
+        Object.prototype.fun1 = function(){
+            console.log('Object原型上的函数')
+        }
+        //定义在大Function原型上，可以被所有函数实例对象访问
+        Function.prototype.fun2 = function(){
+            console.log('Function原型上的函数')
+        }
+        //定义在构造函数Person原型上，可以被所有改构造函数的实例对象访问
+        function Person(){}
+        Person.prototype.fun3 = function(){
+            console.log('构造函数Person原型上')
+        }
+
+        Person.fun1()
+        Person.fun2()
+
+        new Person().fun1()
+        new Person().fun3()
+
+    </script>
+</head>
+<body>
+</body>
+</html>

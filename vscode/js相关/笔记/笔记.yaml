@@ -351,9 +351,11 @@ JS介绍:
         }
       "
   3个快捷方式创建对象:
-    - var a = {} 创建普通对象
-    - var a = [] 创建数组对象
-    - var a = /正则表达式/匹配模式 创建正则表达式对象
+    - var a = {} 创建普通对象，相当于var a = new Object()
+    - var a = [] 创建数组对象，相当于var a = new Array()
+    - var a = /正则表达式/匹配模式 创建正则表达式对象，相当于var a = new RegExp()
+    - function a(){} ，相当于var a = new Function()
+    - var a = function(){}，相当于var a = new Function()
 中级:
   对象:
     对象分类:
@@ -875,3 +877,52 @@ JS介绍:
 
     //方式4
       console.log(Person === new Person().__proto__.constructor) `
+  原型对象:
+    - 总结，实例对象的隐式原型__proto__ === 该构造函数的显示原型prototype
+    - `
+      var FuntionClass = new Function() // 等同于 function FuntionClass(){} 等同于 var FuntionClass = function(){}
+
+      function MyFun(){}
+
+      //true
+      console.log(Function.prototype === Function.__proto__) //例外，大Function的显示原型 ===大Function的隐式原型
+      //true
+      console.log('!!!',Object.__proto__       === Function.prototype)
+      console.log('!!!',Boolean.__proto__      === Function.prototype)
+      console.log('!!!',MyFun.__proto__        === Function.prototype)
+      console.log('!!!',FuntionClass.__proto__ === Function.prototype)
+
+
+      var fun1 = new Object()
+      var fun2 = new Boolean()
+      var fun3 = new MyFun()
+      var fun4 = new FuntionClass()
+
+      //true
+      console.log(fun1.__proto__ === Object.prototype) //例外，Object原型对象不是Object，是一个特殊的对象
+      console.log(fun2.__proto__ === Boolean.prototype)
+      console.log(fun3.__proto__ === MyFun.prototype)
+      console.log(fun4.__proto__ === FuntionClass.prototype)`
+    - `
+      //定义在Object原型上，可以被任何实例对象访问
+        Object.prototype.fun1 = function(){
+        console.log('Object原型上的函数')
+        }
+      //定义在大Function原型上，可以被所有函数实例对象访问
+        Function.prototype.fun2 = function(){
+        console.log('Function原型上的函数')
+        }
+      //定义在构造函数Person原型上，可以被所有改构造函数的实例对象访问
+        function Person(){}
+        Person.prototype.fun3 = function(){
+        console.log('构造函数Person原型上')
+        }
+
+        Person.fun1()
+        Person.fun2()
+
+        new Person().fun1()
+        new Person().fun3()
+      `
+
+

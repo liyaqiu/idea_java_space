@@ -17,18 +17,7 @@ import java.util.regex.Pattern;
  * @date 2022/6/8 16:59
  **/
 class Person{
-    static {
-        try {
-            System.out.println("213");
-            Thread.sleep(100000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-    public static String aaa1 = "123";
-    public static void test(String name){
-        System.out.println();
-    }
+
 }
 class Son1 extends Person{
     public static String aaa1 = "456";
@@ -36,8 +25,12 @@ class Son1 extends Person{
 public class Test2 {
 
 
-    public static void main(String[] args) {
-        Person person = new Person();
+    public static void main(String[] args) throws IllegalAccessException, InstantiationException {
+
+
+
+
+
 
         //List<String> list = new ArrayList<String>();
 
