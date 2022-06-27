@@ -6,14 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <script>
-       function Person(){}
-
-       console.log(new Person instanceof Person)
-       console.log(new Person instanceof Object)
-       console.log(Person instanceof Function)
-       console.log(Person instanceof Object)
-       console.log(Function instanceof Object)
-
+        //A instanceof B ，A的隐式原型(__proto__)链中的任何一个原型 === B的显示原型(prototype)
         var aTag = document.createElement('a')
         console.log(aTag instanceof HTMLAnchorElement)
         console.log(aTag instanceof HTMLElement)
@@ -21,6 +14,7 @@
         console.log(aTag instanceof Node)
         console.log(aTag instanceof EventTarget)
         console.log(aTag instanceof Object)
+       
     </script>
 </head>
 <body>

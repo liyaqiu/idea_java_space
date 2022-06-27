@@ -899,7 +899,7 @@ JS介绍:
       var fun4 = new FuntionClass()
 
       //true
-      console.log(fun1.__proto__ === Object.prototype) //例外，Object原型对象不是Object，是一个特殊的对象
+      console.log(fun1.__proto__ === Object.prototype) //例外，所含构造函数的实例对象的隐式原型都是Object类型，Object原型对象不是Object，是一个特殊的对象
       console.log(fun2.__proto__ === Boolean.prototype)
       console.log(fun3.__proto__ === MyFun.prototype)
       console.log(fun4.__proto__ === FuntionClass.prototype)`
@@ -924,5 +924,80 @@ JS介绍:
         new Person().fun1()
         new Person().fun3()
       `
+  instanceof:
+    - `
+      //A instanceof B ，A的隐式原型(__proto__)链中的任何一个原型 === B的显示原型(prototype)
+      var aTag = document.createElement('a')
+      console.log(aTag instanceof HTMLAnchorElement)
+      console.log(aTag instanceof HTMLElement)
+      console.log(aTag instanceof Element)
+      console.log(aTag instanceof Node)
+      console.log(aTag instanceof EventTarget)
+      console.log(aTag instanceof Object)
+      `
+  全局执行上文与局部执行上下文:
+    - 全局执行上文是指变量存储在堆区的window对象里
+    - 局部执行上下文是指变量存储在栈帧中局部变量表里
+  变量和函数的提升:
+    方式1: var a = 10
+    方式2: function fun(){}
+    案例:
+      - `
+        案例1
+          //变量提升的优先级大于函数提升的优先级
+          function fun(){
+          }
+          var fun
+        案例2
+          //先变量进行提升，然后在函数提升，最后在进行赋值
+          var Fun = Fun2
+          function Fun(){
+            console.log(1)
+          }
+          function Fun2(){
+            console.log(2)
+          }
+          Fun()
 
+        `
+  作用域:
+    全局作用域:
+    函数作用域:
+    块作用域: es6中有
+  作用域链:
+    - 作用域是在【写代码的时候】就已经确定下来了。
+    - 判断函数作用域链的前提，需要知道他在哪个作用域定义了这个函数。
+    - 当函数作用域链确定以后，就如同于事件冒泡的过程，由内到外寻找变量
+    - `
+      /*
+      案例1
+      fun1的作用域链是 fun1 -> window
+      fun2的作用域链是 fun2 -> window
+      */
+      var x = 10
+      function fun1(){
+        console.log(x)
+      }
 
+      function fun2(fun){
+        var x = 20
+        fun();
+      }
+      fun2(fun1)
+
+      /*
+      案例2
+      fun1的作用域链是 fun1 -> fun2 -> window
+      fun2的作用域链是 fun2 -> window
+      */
+
+      /* var x = 10
+      function fun2(){
+        var x = 20
+        fun1();
+        function fun1(){
+          console.log(x)
+        }
+      }
+      fun2() */
+      `

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        /* 
+            解答:先变量进行提升，然后在函数提升，最后在进行赋值
+        */
+
+        var Fun = Fun2
+        function Fun(){
+            console.log(1)
+        }
+        function Fun2(){
+            console.log(2)
+        }
+        
+        Fun()
+
+        /*
+            解答:先提升变量c=undefined，然后在函数变量c = new Function()，最后在复制给变量c = 1 ，1不是字面量，所以不能用括号执行
+        */
+        var c = 1
+        function c(c){
+            console.log(c)
+        }
+        c(2)
+    </script>
+</head>
+<body>
+</body>
+</html>
