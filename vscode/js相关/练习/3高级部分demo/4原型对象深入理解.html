@@ -27,18 +27,18 @@
         var fun4 = new FuntionClass()
 
         //true
-        console.log(fun1.__proto__ === Object.prototype) //例外，所含构造函数的实例对象的隐式原型都是Object类型，Object原型对象不是Object，是一个特殊的对象
+        console.log(fun1.__proto__ === Object.prototype)
         console.log(fun2.__proto__ === Boolean.prototype)
         console.log(fun3.__proto__ === MyFun.prototype)
         console.log(fun4.__proto__ === FuntionClass.prototype)
-
       
         //定义在Object原型上，可以被任何实例对象访问
         Object.prototype.fun1 = function(){
             console.log('Object原型上的函数')
         }
         //定义在大Function原型上，可以被所有函数实例对象访问
-        Function.prototype.fun2 = function(){
+        Function.prototype.fun2 = function(){+
+            3
             console.log('Function原型上的函数')
         }
         //定义在构造函数Person原型上，可以被所有改构造函数的实例对象访问

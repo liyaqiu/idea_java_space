@@ -5,9 +5,14 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    
+</head>
+<body>
+    <button>1</button>
+    <button>2</button>
+    <button>3</button>
     <script>
-        window.onload = function(){
-            //f1函数作用域链为  f1 -> window
+        //f1函数作用域链为  f1 -> window
             /* var bts = document.getElementsByTagName("button")
             for(var i =0,length = bts.length;i< length;i++){
                 bts[i].onclick = function f1(){
@@ -23,6 +28,7 @@
                 }
             } */
 
+            //如何产生闭包，
             //闭包原理
                 //f1函数作用域链为  f1 -> fun -> window
                 /* var bts = document.getElementsByTagName("button")
@@ -45,32 +51,6 @@
                     })(i)
                     
                 }
-                var x = 100;
-                function hello(){
-                    console.log(x)
-                }
-
-                function aa(){
-                    var x = 103;
-                    function bb(){
-                        var x = 102;
-                        function cc(){
-                            var x = 101;
-                            debugger
-                            hello();
-                        }
-                        cc()
-                    }
-                    bb()
-                }
-                aa();
-
-        }
     </script>
-</head>
-<body>
-    <button>1</button>
-    <button>2</button>
-    <button>3</button>
 </body>
 </html>

@@ -899,7 +899,7 @@ JS介绍:
       var fun4 = new FuntionClass()
 
       //true
-      console.log(fun1.__proto__ === Object.prototype) //例外，所含构造函数的实例对象的隐式原型都是Object类型，Object原型对象不是Object，是一个特殊的对象
+      console.log(fun1.__proto__ === Object.prototype)
       console.log(fun2.__proto__ === Boolean.prototype)
       console.log(fun3.__proto__ === MyFun.prototype)
       console.log(fun4.__proto__ === FuntionClass.prototype)`
@@ -973,7 +973,7 @@ JS介绍:
       案例1
       fun1的作用域链是 fun1 -> window
       fun2的作用域链是 fun2 -> window
-      */
+      */+
       var x = 10
       function fun1(){
         console.log(x)
@@ -1001,3 +1001,105 @@ JS介绍:
       }
       fun2() */
       `
+  闭包理解:
+    功能:
+      - 函数的嵌套，并且函数使用了外部函数作用域的变量，(非window作用域的变量)，就会导致该函数产生闭包对象
+      - 闭包类似于Java里面的bean对象，内部的变量不让外部直接使用，需要通过函数进行设置和读取
+    使用:
+      - `
+      //案例1
+      function People(){
+        var name = 'eric'
+        return function(){
+          return name
+        }
+      }
+
+      console.log(People()())
+
+      //案例2
+      function Person(){
+        var name;
+        var age;
+        var sex;
+        return {
+          getName(){ //该getName函数实例对象拥有了一个闭包对象
+            return name;
+          },
+          setName(){//该setName函数实例对象拥有了一个闭包对象
+            name = arguments[0]
+          }
+        }
+      }
+      var person = Person()
+      person.setName('eric')
+      console.log(person.getName())
+
+      //案例3
+      function fun1(){
+        var x = 100;
+        function fun2(){ //fun2拥有fun1的闭包对象
+          var c = 100
+          function fun3(){ //fun3拥有fun1、fun2的闭包对象
+              console.log(++x,++c)
+          }
+          return fun3
+        }
+        return fun2()
+      }
+
+      var f = fun1()
+      f()
+      f()
+      f()
+      f()
+
+      //案例4
+      function Person(){
+        var name;
+        var age;
+        var sex;
+
+        function Obj(){
+          this.getName = function(){
+            return name
+          }
+          this.setName = function(){
+            name = arguments[0]
+          }
+        }
+        return new Obj()
+      }
+
+      var person = Person()
+      person.setName('eric1')
+      console.log(person.getName())
+      `
+    缺点:
+      - 内存不能及时释放
+      - 如果实在需要用到闭包，那么就得注意内存释放问题
+  对象的创建方式: 使用构造函数(保存变量)+原型方式创建(保存函数来修改变量)
+  更改默认原型链的继承关系:
+    - "
+      function AA(){}
+      //console.log(new AA())
+
+      function BB(){}
+      BB.prototype = new AA()
+      BB.prototype.constructor = BB //这句话不能少，不然原型链会乱
+      BB.prototype.aa = function(){
+          console.log('aa')
+      }
+      //console.log(new BB())
+
+
+      function CC(){}
+      CC.prototype = new BB()
+      CC.prototype.constructor = CC //这句话不能少，不然原型链会乱
+      CC.prototype.bb = function(){
+          console.log('bb')
+      }
+
+      console.log(new CC())
+
+    "

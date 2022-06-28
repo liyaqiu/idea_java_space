@@ -7,24 +7,6 @@
     <title>Document</title>
     <script>
         
-        function Hello(){
-            this.ins = '实例对象'
-        }
-        console.log(Hello.prototype)
-        Hello.prototype = null
-        console.log(Hello.prototype)
-        var HelloPrototype = {
-            name:'eric',
-            age:21
-        }
-        Hello.prototype = document.createElement('a')
-
-        //console.log(Hello.prototype)
-
-        var obj = new Hello()
-        console.log('@@@',obj)
-        
-
     </script>
 </head>
 <body>

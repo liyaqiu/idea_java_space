@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        
+       ;(function(){
+            var name;
+            var age;
+            var sex;
+            MyObj = {
+                getName:function(){
+                    return name
+                },
+                setName:function(){
+                    name = arguments[0]
+                }
+            }
+        })()
+        
+
+        console.log(MyObj.getName())
+        MyObj.setName('eric')
+        console.log(MyObj.getName())
+
+
+        
+
+    </script>
+</head>
+<body>
+    
+    
+</body>
+</html>
