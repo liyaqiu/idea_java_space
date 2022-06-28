@@ -17,12 +17,12 @@
 
 
         function AA(){}
- /*        AA.prototype = Object.prototype
+ /*     AA.prototype = Object.prototype
         AA.prototype.constructor = AA */
         //console.log(new AA())
 
         function BB(){}
-        BB.prototype = new AA()
+        BB.prototype = new AA() //子函数对象的原型属性等于父函数对象实例
         BB.prototype.constructor = BB //这句话不能少，不然原型链会乱
         BB.prototype.aa = function(){
             console.log('aa')
@@ -31,13 +31,16 @@
 
 
         function CC(){}
-        CC.prototype = new BB()
+        CC.prototype = new BB()//子函数对象的原型属性等于父函数对象实例
         CC.prototype.constructor = CC //这句话不能少，不然原型链会乱
         CC.prototype.bb = function(){
             console.log('bb')
         }
         
         console.log(new CC())
+        var a = new CC()
+        a.aa()
+        a.bb()
     </script>
 </head>
 <body>
