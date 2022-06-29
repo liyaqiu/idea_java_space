@@ -1,0 +1,99 @@
+let:
+  - let在同一作用域(包括快作用域)下不能重复定义
+  - let在全局作用域下定义变量不会作为window的属性存在
+  - let对块作用域有效
+  - let不存在变量提升
+const:
+  - const在同一作用域(包括快作用域)下不能重复定义
+  - const在全局作用域下定义变量不会作为window的属性存在
+  - const对块作用域有效
+  - const不存在变量提升
+  - const需要赋予初始值,并且不允许修改
+解构赋值:
+  功能:
+    - 与声明关键字无关(var const let)，任何定义变量的关键字都可以使用来进行解构
+    - 对象可以使用{}进行解构，数组可以使用[]进行解构
+  数组解构赋值:
+    - "
+      //案例1
+      /* var arr = ['eric','Tom','Jerry']
+      let [name1,name2,name3,name4] = arr */
+      //案例2
+      /* var arr = ['eric','Tom','Jerry']
+      const [name1,name2,name3,name4] = arr */
+      //案例3
+      /* let arr = ['eric','Tom','Jerry']
+      const [name1,name2,name3,name4] = arr */
+      //案例4
+      const arr = ['eric','Tom','Jerry']
+      let [name1,name2,name3,name4] = arr
+      console.log(name1,name2,name4)
+    "
+  对象解构赋值:
+    - "
+      //案例1
+      /* var obj = {
+          name:'eric',
+          age:16,
+          fun:function(){}
+      }
+      var {name,age,fun,hello} = obj
+      console.log(name,age,fun,hello) */
+      //案例2
+      /* const obj = {
+          name:'eric',
+          age:16,
+          fun:function(){}
+      }
+      let {name,age,fun,hello} = obj
+      console.log(name,age,fun,hello) */
+      //案例3
+      /* let obj = {
+          name:'eric',
+          age:16,
+          fun:function(){}
+      }
+      var {name,age,fun,hello} = obj
+      console.log(name,age,fun,hello) */
+    "
+模版字符串:
+  - 支持换行拼接
+  - 支持变量拼接，使用${name}
+  - "
+    var name = 'eric'
+    var age = 18
+
+    const str = `
+        名字是:${name},年龄:${age}
+    `
+    console.log(str)
+  "
+简化对象赋值和对象方法声明:
+  - "
+    let name = 'eric'
+    let fun = function(){}
+
+    //写法1
+    const obj1 = {
+        'name':name,
+        'fun':fun,
+        'fun1':function(){}
+    }
+    console.log(obj1)
+
+    //写法2
+    const obj2 = {
+        name:name,
+        fun:fun,
+        fun1:function(){}
+    }
+    console.log(obj2)
+
+    //写法3
+    const obj3 = {
+        name,
+        fun,
+        fun1(){}
+    }
+    console.log(obj3)
+  "

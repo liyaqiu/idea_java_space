@@ -30,6 +30,7 @@
             work.onmessage = function(event){
                 var result = event.data
                 console.log('计算完成:'+result)
+                alert(1)
             }
             work.postMessage(count)
             

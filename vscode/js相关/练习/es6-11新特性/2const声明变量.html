@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        
+        /*
+            const声明常量
+            1.const在同一作用域(包括快作用域)下不能重复定义
+            2.const在全局作用域下定义变量不会作为window的属性存在
+            3.const对块作用域有效
+            4.const不存在变量提升
+            5.const需要赋予初始值,并且不允许修改
+        */
+        const a1 = 1,a2 = 2,a3 = 3
+        {
+            const a3 = 30
+            
+        }
+        console.log(a3)
+        console.log(window)
+    </script>
+</head>
+<body>
+</body>
+</html>
