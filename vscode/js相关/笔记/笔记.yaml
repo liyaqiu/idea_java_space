@@ -1123,3 +1123,102 @@ JS介绍:
       案例 obj.attr
         obj变量现在作用域链上寻找，当找到对象时，则去对象本身寻找属性，如果没有，则去原型链上寻找属性
     "
+  js异步执行:
+    功能:
+      - js是单线程执行
+    代码分类:
+      - 初始化代码
+      - 回调代码
+    常见异步回调函数执行:
+      - 事件回调函数
+      - 定时器回调函数
+      - ajax回调函数
+      - webworkers回调函数
+    用定时器举例:
+      - window.setTimeout(function(){},2000)，window.setTimeout是初始化代码，function回调函数是回调代码，
+      - (初始化代码+回调代码)都是在主线程执行的。主线程会先执行初始化代码，然后在执行【回调队列】中的回调代码。
+      - 通常我们会说是回调代码是异步执行，实际上回调代码是被非主线的某个管理模块(DOM事件管理模块、定时器管理模块、ajax管理模块、webworkers管理模块)把回调函数代码放到了主线程的回调队列中。
+      - DOM事件管理模块、定时器管理模块、ajax管理模块，这些模块是在非主线运行，并且它们都会把回调代码放入到主线程的同一个回调队列中，供主线程执行，
+    测试案例:
+      - "
+        //案例1
+        /* setTimeout(function(){
+            console.log('我是函數，0秒執行')
+        },0)
+        setTimeout(function(){
+            console.log('我是函數，1秒執行')
+        },1000)
+        alert(1) */
+      "
+      - "
+        //案例2
+        /* document.getElementById('bt1').onclick = function(){
+            for(var i =1;i<10000000000;i++){
+
+            }
+        }
+        document.getElementById('bt2').onclick = function(){
+            alert(2)
+        } */
+      "
+      - "
+        //案例3
+        /* $.get('http://192.168.0.109:8080/test2',function(data){
+             console.log(data);
+        })
+        $.get('http://192.168.0.109:8080/test3',function(data){
+             console.log(data);
+        })
+        alert(1) */
+      "
+    概念性的问题:
+      浏览器内核:
+        功能:
+          - 通过回调队列来达成主线程模块与分线程模块的协调工作
+        主线程执行:
+          - js执行引擎模块
+        分线程执行:
+          - DOM事件管理模块
+          - 定时器管理模块
+          - ajax管理模块
+          - webworkers管理模块
+      回调队列:
+        - 通常它们会说成 task queue、message queue、event queue指的都是同意个回调队列
+      事件轮询:
+        - 其实就是主线程在轮询队列中的事件(本质上是回调函数)
+  H5新特性:
+    - Web Workers 是H5提供的一个javascript多线程解决方法
+    - 我们可以将一些大计算量的代码交由web worker运行而不冻结用户界面
+    - 但是子线程完全受主线程控制，且不得操作DOM，所以，这个新标准并有改变JavaScript单线程本质
+    - "
+        //问题
+        /* document.getElementById('bt').onclick = function(){
+            //100000000
+            var count = document.getElementById('inp').value
+            for(var i=0;i< count; i++){}
+            console.log('计算完成:'+count)
+        } */
+        //解决方案
+        document.getElementById('bt').onclick = function(){
+            //100000000
+            var count = document.getElementById('inp').value
+            var work = new Worker('webworkers.js')//1个work对象等于1个线程
+
+            work.onmessage = function(event){
+                var result = event.data
+                console.log('计算完成:'+result)
+            }
+            work.postMessage(count)
+        }
+
+
+        文件 webworkers.js
+        var onmessage = function(event){
+            console.log(this) //DedicatedWorkerGlobalScope 
+            console.log('分线程接受到任务')
+            var count = event.data
+            for(var i=0;i< count; i++){}
+            postMessage(count)
+            console.log('分线程执行任务完毕')
+        }
+    "

@@ -54,6 +54,11 @@ public class UserController {
     @RequestMapping("/test2")
     public String test2(){
         log.info("jmeter-test2");
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         return "<a><b><c>eric</c></b></a>";
     }
     @RequestMapping("/test3")

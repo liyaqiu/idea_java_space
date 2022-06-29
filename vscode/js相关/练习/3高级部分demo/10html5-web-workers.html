@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    
+</head>
+<body>
+    <input type="text"  id="inp">
+    <button id="bt">计算</button>
+
+
+    <script>
+        //问题
+        /* document.getElementById("bt").onclick = function(){
+            //100000000
+            var count = document.getElementById("inp").value
+            for(var i=0;i< count; i++){}
+            console.log('计算完成:'+count)
+        } */
+
+        //解决方案
+        document.getElementById("bt").onclick = function(){
+            //100000000
+            var count = document.getElementById("inp").value
+            var work = new Worker("webworkers.js")//1个work对象等于1个线程
+
+            work.onmessage = function(event){
+                var result = event.data
+                console.log('计算完成:'+result)
+            }
+            work.postMessage(count)
+            
+        }
+        
+    </script>
+</body>
+</html>

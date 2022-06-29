@@ -6,10 +6,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <script>
+        onload = function f1(){
+            var aa = document.getElementById("aa")
+            var a1 = 100
+            var a2 = 200
+            aa.onclick = function(){
+                    console.log(++a1,++a2)
+                    aa.style.src = 'www.baidu.com'
+            }
+            var obj = {}
+            obj.aa = aa
+            console.log(obj)
+        }
         
     </script>
 </head>
 <body>
-    
+    <a href="javascript:;" id="aa">a</a>
 </body>
 </html>
