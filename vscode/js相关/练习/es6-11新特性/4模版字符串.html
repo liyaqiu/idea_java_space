@@ -7,16 +7,16 @@
     <title>Document</title>
     <script>
         /* 
-        
             支持换行拼接
-            支持变量拼接，使用${name}
-        
+            支持表达式拼接，使用${}
         */
         var name = 'eric'
         var age = 18
-
+        var obj = {
+            sex:'男'
+        }
         const str = `
-            名字是:${name},年龄:${age}
+            名字是:${name},年龄:${age},性别:${obj.sex}
         `
         console.log(str)
     </script>

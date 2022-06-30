@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+      var obj = {}
+      var x = 10
+      let x1 = 10
+      const x2 = 10
+      function fun1(){
+        var y = 20
+        let y1 = 20
+        const y2 = 20
+        {
+          var z = 30
+          let z1 = 30
+          const z2 = 30
+          function fun2(){
+            console.log(x,x1,x2)
+            console.log(y,y1,y2)
+            console.log(z,z1,z2)
+          }
+          fun2()
+          obj.fun1 =fun1
+          obj.fun2 = fun2
+        }
+      }
+      fun1()
+      
+      console.log(obj)
+
+        
+    </script>
+</head>
+<body>
+    
+</body>
+</html>

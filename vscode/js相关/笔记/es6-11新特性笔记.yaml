@@ -1,11 +1,14 @@
+块作用域:
+  - 比如{},for{},while{},if{},switch{}
+  - let和const定义的变量都有块作用域
 let:
   - let在同一作用域(包括快作用域)下不能重复定义
-  - let在全局作用域下定义变量不会作为window的属性存在
+  - let在全局作用域下定义变量不会作为window的属性存在，并且不会污染window全局变量
   - let对块作用域有效
   - let不存在变量提升
 const:
   - const在同一作用域(包括快作用域)下不能重复定义
-  - const在全局作用域下定义变量不会作为window的属性存在
+  - const在全局作用域下定义变量不会作为window的属性存在，并且不会污染window全局变量
   - const对块作用域有效
   - const不存在变量提升
   - const需要赋予初始值,并且不允许修改
@@ -58,13 +61,15 @@ const:
     "
 模版字符串:
   - 支持换行拼接
-  - 支持变量拼接，使用${name}
+  - 支持表达式拼接，使用${}
   - "
     var name = 'eric'
     var age = 18
-
+    var obj = {
+        sex:'男'
+    }
     const str = `
-        名字是:${name},年龄:${age}
+        名字是:${name},年龄:${age},性别:${obj.sex}
     `
     console.log(str)
   "
