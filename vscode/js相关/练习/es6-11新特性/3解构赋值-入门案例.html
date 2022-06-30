@@ -17,9 +17,9 @@
             /* let arr = ['eric','Tom','Jerry']
             const [name1,name2,name3,name4] = arr */
             //案例4
-            const arr = ['eric','Tom','Jerry']
+            /* const arr = ['eric','Tom','Jerry']
             var [name1,name2,name3,name4] = arr
-            console.log(name1,name2,name4)
+            console.log(name1,name2,name4) */
         //对象解构赋值
             //案例1
             /* var obj = {
@@ -38,13 +38,31 @@
             let {name,age,fun,hello} = obj
             console.log(name,age,fun,hello) */
             //案例3
-            let obj = {
+            /* let obj = {
                 name:'eric',
                 age:16,
                 fun:function(){}
             }
             var {name,age,fun,hello} = obj
-            console.log(name,age,fun,hello)
+            console.log(name,age,fun,hello) */
+
+            //案例4
+            /* function fun({name,age,sex}){
+                console.log(name,age,sex)
+            }
+            fun({
+                name:'eric',
+                age:16,
+                sex:'男'
+            }) */
+
+            //案例5
+            function fun([el0,el1,el2=10]){
+                console.log(el0,el1,el2)
+            }
+            fun([1,2])
+            
+           
     </script>
 </head>
 <body>

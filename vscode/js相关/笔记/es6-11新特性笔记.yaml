@@ -58,6 +58,20 @@ const:
       }
       var {name,age,fun,hello} = obj
       console.log(name,age,fun,hello) */
+      //案例4
+        function fun({name,age,sex}){
+            console.log(name,age,sex)
+        }
+        fun({
+            name:'eric',
+            age:16,
+            sex:'男'
+        })
+      //案例5
+       function fun([el0,el1,el2=10]){
+           console.log(el0,el1,el2)
+       }
+       fun([1,2])
     "
 模版字符串:
   - 支持换行拼接
@@ -101,4 +115,105 @@ const:
         fun1(){}
     }
     console.log(obj3)
+  "
+箭头函数:
+  功能:
+    - 箭头函数没有this，使用任何方式都不能改变this指向
+    - 在箭头函数中使用this,这个this始终指向作用域链的this
+    - 不能使用new实例化
+    - 箭头函数没有arguments
+  案例:
+    - "
+        //案例1
+        /* const fun = () =>{
+            console.log(1)
+        }
+        console.log(fun.__proto__ === fun.__proto__.constructor.prototype)
+        console.log(fun.__proto__.constructor.__proto__ == Function.prototype) */
+
+        //案例2
+        /* var obj = {
+            fun:()=>{
+                console.log(this)
+            },
+            fun1(){
+                return ()=>{
+                    console.log(this)
+                }
+            }
+        }
+        obj.fun()
+        obj.fun1()() */
+
+        //案例3，简写方式，和Java很像
+        /* var fun1 = x => x+x;
+        var fun2 = (x,y) => x+y;
+        var fun2 = (x,y) => {
+            console.log(x,y)
+            return x+y;
+        }; */
+    "
+给参赋默认值:
+  - "
+    //案例1，给解构对象赋默认值
+     /* var obj={
+      name:'eric',
+      age:28
+     }
+
+     var {name,age=19,sex='男'} = obj
+     console.log(name,age,sex) */
+
+     //案例2，函数形参赋默认值
+     /* function fun(name,age,sex='男'){
+      console.log(name,age,sex)
+     }
+     fun('eric',30) */
+
+     //案例3，函数形参的解构对象赋默认值
+     /* function fun1({name,age,sex='男'}){
+      console.log(name,age,sex)
+     }
+     fun1({
+      name:'eric',
+      age:31
+      }) */
+
+      //案例4
+      function fun2([el0,el1,el2=10]){
+          console.log(el0,el1,el2)
+      }
+      fun2([1,2])
+  "
+可变参数:
+  - "
+    function fun(x,y,{name,age,sex='男'},... args){
+        console.log(arguments)
+        console.log(x,y,name,age,sex,args)
+    }
+
+    fun(1,2,{name:'eric',age:29},3,4)
+  "
+数组参数拆分:
+  - "
+    //案例1，对数组进行拆分
+    function fun(){
+        console.log(arguments)
+    }
+
+    const arr = [0,1,2]
+    fun(...arr)
+
+    //案例2,实现浅拷贝
+    const arr1 = [0,1,2]
+    const arr2 = [3,4,5]
+    const arr3 = [...arr1,...arr2]
+    console.log(arr3)
+
+    //案例3，维数组转换为真数组
+    function fun4(){
+        let arr = [...arguments]
+        console.log(arr)
+    }
+    fun4(arr,1,2,3)
   "

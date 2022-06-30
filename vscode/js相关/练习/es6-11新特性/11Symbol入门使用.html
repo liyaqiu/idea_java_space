@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+      /* 
+        Symbol是js的第七种数据类型，它的值独一无二
+        Symbol值不能参与运算
+        Symbol定义的对象不能使用for in枚举属性，但是可以使用Reflect.ownKeys来获取属性
+      */
+      
+      //Symbol创建方式
+        //创建方式1
+            let s1 = Symbol('eric')
+            let s2 = Symbol('eric')
+            console.log(s1 === s2) // false
+        //创建方式2
+            s1 = Symbol.for('eric')
+            s2 = Symbol.for('eric')
+            console.log(s1 === s2) //true
+
+      //为对象添加Symbol属性
+        var obj = {
+            name:'name',
+            [Symbol('eric')] :function(){
+                console.log('方式1')
+            }
+        }
+        const s3 = Symbol("eric")
+        obj[s3] = function(){
+            console.log('方式2')
+        }
+        obj[Symbol('eric')] = () =>{
+            console.log('方式3')
+        }
+
+        console.log(obj)
+
+        //调用Symbol定义的属性
+        obj[s3]()
+
+        
+    </script>
+</head>
+<body>
+    
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+
+       //案例1，给解构对象赋默认值
+       /* var obj={
+        name:'eric',
+        age:28
+       }
+
+       var {name,age=19,sex='男'} = obj
+       console.log(name,age,sex) */
+
+       //案例2，函数形参赋默认值
+       /* function fun(name,age,sex='男'){
+        console.log(name,age,sex)
+       }
+       fun('eric',30) */
+
+       //案例3，函数形参的解构对象赋默认值
+       /* function fun1({name,age,sex='男'}){
+        console.log(name,age,sex)
+       }
+       fun1({
+        name:'eric',
+        age:31
+        }) */
+
+        //案例4
+        function fun2([el0,el1,el2=10]){
+            console.log(el0,el1,el2)
+        }
+        fun2([1,2])
+    </script>
+</head>
+<body>
+    
+</body>
+</html>

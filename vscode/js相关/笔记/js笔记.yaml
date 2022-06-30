@@ -389,6 +389,7 @@ JS介绍:
             obj = {
                 age:18,
                 'sex': '男',
+                [1<2]:16,
                 tip
             }
             obj.name = 'eric'

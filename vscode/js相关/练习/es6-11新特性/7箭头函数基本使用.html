@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+    
+    /* 
+        箭头函数没有this，使用任何方式都不能改变this指向
+        在箭头函数中使用this,这个this始终指向作用域链的this 
+        不能使用new实例化
+        箭头函数没有arguments
+    */
+
+
+    //案例1
+    /* const fun = () =>{
+        console.log(1)
+    }
+    console.log(fun.__proto__ === fun.__proto__.constructor.prototype)
+    console.log(fun.__proto__.constructor.__proto__ == Function.prototype) */
+
+    //案例2
+    /* var obj = {
+        fun:()=>{
+            console.log(this)
+        },
+        fun1(){
+            return ()=>{
+                console.log(this)
+            }
+        }
+    }  
+    obj.fun()
+    obj.fun1()() */
+
+    //案例3，简写方式，和Java很像
+    /* var fun1 = x => x+x;
+    var fun2 = (x,y) => x+y;
+    var fun2 = (x,y) => {
+        console.log(x,y)
+        return x+y;
+    }; */
+    
+    
+    
+    </script>
+</head>
+<body>
+    
+</body>
+</html>
