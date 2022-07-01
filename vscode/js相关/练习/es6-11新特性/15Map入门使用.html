@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        
+        let map = new Map()
+
+        map.set("eric1","eric1")
+        map.set("eric2","eric2")
+        map.set("eric3","eric3")
+      
+        map.delete("eric1")
+        console.log(map.get("eric2"))
+        for(let arr of map){
+            console.log(arr[0],arr[1])
+        }
+
+        map.clear()
+
+
+
+        
+    </script>
+</head>
+<body>
+    
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    
+</head>
+<body>
+    <script>
+        //es5
+        /* function Person(){
+            this.name = 'eric'
+            this.age = 23
+        }
+        let person = new Person()
+        function enhancer(obj){
+            var proxyObj = {}
+            for(let attr in obj){
+                proxyObj['_'+attr] = obj[attr]
+                //console.log(attr)
+                Object.defineProperty(proxyObj,attr,{
+                    get:function(){
+                        //console.log('get访问了name属性')
+                        return obj[attr]
+                    },
+                    set(value){
+                        //console.log('set访问了name属性')
+                        proxyObj['_'+attr] = value
+                        obj[attr] = value;
+                    }
+                })
+            }
+            return proxyObj
+        }
+        let personProxy = enhancer(person)
+        console.log(personProxy)
+        personProxy.name = 'Tom'
+        personProxy.age = 20
+        console.log(personProxy) */
+
+        //es6
+        class Person{
+            realname = 'eric'
+            get name(){
+                console.log('get访问了name属性')
+                return this.realname
+            }
+            set name(value){
+                console.log('set访问了name属性')
+                this.realname = value
+            }
+        }
+        let person = new Person()
+        console.log(person)
+        person.name = 'Tom'
+        console.log(person)
+    </script>
+</body>
+</html>

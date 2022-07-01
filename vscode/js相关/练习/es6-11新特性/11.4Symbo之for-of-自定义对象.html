@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+
+      /* 
+         被 in of遍历的对象必须要有iterator属性(Symbol(Symbol.iterator)) 
+      */
+      var arr = {
+        "0":"Eric",
+        [1]:"Jerry",
+        [1+1]:"Tom",
+        grabage:'不需要遍历',
+        [3]:"Jone",
+      }
+
+      function enhancer(obj){
+        let arr = []
+        let index = 0
+        for(let attr in obj){
+          if(Number(attr)||Number(attr) ==0){
+            arr[index] = obj[attr]
+            index++
+            delete obj[attr]
+          }
+        }
+        obj['list'] = arr
+        obj[Symbol.iterator] = function(){
+          let index = 0
+          let length = this.list.length
+          return {
+            next:()=>{
+              if(index<length){
+                return {done:false,value:this.list[index++]}
+              }else{
+                return {done:true,value:undefined}
+              }
+            }
+          }
+        }
+      }
+
+      enhancer(arr)
+      
+      for(let val of arr){
+        console.log(val)
+      }
+
+
+
+      
+      console.log('----------------------')
+      //自己拿到迭代器遍历
+      let iterator = arr[Symbol.iterator]()
+      console.log(iterator)
+      let bl = true
+      while(bl){
+        let it = iterator.next()
+        if(it.done){
+            bl = false
+            break;
+        }
+        console.log(it.value)
+      }
+     
+    </script>
+</head>
+<body>
+    
+</body>
+</html>

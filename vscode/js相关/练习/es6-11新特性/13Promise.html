@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        /* 
+            Promise函数可以解决函数地狱问题
+        */
+        new Promise((resolve,reject)=>{
+            console.log('发起第一请求')
+            if(true){
+                let data = {name:'eric',age:31}
+                resolve(data)
+            }else{
+                reject("error")
+            }
+        }).then((data)=>{
+            console.log('结果为',data)
+            return new Promise((resolve,reject)=>{
+                console.log('发起第二次请求')
+                if(true){
+                    let data1 = {name:'Tom',age:18}
+                    resolve([data,data1])
+                }
+            })
+        },(reason)=>{
+            console.log(reason)
+        }).then(([data,data1])=>{
+            console.log('所有结果为',data,data1)
+        })
+        
+    </script>
+</head>
+<body>
+    
+</body>
+</html>

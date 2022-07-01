@@ -2,11 +2,10 @@ package com;
 
 
 
+import lombok.SneakyThrows;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -17,59 +16,55 @@ import java.util.regex.Pattern;
  * @date 2022/6/8 16:59
  **/
 class Person{
-
+    public static void haha(){
+        System.out.println("father");
+    }
 }
 class Son1 extends Person{
-    public static String aaa1 = "456";
+    public static void haha(String name){
+        System.out.println("son");
+    }
 }
 public class Test2 {
 
 
     public static void main(String[] args) throws IllegalAccessException, InstantiationException {
-
-
-
-
-
-
-        //List<String> list = new ArrayList<String>();
-
-        // list.add("123");
-
-
-       /* Person person = new Person();
-        String aaa2 = person.aaa1;*/
-        //System.out.println("361234567@qq.com".matches("^[0-9A-z]{5,9}@[a-z]{2}\\.com$"));
-
-
-        /*ExecutorService service = Executors.newFixedThreadPool(10, new ThreadFactory() {
-            int i = 0;
-
+        /*Test2 test = new Test2();
+        Thread t1 = new Thread(new Runnable(){
+            @SneakyThrows
             @Override
-            public Thread newThread(Runnable r) {
-                Thread thread = new Thread(r, getThreadName());
-                thread.setDaemon(true);
-                return thread;
-            }
-
-            public String getThreadName() {
-                i += 1;
-                return "job-" + i;
-            }
-        });
-
-        for (int i = 0; i < 5; i++) {
-            service.execute(new Runnable() {
-                @Override
-                public void run() {
-                    test();
+            public void run() {
+                while (true){
+                    test.test();
                 }
-            });
-        }*/
+            }
+        },"t1");
+        Thread t2 = new Thread(new Runnable(){
+            @SneakyThrows
+            @Override
+            public void run() {
+                while (true){
+                    new Scanner(System.in).next();
+                    test.test1();
+                }
+            }
+        },"t2");
+        t1.start();
+        t2.start();*/
 
     }
-    public synchronized static void test(){
-
+    public void test() throws InterruptedException {
+        synchronized (Test2.class){
+            System.out.println(Thread.currentThread().getName());
+            Test2.class.wait(5000);
+            System.out.println("我。。。。。");
+        }
+    }
+    public void test1() throws InterruptedException {
+        synchronized (Test2.class){
+            Test2.class.notifyAll();
+            System.out.println("我唤醒");
+        }
     }
 }
 

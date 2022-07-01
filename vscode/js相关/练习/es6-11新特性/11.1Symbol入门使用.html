@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+      /* 
+        Symbol是js的第七种数据类型，它的值独一无二
+        Symbol值不能参与运算
+        Symbol定义的对象属性需要用Reflect.ownKeys来获取
+        Symbol可以防止在未知对象属性的情况下添加方法，而不导致属性冲突的情况
+      */
+      
+      //Symbol创建方式
+        //创建方式1
+            let s1 = Symbol('eric')
+            let s2 = Symbol('eric')
+            console.log(s1 === s2) // false
+        //创建方式2
+            s3 = Symbol.for('eric')
+            s4 = Symbol.for('eric')
+            console.log(s3 === s4) //true
+
+
+      //Symbol正确使用方式如下
+        Symbol.method1 = Symbol.for('方式1')
+        Symbol.method2 = Symbol.for('方式2')
+        Symbol.method3 = Symbol.for('方式3')
+        //为对象添加Symbol属性
+        var obj = {
+            name:'eric',
+            [Symbol.method1](){
+                console.log('方式1')
+            },
+        }
+        obj[Symbol.method2] = function(){
+            console.log('方式2')
+        }
+        obj[Symbol.method3] = () =>{
+            console.log('方式3')
+        }
+
+        obj[s1] = function(){
+            console.log('方式4')
+        }
+
+        console.log(obj)
+        //调用对象中的方法
+        obj[Symbol.method1]()
+        obj[Symbol.method2]()
+        obj[Symbol.method3]()
+       
+        obj[s1]()
+        
+        
+    </script>
+</head>
+<body>
+    
+</body>
+</html>

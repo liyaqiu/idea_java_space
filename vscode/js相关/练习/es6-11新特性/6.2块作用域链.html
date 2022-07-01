@@ -7,6 +7,7 @@
     <title>Document</title>
     <script>
         var arr = []
+        var arr1 = []
         function fun1(){
             var x = 10
             {
@@ -14,8 +15,12 @@
                 for(let i = 0; i<3;i++){
                     let z = 30
                     arr[i] = function(){
+                        //console.log(x,y,i,z)
+                        console.log(++x,++y,++i,++z)
+                    }
+                    arr1[i] = function(){
                         //console.log(x,y,z,i)
-                        console.log(++x,++y,++z,++i)
+                        console.log(++x,++y,++i,++z)
                     }
                 }
             }
@@ -29,6 +34,16 @@
         arr[1]()
         arr[1]()
         arr[1]()
+
+        console.log('---------------------------')
+
+        arr1[0]()
+        arr1[0]()
+        arr1[0]()
+1
+        arr1[1]()
+        arr1[1]()
+        arr1[1]()
         console.log(arr)
      
     </script>
