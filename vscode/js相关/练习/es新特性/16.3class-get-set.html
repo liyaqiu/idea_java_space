@@ -38,24 +38,29 @@
         console.log(personProxy)
         personProxy.name = 'Tom'
         personProxy.age = 20
-        console.log(personProxy) */
+        console.log(personProxy)
+        console.log(Object.getOwnPropertyDescriptors(personProxy)) //查看对象属性的状态 */
 
         //es6
         class Person{
-            realname = 'eric'
+            name = 'eric'
             get name(){
                 console.log('get访问了name属性')
-                return this.realname
+                return this.name
             }
             set name(value){
                 console.log('set访问了name属性')
-                this.realname = value
+                this.name = value
             }
         }
         let person = new Person()
         console.log(person)
         person.name = 'Tom'
-        console.log(person)
+        console.log(person) 
+        
+        console.log(Object.getOwnPropertyDescriptors(person)) //查看对象属性的状态
+
+
     </script>
 </body>
 </html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+
+      //幂运算
+      /* console.log( 2 ** 10) */
+
+      //正则表达式分组捕获
+      /* let str = 'http://www.baidu.com'
+      let reg = /(?<value1>.*):\/\/(?<value2>.*)/
+      console.log(reg.exec(str).groups.value1)
+      console.log(reg.exec(str).groups.value2) */
+
+      /* let str1 = '123abcabc123abcabc123abcggggggggAbcabc'
+      let result = str1.matchAll(/(abc){2}/ig)
+      for(let i of result){
+         console.log(i[0])
+      } */
+
+      //数组方法扩展
+      /* let arr = [1,2,3]
+      console.log(arr.includes(2))
+      console.log(arr.includes(4)) */
+
+      //Object对象方法扩展  
+      /* console.log(Object.is(NaN,NaN))
+      
+      let obj1 = {
+         name: 'eric',
+         age: 100
+      }
+      let obj2 = {
+         age: 31,
+         mex: '男'
+      }
+
+      let obj3 = Object.assign(obj1,obj2)
+      
+      console.log(obj3)
+      console.log(Object.keys(obj3))
+      console.log(Object.values(obj3))
+
+
+      const map = new Map(Object.entries(obj3))
+      console.log(map)
+      let obj4 = Object.fromEntries(map)
+      console.log(obj4)
+
+      console.log(Object.getOwnPropertyDescriptors(obj3)) */
+
+
+      //字符串
+      /* let str = '     i love you     '
+      console.log(str.trim())
+      console.log(str.trimStart())
+      console.log(str.trimEnd()) */
+
+      //Promise
+      /* const p1 = new Promise((resolve,reject) =>{
+         resolve('成功1')
+      })
+      const p2 = new Promise((resolve,reject) =>{
+         resolve('成功2')
+      })
+
+
+      //不管有没有错误都返回成功
+      console.log(Promise.allSettled([p1,p2]))
+      //有一个出错都返回错误
+      console.log(Promise.all([p1,p2])) */
+ 
+      //BigInt 可以实现更加的数值计算
+      let num = Number.MAX_SAFE_INTEGER
+      console.log(num)
+      console.log(num+1)
+      console.log(num+2)
+      console.log(BigInt(num)+ BigInt(2)) 
+    </script>
+</head>
+<body>
+    
+</body>
+</html>

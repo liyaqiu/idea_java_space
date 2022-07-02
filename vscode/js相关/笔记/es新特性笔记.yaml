@@ -192,15 +192,15 @@ const:
   "
 可变参数:
   - "
-    function fun(x,y,{name,age,sex='男'},... args){
+    function fun(x,y,{name,age,sex='男',...obj},... args){
         console.log(arguments)
-        console.log(x,y,name,age,sex,args)
+        console.log(x,y,name,age,sex,obj,args)
     }
 
-    fun(1,2,{name:'eric',age:29},3,4)
+    fun(1,2,{name:'eric',age:29,hello1:'hello1',hello2:'hello2'},3,4)
   "
-数组和Set的拆分:
-  数组拆分:
+拆分:
+  拆分数组:
   - "
     //案例1，对数组进行拆分
     function fun(){
@@ -223,7 +223,7 @@ const:
     }
     fun4(arr,1,2,3)
   "
-  Set参数拆分:
+  拆分Set:
     - "
       //案例1
       /* const set = new Set([1,2,3,4,5,6,7,7,8,8])
@@ -243,6 +243,19 @@ const:
       }
       fun2(new Set([1,2,3]))
       fun2([...new Set([4,5,6])])
+    "
+  拆分对象:
+    - "
+      var obj1 ={
+          name:'eric',
+          age: 31
+      }
+      var obj2 ={
+          sex:'男'
+      }
+
+      let obj3 = {...obj1,...obj2}
+      console.log(obj3)
     "
 Symbol:
   功能:
@@ -435,6 +448,8 @@ class:
         //添加在Perosn类实例对象身上
         name
         age
+        //私有属性
+        #realname = '私有名字李雅秋'
         constructor(name,age){
             this.name = name
             this.age = age
@@ -445,7 +460,7 @@ class:
         }
         //添加在Person类显示原型身上
         Hello(){
-            console.log('对象实例Hello')
+            console.log('对象实例Hello',this.#realname)
         }
     }
     //实例对象用法
@@ -541,7 +556,8 @@ class:
     console.log(personProxy)
     personProxy.name = 'Tom'
     personProxy.age = 20
-    console.log(personProxy) */
+    console.log(personProxy)
+    console.log(Object.getOwnPropertyDescriptors(personProxy)) //查看对象属性的状态 */
 
     //es6
     class Person{
@@ -560,5 +576,284 @@ class:
     person.name = 'Tom'
     console.log(person)
   "
+模块化:
+  静态导入使用方式1:
+    - "
+      步骤一 17.1模块化-案例1.html
+      <script type='module'>
+          //方式1
+          /* import * as m1 from './17module.js'
+          console.log(m1.name)
+          m1.sayHello() */
+
+          /* import {name as aname,sayHello} from './17module.js'
+          console.log(aname)
+          sayHello() */
+
+          //方式2
+          /* import * as m2 from './17module.js'
+          console.log(m2.name)
+          m2.sayHello() */
+
+          /* import {name as aname,sayHello} from './17module.js'
+          console.log(aname)
+          sayHello() */
+
+          //方式3
+          /* import * as m3 from './17module.js'
+          console.log(m3.default.name)
+          m3.default.sayHello() */
+
+          /* import {default as m3} from './17module.js'
+          console.log(m3.name)
+          m3.sayHello() */
+
+          import m3 from  './17module.js'
+          console.log(m3.name)
+          m3.sayHello()
+      </script>
+      步骤二 17module.js
+        //方式1，逐个暴露
+        /* export let name = '逐个暴露'
+        export function sayHello(){
+            console.log('逐个暴露','sayHello')
+        } */
 
 
+        //方式2，统一暴露
+        /* let name = '统一暴露'
+        function sayHello(){
+            console.log('统一暴露','sayHello')
+        }
+        export {name,sayHello} */
+
+        //方式3，默认暴露
+        export default {
+            name: '默认暴露',
+            sayHello(){
+                console.log('默认暴露','sayHello')
+            }
+        }
+    "
+  静态导入使用方式2:
+    - "
+      步骤一 17.2模块化-案例2.html
+        <script src='./17moduleManager.js' type='module'></script>
+      步骤二 17moduleManager.js
+        //方式1
+        /* import * as m1 from './17module.js'
+        console.log(m1.name)
+        m1.sayHello() */
+
+        /* import {name as aname,sayHello} from './17module.js'
+        console.log(aname)
+        sayHello() */
+
+        //方式2
+        /* import * as m2 from './17module.js'
+        console.log(m2.name)
+        m2.sayHello() */
+
+        /* import {name as aname,sayHello} from './17module.js'
+        console.log(aname)
+        sayHello() */
+
+        //方式3
+        /* import * as m3 from './17module.js'
+        console.log(m3.default.name)
+        m3.default.sayHello() */
+
+        /* import {default as m3} from './17module.js'
+        console.log(m3.name)
+        m3.sayHello() */
+
+        import m3 from  './17module.js'
+        console.log(m3.name)
+        m3.sayHello()
+
+      步骤三 17module.js
+        //方式1，逐个暴露
+        /* export let name = '逐个暴露'
+        export function sayHello(){
+            console.log('逐个暴露','sayHello')
+        } */
+
+
+        //方式2，统一暴露
+        /* let name = '统一暴露'
+        function sayHello(){
+            console.log('统一暴露','sayHello')
+        }
+        export {name,sayHello} */
+
+        //方式3，默认暴露
+        export default {
+            name: '默认暴露',
+            sayHello(){
+                console.log('默认暴露','sayHello')
+            }
+        }
+    "
+  动态导入:
+    - "
+      <script type='module'>
+          document.getElementById('bt').onclick = function(){
+              import('./17module.js').then(module =>{
+                  console.log(module.default().name)
+                  module.default().sayHello()
+              })
+          }
+      </script>
+    "
+async函数:
+  功能:
+    - 只要 return，都是返回成功的Promise对象
+    - 只要 throw， 都是返回失败的Promise对象
+    - 手动return返回Promise对象，根据自己调用的成功或者失败作为返回
+  使用:
+    - "
+        async function person(){
+          return new Promise((resolve,reject)=>{
+              resolve('成功')
+          })
+        }
+        person().then((data)=>{
+          console.log(data)
+        })
+    "
+await:
+  功能:
+    - await必须写在async函数中
+    - await右侧的表达式一般为promise对象
+    - await返回的是promise成功的值
+    - await的promise失败了，就会报出异常，需要通过try..catch捕获处理
+  使用:
+    - "
+        function fun1(){
+          return new Promise((resolve,reject)=>{
+            if(true){
+              resolve('成功1结果数据返回')
+            }else{
+              reject('失败结果数据')
+            }
+          })
+       }
+       function fun2(){
+          return new Promise((resolve,reject)=>{
+            if(true){
+              resolve('成功2结果数据返回')
+            }else{
+              reject('失败结果数据')
+            }
+          })
+       }
+
+
+        async function person(){
+          try {
+            let fun1result = await fun1()
+            let fun2result = await fun2()
+            console.log(fun1result)
+            console.log(fun2result)
+          } catch (error) {
+            console.error(error)
+          }
+        }
+
+        person()
+    "
+可选链操作符:
+  - "
+    function connect(option){
+        //let username = option && option.username
+        let username = option ?.username
+        console.log(username)
+    }
+
+
+    const dbConfig = {
+        username:'admin',
+        passwd:'123456',
+        url:'mysql//192.168.1.109:3306/db1'
+    }
+
+    connect(dbConfig)
+  "
+获取全局对象的变量:
+  - "console.log(globalThis)"
+对象方法扩展:
+  - "
+    //幂运算
+    /* console.log( 2 ** 10) */
+
+    //正则表达式分组捕获
+    /* let str = 'http://www.baidu.com'
+    let reg = /(?<value1>.*):\/\/(?<value2>.*)/
+    console.log(reg.exec(str).groups.value1)
+    console.log(reg.exec(str).groups.value2) */
+
+    /* let str1 = '123abcabc123abcabc123abcggggggggAbcabc'
+    let result = str1.matchAll(/(abc){2}/ig)
+    for(let i of result){
+       console.log(i[0])
+    } */
+
+    //数组方法扩展
+    /* let arr = [1,2,3]
+    console.log(arr.includes(2))
+    console.log(arr.includes(4)) */
+
+    //Object对象方法扩展
+    /* console.log(Object.is(NaN,NaN))
+
+    let obj1 = {
+       name: 'eric',
+       age: 100
+    }
+    let obj2 = {
+       age: 31,
+       mex: '男'
+    }
+
+    let obj3 = Object.assign(obj1,obj2)
+
+    console.log(obj3)
+    console.log(Object.keys(obj3))
+    console.log(Object.values(obj3))
+
+
+    const map = new Map(Object.entries(obj3))
+    console.log(map)
+    let obj4 = Object.fromEntries(map)
+    console.log(obj4)
+
+    console.log(Object.getOwnPropertyDescriptors(obj3)) */
+
+
+    //字符串
+    /* let str = '     i love you     '
+    console.log(str.trim())
+    console.log(str.trimStart())
+    console.log(str.trimEnd()) */
+
+    //Promise
+    /* const p1 = new Promise((resolve,reject) =>{
+       resolve('成功1')
+    })
+    const p2 = new Promise((resolve,reject) =>{
+       resolve('成功2')
+    })
+
+
+    //不管有没有错误都返回成功
+    console.log(Promise.allSettled([p1,p2]))
+    //有一个出错都返回错误
+    console.log(Promise.all([p1,p2])) */
+
+    //BigInt 可以实现更加的数值计算
+    let num = Number.MAX_SAFE_INTEGER
+    console.log(num)
+    console.log(num+1)
+    console.log(num+2)
+    console.log(BigInt(num)+ BigInt(2))
+  "

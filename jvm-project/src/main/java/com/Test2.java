@@ -1,34 +1,37 @@
 package com;
 
 
-
-import lombok.SneakyThrows;
-import org.junit.Test;
-
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.regex.Pattern;
-
 /**
  * @author eric
  * @date 2022/6/8 16:59
  **/
 class Person{
-    public static void haha(){
+    public static Boolean name = true;
+    public  void haha(){
         System.out.println("father");
     }
 }
-class Son1 extends Person{
-    public static void haha(String name){
+class Son1 extends People {
+   // public static String name = "eric";
+    public  void haha(String name){
         System.out.println("son");
     }
 }
+
+
+
+
+
 public class Test2 {
 
 
     public static void main(String[] args) throws IllegalAccessException, InstantiationException {
+
+        Son1 p  = new Son1();
+
+
+
+
         /*Test2 test = new Test2();
         Thread t1 = new Thread(new Runnable(){
             @SneakyThrows

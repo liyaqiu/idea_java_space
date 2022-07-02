@@ -15,6 +15,8 @@
             //添加在Perosn类实例对象身上
             name
             age
+            //私有属性
+            #realname = '私有名字李雅秋'
             constructor(name,age){
                 this.name = name
                 this.age = age
@@ -25,7 +27,7 @@
             }
             //添加在Person类显示原型身上
             Hello(){
-                console.log('对象实例Hello')
+                console.log('对象实例Hello',this.#realname)
             }
         }
         //实例对象用法
