@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+
+        /*
+        因为需要逐个往下传递的原因，成功回调函数默认不写则为。
+            return 1
+            return Promise.resovle(1)
+        因为需要逐个往下传递的原因，失败回调函数默认不写则为。
+            throw 1
+            return Promise.reject(1)
+        */
+
+        //案例1
+        /* new Promise((resovle,reject)=>{
+            resovle(1)
+        }).catch(reason =>{
+          console.log('reason1',reason)  
+        }).catch(reason =>{
+          console.log('reason2',reason)  
+        }).catch(reason =>{
+          console.log('reason3',reason)  
+        }).catch(reason =>{
+          console.log('reason4',reason)  
+        }).then(value => {
+            console.log('value',value)
+        }) */
+
+        //案例2
+        /* new Promise((resovle,reject)=>{
+            reject(1)
+        }).then(value =>{
+          console.log('value1',value)  
+        }).then(value =>{
+          console.log('value2',value)  
+        }).then(value =>{
+          console.log('value3',value)  
+        }).then(value =>{
+          console.log('value4',value)  
+        }).catch(reason => {
+            console.log('reason',reason)
+        }) */
+        
+    </script>
+</head>
+<body>
+    
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        let executor = (resolve,reject) =>{
+            setTimeout(()=>{
+                //resolve('1')
+                reject('2')
+            },1000)
+        }
+
+        let p1 = new Promise(executor)
+        
+        let p2 = p1.then(
+            value => {
+                console.log('p1-onResolved',value)
+            },
+            reason =>{
+                console.log('p1-OnRejected',reason)
+                //同步操作
+                    //成功返回
+                        //return '任何类型对象或者值'
+                        //return Promise.resolve('成功')
+                    //失败返回
+                        //return Promise.reject('失败')
+                        //throw '任何类型对象或者值'
+                    //挂载操作，不往下执行
+                        // return new Promise(()=>{})
+                //异步操作
+                    return new Promise((resolve,reject) =>{
+                        setTimeout(()=>{
+                            resolve(1) //修改成功状态
+                            //reject(2)//修改失败状态
+                            //啥都不写，则pending挂起，不会往下继续执行
+                        },1000)
+                    })
+                    
+            }
+        )
+
+        p2.then(
+            value => {
+                console.log('p2-onResolved',value)
+            },
+            reason =>{
+                console.log('p2-OnRejected',reason)
+            }
+        )
+
+
+     
+        
+    </script>
+</head>
+<body>
+    
+</body>
+</html>

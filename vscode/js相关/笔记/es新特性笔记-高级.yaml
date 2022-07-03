@@ -1,0 +1,178 @@
+try-catch:
+  - "
+      function PersonError([appName,code,error]){
+        this.appName = appName
+        this.code = code
+        this.msg = error.message
+        this.stack = error.stack
+        this.print = function(){
+          console.error(this.appName,'@@@@',this.code,'@@@@',this.msg,'@@@@',this.stack)
+        }
+      }
+
+      try {
+        throw new PersonError(['服务1',408,new Error('id不存在')])
+        console.log('eric')
+      } catch (e) {
+        /* const {appName,code,msg,stack} = e
+        console.error(e.appName,e.code,e.msg,e.stack) */
+          e.print()
+      }
+  "
+回调地狱问题:
+  - 回调地狱是指，内部函数依赖外部函数的结果，形成的多层嵌套
+Promise:
+  功能:
+    - Promise是JS中进行异步编程新的解决方案
+    - Promise是用来封装一个异步操作并可以获取其结果
+    - Promise可以灵活编写回调，可以任何时间去获取结果
+    - Promise链接操作可以解决回调地狱问题
+  状态:
+    - pending(初始化) -> resolved (成功)
+    - pending(初始化) -> rejected (失败)
+  入门案例:
+    案例1:
+      - "
+      var executor = (resolve,reject) =>{
+          console.log(0)
+          //因为执行器函数是同步函数，所以利用setTimeout设置异步函数
+          setTimeout(()=>{
+              for(let i=0;i<1000000000;i++){}
+              console.log(3)
+              //resolve('执行结果为123456789')//将结果存储结果分线程的容器中
+              reject('执行结果为123456789')//将结果存储结果分线程的容器中
+          },1000)
+
+      }
+
+      const p = new Promise(executor)
+
+      console.log(1)
+
+      setTimeout(()=>{
+          p.then((result)=>{ //给Promise管理器声明了取结果的函数，一旦有结果，Promise管理器就会将结果以及该函数对象一并存入回调队列中。
+              console.log('onResolved',result)
+          })
+          p.catch((reason) =>{
+              console.log('onRejected',reason)
+          })
+      },0)
+
+      console.log(2)
+    "
+    案例2:
+      - "
+        //一个Promise实例绑定个then/catch
+        var executor = (resolve,reject) =>{
+            //成功
+            resolve('成功')
+            //失败
+            //reject('失败')
+            //throw new Error('抛异常失败')
+
+        }
+
+        const p = new Promise(executor)
+
+        p.then((result)=>{
+                console.log('onResolved1',result)
+        })
+        p.then((result)=>{
+                console.log('onResolved2',result)
+        })
+        p.catch((reason) =>{
+            console.log('onRejected1',reason)
+        })
+        p.catch((reason) =>{
+            console.log('onRejected2',reason)
+        })
+      "
+    案例3:
+      - "
+        //先改状态，后指定回调函数
+        new Promise((resolve,reject) =>{
+            resolve('1')
+        }).then(
+            value => {
+                console.log(value)
+            },
+            reason =>{
+                console.log(reason)
+            }
+        )
+
+        //先指定回调函数，后改状态
+        new Promise((resolve,reject) =>{
+            setTimeout(()=>{
+                resolve('2')
+            },1000)
+        }).then(
+            value => {
+                console.log(value)
+            },
+            reason =>{
+                console.log(reason)
+            }
+        )
+      "
+  catch和then传透:
+    功能:
+      - "
+        因为需要逐个往下传递的原因，成功回调函数默认不写则为。
+          return 1
+          return Promise.resovle(1)
+      因为需要逐个往下传递的原因，失败回调函数默认不写则为。
+          throw 1
+          return Promise.reject(1)
+      "
+    then传透:
+      - "
+        //案例1
+        /* new Promise((resovle,reject)=>{
+            resovle(1)
+        }).catch(reason =>{
+          console.log('reason1',reason)
+        }).catch(reason =>{
+          console.log('reason2',reason)
+        }).catch(reason =>{
+          console.log('reason3',reason)
+        }).catch(reason =>{
+          console.log('reason4',reason)
+        }).then(value => {
+            console.log('value',value)
+        }) */
+      "
+    catch穿透:
+      - "
+        /* new Promise((resovle,reject)=>{
+            reject(1)
+        }).then(value =>{
+          console.log('value1',value)
+        }).then(value =>{
+          console.log('value2',value)
+        }).then(value =>{
+          console.log('value3',value)
+        }).then(value =>{
+          console.log('value4',value)
+        }).catch(reason => {
+            console.log('reason',reason)
+        }) */
+      "
+  终止Promise链操作:
+    - "
+      new Promise((resovle,reject)=>{
+        resovle(1)
+      }).then(value =>{
+        console.log('value1',value)
+        return new Promise(()=>{})
+      }).then(value =>{
+        console.log('value2',value)
+      }).then(value =>{
+        console.log('value3',value)
+      }).then(value =>{
+        console.log('value4',value)
+      }).catch(reason => {
+          console.log('reason',reason)
+      })
+    "
+
