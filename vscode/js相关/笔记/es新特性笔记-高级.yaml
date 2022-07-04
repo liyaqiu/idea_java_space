@@ -39,8 +39,8 @@ Promise:
           setTimeout(()=>{
               for(let i=0;i<1000000000;i++){}
               console.log(3)
-              //resolve('执行结果为123456789')//将结果存储结果分线程的容器中
-              reject('执行结果为123456789')//将结果存储结果分线程的容器中
+              //resolve('执行结果为123456789')
+              reject('执行结果为123456789')
           },1000)
 
       }
@@ -61,33 +61,6 @@ Promise:
       console.log(2)
     "
     案例2:
-      - "
-        //一个Promise实例绑定个then/catch
-        var executor = (resolve,reject) =>{
-            //成功
-            resolve('成功')
-            //失败
-            //reject('失败')
-            //throw new Error('抛异常失败')
-
-        }
-
-        const p = new Promise(executor)
-
-        p.then((result)=>{
-                console.log('onResolved1',result)
-        })
-        p.then((result)=>{
-                console.log('onResolved2',result)
-        })
-        p.catch((reason) =>{
-            console.log('onRejected1',reason)
-        })
-        p.catch((reason) =>{
-            console.log('onRejected2',reason)
-        })
-      "
-    案例3:
       - "
         //先改状态，后指定回调函数
         new Promise((resolve,reject) =>{
@@ -115,6 +88,71 @@ Promise:
             }
         )
       "
+  执行器的返回结果:
+    - "
+      var executor = (resolve,reject) =>{
+          //resolve('成功')
+          //reject('失败')
+          //throw '失败1'
+      }
+
+      const p = new Promise(executor)
+
+      p.then((result)=>{
+              console.log('onResolved1',result)
+      })
+      p.then((result)=>{
+              console.log('onResolved2',result)
+      })
+      p.catch((reason) =>{
+          console.log('onRejected1',reason)
+      })
+      p.catch((reason) =>{
+          console.log('onRejected2',reason)
+      })
+
+    "
+  then返回结果:
+    - "
+        let executor = (resolve,reject) =>{
+            //resolve('成功1')
+            reject('失败1')
+            //throw '失败11'
+        }
+
+        let p1 = new Promise(executor)
+
+        let p2 = p1.then(
+            value => {
+                console.log('p1-onResolved',value)
+            },
+            reason =>{
+                console.log('p1-onRejected',reason)
+                    //return '正常返回'
+                    //throw '抛异常返回'
+
+                    //返回Promise对象
+                    return new Promise((resolve,reject) =>{
+                        resolve('成功2')
+                        //reject('失败2')
+                        //throw '失败22'
+                    })
+
+            }
+        )
+
+        p2.then(
+            value => {
+                console.log('p2-onResolved',value)
+            },
+            reason =>{
+                console.log('p2-onRejected',reason)
+            }
+        )
+    "
+  总结then+执行器返回结果:
+    - then支持，正常返回(return)，异常返回(throw)，执行器返回
+    - 执行器返回支持，成功返回(resolve)，失败返回(reject)，异常返回(throw)
   catch和then传透:
     功能:
       - "
@@ -175,4 +213,45 @@ Promise:
           console.log('reason',reason)
       })
     "
+  语法糖resolve和reject:
+    - "
+        const p1 = new Promise((resolve,reject)=>{
+            resolve('成功结果为1')
+        })
 
+        p1.then(value =>{
+            console.log(value)
+        })
+
+        const p2 = Promise.resolve('成功结果2')
+        p2.then(value =>{
+            console.log(value)
+        })
+
+        const p3 = Promise.reject('失败结果3')
+        p3.catch(reason =>{
+            console.log(reason)
+        })
+    "
+  语法糖all和race:
+    - "
+      const p1 = Promise.resolve(1)
+      const p2 = Promise.resolve(2)
+      const p3 = Promise.resolve(Promise.reject(3))
+
+
+      const pAll = Promise.all([p1,p2,p3])
+      pAll.then(values =>{
+          console.log('values',values)//需要全部成功才返回，并且会按照预先顺序返回
+      },reason =>{
+          console.log('reason',reason)//返回第一个最先修改Promise状态的值
+      })
+
+
+      const pRace = Promise.race([p1,p2,p3])
+      pRace.then(value =>{
+          console.log('value',value)//返回第一个最先修改Promise状态的成功值
+      },reason =>{
+          console.log('reason',reason)//返回第一个最先修改Promise状态的失败值
+      })
+    "

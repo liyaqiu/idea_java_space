@@ -7,17 +7,10 @@
     <title>Document</title>
     <script>
 
-        /* 
-            一个Promise实例绑定个then/catch 
-        */
-       
         var executor = (resolve,reject) =>{
-            //成功
-            resolve('成功')
-            //失败
+            //resolve('成功')
             //reject('失败')
-            //throw new Error('抛异常失败')
-            
+            //throw '失败1'
         }
 
         const p = new Promise(executor)

@@ -9,26 +9,25 @@
 
         const p1 = Promise.resolve(1)
         const p2 = Promise.resolve(2)
-        const p3 = Promise.reject(3)
-
+        const p3 = Promise.resolve(Promise.reject(3))
 
         
         const pAll = Promise.all([p1,p2,p3])
         pAll.then(values =>{
-            console.log('values',values)//需要全部成功才返回
+            console.log('values',values)//需要全部成功才返回，并且会按照预先顺序返回
         },reason =>{
-            console.log('reason',reason)//返回最快执行完成，失败的结果
+            console.log('reason',reason)//返回第一个最先修改Promise状态的值
         })
 
 
-        /* const pRace = Promise.race([p1,p2,p3])
+        const pRace = Promise.race([p1,p2,p3])
         pRace.then(value =>{
-            console.log('value',value)//返回最快执行完成，成功的结果
+            console.log('value',value)//返回第一个最先修改Promise状态的成功值
         },reason =>{
-            console.log('reason',reason)//返回最快执行完成，失败的结果
-        }) */
+            console.log('reason',reason)//返回第一个最先修改Promise状态的失败值
+        })
         
-
+      
      
         
     </script>
