@@ -20,15 +20,15 @@
             },
             reason =>{
                 console.log('p1-onRejected',reason)
-                    //return '正常返回'
-                    //throw '抛异常返回'
-                    
-                    //返回Promise对象
-                    return new Promise((resolve,reject) =>{
-                        //resolve('成功2')
-                        reject('失败2')
-                        //throw '失败22'
-                    })
+                //return '正常返回'
+                //throw '抛异常返回'
+                
+                //返回Promise对象
+                return new Promise((resolve,reject) =>{
+                    //resolve('成功2')
+                    reject('失败2')
+                    //throw '失败22'
+                })
                     
             }
         )
