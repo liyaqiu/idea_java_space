@@ -6,10 +6,9 @@ import com.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author lyq
@@ -24,14 +23,18 @@ public class UserController {
     @Autowired
     ApplicationContext applicationContext;
 
+    @PostMapping("/test")
+    public Result test0(HttpServletResponse response,JSRequestLineInfo requestLineInfo ,@RequestBody JSRequestBodyUser requestBodyUser){
+        log.debug("requestLineInfo:{}",requestLineInfo);
+        log.debug("requestBodyUser:{}",requestBodyUser);
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        response.setHeader("server", "server");
 
-    @GetMapping("/test")
-    public Result test0(){
-       /*if(true){
-           throw new RuntimeException("异常测试。。。");
-       }*/
-        log.debug("{}","你好！！！");
-       return new Result(Result.OK,"执行成功11111",true,new User());
+       return new Result(Result.OK,"执行成功",true,requestBodyUser);
     }
 
     @PostMapping("/posttest")

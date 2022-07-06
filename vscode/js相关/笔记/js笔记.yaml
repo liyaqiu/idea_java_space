@@ -1231,3 +1231,156 @@ JS介绍:
             console.log('分线程执行任务完毕')
         }
     "
+  AJAX:
+    功能:
+      - 可以实现页面无刷新与服务器进行交互
+    缺点:
+      - 没有浏览历史记录，不能做前进回退功能
+      - 存在跨域问题
+      - SEO不友好
+    跨域问题:
+      同源策略:
+        - 必须保证(协议，域名，端口号)全部一致
+        - 违背了同源策略的请求，都属于跨域请求
+      CORS实现跨域:
+        功能:
+          - CORS(Cross-Origin-Resource Sharing),交叉源资源共享，是官方退出的解决方案，通过服务端设置请求头实现。
+        设置:
+          - .allowedOrigins("*") //允许ajax请求的来源网站 response.setHeader("Access-Control-Allow-Origin", "*");
+          - .allowedMethods("*") //允许ajax请求哪些方法
+          - .allowCredentials(true)//是否允许携带Credentials 可以是 cookies、authorization headers 或 TLS client certificates。//https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Access-Control-Allow-Credentials
+          - .exposedHeaders("*") //设置ajax能获取到响应头哪些头信息 response.setHeader("Access-Control-Expose-Headers","*");
+          - .allowedHeaders("*");//允许ajax发送哪些自定义(浏览器默认允许所有除预定义的)请求头信息
+          - 更多跨域请求头字段可以参考这里 https://developer.mozilla.org/zh-CN/docs/Web/HTTP/CORS
+      JSONP实现跨域:
+        - 缺点，只支持get请求方式，需要在客户端+服务端结合实现
+        - jquery实现JSONP请求https://www.bilibili.com/video/BV1WC4y1b78y?p=29&vd_source=cc17fab1d456bc3958dcb51e2fdd520b
+        - "
+          function hanshu1(){
+              console.log(arguments[0])
+          }
+
+          window.onload = function(){
+              document.getElementById('bt').onclick = function(){
+                  var sc=document.createElement('script');
+                  sc.src = 'http://192.168.0.109:8080/test3'
+                  document.body.appendChild(sc);
+              }
+
+          }
+        "
+    XMLHttpRequest案例:
+      - "
+        ;(function request(){
+          const xhr = new XMLHttpRequest()
+          //参数设置
+              //xhr.responseType = 'json' //设置响应体数据为json，这样就可以实现响应体自动将Json数据转换JS对象
+
+              xhr.timeout = 3000 //单位秒,超时后会中断请求，如果低于1.1秒可能是网络异常，但是由于太短的超时时候，导致网络异常没触发
+              xhr.ontimeout = function(){ //设置超时回调函数
+                  console.log('请求已经超时')
+              }
+
+              xhr.onerror = function(){
+                  console.log('网络异常或者请求Ip地址错误')
+              }
+
+              xhr.onabort = function(){
+                  console.log('请求被中断')
+              }
+              //xhr.abort() //中断请求
+
+
+          //get请求，只支持请求行传参
+              /* xhr.open('POST','http://192.168.0.109:8888/test?line1=行1&line2=行2&line3=行3')
+              //设置请求头
+              xhr.setRequestHeader('client','client')
+              //发送
+              //xhr.send(null) //其作为请求主体；如果请求方法是 GET 或者 HEAD，则应将请求主体设置为 null */
+
+
+          //post请求，支持请求行传参和请求体
+              //方式1
+                  /* //初始化设置
+                  xhr.open('POST','http://192.168.0.109:8888/test?line1=行1&line2=行2&line3=行3')
+                  //设置请求头
+                  xhr.setRequestHeader('client','client')
+                  xhr.setRequestHeader('Content-Type','application/x-www-from-urlencoded')
+                  xhr.send('userName=eric&passwd=123456') //其作为请求主体；如果请求方法是 GET 或者 HEAD，则应将请求主体设置为 null */
+
+              //方式2
+                  //初始化设置
+                  xhr.open('POST','http://192.168.0.109:8888/test?line1=行1&line2=行2&line3=行3')
+                  //设置请求头
+                  xhr.setRequestHeader('client','client')
+                  xhr.setRequestHeader('Content-Type','application/json;charset=UTF-8')
+                  xhr.send('{'userName':'eric','passwd':'123456','sex':'男'}') //其作为请求主体；如果请求方法是 GET 或者 HEAD，则应将请求主体设置为 null
+
+
+          /*
+          每当readyState状态发生改变时候，会调用onreadystatechange方法
+              0: 请求未初始化
+              1: 服务器连接已建立
+              2: 请求已接收
+              3: 请求处理中
+              4: 请求已完成，且响应已就绪
+                  */
+          xhr.onreadystatechange = function(){
+              if(xhr.readyState === 0){
+                  console.log(0)
+              }
+              if(xhr.readyState === 1){
+                  console.log(1)
+              }
+              if(xhr.readyState === 2){
+                  console.log(2)
+              }
+              if(xhr.readyState === 3){
+                  console.log(3)
+              }
+              if(xhr.readyState === 4){
+                  console.log(4)
+                  //http状态
+                  if(xhr.status >= 200 && xhr.status < 300){
+                      console.log('状态码',xhr.status)
+                      let headers = xhr.getAllResponseHeaders();
+                      let arr = headers.trim().split(/[\r\n]+/);
+                      let headerMap = {};
+                      arr.forEach(function (line) {
+                          let parts = line.split(': ');
+                          let header = parts.shift();
+                          let value = parts.join(': ');
+                          headerMap[header] = value;
+                      });
+                      console.log(headerMap)
+                      console.log('响应体',JSON.parse(xhr.response))
+                  }else if(xhr.status === 404){
+                      console.log('请求路径没找到')
+                  }
+              }
+          }
+
+          var obj = {}
+          obj.a = xhr
+          console.log(obj)
+
+      })()
+      "
+    fetch案例:
+      - "
+        ;(function(){
+            fetch('http://192.168.0.109:8888/test?line1=行1&line2=行2&line3=行3',{
+                method:'POST',
+                headers:{
+                    client:'client',
+                    ['Content-Type']:'application/json;charset=UTF-8'
+                },
+                body:'{'userName':'eric','passwd':'123456','sex':'男'}'
+            }).then(response =>{
+                return response.json()
+            }).then(jsonObj =>{
+                console.log(jsonObj)
+            })
+        })()
+      "
+
