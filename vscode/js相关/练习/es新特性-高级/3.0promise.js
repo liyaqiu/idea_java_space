@@ -63,6 +63,33 @@
         onRejectd = (typeof onRejectd) === 'function' ? onRejectd:reason =>{ throw reason}
 
         return new Promise((resolve,reject)=>{
+            
+            //改了状态和增加了数据，但未返回数据
+            if(_this.state === RESOLVED){
+                //console.log('RESOLVED RESOLVED')
+                setTimeout(()=>{
+                    handle(onResolved)
+                })
+            //改了状态和增加了数据，但未返回数据
+            }else if(_this.state === REJECTED){
+                //console.log('REJECTED REJECTED')
+                setTimeout(()=>{
+                    handle(onRejectd)
+                })
+
+            //未改状态和没增加数据，所以只能保存回调函数
+            }else if(_this.state === PENDING){
+                //console.log('PENDING PENDING')
+                _this.callbacks.push({
+                    onResolved(value){
+                        handle(onResolved)
+                    },
+                    onRejectd(reason){
+                        handle(onRejectd)
+                    }
+                })
+            }
+
             function handle(fun){
                 try {
                     let result = fun(_this.data)
@@ -90,31 +117,7 @@
                 }
             }
 
-            //改了状态和增加了数据，但未返回数据
-            if(_this.state === RESOLVED){
-                //console.log('RESOLVED RESOLVED')
-                setTimeout(()=>{
-                    handle(onResolved)
-                })
-            //改了状态和增加了数据，但未返回数据
-            }else if(_this.state === REJECTED){
-                //console.log('REJECTED REJECTED')
-                setTimeout(()=>{
-                    handle(onRejectd)
-                })
-
-            //未改状态和没增加数据，所以只能保存回调函数
-            }else if(_this.state === PENDING){
-                //console.log('PENDING PENDING')
-                _this.callbacks.push({
-                    onResolved(value){
-                        handle(onResolved)
-                    },
-                    onRejectd(reason){
-                        handle(onRejectd)
-                    }
-                })
-            }
+            
         })
 
     }

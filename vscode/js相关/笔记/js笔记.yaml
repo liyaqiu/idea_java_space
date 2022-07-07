@@ -2,7 +2,7 @@ JS介绍:
   - JavaScript遵循ECMAScript规范
   - 一个完成的JavaScript有3部分组成，ECMAScript、DOM、BOM
   - JavaScript是一门解析型语言，基于原型的面向对象语言
-  - js下载 https://www.bootcdn.cn/jquery/
+  - js下载 https://www.bootcdn.cn/
   - mdn文档 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
   - babeljs 语法转换 https://babeljs.io/
   - 参考文档 https://www.w3cschool.cn/javascript/js-ex-objects.html
@@ -1282,7 +1282,7 @@ JS介绍:
               }
 
               xhr.onerror = function(){
-                  console.log('网络异常或者请求Ip地址错误')
+                  console.log('网络异常或者请求Ip地址错误',xhr.error)
               }
 
               xhr.onabort = function(){
@@ -1290,59 +1290,31 @@ JS介绍:
               }
               //xhr.abort() //中断请求
 
-
-          //get请求，只支持请求行传参
-              /* xhr.open('POST','http://192.168.0.109:8888/test?line1=行1&line2=行2&line3=行3')
-              //设置请求头
-              xhr.setRequestHeader('client','client')
-              //发送
-              //xhr.send(null) //其作为请求主体；如果请求方法是 GET 或者 HEAD，则应将请求主体设置为 null */
-
-
-          //post请求，支持请求行传参和请求体
-              //方式1
-                  /* //初始化设置
-                  xhr.open('POST','http://192.168.0.109:8888/test?line1=行1&line2=行2&line3=行3')
-                  //设置请求头
-                  xhr.setRequestHeader('client','client')
-                  xhr.setRequestHeader('Content-Type','application/x-www-from-urlencoded')
-                  xhr.send('userName=eric&passwd=123456') //其作为请求主体；如果请求方法是 GET 或者 HEAD，则应将请求主体设置为 null */
-
-              //方式2
-                  //初始化设置
-                  xhr.open('POST','http://192.168.0.109:8888/test?line1=行1&line2=行2&line3=行3')
-                  //设置请求头
-                  xhr.setRequestHeader('client','client')
-                  xhr.setRequestHeader('Content-Type','application/json;charset=UTF-8')
-                  xhr.send('{'userName':'eric','passwd':'123456','sex':'男'}') //其作为请求主体；如果请求方法是 GET 或者 HEAD，则应将请求主体设置为 null
-
-
           /*
           每当readyState状态发生改变时候，会调用onreadystatechange方法
               0: 请求未初始化
-              1: 服务器连接已建立
-              2: 请求已接收
+              1: 服务器连接已建立 open之后会调用
+              2: 请求已接收   send之后会调用
               3: 请求处理中
               4: 请求已完成，且响应已就绪
-                  */
+          */
           xhr.onreadystatechange = function(){
               if(xhr.readyState === 0){
-                  console.log(0)
+                  console.log(xhr.readyState,xhr.statusText,xhr.status)
               }
               if(xhr.readyState === 1){
-                  console.log(1)
+                  console.log(xhr.readyState,xhr.statusText,xhr.status)
               }
               if(xhr.readyState === 2){
-                  console.log(2)
+                  console.log(xhr.readyState,xhr.statusText,xhr.status)
               }
               if(xhr.readyState === 3){
-                  console.log(3)
+                  console.log(xhr.readyState,xhr.statusText,xhr.status)
               }
               if(xhr.readyState === 4){
-                  console.log(4)
+                  console.log(xhr.readyState,xhr.statusText,xhr.status)
                   //http状态
                   if(xhr.status >= 200 && xhr.status < 300){
-                      console.log('状态码',xhr.status)
                       let headers = xhr.getAllResponseHeaders();
                       let arr = headers.trim().split(/[\r\n]+/);
                       let headerMap = {};
@@ -1353,12 +1325,42 @@ JS介绍:
                           headerMap[header] = value;
                       });
                       console.log(headerMap)
+                      console.log(xhr.getResponseHeader('token'))
                       console.log('响应体',JSON.parse(xhr.response))
                   }else if(xhr.status === 404){
                       console.log('请求路径没找到')
                   }
               }
           }
+
+          //get请求，只支持请求行传参
+              /* xhr.open('POST','http://192.168.0.109:8888/test?line1=行1&line2=行2&line3=行3',true) //true放入宏队列,此参数会影响到send方法是否异步执行
+              //设置请求头
+              xhr.setRequestHeader('client','client')
+              //发送
+              //xhr.send(null) //其作为请求主体；如果请求方法是 GET 或者 HEAD，则应将请求主体设置为 null */
+
+
+          //post请求，支持请求行传参和请求体
+              //方式1
+                  /* //初始化设置
+                  xhr.open('POST','http://192.168.0.109:8888/test?line1=行1&line2=行2&line3=行3',true) //true放入宏队列,此参数会影响到send方法是否异步执行
+                  //设置请求头
+                  xhr.setRequestHeader('client','client')
+                  xhr.setRequestHeader('Content-Type','application/x-www-from-urlencoded')
+                  xhr.send('userName=eric&passwd=123456') //其作为请求主体；如果请求方法是 GET 或者 HEAD，则应将请求主体设置为 null */
+
+              //方式2
+                  //初始化设置
+                  xhr.open('POST','http://192.168.0.109:8888/test?line1=行1&line2=行2&line3=行3',true) //true放入宏队列,此参数会影响到send方法是否异步执行
+                  //设置请求头
+                  xhr.setRequestHeader('client','client')
+                  xhr.setRequestHeader('Content-Type','application/json;charset=UTF-8')
+                  xhr.send('{'userName':'eric','passwd':'123456','sex':'男'}') //其作为请求主体；如果请求方法是 GET 或者 HEAD，则应将请求主体设置为 null
+
+
+
+
 
           var obj = {}
           obj.a = xhr
@@ -1367,6 +1369,7 @@ JS介绍:
       })()
       "
     fetch案例:
+      - fetch封装了Promise和XMLHttpRequest
       - "
         ;(function(){
             fetch('http://192.168.0.109:8888/test?line1=行1&line2=行2&line3=行3',{

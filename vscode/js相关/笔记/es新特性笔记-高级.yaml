@@ -465,3 +465,14 @@ Promise:
 
     "
 Axios:
+  功能:
+    - 文档 https://github.com/axios/axios
+    - 目前为止，前端最流行的ajax请求库
+    - react/vue官方都推荐使用axios
+  优点:
+    - 基于Promise的异步ajax请求库
+    - 浏览器端和nodejs都可以使用
+    - 支持请求拦截器和响应拦截器
+    - 支持请求取消
+    - 支持请求数据转换和响应数据转换
+    - 支持批量发送多个请求

@@ -23,16 +23,35 @@ public class UserController {
     @Autowired
     ApplicationContext applicationContext;
 
-    @PostMapping("/test")
-    public Result test0(HttpServletResponse response,JSRequestLineInfo requestLineInfo ,@RequestBody JSRequestBodyUser requestBodyUser){
-        log.debug("requestLineInfo:{}",requestLineInfo);
-        log.debug("requestBodyUser:{}",requestBodyUser);
+    @GetMapping("/test")
+    public Result test1(HttpServletResponse response,JSRequestLineInfo requestLineInfo){
+        log.debug("get requestLineInfo:{}",requestLineInfo);
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         response.setHeader("server", "server");
+        response.setHeader("token", "servertoken");
+
+        return new Result(Result.OK,"执行成功",true,null);
+    }
+
+
+    //@GetMapping("/test")
+    @PostMapping("/test")
+    //@PutMapping("/test")
+    //@DeleteMapping("/test")
+    public Result test0(HttpServletResponse response,JSRequestLineInfo requestLineInfo ,@RequestBody JSRequestBodyUser requestBodyUser){
+        log.debug("post requestLineInfo:{}",requestLineInfo);
+        log.debug("post requestBodyUser:{}",requestBodyUser);
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        response.setHeader("server", "server");
+        response.setHeader("token", "servertoken");
 
        return new Result(Result.OK,"执行成功",true,requestBodyUser);
     }
