@@ -499,7 +499,7 @@ JS介绍:
          以函数方式调用，this指向window对象  fun()
          调用函数对象的call方法，this为传入的对象，testFun.call(obj,'arg1','arg2')
          调用函数对象的apply方法，this为传入的对象 testFun.apply(obj,['arg1','arg2'])
-         还有一种利用bind方式，没研究过
+         还有一种利用bind方式，对函数进行拷贝，在执行const a2 = testFun.bind(myObj,'eric1','eric2')  a2()
       "
     函数中的this对象之调用者改变:
       - "
@@ -523,6 +523,15 @@ JS介绍:
            new Vue(function(){
                 myFun.apply(obj) //改变了myFun函数的调用方式
            })
+         //方式3
+          function myFun(){
+              console.log(this) //当前对象
+          }
+
+          var obj = {}
+          new Vue(function(){
+              myFun.bind(obj)() //改变了myFun函数的调用方式
+          })
       "
     函数中arguments对象:
       - 解析器会为每个函数隐式传递一个arguments对象

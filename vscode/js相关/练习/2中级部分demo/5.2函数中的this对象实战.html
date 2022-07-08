@@ -34,15 +34,19 @@
         console.log(window) */
 
         //方式3，属性添加到我指定的对象上
-        var myObj = new Object()
+        /* var myObj = new Object()
         var a1 = obj.fun
         a1.call(myObj,'eric1','eric2') //a1.apply(myObj,['eric1','eric2']) 
         console.log(myObj)
         console.log(obj)
-        console.log(window)
+        console.log(window) */
 
-
-        
+        //方式4，
+        var myObj = new Object()
+        var a1 = obj.fun
+        const a2 = a1.bind(myObj,'eric1','eric2')
+        a2()
+        console.log(myObj)
 
 
         

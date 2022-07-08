@@ -33,7 +33,6 @@ public class UserController {
         }
         response.setHeader("server", "server");
         response.setHeader("token", "servertoken");
-
         return new Result(Result.OK,"执行成功",true,null);
     }
 
@@ -52,7 +51,7 @@ public class UserController {
         }
         response.setHeader("server", "server");
         response.setHeader("token", "servertoken");
-
+        //response.setStatus(404);
        return new Result(Result.OK,"执行成功",true,requestBodyUser);
     }
 

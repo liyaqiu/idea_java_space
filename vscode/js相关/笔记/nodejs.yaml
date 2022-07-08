@@ -1,2 +1,69 @@
-官方:
+官网:
+  - https://nodejs.org/zh-cn/
   - jsonserver https://github.com/typicode/json-server
+nodejs介绍:
+  - nodejs基数版本是开发版本，偶数版本为稳定版本
+  - nodejs封装了V8执行引擎，在nodejs平台上可以运行js代码，这样就脱离了浏览器运行js代码
+  - "
+    浏览器提供的api
+      Dom api
+      Bom api
+      Canvas api
+      XMLHttpRequest api
+      js内置对象 api
+    nodejs提供的api
+      fs api
+      path api
+      http api
+      js内置对象 api
+  "
+nodejs安装: 下载执行下一步
+模块化:
+  功能:
+    - 在Node中，一个js文件就是一个模块
+    - 在Node中，每一个js文件中的js代码都是独立运行在一个函数中(可以看成es5中的闭包)，而不是全局作用域，所以一个模块中的变量和函数在其他模块中无法访问
+  CommonJS规范:
+    - 模块引用
+    - 模块定义
+    - 模块标识
+  案例1:
+    - "
+      2.1模块化案例.js
+        console.log('hello-world')
+
+        //引入模块，js后缀可以省略
+        const m1 = require('./2.2模块')
+        const m2 = require('./2.3模块')
+
+        //调用模块中的属性
+        console.log(m1.moduleName)
+        console.log(m2.moduleName)
+
+        //调用模块中的方法
+        m1.fun()
+        m2.fun()
+      2.2模块.js
+        console.log(exports === this) //true
+
+        var moduleName = '我是模块2.2属性'
+        function fun(){
+            console.log('我的模块2.2函数')
+        }
+
+        exports.moduleName = moduleName
+        exports.fun = fun
+      2.3模块.js
+        console.log(exports === this) //true
+
+        var moduleName = '我是模块2.3属性'
+        function fun(){
+            console.log('我的模块2.3函数')
+        }
+
+        this.moduleName = moduleName
+        exports.fun = fun
+    "
+nodejs模块:
+  fs文件系统模块:
+  path路径模块:
+  http模块:
