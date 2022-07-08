@@ -1,5 +1,4 @@
 
-console.log(exports === this) //true
 
 var moduleName = '我是模块2.3属性'
 function fun(){
