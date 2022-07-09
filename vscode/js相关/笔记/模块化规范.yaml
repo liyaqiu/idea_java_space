@@ -11,15 +11,17 @@
       - 1个或多个文件都可以当做一模块
       - 在浏览器端，模块需要提前编译打包处理
       - 在nodejs端，模块的加载是运行时同步加载的
+      - https://www.npmjs.com/package/browserify
     本质:
       - 暴露的本质是暴露module.exports的对象
     使用方式:
       浏览器使用:
-        - https://www.npmjs.com/package/browserify
-        - npm i browserify -g
-        - npm i browserify --save-dev
-        - set-ExecutionPolicy RemoteSigned //如果无法执行browserify，需要在dos中执行
-        - browserify .\js\src\app.js -o .\js\dist\bundle.js
+        安装:
+          - set-ExecutionPolicy RemoteSigned //dos中无法执行命令时，则执行次命令
+          - npm i browserify -g
+          - npm i browserify --save-dev
+        使用:
+          - browserify .\js\src\app.js -o .\js\dist\bundle.js
       nodejs使用:
   AMD模块化:
     功能:
@@ -33,3 +35,29 @@
       - https://www.zhangxinxu.com/sp/seajs/
       - 教程 https://www.bilibili.com/video/BV18s411E7Tj?p=8&vd_source=cc17fab1d456bc3958dcb51e2fdd520b
   ES6模块化:
+    功能:
+      - "https://www.babeljs.cn/"
+      - https://www.npmjs.com/package/browserify
+      - 使用Babel将es6编译为es5代码，使用browserify编译打包js
+      - 使用export和import语法
+    浏览器使用:
+      安装:
+        - set-ExecutionPolicy RemoteSigned //dos中无法执行命令时，则执行次命令
+        - npm i babel-cli browserify -g 全局安装
+        - npm i babel-preset-es2015 --save-dev 安装es6转es5语法
+      使用:
+        - babel .\js\src\ -d .\js\build\
+        - browserify .\js\build\app.js -o .\js\dist\bundle.js
+      使用第三方库:
+        - npm i jquery@1.11 或者 npm i jquery@1
+        - import  $ from 'jquery' //直接使用包名进行导入
+
+
+
+
+
+
+
+
+
+
