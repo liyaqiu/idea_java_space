@@ -39,3 +39,4 @@ out/
 *.pid
 *.orig
 temp/
+node_modules
