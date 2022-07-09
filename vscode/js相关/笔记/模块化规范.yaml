@@ -11,9 +11,25 @@
       - 1个或多个文件都可以当做一模块
       - 在浏览器端，模块需要提前编译打包处理
       - 在nodejs端，模块的加载是运行时同步加载的
+    本质:
+      - 暴露的本质是暴露module.exports的对象
     使用方式:
-      - 浏览器使用
-      - nodejs使用
+      浏览器使用:
+        - https://www.npmjs.com/package/browserify
+        - npm i browserify -g
+        - npm i browserify --save-dev
+        - set-ExecutionPolicy RemoteSigned //如果无法执行browserify，需要在dos中执行
+        - browserify .\js\src\app.js -o .\js\dist\bundle.js
+      nodejs使用:
   AMD模块化:
+    功能:
+      - https://requirejs.org/docs/api.html
+      - 用到了requirejs实现了AMD模块化规范来解决依赖关系
+      - AMD模块化规范是用于浏览器的，模块的加载是异步的
   CMD模块化:
+    功能:
+      - CMD模块化规范是用于浏览器的，模块的加载支持同步和异步
+      - Sea.js
+      - https://www.zhangxinxu.com/sp/seajs/
+      - 教程 https://www.bilibili.com/video/BV18s411E7Tj?p=8&vd_source=cc17fab1d456bc3958dcb51e2fdd520b
   ES6模块化:

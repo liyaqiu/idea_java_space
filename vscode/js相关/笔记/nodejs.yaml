@@ -99,7 +99,8 @@ npm:
       - npm init 初始化，使用npm前记得初始化在使用
       - npm s/search packName 搜索包名
       - npm i/install 会根据当前路径下package.json进行依赖下载
-      - npm i/install packName -save 添加包并且保存依赖
+      - npm i/install packName -save 添加包并且保存生产依赖
+      - npm i/install packName --save-dev 添加包并且保存开发依赖
       - npm r/remove/uninstall packName 在当前目录卸载安装包
     不常用:
       - npm -v 查看npm版本
