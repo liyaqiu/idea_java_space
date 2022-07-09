@@ -39,9 +39,9 @@
         const fs = require('fs')
         const path = require('path')
         //console.log(fs,path)
-    //引入npm下载的包
+    //引入npm下载的包，会一直往上一级node_modules目录找，直到找到根位置
         const m3 = require('math')
-        //console.log(m3.add(100,200))
+        console.log(m3.add(100,200))
 
 //3参数module，代表模块本身
 
@@ -50,5 +50,3 @@
 
 //5参数__dirname，当前文件的目录路径
     //console.log(__dirname)
-
-

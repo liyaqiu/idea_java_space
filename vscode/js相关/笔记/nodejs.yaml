@@ -1,6 +1,8 @@
 官网:
   - https://nodejs.org/zh-cn/
   - jsonserver https://github.com/typicode/json-server
+  - 包查找地址 https://www.npmjs.com/
+  - vscode 执行node需要以管理员身份运行
 nodejs介绍:
   - nodejs基数版本是开发版本，偶数版本为稳定版本
   - nodejs封装了V8执行引擎，在nodejs平台上可以运行js代码，这样就脱离了浏览器运行js代码
@@ -55,20 +57,25 @@ CommonJS规范:
           this.fun = ()=>{
               console.log('fun')
           } */
+
       //2参数require，用来引入系统内置模块和用户自定义模块
-          //自定义模块引入，js后缀可以省略
+          //引入自定义模块，js后缀可以省略
               const m1 = require('./2.2模块')
               const m2 = require('./2.3模块')
-          //调用模块中的属性
-              //console.log(m1.moduleName)
-              //console.log(m2.moduleName)
-          //调用模块中的方法
-              //m1.fun()
-              //m2.fun()
-          //核心模块引入
+              //调用模块中的属性
+                  //console.log(m1.moduleName)
+                  //console.log(m2.moduleName)
+              //调用模块中的方法
+                  //m1.fun()
+                  //m2.fun()
+          //引入核心模块
               const fs = require('fs')
               const path = require('path')
               //console.log(fs,path)
+          //引入npm下载的包，会一直往上一级node_modules目录找，直到找到根位置
+              const m3 = require('math')
+              console.log(m3.add(100,200))
+
       //3参数module，代表模块本身
 
       //4参数__filename，当前文件的完整路径
@@ -97,11 +104,16 @@ npm:
     不常用:
       - npm -v 查看npm版本
       - npm version 查看各种版本信息
-      - npm -help 查看帮助文档
+      - npm info packName
+      - npm config ls 查看配置
+      - npm config ls -l 查看配置列表
       - npm config set registry=www.xxx.com 设置镜像源
       - npm install packName -registry=www.xxx.com 从某个镜像源安装
       - npm i/install packName 在当前目录安装包
-      - npm install packName -g 把包安装到全局
+      - npm install packName -g 把包安装到全局,默认路径C:\Users\admin\AppData\Roaming\npm\node_modules
+    淘宝cnpm:
+      - https://npmmirror.com/
+      - npm install -g cnpm --registry=https://registry.npmmirror.com
 nodejs模块:
   fs文件系统模块:
   path路径模块:
