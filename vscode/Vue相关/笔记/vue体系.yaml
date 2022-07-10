@@ -10,7 +10,7 @@ Vue安装:
     - 方式2 在plugins包目录下，将Vue.crx改名为Vue.zip，解压即可
   vscode插件安装:
     - 插件[Vue 3 Snippets]，安装代码提示
-    - 插件[vscode-icons],显示文件夹管理图标
+    - 插件[JetBrains Icon Theme],显示文件夹管理图标
     - 插件[Auto Close Tag]，自动补全html标签
     - 插件[Auto Rename Tag]，自动改名标签
     - 插件[Chinese]，汉化vscode
@@ -29,38 +29,6 @@ Vue基础:
       - vue会监视data中所有层次的数据
     数据代理:
       - "Object.defineProperty(person,'age',{}"
-    监视对象:
-      - 利用数据代理方式生成getter setter函数，实现监视。
-      - 如果需要对VM对象增加属性，需要使用Vue.set()/vm.$set()进行追加
-    监视数组:
-      - 通过包装原有数组的7个函数进行功能增强。
-      - 如果需要对VM对象增加属性，需要使用push/pop/shift/unshift/splice/sort/reverse或者使用Vue.set()/vm.$set()进行追加
-  el2种方式:
-    - 方式1 el:'#box'
-    - 方式2 objInstance.$mount('#box')
-  data3种方式:
-    - "
-      方式1,对象式
-        data: {
-           name: 'eric'
-        }
-    "
-    - "
-      方式2，函数式，函数必须返回一个对象
-        data:function() {
-            return{
-                name:'eric'
-            }
-        }
-    "
-    - "
-      方式3，函数式，函数必须返回一个对象
-        data() {
-            return{
-                name:'eric'
-            }
-        }
-    "
   模版语法:
     插值语法:
       功能:
@@ -68,163 +36,197 @@ Vue基础:
       使用:
         - {{xxx}} 调用data的属性
         - {{xxx()}} 调用methods的方法
-    指令语法:
+    数据绑定:
+      单向绑定:
+        功能:
+          - v-bind:xx，单向数据绑定，可简写为【:xx】
+      双向绑定:
+        功能:
+          - v-model:value，双向数据绑定，可以简写为【v-model】一般用在交互标签，文本框，单选框，多选框，它们都有一个value属性可以绑定。
+        修饰符:
+          - number 将字符串转换为数字，v-model.number
+          - lazy 失去焦段后触发，v-model.lazy
+          - trim 去头尾空格,v-model.trim
+    事件处理:
+      点击事件:
+        功能:
+          - v-on:click="showInfo" 为标签绑定一个showInfo函数，可简写为 【@click="showInfo"】，传参的写法@click="showInfo($event,'hello',128)
+        修饰符:
+          - prevent 阻止默认时间(常用) v-on:click.prevent、@click.prevent
+          - stop 阻止事件冒泡(常用) v-on:click.stop、@click.stop
+          - once 事件只触发一次(常用) v-on:click.once、@click.once
+          - capture 使用事件的捕获模式
+          - self 只有event.target是当前操作的元素时才触发时间
+          - passive 时间的默认行为立即执行，无需等待事件回调执行完毕
+        修饰符组合使用:
+          - 假设需要阻止冒泡和阻止默认时间 @click.stop.prevent="showInfo"
+      键盘事件:
+        功能:
+          - v-on:keyup="showInfo"，简写为【@keyup="showInfo"】 按下键盘弹起触发
+          - v-on:keydown 按下键盘触发，简写为【@keydown="showInfo"】 按下键盘弹起触发
+        修饰符:
+          - enter 回车键 @keyup.enter
+          - delete 退格键 @keyup.delete
+          - esc 退出键
+          - space 空格键
+          - tab 换行键，需要配合@keydown使用才出效果
+          - up 上键
+          - down 下键
+          - left 左键
+          - right 右键
+        特殊修饰符:
+          - ctrl
+          - alt
+          - shift
+          - meta window键
+          - 以上按键配合keyup使用，需要加上其他键组合才能触发
+          - 以上按键配合keydown使用，可以正常使用
+        修饰符组合使用:
+          - 假设需要ctrl+y才能触发事件 @keyup.ctrl.y="showInfo"
+      表单提交事件:
+        功能:
+          - v-on:submit 可以简写为@submit
+        修饰符:
+          - prevent 阻止默认时间(常用) v-on:click.prevent、@click.prevent
+          - stop 阻止事件冒泡(常用) v-on:click.stop、@click.stop
+          - once 事件只触发一次(常用) v-on:click.once、@click.once
+          - capture 使用事件的捕获模式
+          - self 只有event.target是当前操作的元素时才触发时间
+          - passive 时间的默认行为立即执行，无需等待事件回调执行完毕
+    控制指令:
+      if:
+        功能:
+          - 直接移除标签
+          - 可以结合templete标签使用
+        使用:
+          - v-if="布尔表达式"
+          - v-else-if="布尔表达式"
+          - v-else="布尔表达式"
+      show:
+        功能:
+          - 不移除标签，使用样式隐藏方式
+        使用:
+          - v-show="布尔表达式"
+    循环指令:
       功能:
-        - 给【标签体、标签属性、标签绑定事件】使用
-      数据绑定:
-        单向绑定:
-          功能:
-            - v-bind:xx，单向数据绑定，可简写为【:xx】
-        双向绑定:
-          功能:
-            - v-model:value，双向数据绑定，可以简写为【v-model】一般用在交互标签，文本框，单选框，多选框，它们都有一个value属性可以绑定。
-          修饰符:
-            - number 将字符串转换为数字，v-model.number
-            - lazy 失去焦段后触发，v-model.lazy
-            - trim 去头尾空格,v-model.trim
-      事件处理:
-        点击事件:
-          功能:
-            - v-on:click="showInfo" 为标签绑定一个showInfo函数，可简写为 【@click="showInfo"】，传参的写法@click="showInfo($event,'hello',128)
-          修饰符:
-            - prevent 阻止默认时间(常用) v-on:click.prevent、@click.prevent
-            - stop 阻止事件冒泡(常用) v-on:click.stop、@click.stop
-            - once 事件只触发一次(常用) v-on:click.once、@click.once
-            - capture 使用事件的捕获模式
-            - self 只有event.target是当前操作的元素时才触发时间
-            - passive 时间的默认行为立即执行，无需等待事件回调执行完毕
-          修饰符组合使用:
-            - 假设需要阻止冒泡和阻止默认时间 @click.stop.prevent="showInfo"
-        键盘事件:
-          功能:
-            - v-on:keyup="showInfo"，简写为【@keyup="showInfo"】 按下键盘弹起触发
-            - v-on:keydown 按下键盘触发，简写为【@keydown="showInfo"】 按下键盘弹起触发
-          修饰符:
-            - enter 回车键 @keyup.enter
-            - delete 退格键 @keyup.delete
-            - esc 退出键
-            - space 空格键
-            - tab 换行键，需要配合@keydown使用才出效果
-            - up 上键
-            - down 下键
-            - left 左键
-            - right 右键
-          特殊修饰符:
-            - ctrl
-            - alt
-            - shift
-            - meta window键
-            - 以上按键配合keyup使用，需要加上其他键组合才能触发
-            - 以上按键配合keydown使用，可以正常使用
-          修饰符组合使用:
-            - 假设需要ctrl+y才能触发事件 @keyup.ctrl.y="showInfo"
-        表单提交事件:
-          功能:
-            - v-on:submit 可以简写为@submit
-          修饰符:
-            - prevent 阻止默认时间(常用) v-on:click.prevent、@click.prevent
-            - stop 阻止事件冒泡(常用) v-on:click.stop、@click.stop
-            - once 事件只触发一次(常用) v-on:click.once、@click.once
-            - capture 使用事件的捕获模式
-            - self 只有event.target是当前操作的元素时才触发时间
-            - passive 时间的默认行为立即执行，无需等待事件回调执行完毕
-      控制指令:
-        if:
-          功能:
-            - 直接移除标签
-            - 可以结合templete标签使用
-          使用:
-            - v-if="布尔表达式"
-            - v-else-if="布尔表达式"
-            - v-else="布尔表达式"
-        show:
-          功能:
-            - 不移除标签，使用样式隐藏方式
-          使用:
-            - v-show="布尔表达式"
-      循环指令:
+        - 遍历列表<li>
+        - 可以遍历数组，遍历对象，遍历字符串，遍历具体次数
+      使用:
+        - v-for="(car,index) in cars" :key="index+1"
+        - v-for="(car,index) of cars" :key="index+1"
+      注意:
+        - 一般:key不要用index，除非你能保证新生成的数据不会对原来的数据进行打乱(逆序添加或者删除)。否则当vue在进行虚拟dom节点对比的时候会出问题，并且执行效率低下
+        - 为了保险起见尽量用到数据的我唯一ID
+    插入标签体内容指令:
+      v-text:
+        - 不支持标签解析，并且会替换标签体内容
+      v-html:
+        - 支持标签解析，并且会替换标签体内容
+        - 存在安全隐患
+    网速慢延迟解析指令:
+      功能:
+        - 它是一个特殊属性，Vue实例创建完并接管容器后会删掉v-cloak属性，需要配合css样式使用
+      使用:
+        - v-cloak，这个指令没有值
+    解析指令:
+      v-once:
         功能:
-          - 遍历列表<li>
-          - 可以遍历数组，遍历对象，遍历字符串，遍历具体次数
+          - 它只被Vue解析一次
         使用:
-          - v-for="(car,index) in cars" :key="index+1"
-          - v-for="(car,index) of cars" :key="index+1"
-        注意:
-          - 一般:key不要用index，除非你能保证新生成的数据不会对原来的数据进行打乱(逆序添加或者删除)。否则当vue在进行虚拟dom节点对比的时候会出问题，并且执行效率低下
-          - 为了保险起见尽量用到数据的我唯一ID
-      插入标签体内容指令:
-        v-text:
-          - 不支持标签解析，并且会替换标签体内容
-        v-html:
-          - 支持标签解析，并且会替换标签体内容
-          - 存在安全隐患
-      网速慢延迟解析指令:
+          - v-once，这个指令没有值
+      v-pre:
         功能:
-          - 它是一个特殊属性，Vue实例创建完并接管容器后会删掉v-cloak属性，需要配合css样式使用
+          - Vue不解析该节点所有模版
+          - 可利用它跳过没有使用指令语法，没有使用差值语法的节点，会加快编译性能
         使用:
-          - v-cloak，这个指令没有值
-      解析指令:
-        v-once:
-          功能:
-            - 它只被Vue解析一次
-          使用:
-            - v-once，这个指令没有值
-        v-pre:
-          功能:
-            - Vue不解析该节点所有模版
-            - 可利用它跳过没有使用指令语法，没有使用差值语法的节点，会加快编译性能
-          使用:
-            - v-pre，这个指令没有值
-      自定义指令:
-        功能:
-          - bind，指令与元素绑定时会执行
-          - inserted，指令所在元素被插入页面时执行
-          - update，指令所在的模版被重新解释时会执行
-        使用:
-          - v-demo1
-          - v-demo2
-  生命周期:
-    功能:
-      - 官方生命周期图 https://cn.vuejs.org/v2/guide/instance.html#%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E5%9B%BE%E7%A4%BA
-    beforeCreate:
-      - 初始化，生命周期、事件，但数据代理还未开始
-      - 此时，无法通过VM访问到data中的数据、methods中的方法。
-    created:
-      - 初始化，数据监测，数据代理
-      - 此时，可以通过VM访问到data中的数据、methods中的方法。
-    beforeMount:
-      - 此阶段之前Vue开始解析模版，在内存中生成虚拟DOM，页面还不能显示解析号的内容
-      - 页面呈现的是未经过Vue编译的DOM结构。
-      - 所有对DOM的操作，最终都不生效，意思是就算你用原生操作了DOM，最后会被Vue解析后把之前内容覆盖
-    mounted(常用):
-      - 此阶段之前，Vue将内存中的虚拟DOM转为真实DOM插入页面。
-      - 此时，页面中呈现的是经过Vue编译的DOM，对DOM的操作是有效的。
-      - 至此初始化过程结束，一般在此进行开启定时器，发送网络请求，订阅消息，绑定自定义事件等初始化操作
-    beforeUpdate:
-      - 此时，数据是新的，但是页面是旧的，即，页面尚未和数据保持同步。
-    updated:
-      - 在此阶段之前，Vue根据新数据，生成的虚拟DOM与旧的虚拟DOM进行比较，最终完成页面更新，即完成了Model->View的更新
-      - 此时，数据是新的，页面也是新的，即，页面和数据保持同步。
-    beforeDestroy(常用):
-      - 此时，VM中所有的，data、methods、指令等等，都处于可用状态，马上要执行销毁的过程。
-      - 一般在此阶段，关闭定时器，取消订阅消息，解绑自定义事件等收尾操作。
+          - v-pre，这个指令没有值
+    自定义指令:
+      功能:
+        - bind，指令与元素绑定时会执行
+        - inserted，指令所在元素被插入页面时执行
+        - update，指令所在的模版被重新解释时会执行
+      使用:
+        - v-demo1
+        - v-demo2
+    元素的ref属性:
+      - ref属性用来给元素或者子组件注册引用信息(id的代替者)
+      - 如果是元素，则返回元素对象，如果是组件，则返回VueComponent实例对象
+      - 配置方式 <Person ref="person"/>
+      - 获取方式 this.$refs
+  配置对象属性:
+    el属性:
+      - 方式1 el:'#box'
+      - 方式2 vm.$mount('#box')
+    data属性:
       - "
-        注意事项
-          销毁后借助Vue开发者工具看不到任何信息。
-          销毁后自定义事件会失效，但原生DOM事件依然有效。
-          一般不会在beforeDestroy操作数据，因为即便操作数据，也不会在触发更新流程了。
-      "
-    destroyed:
+          方式1,对象式
+            data: {
+               name: 'eric'
+            }
+        "
+      - "
+          方式2，函数式，函数必须返回一个对象
+            data:function() {
+                return{
+                    name:'eric'
+                }
+            }
+        "
+      - "
+          方式3，函数式，函数必须返回一个对象
+            data() {
+                return{
+                    name:'eric'
+                }
+            }
+        "
+    生命周期属性:
+      功能:
+        - 官方生命周期图 https://cn.vuejs.org/v2/guide/instance.html#%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E5%9B%BE%E7%A4%BA
+      beforeCreate:
+        - 初始化，生命周期、事件，但数据代理还未开始
+        - 此时，无法通过VM访问到data中的数据、methods中的方法。
+      created:
+        - 初始化，数据监测，数据代理
+        - 此时，可以通过VM访问到data中的数据、methods中的方法。
+      beforeMount:
+        - 此阶段之前Vue开始解析模版，在内存中生成虚拟DOM，页面还不能显示解析号的内容
+        - 页面呈现的是未经过Vue编译的DOM结构。
+        - 所有对DOM的操作，最终都不生效，意思是就算你用原生操作了DOM，最后会被Vue解析后把之前内容覆盖
+      mounted(常用):
+        - 此阶段之前，Vue将内存中的虚拟DOM转为真实DOM插入页面。
+        - 此时，页面中呈现的是经过Vue编译的DOM，对DOM的操作是有效的。
+        - 至此初始化过程结束，一般在此进行开启定时器，发送网络请求，订阅消息，绑定自定义事件等初始化操作
+      beforeUpdate:
+        - 此时，数据是新的，但是页面是旧的，即，页面尚未和数据保持同步。
+      updated:
+        - 在此阶段之前，Vue根据新数据，生成的虚拟DOM与旧的虚拟DOM进行比较，最终完成页面更新，即完成了Model->View的更新
+        - 此时，数据是新的，页面也是新的，即，页面和数据保持同步。
+      beforeDestroy(常用):
+        - 此时，VM中所有的，data、methods、指令等等，都处于可用状态，马上要执行销毁的过程。
+        - 一般在此阶段，关闭定时器，取消订阅消息，解绑自定义事件等收尾操作。
+        - "
+          注意事项
+            销毁后借助Vue开发者工具看不到任何信息。
+            销毁后自定义事件会失效，但原生DOM事件依然有效。
+            一般不会在beforeDestroy操作数据，因为即便操作数据，也不会在触发更新流程了。
+        "
+      destroyed:
+    computed属性:
+      - 实现原理借助了数据代理方法实现。
+      - get函数只执行第一次，后续如果在获取就会从缓存中获取，执行效率高。
+    watch属性:
+      功能:
+        - 可以监视data中的属性，当属性发生变化时，触发handler函数的执行
+        - 可以监视computed中的计算属性，当属性发生变化时，触发handler函数的执行
+      监视对象:
+        - 利用数据代理方式生成getter setter函数，实现监视。
+        - 如果需要对VM对象增加属性，需要使用Vue.set()/vm.$set()进行追加
+      监视数组:
+        - 通过包装原有数组的7个函数进行功能增强。
+        - 如果需要对VM对象增加属性，需要使用push/pop/shift/unshift/splice/sort/reverse或者使用Vue.set()/vm.$set()进行追加
   API:
-    - Vue.set()、this.$set、VM.$set 给某一个对象增长属性，对象不能是Vue实例或者Vue实例的根数据对象
-  计算属性:
-    - 实现原理借助了数据代理方法实现。
-    - get函数只执行第一次，后续如果在获取就会从缓存中获取，执行效率高。
-  利用watch机制监视属性:
-    - 可以监视data中的属性，当属性发生变化时，触发handler函数的执行
-    - 可以监视computed中的计算属性，当属性发生变化时，触发handler函数的执行
-  计算属性与监视属性总结:
-    - 监视属性能完成的，计算属性不一定能完成，但是计算属性简单。
+    - Vue.set()、this.$set、VM.$set 给Vue配置对象中的对象增长属性，对象不能是Vue实例或者Vue实例的根数据对象
 Vue组件:
   模块与模块化:
     - 向外提供特定功能的js程序，一般就是一个js文件，将一个js拆分成多少个js成为模块化
@@ -271,7 +273,6 @@ Vue-cli(脚手架):
     - vue inspect > test.json //查看脚手架默认配置
     - 修改配置参考文档 https://cli.vuejs.org/zh/config/
     - 在vue.config.js文件中修改，lintOnSave=false可以关闭语法检查
-
 Vue-router:
 Vuex:
 Element-UI:
