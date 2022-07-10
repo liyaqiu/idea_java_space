@@ -47,16 +47,30 @@
             `
         })
 
+        const demo3 = Vue.extend({
+            data(){
+                return {
+                    name:'demo2'
+                }
+            },
+            template:`
+                <div>
+                    <h1>hello {{name}}</h1>    
+                </div>
+            `
+        })
+
         //第二步，全局注册组件
         Vue.component('demo2',demo2);
 
-        new Vue({
+        const vm = new Vue({
             el: '#box', 
             //第二步，局部注册组件
             components:{
                 demo1, //简写，等于 demo1:demo1
             }
         })
+        
     </script>
 </body>
 </html>

@@ -16,6 +16,7 @@ Vue安装:
     - 插件[Chinese]，汉化vscode
     - 插件[Live Server]，网页服务器
     - 插件[open in browser]，从vscode选项打开浏览器
+    - 插件[Vetur]作者Pine Wu，可以用来显示Vue文件高亮
 Vue基础:
   功能:
     - 一个容器只能对应一个vue实例对象
@@ -232,9 +233,10 @@ Vue组件:
     - 实现应用中局部功能代码和资源的集合(html、css、js、mp3、image)
     - 功能复用
   单文件组件:
-    - 一个文件中有且只有1个组件
+    - 一个vue文件中有且只有1个组件
   非单文件组件:
-    - 一个文件中包含N个组件
+    - 一个html文件中包含N个组件
+    - 诟病，样式不能跟着组件走
   组件使用:
     - 创建组件 Vue.extend
     - 局部注册组件components/全局注册 Vue.component
@@ -245,9 +247,31 @@ Vue组件:
     - 特别注意，每次调用Vue.extend，返回的都是一个全新的VueComponent
     - new Vue的this指向Vue实例对象，组件配置中的this指向VueComponent实例对象
   VC和VM区别:
-    - VC不可以绑定el，而且VC的data属性必须要返回一个对象的函数
-    - VM可以绑定el,data可以写返回一个对象的函数，或者直接是对象形式
-Vue-cli:
+    - VC(VueComponent)不可以绑定el，而且VC的data属性必须要返回一个对象的函数
+    - VM(Vue)可以绑定el,data可以写返回一个对象的函数，或者直接是对象形式
+    - "
+      console.log(demo2.prototype.__proto__ == Vue.prototype)
+      console.log(demo2.prototype.__proto__ == vm.__proto__)
+      console.log(new demo2().__proto__.__proto__ == vm.__proto__)
+      正是因为原型链的关系(VueComponent.prototype.__proto__ === Vue.prototype)，所以vm能访问的，vc也能访问
+      Vue.prototype.attr = 100
+      new VueComponent().attr
+    "
+Vue-cli(脚手架):
+  功能:
+    - https://cli.vuejs.org/zh/
+  安装:
+    - npm config set registry https://registry.npm.taobao.org 设置镜像
+    - npm i -g @vue/cli 安装vue脚手架
+  使用:
+    - vue create vue-project-test 利用Vue脚手架创建项目
+    - cd vue-project-test 进入目录
+    - npm run serve 启动脚手架项目
+  配置:
+    - vue inspect > test.json //查看脚手架默认配置
+    - 修改配置参考文档 https://cli.vuejs.org/zh/config/
+    - 在vue.config.js文件中修改，lintOnSave=false可以关闭语法检查
+
 Vue-router:
 Vuex:
 Element-UI:

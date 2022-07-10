@@ -7,22 +7,24 @@
     <script src="../js/vue.js"></script>
 </head>
 <body>
+    <div id="box"></div>
     
-    <div id="box">
-        <h1>hello {{name}} </h1>
-    </div>
 
     <script>
         //设置为 false 以阻止 vue 在启动时生成生产提示。
         Vue.config.productionTip = false;
-       
+
         //创建Vue实例
         new Vue({
             el: '#box',  //绑定容器，等同于el: document.getElementById("box")
             data: {
                 name: 'eric'
+            },
+            render: elfun=>{
+                return elfun('h1','hello')
             }
         })
     </script>
 </body>
 </html>
+
