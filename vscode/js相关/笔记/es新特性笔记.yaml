@@ -803,6 +803,10 @@ await:
     console.log(arr.includes(2))
     console.log(arr.includes(4)) */
 
+    let arr = [true,false,true,true,false]
+    const result = arr.reduce((pre,value)=> value?pre+=1:pre ,0)
+    console.log(result)
+
     //Object对象方法扩展
     /* console.log(Object.is(NaN,NaN))
 
@@ -851,9 +855,9 @@ await:
     console.log(Promise.all([p1,p2])) */
 
     //BigInt 可以实现更加的数值计算
-    let num = Number.MAX_SAFE_INTEGER
+    /* let num = Number.MAX_SAFE_INTEGER
     console.log(num)
     console.log(num+1)
     console.log(num+2)
-    console.log(BigInt(num)+ BigInt(2))
+    console.log(BigInt(num)+ BigInt(2))  */
   "

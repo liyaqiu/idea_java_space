@@ -29,7 +29,7 @@ Vue基础:
       - vue会监视data中所有层次的数据
     数据代理:
       - "Object.defineProperty(person,'age',{}"
-  模版语法:
+  元素属性:
     插值语法:
       功能:
         - 给【标签体】使用
@@ -153,6 +153,16 @@ Vue基础:
       - 如果是元素，则返回元素对象，如果是组件，则返回VueComponent实例对象
       - 配置方式 <Person ref="person"/>
       - 获取方式 this.$refs
+    样式作用域scoped属性:
+      - 因为Vue最后会将所有样式进行合并，在同名的情况下可能会导致样式覆盖，所以需要用到scoped属性
+      - "
+        <style lang='css' scoped>
+        /* <style lang='less'> */
+          .style1{
+            background-color: red;
+          }
+        </style>
+      "
   配置对象属性:
     el属性:
       - 方式1 el:'#box'
@@ -179,6 +189,21 @@ Vue基础:
                     name:'eric'
                 }
             }
+        "
+    methods属性:
+      - "
+        //创建Vue实例
+        new Vue({
+            el: '#box',  //绑定容器，等同于el: document.getElementById('box')
+            data: {
+                name: 'eric'
+            },
+            methods:{
+                showInfo(event,data1,data2){
+                    console.log(event,data1,data2)
+                }
+            }
+        })
         "
     生命周期属性:
       功能:
@@ -225,8 +250,214 @@ Vue基础:
       监视数组:
         - 通过包装原有数组的7个函数进行功能增强。
         - 如果需要对VM对象增加属性，需要使用push/pop/shift/unshift/splice/sort/reverse或者使用Vue.set()/vm.$set()进行追加
+    filters属性:
+      - "
+        //定义全局过滤器
+        Vue.filter('filterDemo2',function(value,splitSymbol){
+            return value.replaceAll(splitSymbol,'-')
+        })
+        //创建Vue实例
+       const vm = new Vue({
+            el: '#box',  //绑定容器，等同于el: document.getElementById('box')
+            data: {
+                person:{
+                    name:'eric',
+                    birthday: Date.now()
+                }
+            },
+            //定义局部过滤器
+            filters:{
+                filterDemo1(val,foramtStr='YYYY/MM/DD HH:mm:ss'){
+                    return dayjs(val).format(foramtStr)
+                }
+            }
+        })
+      "
+    render属性:
+      - 如果Vue模块是一些阉割版的，不支持templete属性的话，需要用到此属性来创建元素
+      - "
+        //创建Vue实例
+        new Vue({
+            el: '#box',  //绑定容器，等同于el: document.getElementById('box')
+            data: {
+                name: 'eric'
+            },
+            render: elfun=>{
+                return elfun('h1','hello')
+            }
+        })
+      "
+    组件相关属性:
+      - "
+        <div id='box'>
+            <!-- 第三步，使用组件 -->
+            <demo1></demo1>
+            <hr>
+            <demo2></demo2>
+            <demo2></demo2>
+        </div>
+
+        <script>
+            Vue.config.productionTip = false;
+
+            //第一步，创建组件
+            const demo1 = Vue.extend({
+                name: 'component-demo1', //这里会替换默认的组件名字
+                data(){
+                    return {
+                        name:'demo1'
+                    }
+                },
+                template:`
+                    <div>
+                        <h1>hello {{name}}</h1>
+                    </div>
+                `
+            })
+            //第一步，创建组件
+            const demo2 = Vue.extend({
+                data(){
+                    return {
+                        name:'demo2'
+                    }
+                },
+                template:`
+                    <div>
+                        <h1>hello {{name}}</h1>
+                    </div>
+                `
+            })
+
+            const demo3 = Vue.extend({
+                data(){
+                    return {
+                        name:'demo2'
+                    }
+                },
+                template:`
+                    <div>
+                        <h1>hello {{name}}</h1>
+                    </div>
+                `
+            })
+
+            //第二步，全局注册组件
+            Vue.component('demo2',demo2);
+
+            const vm = new Vue({
+                el: '#box',
+                //第二步，局部注册组件
+                components:{
+                    demo1, //简写，等于 demo1:demo1
+                }
+            })
+
+        </script>
+      "
+    directives属性:
+      - 自定义标签
+      - "
+        //创建Vue实例
+        new Vue({
+            el: '#box',  //绑定容器，等同于el: document.getElementById('box')
+            data: {
+                num:1,
+                num1:1
+            },
+            directives:{
+                demo2:{
+                    //指令与元素绑定时会执行
+                    bind(element,binding){
+                        console.log('bind',element,binding)
+                        element.innerText = binding.value*10
+                    },
+                    //指令所在元素被插入页面时执行
+                    inserted(element,binding){
+                        console.log('inserted',element,binding)
+                    },
+                    //指令所在的模版被重新解释时会执行
+                    update(element,binding){
+                        console.log('update',element,binding)
+                        element.innerText = binding.value*10
+                    }
+                }
+            }
+        })
+      "
+    props属性:
+      - props属性，可以进行标签传参(字面量，函数，对象)，props属性不允许修改，如果需要修改，请复制一份到data中，对data数据进行修改
+      - "
+        export default {
+        name:'Person',
+        data(){
+          console.log(this)
+          return {
+            introduction:'如下是今年优秀的人',
+            myAge:this.age ////如果修改传递参数，必须复制一份进行修改
+          }
+        },
+        methods: {
+          addAge(){
+            this.myAge++
+          }
+        },
+        //方式1
+        //props:['name','age','sex'],
+        //方式2
+        /* props:{
+          name:String,
+          age:Number,
+          sex:String
+        } */
+        //方式3
+        props:{
+          name:{
+            type:String,
+            require:true
+          },
+          age:{
+            type:Number,
+            default:100
+          },
+          sex:String //可以组合方式写
+        }
+      }
+      "
+    mixins属性:
+      - 可以定义成共享工具，支持局部注册和全局注册
+      - "
+        Vue.mixin(globalConfig) 全局注册
+      "
+      - "
+        export default {
+          name:'Person',
+          data(){
+            console.log(this)
+            return {
+            }
+          },
+          mixins:[localConfig] //局部注册
+        }
+      "
+    install属性:
+      - 可以定义全局配置，一般用于插件注册
+      - "
+        //定义插件
+        import {globalConfig,localConfig} from '../mixinjs/common-mixin.js'
+        export default {
+            install(Vue,[x,y]){
+                console.log(x,y)
+
+                //注册全局混合属性
+                Vue.mixin(globalConfig)
+            }
+        }
+        Vue.use(myplugins,['参数1','参数2'])//使用插件
+      "
+
   API:
     - Vue.set()、this.$set、VM.$set 给Vue配置对象中的对象增长属性，对象不能是Vue实例或者Vue实例的根数据对象
+    - const demo3 = Vue.extend({})，该方法返回一个VueComponent函数对象
 Vue组件:
   模块与模块化:
     - 向外提供特定功能的js程序，一般就是一个js文件，将一个js拆分成多少个js成为模块化

@@ -103,6 +103,7 @@ npm:
       - npm i/install packName --save-dev 添加包并且保存开发依赖
       - npm i jquery@1.11 或者 npm i jquery@1 可以根据版本来下载
       - npm r/remove/uninstall packName 在当前目录卸载安装包
+      - npm view packName versions 查看某个包都有那些版本
     不常用:
       - npm -v 查看npm版本
       - npm version 查看各种版本信息
