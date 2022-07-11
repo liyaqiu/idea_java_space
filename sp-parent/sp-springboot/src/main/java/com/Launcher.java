@@ -18,13 +18,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class Launcher {
 
 
-
     public static void main(String[] args) {
-
+        String a = "100";
         ConfigurableApplicationContext context = SpringApplication.run(Launcher.class, args);
 
     }
-
 
 
     @Configuration

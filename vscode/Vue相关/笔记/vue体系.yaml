@@ -154,7 +154,7 @@ Vue基础:
       - 配置方式 <Person ref="person"/>
       - 获取方式 this.$refs
     样式作用域scoped属性:
-      - 因为Vue最后会将所有样式进行合并，在同名的情况下可能会导致样式覆盖，所以需要用到scoped属性
+      - 因为Vue最后会将所有组件样式进行合并，在同名的情况下可能会导致样式覆盖，所以需要用到scoped属性
       - "
         <style lang='css' scoped>
         /* <style lang='less'> */

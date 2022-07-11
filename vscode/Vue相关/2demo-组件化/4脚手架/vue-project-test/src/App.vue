@@ -1,32 +1,42 @@
 <template>
   <div>
-    <h1>uuid:{{nanoid()}}</h1>
-
-    <input type="text" @change="show()">
     
-    <Person/>
-    <Person2/>
+    <div id="div1">
+        <UserHeader :transValueToApp='transValueToApp'/>
+        <UserBody :transOpratorArrObjToApp='transOpratorArrObjToApp'/>
+        <UserFooter :getArrLenth='getArrLenth' :getArrSelectSize='getArrSelectSize' :updateAllState='updateAllState'/>
+    </div>
   </div>
 </template>
 
 <script>
-    import Person2 from './components/Person2'
-    import Person from './components/Person'
-
-    import {nanoid} from 'nanoid'
+    import UserHeader from './components/UserHeader'
+    import UserBody from './components/UserBody'
+    import UserFooter from './components/UserFooter'
 
     export default {
         name:'App',
-        components:{Person2,Person},
+        components:{UserHeader,UserBody,UserFooter},
         data() {
-          console.log(this)
           return {
-            nanoid
+            opratorArrObj:null
           }
         },
         methods: {
-          show(){
-            console.log(1)
+          transValueToApp(value){
+            this.opratorArrObj.addArrEL(value)
+          },
+          transOpratorArrObjToApp(opratorArrObj){
+              this.opratorArrObj = opratorArrObj
+          },
+          getArrLenth(){
+            return this.opratorArrObj.getArrLength()
+          },
+          getArrSelectSize(){
+            return this.opratorArrObj.getArrSelectSize()
+          },
+          updateAllState(state){
+              this.opratorArrObj.updateAllState(state)
           }
         },
     }
@@ -35,5 +45,9 @@
 </script>
 
 <style>
-  
+  #div1{
+        border: solid rgb(17, 17, 17);
+        width: 400px;
+        height: 320px;
+    }
 </style>
