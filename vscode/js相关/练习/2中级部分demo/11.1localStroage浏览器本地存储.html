@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        
+        function add(){
+            const obj={
+                name:'eric',
+                age:'31',
+                sex:'男'
+            }
+            window.localStorage.setItem('token',JSON.stringify(obj))
+        }
+        function get(){
+            console.log(window.localStorage.getItem('token'))
+        }
+        function remove(){
+            window.localStorage.removeItem('token')
+        }
+        function clearM(){
+            window.localStorage.clear()
+        }
+
+
+
+
+        
+    </script>
+</head>
+<body>
+    <button onclick="add()">存储</button>
+    <button onclick="get()">获取</button>
+    <button onclick="remove()">移除一个</button>
+    <button onclick="clearM()">清除所有</button>
+</body>
+</html>

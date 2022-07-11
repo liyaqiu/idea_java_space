@@ -851,6 +851,50 @@ JS介绍:
           var jsonStr = JSON.stringify(jsObj)
           console.log(jsonStr) */
       `
+  浏览器存储(webStroage):
+    localStroage:
+      - 除非用户清楚，或者api清楚，否则永久残留
+      - "
+        function add(){
+            const obj={
+                name:'eric',
+                age:'31',
+                sex:'男'
+            }
+            window.localStorage.setItem('token',JSON.stringify(obj))
+        }
+        function get(){
+            console.log(window.localStorage.getItem('token'))
+        }
+        function remove(){
+            window.localStorage.removeItem('token')
+        }
+        function clearM(){
+            window.localStorage.clear()
+        }
+
+      "
+    sessionStroage:
+      - 浏览器窗口关闭就会清除
+      - "
+        function add(){
+            const obj={
+                name:'eric',
+                age:'31',
+                sex:'男'
+            }
+            window.sessionStorage.setItem('token',JSON.stringify(obj))
+        }
+        function get(){
+            console.log(window.sessionStorage.getItem('token'))
+        }
+        function remove(){
+            window.sessionStorage.removeItem('token')
+        }
+        function clearM(){
+            window.sessionStorage.clear()
+        }
+      "
 高级:
   强制加分号的情况:
     - `
