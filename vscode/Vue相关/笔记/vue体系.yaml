@@ -17,6 +17,7 @@ Vue安装:
     - 插件[Live Server]，网页服务器
     - 插件[open in browser]，从vscode选项打开浏览器
     - 插件[Vetur]作者Pine Wu，可以用来显示Vue文件高亮
+    - 插件[CSS Peek] 追踪CSS样式
 Vue基础:
   功能:
     - 一个容器只能对应一个vue实例对象
@@ -149,7 +150,7 @@ Vue基础:
         - v-demo1
         - v-demo2
     元素的ref属性:
-      - ref属性用来给元素或者子组件注册引用信息(id的代替者)
+      - ref属性用来给元素或者子组件注册引用信息到VC身上(id的代替者)
       - 如果是元素，则返回元素对象，如果是组件，则返回VueComponent实例对象
       - 配置方式 <Person ref="person"/>
       - 获取方式 this.$refs
@@ -387,77 +388,157 @@ Vue基础:
     props属性:
       - props属性，可以进行标签传参(字面量，函数，对象)，props属性不允许修改，如果需要修改，请复制一份到data中，对data数据进行修改
       - "
-        export default {
-        name:'Person',
-        data(){
-          console.log(this)
-          return {
-            introduction:'如下是今年优秀的人',
-            myAge:this.age ////如果修改传递参数，必须复制一份进行修改
+            export default {
+            name:'Person',
+            data(){
+              console.log(this)
+              return {
+                introduction:'如下是今年优秀的人',
+                myAge:this.age ////如果修改传递参数，必须复制一份进行修改
+              }
+            },
+            methods: {
+              addAge(){
+                this.myAge++
+              }
+            },
+            //方式1
+            //props:['name','age','sex'],
+            //方式2
+            /* props:{
+              name:String,
+              age:Number,
+              sex:String
+            } */
+            //方式3
+            props:{
+              name:{
+                type:String,
+                require:true
+              },
+              age:{
+                type:Number,
+                default:100
+              },
+              sex:String //可以组合方式写
+            }
           }
-        },
-        methods: {
-          addAge(){
-            this.myAge++
-          }
-        },
-        //方式1
-        //props:['name','age','sex'],
-        //方式2
-        /* props:{
-          name:String,
-          age:Number,
-          sex:String
-        } */
-        //方式3
-        props:{
-          name:{
-            type:String,
-            require:true
-          },
-          age:{
-            type:Number,
-            default:100
-          },
-          sex:String //可以组合方式写
-        }
-      }
-      "
+          "
     mixins属性:
       - 可以定义成共享工具，支持局部注册和全局注册
       - "
-        Vue.mixin(globalConfig) 全局注册
-      "
+            Vue.mixin(globalConfig) 全局注册
+          "
       - "
-        export default {
-          name:'Person',
-          data(){
-            console.log(this)
-            return {
+            export default {
+              name:'Person',
+              data(){
+                console.log(this)
+                return {
+                }
+              },
+              mixins:[localConfig] //局部注册
             }
-          },
-          mixins:[localConfig] //局部注册
-        }
-      "
+          "
     install属性:
       - 可以定义全局配置，一般用于插件注册
       - "
-        //定义插件
-        import {globalConfig,localConfig} from '../mixinjs/common-mixin.js'
-        export default {
-            install(Vue,[x,y]){
-                console.log(x,y)
+                //定义插件
+                import {globalConfig,localConfig} from '../mixinjs/common-mixin.js'
+                export default {
+                    install(Vue,[x,y]){
+                        console.log(x,y)
 
-                //注册全局混合属性
-                Vue.mixin(globalConfig)
-            }
-        }
-        Vue.use(myplugins,['参数1','参数2'])//使用插件
-      "
-
+                        //注册全局混合属性
+                        Vue.mixin(globalConfig)
+                    }
+                }
+                Vue.use(myplugins,['参数1','参数2'])//使用插件
+              "
   API:
-    - Vue.set()、this.$set、VM.$set 给Vue配置对象中的对象增长属性，对象不能是Vue实例或者Vue实例的根数据对象
-    - const demo3 = Vue.extend({})，该方法返回一个VueComponent函数对象
+    动态添加Vue对象属性:
+      - Vue.set()、this.$set、VM.$set 给Vue配置对象中的对象增长属性，对象不能是Vue实例或者Vue实例的根数据对象
+    创建一个VueComponent函数对象:
+      - const demo3 = Vue.extend({})，该方法返回一个VueComponent函数对象
+      - new demo3() 获得VC实例对象
+    给组件绑定事件，实现参数传递:
+      给子组件绑定自定义事件:
+        - 通过@myClick为组件标签绑定事件，通过this.$emit触发事件
+        - "
+             <!-- <Person @myClick.once='myMthod'/> 给子组件绑定事件，只能触发一次-->
+              <Person @myClick='myMthod'/>
+              this.$emit('myclick','hello-world')//触发事件
+            "
+      通过$on或者$once给(父或者子)组件绑定自定义事件:
+        - 通过$on或者$once为组件绑定事件，通过this.$emit触发事件
+        - "
+            this.$refs.personRef.$on('myclick',function(msg){
+                console.log(msg)
+            }) //给子组件绑定事件
+            this.$emit('myclick','hello-world')//触发事件
+            "
+    组件使用默认事件:
+      - "
+                <Person ref='personRef' @click.native='fun'/>  默认会认为使用自定义事件，只有加上native修饰才可以
+              "
+    全局事件总线传输信息:
+      - 一般用来实现夸组件之间通讯，或者兄弟组件之间的通讯，减少不必要的多层传递
+      - "
+            第一步
+            new Vue({
+              el:'#app',
+              render: h => h(App),
+              beforeCreate() {
+                Vue.prototype.$bus = this
+              },
+            })
+            第二步，谁注册谁销毁
+            mounted() {
+              this.$bus.$on('personTransNameToStudent',(value)=>{
+                this.name = value
+              })
+            },
+            beforeDestroy() {
+              this.$bus.$off(['personTransNameToStudent'])
+            },
+            第三步
+            this.$bus.$emit('personTransNameToStudent',this.name)
+          "
+    消息订阅与发布:
+      - 建议使用全局事件总线来处理，可以在开发者工具看到事件的触发
+      - "
+            第一步
+            npm i pubsub-js
+            第二步
+            mounted() {
+
+            this.id = pubsub.subscribe('personTransNameToStudent',(queueName,value)=>{
+                this.name = value
+                console.log(queueName,value)
+            })
+            console.log(this.id)
+          },
+            beforeDestroy() {
+              //this.$bus.$off(['personTransNameToStudent'])
+              pubsub.unsubscribe(this.id)
+            },
+            第三步
+            personTransNameToStudent(){
+              //this.$bus.$emit('personTransNameToStudent',this.name) //触发事件
+              pubsub.publish('personTransNameToStudent',this.name)
+            }
+          "
+    下次渲染执行$nextTick:
+      - $nextTick
+      - "
+            inputOnfocus(){
+              console.log(this)
+              this.isshow = !this.isshow
+              this.$nextTick(()=>{ //等渲染以后在执行
+                this.$refs.input1.focus()
+              })
+            }
+          "
 Vue组件:
   模块与模块化:
     - 向外提供特定功能的js程序，一般就是一个js文件，将一个js拆分成多少个js成为模块化

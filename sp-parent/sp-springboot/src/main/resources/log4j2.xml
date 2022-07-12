@@ -40,6 +40,12 @@
             <appender-ref ref="kongzhitai"/>
 <!--            <appender-ref ref="gundongwenjian"/>-->
         </AsyncLogger>
+
+        <AsyncLogger name="com.cookie" level="debug" includeLocation="false" additivity="false">
+            <appender-ref ref="kongzhitai"/>
+            <!--            <appender-ref ref="gundongwenjian"/>-->
+        </AsyncLogger>
+
         <AsyncLogger name="com.dao" level="error" includeLocation="false" additivity="false">
             <appender-ref ref="kongzhitai"/>
         </AsyncLogger>

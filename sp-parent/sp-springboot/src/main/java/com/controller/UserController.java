@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 @RestController
 @Slf4j
-public class UserController {
+public class UserController  {
 
     @Autowired
     UserService userService;
