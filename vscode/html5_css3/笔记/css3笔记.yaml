@@ -1,0 +1,158 @@
+CSS官方:
+  - 官方 https://www.w3school.com.cn/h.asp
+CSS介绍:
+  - CSS(Cascading Style Sheets)层叠样式表
+  - CSS最大价值是，HTML元素专注做结构，CSS专注做元素样式，达到元素和样式分离
+  - CSS样式的声明和使用是严格区分大小写的
+CSS组成部分: 选择器名+花括号 === #bt{}
+
+初级:
+  选择器分类:
+    基础选择器:
+      id选择器:
+        - 规则声明，如果定义了id选择器样式，只允许一个标签调用，其他标签不允许在次调用
+        - "#my_unique_style{}"
+        - "
+            <style>
+               #sty1{
+                    width: 100px;
+                    height: 100px;
+                    color: red;
+                    font-size: 30px;
+               }
+
+               #sty2{
+                    height: 100px;
+                    color: rgb(111, 0, 255);
+                    font-size: 30px;
+               }
+            </style>
+            <span id='sty1'>good friends</span><br>
+
+            <div id='sty2'>我们都是好朋友</div>
+            "
+      类选择器:
+        - 规则声明，允许被多个标签多次使用
+        - .mystyle{}
+        - 元素支持同时声明多个类名 <div class="box green"></div>
+        - "
+          <style>
+             .sty1{
+                  color: red;
+                  font-size: 30px;
+             }
+             .sty2{
+                  color: rgb(119, 0, 255);
+                  font-size: 10px;
+             }
+
+             <span class='sty1'>good friends</span><br>
+             <span class='sty1'>good friends</span><br>
+             <span class='sty2'>good friends</span><br>
+             <span class='sty2'>good friends</span><br>
+
+             <div class='sty1'>我们都是好朋友</div>
+             <div class='sty1'>我们都是好朋友</div>
+             <div class='sty2'>我们都是好朋友</div>
+             <div class='sty2'>我们都是好朋友</div>
+          </style>
+        "
+      标签选择器:
+        - div{}
+        - "
+            <style>
+                span {
+                    color: rgba(36, 36, 34, 0.432);
+                    font-size: small;
+                }
+                div {
+                    color: burlywood;
+                    font-size: 20px;
+                }
+            </style>
+
+            <span>good friends</span><br>
+            <span>good friends</span><br>
+            <span>good friends</span><br>
+            <span>good friends</span><br>
+
+            <div>我们都是好朋友</div>
+            <div>我们都是好朋友</div>
+            <div>我们都是好朋友</div>
+            <div>我们都是好朋友</div>
+          "
+      通配符选择器:
+        - "*{} 包括 html head body title meta 反正页面所有标签元素"
+        - "
+          * {
+            height: 100px;
+            color: red;
+            font-size: 30px;
+          }
+          <span >good friends</span><br>
+          <span >good friends</span><br>
+          <span >good friends</span><br>
+
+          <div >我们都是好朋友</div>
+          <div >我们都是好朋友</div>
+          <div >我们都是好朋友</div>
+        "
+    复合选择器:
+      功能:
+        - 复合选择器是由多个基础选择器组合而成
+      后代选择器:
+      子选择器:
+      并集选择器:
+      伪类选择器:
+  CSS的3种样式表:
+    - "外部样式表 <link rel='stylesheet' href='./abc/mystyle.css'>"
+    - "内部样式表 <style></style>"
+    - "行内样式表 <div style='color: green;'>我们都是好朋友 frends</div>"
+  字体样式:
+    - "
+      /* 设置字体系列 */
+      /* font-family: '宋体', '微软雅黑'; */
+
+      /* 设置字体大小 */
+      /* font-size: 16px; */
+
+      /* 设置字体加粗 */
+      /* font-weight: 700; */
+
+      /* 设置字体样式 正体或者斜体*/
+      /* font-style: italic; */
+
+      /* 复合属性不能更改顺序 [font-style] [font-weight] font-size/[line-height]  font-family*/
+      font: italic 700 18px '宋体'
+      /* font: 18px '宋体' */
+    "
+  文本样式:
+    - "
+      div {
+          /* 文本颜色 */
+          color: rgb(107, 99, 99);
+
+          /* 文本对齐 */
+          text-align: center;
+
+          /* 文本装饰 去掉下划线 */
+          text-decoration: underline;
+
+          /* 文本首行缩进 如果当前一个文字大小为16px，那么2em=16x2*/
+          text-indent: 2em;
+
+          /*
+              行间距/行膏 = 文字上间距 + 文字大小 + 文字下边距
+                   26px  =  5px   +   16px  + 5px
+          */
+          line-height: 26px;
+
+          border: solid red;
+      }
+
+      <div>我们都是好朋友 frends</div><br>
+      <div>我们都是好朋友 frends</div><br>
+      <div>我们都是好朋友 frends</div><br>
+    "
+中级:
+高级:

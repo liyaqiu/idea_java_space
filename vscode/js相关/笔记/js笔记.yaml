@@ -3,7 +3,7 @@ JS介绍:
   - 一个完成的JavaScript有3部分组成，ECMAScript、DOM、BOM
   - JavaScript是一门解析型语言，基于原型的面向对象语言
   - js下载 https://www.bootcdn.cn/
-  - mdn文档 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
+  - mdn文档 https://developer.mozilla.org/en-US/
   - babeljs 语法转换 https://babeljs.io/
   - 参考文档 https://www.w3cschool.cn/javascript/js-ex-objects.html
   - 参考文档 https://www.w3cschool.cn/jsref/jsref-obj-number.html
