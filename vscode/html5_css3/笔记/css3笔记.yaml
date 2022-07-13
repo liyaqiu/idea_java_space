@@ -100,10 +100,105 @@ CSS组成部分: 选择器名+花括号 === #bt{}
     复合选择器:
       功能:
         - 复合选择器是由多个基础选择器组合而成
-      后代选择器:
-      子选择器:
-      并集选择器:
-      伪类选择器:
+      后代选择器(空格)+子代选择器(>):
+        - 后代选择器可以跨域级别去选择任意一级子标签
+        - 子选择器只能一级一级往下找，子选择器比较精确，不容易越级
+        - 后代选择器可以结合子选择器一起使用
+        - "
+          /* 后代选择器 */
+          div li{
+              color: red;
+          }
+
+          /* 子选择器 */
+          div > span > ul > li {
+              font-weight: 700;
+          }
+
+          /* 后代选择器+子选择器 */
+          div > span li{
+              font-size: 30px;
+          }
+
+          <div>
+              <span>
+                  <ul>
+                      <li>1</li>
+                      <li>1</li>
+                      <li>1</li>
+                  </ul>
+              </span>
+          </div>
+        "
+      并集选择器(逗号)(同时声明多个选择器):
+        - 可以将任意选择器一起使用，例如 let a,b,c ;
+        - 一个逗号为一种选择器
+        - "
+          <style>
+             body > div  div,span,a,p {
+                  color: red;
+             }
+          </style>
+          <div>1</div>
+          <span>1</span>
+          <div>
+              <div>1</div>
+              <span>1</span>
+              <span>1</span>
+              <div>1</div>
+          </div>
+          <span>1</span>
+          <div>1</div>
+        "
+      伪类选择器(冒号):
+        - 伪类选择器一般需要跟在基础选择器屁股使用
+        - "
+          案例1
+          a {
+              color: rgb(176, 173, 168);
+              text-decoration: none;
+          }
+
+          div a:hover {
+              color: rgb(228, 29, 29);
+              text-decoration: underline;
+          }
+
+          /* 如果全部写，一定要按照lvha顺序下，否则可能不生效 */
+          /* 未访问过 a:link*/
+          /* 已访问过 a:visited*/
+          /* 鼠标划过 a:hover*/
+          /* 鼠标按下 a:active*/
+
+
+          <a href='#'>百度</a>
+          <a href='#'>新浪</a>
+          <div>
+              <a href='#'>百度</a>
+              <a href='#'>新浪</a>
+          </div>
+        "
+        - "
+          案例2
+          body > div > .bt:focus {
+              background-color: antiquewhite;
+          }
+
+          <div>
+              <input class='bt' type='text' >
+              <input class='bt' type='text'>
+          </div>
+
+          <div>
+              <div>
+                  <input class='bt' type='text' >
+                  <input class='bt' type='text'>
+              </div>
+          </div>
+
+          <input class='bt' type='text' >
+          <input class='bt' type='text'>
+        "
   CSS的3种样式表:
     - "外部样式表 <link rel='stylesheet' href='./abc/mystyle.css'>"
     - "内部样式表 <style></style>"
@@ -154,5 +249,36 @@ CSS组成部分: 选择器名+花括号 === #bt{}
       <div>我们都是好朋友 frends</div><br>
       <div>我们都是好朋友 frends</div><br>
     "
+  标签元素分类:
+    块元素:
+      功能:
+        - "<h1-h6> <p> <ul> <ol> <li> <div> 等，其中<div>是最典型的块元素"
+      特点:
+        - 独占一行
+        - 高度、宽度、外边距、内边距都可以设置
+        - 宽度默认是父级容器宽度的100%
+        - 是一个容器，里面可以放行内元素或者块元素
+      例外:
+        - 文字类的元素内不能使用块元素
+        - <p>标签主要用于存放文字，因此<p>标签里面不能放块元素，特别是不能放<div>
+        - 同理<h1-h6>都是文字类块元素，里面也不能放其他块元素
+    行内元素:
+      功能:
+        - "<a> <strong> <b> <em> <i> <del> <s> <ins> <u> <span等，其中<span>是最典型的块元素"
+      特点:
+        - 多个可以在同一行上显示
+        - 高度、宽度设置是无效的
+        - 默认宽度就是它本身内容的宽度
+        - 行内元素只能容纳文本或其他行内元素
+      例外:
+        - <a>标签里面不能再放<a>标签
+        - <a>标签里面可以放块元素，但是给<a>转换一下块元素模块最安全
+    行内块元素(乱取名的):
+      功能:
+        - "<img> <input> <td> 它们同时具备行内元素特点，和块元素特点"
+      特点:
+        - 多个可以在同一行上显示(行内元素特点)，但是它们之间会有空白间隙。
+        - 默认宽度就是它本身内容的宽度(行内元素特点)
+        - 高度、宽度、行高。外边距以、内边距都可以设置(块元素特点)
 中级:
 高级:

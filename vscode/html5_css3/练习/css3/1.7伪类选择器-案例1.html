@@ -1,0 +1,48 @@
+<!DOCTYPE html> <!-- 这句代码的意思是告诉浏览器，采用HTML5版本来显示，它不属于HTML标签，属于文档类型声明标签 -->
+
+
+<!-- 
+<html lang="zh-CN"> 代表这个是中文网站
+<html lang="fr"> 代表这个是法文网站
+ -->
+<html lang="en">
+<!-- 代表这个是英文网站 -->
+
+<head>
+    <meta charset="UTF-8"> <!-- 告诉浏览器用UTF-8编码解析 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- 手机端用的 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> <!-- 告诉IE用最高级性能解析 -->
+
+    <title>Document</title>
+
+    <style>
+        a {
+            color: rgb(176, 173, 168);
+            text-decoration: none;
+        }
+
+        div a:hover {
+            color: rgb(228, 29, 29);
+            text-decoration: underline;
+        }
+
+        /* 如果全部写，一定要按照lvha顺序下，否则可能不生效 */
+        /* 未访问过 a:link*/
+        /* 已访问过 a:visited*/
+        /* 鼠标划过 a:hover*/
+        /* 鼠标按下 a:active*/
+        
+
+    </style>
+</head>
+
+<body>
+    <a href="#">百度</a>
+    <a href="#">新浪</a>
+    <div>
+        <a href="#">百度</a>
+        <a href="#">新浪</a>    
+    </div>
+</body>
+
+</html>
