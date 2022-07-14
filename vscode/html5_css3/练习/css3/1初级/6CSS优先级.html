@@ -1,0 +1,67 @@
+<!DOCTYPE html> <!-- 这句代码的意思是告诉浏览器，采用HTML5版本来显示，它不属于HTML标签，属于文档类型声明标签 -->
+
+
+<!-- 
+<html lang="zh-CN"> 代表这个是中文网站
+<html lang="fr"> 代表这个是法文网站
+ -->
+<html lang="en">
+<!-- 代表这个是英文网站 -->
+
+<head>
+    <meta charset="UTF-8"> <!-- 告诉浏览器用UTF-8编码解析 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- 手机端用的 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> <!-- 告诉IE用最高级性能解析 -->
+
+    <title>Document</title>
+
+
+    <!-- 
+        通配符选择器、继承 < 标签选择器 < 属性、伪类、类选择器 < ID选择器 < 行内样式 < !important
+            ! important - - - infinity
+            行内样式 - - - 1,0,0,0
+            ID选择器 - - - 0,1,0,0
+            属性、伪类、类选择器 - - - 0,0,1,0
+            标签选择器 - - - 0,0,0,1
+            通配符选择器、继承 - - - 0,0,0,0
+            复合选择器计算权重是累个相加，紧急不会进位
+            权重进行比较的时候，逐位进行比较，如果第1位比较大，那么就不往下继续比较了
+            !important对继承样式无效，只能对本身元素有效
+    -->
+    <style>
+        body{
+            color: red;
+            font-size: 300px;
+            font-family: '微软雅黑';
+        }
+        
+        div{
+            font-family: '宋体';
+        }
+
+        span {
+            color: rgb(0, 217, 255);
+        }
+
+        .sp{
+            color: bisque;
+        }
+
+        [class][id]{
+            color: yellow!important;
+        }
+
+        #sp{
+            color: brown!important;
+        }
+    </style>
+</head>
+
+<body>
+
+</body>
+    <div>
+        <span class="sp" id="sp" style="color: green!important;">我们</span>
+    </div>
+    <a c b class='ab' href="111">11</a>
+</html>

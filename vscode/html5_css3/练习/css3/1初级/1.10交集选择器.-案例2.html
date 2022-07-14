@@ -1,0 +1,47 @@
+<!DOCTYPE html> <!-- 这句代码的意思是告诉浏览器，采用HTML5版本来显示，它不属于HTML标签，属于文档类型声明标签 -->
+
+
+<!-- 
+<html lang="zh-CN"> 代表这个是中文网站
+<html lang="fr"> 代表这个是法文网站
+ -->
+<html lang="en">
+<!-- 代表这个是英文网站 -->
+
+<head>
+   <meta charset="UTF-8"> <!-- 告诉浏览器用UTF-8编码解析 -->
+   <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- 手机端用的 -->
+   <meta http-equiv="X-UA-Compatible" content="IE=edge"> <!-- 告诉IE用最高级性能解析 -->
+
+   <title>Document</title>
+
+   <style>
+      /* 交集选择器 = 标签选择器+属性选择器 */
+      /* div[a] {
+         color: red;
+      } */
+
+      /* 交集选择器 = 标签选择器+属性选择器 */
+      /* div[a='a2'] {
+         color: red;
+      } */
+
+      /* 交集选择器 = 标签选择器+类选择器+属性选择器+类选择器 */
+      p.box[a='a2'].ca{
+         color: red;
+      }
+   </style>
+</head>
+
+<body>
+   <div class="box ca1" a='a1'>1</div>
+   <div class="box ca1" a='a1'>1</div>
+   
+   <div class="box ca" a='a2'>2</div>
+   <div class="box ca" a='a2'>2</div>
+
+   <p class="box ca" a='a2'>3</p>
+   <p class="box ca" a='a2'>3</p>
+</body>
+
+</html>

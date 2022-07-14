@@ -1,0 +1,52 @@
+<!DOCTYPE html> <!-- 这句代码的意思是告诉浏览器，采用HTML5版本来显示，它不属于HTML标签，属于文档类型声明标签 -->
+
+
+<!-- 
+<html lang="zh-CN"> 代表这个是中文网站
+<html lang="fr"> 代表这个是法文网站
+ -->
+<html lang="en">
+<!-- 代表这个是英文网站 -->
+
+<head>
+    <meta charset="UTF-8"> <!-- 告诉浏览器用UTF-8编码解析 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- 手机端用的 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> <!-- 告诉IE用最高级性能解析 -->
+
+    <title>Document</title>
+
+    <style>
+        div {
+
+            height: 500px;
+            background-color: pink;
+
+            /* 指定行高可以实现水平居中 */
+            line-height: 500px; 
+
+            /* 块元素居中，方式一 */
+            /* width: 200px;
+            margin-left: auto;
+            margin-right: auto; */
+            
+            /* 块元素居中，方式二 */
+            /* width: 200px;
+            margin: auto; */
+
+            /* 块元素居中，方式三 */
+            width: 500px; 
+            margin: 0px auto;
+
+            /* 行内元素 行内块元素 以及内容都需要找它父亲来做居中 */
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+   <div>我是块元素</div>
+   <div><img width="100" height="100" src="https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png" alt=""></div>
+   <div><span>我是行内元素</span></div>
+</body>
+
+</html>
