@@ -1,10 +1,16 @@
 CSS官方:
   - 官方 https://www.w3school.com.cn/h.asp
+  - photoshop 快速导出图层插件 https://www.cutterman.cn/zh/cutterman
 CSS介绍:
   - CSS(Cascading Style Sheets)层叠样式表
   - CSS最大价值是，HTML元素专注做结构，CSS专注做元素样式，达到元素和样式分离
   - CSS样式的声明和使用是严格区分大小写的
 CSS组成部分: 选择器名+花括号 === #bt{}
+CSS编写规范:
+  - 布局定位相关属性 display/position/float/clear/visibility/overflow
+  - 自身属性 width/height/margin/padding/border/background
+  - 文本属性 color/font/text-decoration/text-align/vertical-align/white-space/break-word
+  - 其他属性(CSS3) content/cursor/border-radius/box-shadow/text-shadow/backrground:linear-gradient
 
 初级:
   选择器分类:
@@ -302,22 +308,22 @@ CSS组成部分: 选择器名+花括号 === #bt{}
         - 同理<h1-h6>都是文字类块元素，里面也不能放其他块元素
     行内元素:
       功能:
-        - "<a> <strong> <b> <em> <i> <del> <s> <ins> <u> <span等，其中<span>是最典型的块元素"
+        - "<a> <strong> <b> <em> <i> <del> <s> <ins> <u> <span>等，其中<span>是最典型的块元素"
       特点:
-        - 多个可以在同一行上显示
+        - 多个可以在同一行上显示，但是它们之间会有空白间隙。
         - 高度、宽度设置是无效的
         - 默认宽度就是它本身内容的宽度
         - 行内元素只能容纳文本或其他行内元素
       例外:
         - <a>标签里面不能再放<a>标签
         - <a>标签里面可以放块元素，但是给<a>转换一下块元素模块最安全
-    行内块元素(乱取名的):
+    行内块元素:
       功能:
-        - "<img> <input> <td> 它们同时具备行内元素特点，和块元素特点"
+        - "<img> <input> <button> <td> 它们同时具备行内元素特点，和块元素特点"
       特点:
-        - 多个可以在同一行上显示(行内元素特点)，但是它们之间会有空白间隙。
+        - 多个可以在同一行上显示，但是它们之间会有空白间隙。(行内元素特点)
         - 默认宽度就是它本身内容的宽度(行内元素特点)
-        - 高度、宽度、行高。外边距以、内边距都可以设置(块元素特点)
+        - 高度、宽度、行高。外边距、内边距都可以设置(块元素特点)
   CSS的3种样式表:
     - "外部样式表 <link rel='stylesheet' href='./abc/mystyle.css'>"
     - "内部样式表 <style></style>"
@@ -454,10 +460,8 @@ CSS组成部分: 选择器名+花括号 === #bt{}
               width: 500px;
               height: 500px;
 
-              /* 背景颜色 */
-              /* background-color: antiquewhite; */
-              /* css3设置背景颜色，可以设置透明度 */
-              background: rgba(92, 13, 219, 0.6);
+              /* 背景颜色  css3支持rgba颜色*/
+              background-color: rgba(92, 13, 219, 0.6);;
 
               /* 设置背景图片 */
               background-image: url('https://img2.baidu.com/it/u=2965709842,4091470419&fm=253&fmt=auto&app=138&f=JPEG?w=140&h=140');
@@ -693,34 +697,6 @@ CSS组成部分: 选择器名+花括号 === #bt{}
         /* 指定行高可以实现水平居中 */
         line-height: 500px;
       "
-  块元素嵌套塌陷问题:
-    - "
-    <style>
-        .father {
-            width: 500px;
-            height: 500px;
-            background-color: pink;
-
-            /* 以下3种方式解决塌陷问题 */
-            /* border-top: 1px solid transparent; */
-            /* padding-top: 1px; */
-            overflow: hidden;
-
-        }
-
-        .son {
-            width: 100px;
-            height: 100px;
-            background-color: rgb(69, 66, 66);
-            margin-top: 100px;
-        }
-    </style>
-    <div class='father'>
-        <div class='son'>
-
-        </div>
-    </div>
-    "
   行内元素: 只允许设置【左右内边距】和【左右外边距】，块元素和行内块元素不限制
   清除所有元素默认的外边距和内边距:
     - "
@@ -729,5 +705,229 @@ CSS组成部分: 选择器名+花括号 === #bt{}
         padding: 0px;
       }
     "
+  盒子阴影与文字阴影样式:
+    - "
+      <style>
+          div {
+              width: 300px;
+              height: 300px;
+              background-color: rgba(224, 80, 80, 0.5);
+              /*
+                  语法 box-shadow: 水平像素 垂直像素 [模糊像素] [阴影尺寸] [阴影颜色] [外部阴影值inset];
+                  阴影不占位置，默认为外部阴影，但不能使用outset
+              */
+              box-shadow: 10px 10px 10px 10px rgba(0, 0, 0, 0.5)
+          }
 
+          p {
+             /* 语法  text-shadow: 水平像素 垂直像素 [模糊像素] [阴影颜色]  ; */
+             text-shadow: 5px 5px 5px rgba(0, 0, 0, 0.5);
+          }
+      </style>
+      <div>盒子阴影</div>
+      <p>文字阴影</p>
+    "
+  浮动:
+    功能:
+      - 浮动元素会脱离标准流布局方式(脱标)。简单来说，浮动的盒子不在保留原先的位置，盒子会浮动起来，往左边缘或右边缘对齐
+      - 浮动的元素会一行内显示，并且元素顶部对齐。简单来说，浮动元素是相互贴在一起，不会产生中间缝隙，但是如果父级宽度装不下这些浮动的盒子时，多出来的盒子会另起一行对齐
+      - 浮动的元素会具有行内块元素的特性。简单来说，任何元素都可以添加浮动，一旦添加了浮动就会具有【行内块元素相似的特性】
+    个人功能总结:
+      - 浮动可以让多个块元素在同一行显示，
+      - 浮动可以让行内元素和行内块元素中间缝隙消失
+      - 紧记一句话，在同盒子中，最好保持一浮全浮，以免产生一些奇怪问题
+    测试案例:
+      - "
+        <style>
+          .div1 {
+             width: 300px;
+             height: 300px;
+             background-color: antiquewhite;
+          }
+
+          .div2 {
+             float: left;
+             width: 400px;
+             height: 400px;
+             background-color: rgb(158, 106, 38);
+          }
+
+          .div2>div {
+             float: left;
+             width: 100px;
+             height: 100px;
+             background-color: pink;
+          }
+
+          .div3 {
+             width: 500px;
+             height: 500px;
+             background-color: rgb(16, 16, 16);
+          }
+       </style>
+       <div class='div1'></div>
+        <div class='div2'>
+           <div>1</div>
+           <div>2</div>
+           <div>3</div>
+        </div>
+        <div class='div2'>
+           <div>1</div>
+           <div>2</div>
+           <div>3</div>
+        </div>
+        <div class='div3'></div>
+        <div class='div2'>
+           <div>1</div>
+           <div>2</div>
+           <div>3</div>
+        </div>
+      "
+  块元素嵌套塌陷问题:
+    - 浮动的盒子不会有塌陷问题
+    - "
+      <style>
+          .father {
+              width: 500px;
+              height: 500px;
+              background-color: pink;
+
+              /* 以下4种方式解决塌陷问题 */
+              /* border-top: 1px solid transparent; */
+              /* padding-top: 1px; */
+              /* overflow: hidden; */
+
+              /* 还有一种特殊方式解决，就是在父盒子上用padding解决 */
+              /* padding-top: 100px; */
+
+
+          }
+
+          .son {
+              width: 100px;
+              height: 100px;
+              background-color: rgb(69, 66, 66);
+
+              /* margin-top: 100px; 次样式会导致塌陷问题*/
+          }
+      </style>
+      <div class='father'>
+          <div class='son'>
+
+          </div>
+      </div>
+      "
+  清除浮动问题:
+     功能:
+       - 父盒子没高度
+       - 子盒子浮动了
+       - 影响下面布局，我们就应该清除浮动
+     案例:
+       - "
+         <style>
+           * {
+              margin: 0;
+              padding: 0;
+           }
+
+           /* 方式3 伪元素法，是额外标签法的升级版，通过父元素添加
+              .clearfix:after {
+                    content: '';
+                    display: block;
+                    height: 0;
+                    clear: both;
+                    visibility: hidden;
+              }
+              兼容ie6 7 专有
+              .clearfix {
+                 *zoom: 1;
+              }
+           */
+
+           /* 方式4，双伪元素 */
+           .clearfix:before,
+           .clearfix:after{
+              content: '';
+              display: table;
+           }
+           .clearfix:after{
+              clear: both;
+           }
+
+           /* 兼容ie6 7 专有  */
+           .clearfix {
+              *zoom: 1;
+           }
+
+
+           .box{
+              width: 784px;
+              margin: 0 auto;
+              background-color: pink;
+              border-top: 3px solid rgb(14, 13, 13);
+
+              /*
+                 如果不给高度，box高度为0，因为浮动元素不会占用父亲的高度
+                 但是，很多时候父亲的标准流不确定有多少子元素浮动
+               */
+              /* height: 40px;  */
+
+              /* 方式1额外标签法(隔墙法)，w3c推荐，在子元素尾部加入块元素清除浮动 */
+              /* <span style='display:block; clear:both;''></span> */
+
+              /* 方式2，通过父元素添加 */
+              /* overflow: hidden; */
+
+           }
+
+           .box li {
+              list-style: none;
+              float: left;
+              width: 100px;
+              height: 30px;
+              background-color: rgb(235, 224, 14);
+              box-shadow: 5px 5px 5px 5px rgba(0, 0, 0, 0.3) inset;
+              border-radius: 15px;
+              margin: 0 6px;
+              text-align: center;
+              line-height: 28px;
+           }
+           .box li:hover{
+              cursor: pointer;
+              box-shadow: 5px 5px 5px 5px rgba(0, 0, 0, 0.3);
+           }
+        </style>
+
+
+        <div class='box clearfix'>
+            <ul>
+               <li>1</li>
+               <li>2</li>
+               <li>3</li>
+               <li>4</li>
+               <li>5</li>
+               <li>6</li>
+               <li>7</li>
+               <li>8</li>
+               <li>9</li>
+               <li>10</li>
+               <li>11</li>
+               <li>12</li>
+               <li>13</li>
+               <li>14</li>
+               <!-- <span style='display:block; clear:both;'></span> -->
+            </ul>
+         </div>
+         <div class='box'>
+            <ul>
+               <li>1</li>
+               <li>2</li>
+               <li>3</li>
+               <li>4</li>
+               <li>5</li>
+               <li>6</li>
+               <li>7</li>
+            </ul>
+         </div>
+      "
 高级:

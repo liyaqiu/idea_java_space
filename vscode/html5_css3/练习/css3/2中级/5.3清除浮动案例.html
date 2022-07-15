@@ -1,0 +1,126 @@
+<!DOCTYPE html> <!-- 这句代码的意思是告诉浏览器，采用HTML5版本来显示，它不属于HTML标签，属于文档类型声明标签 -->
+
+
+<!-- 
+<html lang="zh-CN"> 代表这个是中文网站
+<html lang="fr"> 代表这个是法文网站
+ -->
+<html lang="en">
+<!-- 代表这个是英文网站 -->
+
+<head>
+   <meta charset="UTF-8"> <!-- 告诉浏览器用UTF-8编码解析 -->
+   <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- 手机端用的 -->
+   <meta http-equiv="X-UA-Compatible" content="IE=edge"> <!-- 告诉IE用最高级性能解析 -->
+
+   <title>Document</title>
+
+   <style>
+      * {
+         margin: 0;
+         padding: 0;
+      }
+      
+      /* 方式3 伪元素法，是额外标签法的升级版，通过父元素添加
+         .clearfix:after {
+               content: '';
+               display: block;
+               height: 0;
+               clear: both;
+               visibility: hidden;
+         }
+         兼容ie6 7 专有 
+         .clearfix {
+            *zoom: 1;
+         }
+      */
+
+      /* 方式4，双伪元素 */
+      .clearfix:before,
+      .clearfix:after{
+         content: '';
+         display: table;
+      }
+      .clearfix:after{
+         clear: both;
+      }
+
+      /* 兼容ie6 7 专有  */
+      .clearfix {
+         *zoom: 1;
+      }   
+
+
+      .box{
+         width: 784px;
+         margin: 0 auto;
+         background-color: pink;
+         border-top: 3px solid rgb(14, 13, 13);
+
+         /* 
+            如果不给高度，box高度为0，因为浮动元素不会占用父亲的高度
+            但是，很多时候父亲的标准流不确定有多少子元素浮动
+          */
+         /* height: 40px;  */
+
+         /* 方式1额外标签法(隔墙法)，w3c推荐，在子元素尾部加入块元素清除浮动 */
+         /* <span style='display:block; clear:both;''></span> */
+         
+         /* 方式2，通过父元素添加 */
+         /* overflow: hidden; */
+         
+      }
+      
+      .box li {
+         list-style: none;
+         float: left;
+         width: 100px;
+         height: 30px;
+         background-color: rgb(235, 224, 14);
+         box-shadow: 5px 5px 5px 5px rgba(0, 0, 0, 0.3) inset;
+         border-radius: 15px;
+         margin: 0 6px;
+         text-align: center;
+         line-height: 28px;
+      }
+      .box li:hover{
+         cursor: pointer;
+         box-shadow: 5px 5px 5px 5px rgba(0, 0, 0, 0.3);
+      }
+   </style>
+</head>
+
+<body>
+   <div class="box clearfix">
+      <ul>
+         <li>1</li>
+         <li>2</li>
+         <li>3</li>
+         <li>4</li>
+         <li>5</li>
+         <li>6</li>
+         <li>7</li>
+         <li>8</li>
+         <li>9</li>
+         <li>10</li>
+         <li>11</li>
+         <li>12</li>
+         <li>13</li>
+         <li>14</li>
+         <!-- <span style="display:block; clear:both;"></span> -->
+      </ul>
+   </div>
+   <div class="box">
+      <ul>
+         <li>1</li>
+         <li>2</li>
+         <li>3</li>
+         <li>4</li>
+         <li>5</li>
+         <li>6</li>
+         <li>7</li>
+      </ul>
+   </div>
+</body>
+
+</html>

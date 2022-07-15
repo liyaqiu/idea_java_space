@@ -16,38 +16,27 @@
     <title>Document</title>
 
     <style>
-        .father {
-            width: 500px;
-            height: 500px;
-            background-color: pink;
-
-            /* 以下4种方式解决塌陷问题 */
-            /* border-top: 1px solid transparent; */
-            /* padding-top: 1px; */
-            /* overflow: hidden; */
-
-            /* 还有一种特殊方式解决，就是在父盒子上用padding解决 */
-            /* padding-top: 100px; */
-           
-
+        div {
+            width: 300px;
+            height: 300px;
+            background-color: rgba(224, 80, 80, 0.5);
+            /* 
+                语法 box-shadow: 水平像素 垂直像素 [模糊像素] [阴影尺寸] [阴影颜色] [外部阴影值inset]; 
+                阴影不占位置，默认为外部阴影，但不能使用outset
+            */
+            box-shadow: 10px 10px 10px 10px rgba(0, 0, 0, 0.5)
         }
 
-        .son {
-            width: 100px;
-            height: 100px;
-            background-color: rgb(69, 66, 66);
-            
-            /* margin-top: 100px; 次样式会导致塌陷问题*/
+        p {
+           /* 语法  text-shadow: 水平像素 垂直像素 [模糊像素] [阴影颜色]  ; */
+           text-shadow: 5px 5px 5px rgba(0, 0, 0, 0.5);
         }
     </style>
 </head>
 
 <body>
-    <div class="father">
-        <div class="son">
-
-        </div>
-    </div>
+    <div>盒子阴影</div>
+    <p>文字阴影</p>
 </body>
 
 </html>
