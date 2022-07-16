@@ -1,0 +1,48 @@
+<!DOCTYPE html> <!-- 这句代码的意思是告诉浏览器，采用HTML5版本来显示，它不属于HTML标签，属于文档类型声明标签 -->
+
+
+<!-- 
+<html lang="zh-CN"> 代表这个是中文网站
+<html lang="fr"> 代表这个是法文网站
+ -->
+<html lang="en">
+<!-- 代表这个是英文网站 -->
+
+<head>
+    <meta charset="UTF-8"> <!-- 告诉浏览器用UTF-8编码解析 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- 手机端用的 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> <!-- 告诉IE用最高级性能解析 -->
+
+    <title>Document</title>
+
+    <style>
+        @font-face {
+            font-family: 'icomoon';
+            src: url('fonts/icomoon.eot?73a6t8');
+            src: url('fonts/icomoon.eot?73a6t8#iefix') format('embedded-opentype'),
+                url('fonts/icomoon.ttf?73a6t8') format('truetype'),
+                url('fonts/icomoon.woff?73a6t8') format('woff'),
+                url('fonts/icomoon.svg?73a6t8#icomoon') format('svg');
+            font-weight: normal;
+            font-style: normal;
+            font-display: block;
+        }
+        
+        body{
+            font-family: '宋体','icomoon';
+        }
+
+        span{
+            font-size: 30px;
+            color: pink;
+        }
+    </style>
+</head>
+
+<body>
+    <span></span>
+    <span></span>
+    <span>其他还能使用吗</span>
+</body>
+
+</html>

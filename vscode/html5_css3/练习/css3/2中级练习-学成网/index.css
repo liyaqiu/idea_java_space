@@ -59,6 +59,7 @@ body {
     width: 360px;
     height: 38px;
     border: 1px solid #00a4ff;
+    outline:none;
     border-right: 0px;
     padding-left: 19px;
 }
@@ -83,16 +84,14 @@ body {
 }
 
 .head .user img {
-    float: left;
+    vertical-align: middle;   
 }
 
 .head .user span {
-    float: left;
     margin-left: 8px;
 
     font-size: 14px;
     color: #666666;
-
 }
 
 /* head end */

@@ -1,6 +1,8 @@
 CSS官方:
   - 官方 https://www.w3school.com.cn/h.asp
   - photoshop 快速导出图层插件 https://www.cutterman.cn/zh/cutterman
+  - 字体图标 https://icomoon.io/#icons
+  - 字体图标 https://www.iconfont.cn/
 CSS介绍:
   - CSS(Cascading Style Sheets)层叠样式表
   - CSS最大价值是，HTML元素专注做结构，CSS专注做元素样式，达到元素和样式分离
@@ -11,7 +13,6 @@ CSS编写规范:
   - 自身属性 width/height/margin/padding/border/background
   - 文本属性 color/font/text-decoration/text-align/vertical-align/white-space/break-word
   - 其他属性(CSS3) content/cursor/border-radius/box-shadow/text-shadow/backrground:linear-gradient
-
 初级:
   选择器分类:
     基础选择器:
@@ -506,8 +507,143 @@ CSS编写规范:
        <span></span>
        <span></span>
     "
+  反人类选择器问题:
+     功能:
+       - 把事件绑定在别人身上，通过别人来唤醒自己
+    案例1:
+      - "
+        <style>
+            .box {
+                width: 300px;
+                height: 300px;
+                background-color: rgb(156, 131, 135);
+            }
+
+            .div1 {
+                display: none;
+                width: 200px;
+                height: 200px;
+                background-color: pink;
+            }
+
+            .div2 {
+                display: none;
+                width: 100px;
+                height: 100px;
+                background-color: rgb(75, 70, 71);
+            }
+
+            /* 把事件绑定在别人身上，通过别人来唤醒自己 */
+            .box:hover > .div1 {
+                display: block;
+            }
+
+            .box .div1:hover > .div2 {
+                display: block;
+            }
+        </style>
+        <div class='box'>
+            <div class='div1'>
+                <div class='div2'>
+
+                </div>
+            </div>
+        </div>
+    "
+    案例2:
+      - "
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+            }
+
+            a {
+                text-decoration: none;
+                color: black;
+                font-size: 14px;
+            }
+
+            li {
+                list-style: none;
+            }
+
+            .box {
+                width: 700px;
+                height: 50px;
+                margin: 100px auto 0;
+                background-color: pink;
+            }
+
+            .box>ul>li {
+                float: left;
+                width: 100px;
+                height: 50px;
+                text-align: center;
+                line-height: 50px;
+                /* background-color: antiquewhite; */
+            }
+
+            .box ol li {
+                width: 100px;
+                text-align: center;
+            }
+
+            .nav {
+                position: relative;
+            }
+
+            .nav ol {
+                display: block;
+                background-color: blanchedalmond;
+                position: absolute;
+                left: 0px;
+                right: 0px;
+                display: none;
+            }
+
+            .nav:hover ol {
+                display: block;
+            }
+        </style>
+        <div class='box'>
+            <ul>
+                <li>
+                    <div class='nav'>
+                        <a href='#'>衣服</a>
+                        <ol>
+                            <li><a href='#'>衣服1</a></li>
+                            <li><a href='#'>衣服1</a></li>
+                            <li><a href='#'>衣服1</a></li>
+                            <li><a href='#'>衣服1</a></li>
+                            <li><a href='#'>衣服1</a></li>
+                            <li><a href='#'>衣服1</a></li>
+                            <li><a href='#'>衣服1</a></li>
+                        </ol>
+                    </div>
+                </li>
+                <li>
+                    <div class='nav'>
+                        <a href='#'>衣服2</a>
+                        <ol>
+                            <li><a href='#'>衣服2</a></li>
+                            <li><a href='#'>衣服2</a></li>
+                            <li><a href='#'>衣服2</a></li>
+                            <li><a href='#'>衣服2</a></li>
+                            <li><a href='#'>衣服2</a></li>
+                            <li><a href='#'>衣服2</a></li>
+                            <li><a href='#'>衣服2</a></li>
+                        </ol>
+                    </div>
+                </li>
+
+            </ul>
+        </div>
+      "
 中级:
-  功能: 页面布局三大核心，盒子模型、浮动、定位
+  功能:
+    - 页面布局三大核心，盒子模型、浮动、定位
+    - 一个完整的网页是由标准流、浮动、定位搭配完成的
   盒子模型:
     功能:
       - 外边距(margin)、边框(border)、内边距(padding)、内容区域(centent)
@@ -733,6 +869,7 @@ CSS编写规范:
       - 浮动的元素会一行内显示，并且元素顶部对齐。简单来说，浮动元素是相互贴在一起，不会产生中间缝隙，但是如果父级宽度装不下这些浮动的盒子时，多出来的盒子会另起一行对齐
       - 浮动的元素会具有行内块元素的特性。简单来说，任何元素都可以添加浮动，一旦添加了浮动就会具有【行内块元素相似的特性】
     个人功能总结:
+      - 浮动不占位置(脱标)
       - 浮动可以让多个块元素在同一行显示，
       - 浮动可以让行内元素和行内块元素中间缝隙消失
       - 紧记一句话，在同盒子中，最好保持一浮全浮，以免产生一些奇怪问题
@@ -783,8 +920,205 @@ CSS编写规范:
            <div>3</div>
         </div>
       "
+  定位:
+    功能:
+      - 定位是可以让盒子自由的在某个盒子内移动位置或者固定屏幕中某个位置，并且可以压住其他盒子
+      - 行内元素一旦添加了绝对定位和固定就会具有【行内块元素相似的特性】
+      - 定位 = 定位模式 + 边偏移 + z-index
+    常用的搭配定位模式:
+      - 子元素用绝对定位，父元素用相对定位(子绝父相)
+    定位模式:
+      静态定位:
+        功能:
+          - static
+          - 静态定位是元素的默认定位方式，静态定位按照标准流特性摆放位置，它没有偏移属性
+      相对定位:
+        功能:
+          - relative
+          - 相对定位保留原来的位置(不脱标)
+          - 相对定位是根据自己原来的位置为基准进行偏移
+        案例:
+          - "
+            <style>
+                div {
+                    height: 500px;
+                    background-color: antiquewhite;
+                }
+
+                div>div {
+                    float: left;
+                    height: 300px;
+                    width: 300px;
+                    background-color: pink;
+                }
+                .div2 {
+                    position:relative;
+                    left: 100px;
+                    top: 300px;
+                    background-color: rgb(123, 35, 49);
+                }
+            </style>
+            <div class='div1'>
+                <div class='div2'>
+                    1
+                </div>
+                <div>2</div>
+                <div>3</div>
+            </div>
+          "
+      绝对定位:
+        功能:
+          - absolute
+          - 绝对定位不保留原来的位置(脱标)
+          - 绝对定位是根据父亲或者祖宗(Document文档)的位置为基准进行偏移，并且父亲一定要有定位(相对，绝对，固定)
+        案例:
+          - "
+            <style>
+                div {
+                    /* 如果不开启父亲的定位，则子元素会继续往上找定位，直到document上 */
+                    position: relative;
+                    height: 500px;
+                    width: 1200px;
+                    margin: 0 auto;
+                    background-color: antiquewhite;
+                }
+
+                div>div {
+                    float: left;
+                    height: 300px;
+                    width: 300px;
+                    background-color: pink;
+                }
+                .div2 {
+                    position:absolute;
+                    left: 100px;
+                    top: 300px;
+                    background-color: rgb(123, 35, 49);
+                }
+            </style>
+            <div class='div1'>
+                <div class='div2'>
+                    1
+                </div>
+                <div>2</div>
+                <div>3</div>
+            </div>
+          "
+      固定定位:
+        功能:
+          - fixed
+          - 固定定位不保留原来的位置(脱标)
+          - 固定定位以浏览器可视窗口为基准进行偏移
+        案例:
+          - "
+            <style>
+               div {
+
+                position: fixed;
+                right: 100px;
+                top: 100px;
+
+                width: 300px;
+                height: 300px;
+                background-color: pink;
+               }
+            </style>
+            <div>1</div>
+          "
+      黏性定位:
+        功能:
+          - sticky
+          - 黏性定位保留原来的位置(不脱标)
+          - 黏性定位以浏览器可视窗口为基准进行偏移
+          - 必须添加任意一个(top left right bottom)偏移值才有效
+        案例:
+          - "
+            <style>
+              body {
+                 height: 2000px;
+              }
+              div{
+                 position: sticky;
+                 /* 当元素距离浏览器可视区域为0的时候就固定住 */
+                 top: 0px;
+
+                 width: 600px;
+                 height: 100px;
+                 background-color: pink;
+                 margin: 100px auto 0;
+              }
+            </style>
+            <div></div>
+          "
+    边偏移:
+      - top 顶部偏移距离
+      - bottom 底部端偏移距离
+      - left 左边偏移距离
+      - right 右边偏移距离
+    z-index:
+      - 次属性只有定位的盒子才具备
+      - 默认值为auto，当位置重叠时，可以利用此属性进行z轴的调整前后位置，值越大越靠前
+  浮动与定位是否会压住文字问题:
+    功能:
+      - 浮动的初衷是做文字环绕效果，所以浮动只会压住盒子，但不会压住盒子的内容
+      - 绝对定位和固定定位会压住文字
+    浮动案例:
+      - "
+        <style>
+          img{
+             /* 浮动压住的是盒子，但不压住盒子内容 */
+             float: left;
+
+             background-color: black;
+             width: 100px;
+             height: 100px;
+          }
+        </style>
+         <p>123456789</p>
+         <p>123456789</p>
+         <p>123456789</p>
+         <p>123456789</p>
+         <img src='https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png' >
+         <p>123456789</p>
+         <p>123456789</p>
+         <p>123456789</p>
+         <p>123456789</p>
+         <p>123456789</p>
+         <p>123456789</p>
+      "
+    定位案例:
+      - "
+        <style>
+          img{
+
+             /* 固定定位 */
+             /* position: fixed; */
+
+             /* 绝对定位 */
+             position: absolute;
+             top: 50px;
+             left: 50px;
+
+             background-color: black;
+             width: 100px;
+             height: 100px;
+          }
+        </style>
+         <p>123456789</p>
+         <p>123456789</p>
+         <p>123456789</p>
+         <p>123456789</p>
+         <img src='https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png' >
+         <p>123456789</p>
+         <p>123456789</p>
+         <p>123456789</p>
+         <p>123456789</p>
+         <p>123456789</p>
+         <p>123456789</p>
+      "
   块元素嵌套塌陷问题:
     - 浮动的盒子不会有塌陷问题
+    - 定位的盒子不会有塌陷问题
     - "
       <style>
           .father {
@@ -930,4 +1264,476 @@ CSS编写规范:
             </ul>
          </div>
       "
+  固定定位之版心定位问题:
+    - "
+      <style>
+        div{
+            width: 600px;
+            height: 2000px;
+            margin: 50px auto;
+
+            background-color: pink;
+
+        }
+        a {
+            position: fixed;
+            left: 50%;
+            top: 70%;
+            width: 100px;
+            height: 100px;
+            background-color: aqua;
+            margin-left: 300px;
+            margin-top: -150px;
+
+        }
+    </style>
+      <div></div>
+      <a href='#'>广告</a>
+    "
+  定位居中问题:
+    固定定位和绝对定位:
+      - "
+        <style>
+            div{
+                width: 300px;
+                height: 300px;
+
+                /* 固定定位 */
+                /* position: fixed; */
+                /* 绝对定位 */
+                position:absolute;
+
+                /* 水平居中 */
+                left: 50%;
+                margin-left: -150px;
+
+                /* 垂直居中 */
+                top: 50%;
+                margin-top: -150px;
+
+                background-color: pink;
+            }
+        </style>
+        <div></div>
+      "
+    相对定位:
+      - "
+        <style>
+          div {
+
+             position: relative;
+
+             width: 300px;
+             height: 300px;
+
+             /* 相对定位之水平居中 */
+             margin: 50px auto;
+             background-color: pink;
+          }
+       </style>
+       <div></div>
+      "
+  元素的显示与隐藏问题:
+    display 和 visibility:
+      功能:
+        - "不占坑 display: 显示block 隐藏none;"
+        - "占坑 visibility: 显示inherit 隐藏hidden;"
+      案例:
+        - "
+          <style>
+             a{
+              display: block;
+              width: 200px;
+              height: 200px;
+              background-color: pink;
+             }
+
+
+             [a1]{
+              /* 不占坑 display: 显示block 隐藏none; */
+
+              /* 占坑 visibility: 显示inherit 隐藏hidden;*/
+              visibility: hidden;
+             }
+          </style>
+          <a a1>123</a>
+          <a>456</a>
+        "
+    overflow:
+      功能:
+        - 可以让一个盒子移除的内容进行隐藏或者出现滚动条
+        - 重点【如果用到了绝对定位，可能会把移除的部分隐藏】
+      案例:
+        - "
+          <style>
+              a {
+                 position: relative;
+                 display: block;
+                 width: 200px;
+                 height: 200px;
+                 background-color: pink;
+
+
+                 /* 默认属性，全部都显示 */
+                 /* overflow: visible; */
+
+                 /* 直接隐藏多余内容 */
+                 overflow: hidden;
+
+                 /* 是否溢出都加滚动条 */
+                 /* overflow: scroll; */
+                 /* 只有溢出才加滚动条 */
+                 /* overflow: auto; */
+              }
+              div{
+                 position: absolute;
+                 top: 100px;
+                 left: 100px;
+
+                 width: 300px;
+                 height: 300px;
+                 background-color: rgb(21, 20, 20);
+              }
+          </style>
+          <a>我们都是好朋友
+            我们都是好朋友
+            我们都是好朋友
+            我们都是好朋友
+            我们都是好朋友
+            我们都是好朋友
+            我们都是好朋友
+            我们都是好朋友
+            我们都是好朋友
+            我们都是好朋友
+            我们都是好朋友
+            我们都是好朋友
+            我们都是好朋友
+            我们都是好朋友
+            我们都是好朋友
+            我们都是好朋友
+            我们都是好朋友
+            我们都是好朋友
+            我们都是好朋友
+            我们都是好朋友
+            我们都是好朋友
+            我们都是好朋友
+            我们都是好朋友
+            我们都是好朋友
+            我们都是好朋友
+            我们都是好朋友
+            我们都是好朋友
+            我们都是好朋友
+            <div></div>
+          </a>
+        "
 高级:
+  精灵图:
+    - 利用302弱缓存重定向技术，减少图片请求时间。
+    - 利用fw的切片工具进行测量，ps测量不准
+    - "
+      <style>
+          .box1{
+              width: 84px;
+              height: 33px;
+              margin: 0 auto;
+
+              background-color: pink;
+              /* 设置背景图片 */
+              background-image: url('1.0精灵图.png');
+              /* 设置平铺图片 */
+              background-repeat: no-repeat;
+              background-position: -303px -84px;
+          }
+      </style>
+      <div class='box1'></div>
+    "
+  字体图标:
+    功能:
+      - 如果一些结构简单的小图标，可以使用字体图标
+      - https://icomoon.io/#icons
+      - https://www.iconfont.cn/
+    使用步骤:
+    - "
+      1 选择字体，并且下载icomoon.zip
+      2 把fonts文件夹拷贝到项目根目录下
+      3 拷贝style.css文件中的样式
+      <style>
+          @font-face {
+              font-family: 'icomoon';
+              src: url('fonts/icomoon.eot?73a6t8');
+              src: url('fonts/icomoon.eot?73a6t8#iefix') format('embedded-opentype'),
+                  url('fonts/icomoon.ttf?73a6t8') format('truetype'),
+                  url('fonts/icomoon.woff?73a6t8') format('woff'),
+                  url('fonts/icomoon.svg?73a6t8#icomoon') format('svg');
+              font-weight: normal;
+              font-style: normal;
+              font-display: block;
+          }
+          body{
+              font-family: '宋体','icomoon';
+          }
+          span{
+              font-size: 30px;
+              color: pink;
+          }
+      </style>
+    4 使用
+    <span></span>
+    <span></span>
+    <span>其他还能使用吗</span>
+    "
+    追加新字体图标步骤:
+    - "
+      1. selection.json 导入
+      2. 重新下载
+      3. 把fonts文件夹拷贝到项目根目录下
+    "
+  小三角制作:
+    - "
+      <style>
+          .box1 {
+              width: 0;
+              height: 0;
+              /* 兼容性 */
+              line-height: 0;
+              font-size: 0;
+
+              border-top: 200px solid rgba(223, 104, 104,0);
+              border-right: 200px solid rgba(33, 32, 32,0);
+              border-bottom: 200px solid rgba(41, 186, 145,0);
+              border-left: 200px solid rgba(136, 15, 229,1);
+          }
+          .box2 {
+              width: 0px;
+              height: 0px;
+              /* 兼容性 */
+              line-height: 0;
+              font-size: 0;
+
+              border: 200px solid transparent;
+              border-top-color: red;
+          }
+      </style>
+      <div class='box1'></div>
+      <div class='box2'></div>
+    "
+    - "
+      <style>
+        .box {
+            position: relative;
+            width: 300px;
+            height: 100px;
+            background-color: pink;
+            margin: 300px auto 0;
+        }
+
+        .box .icon {
+            position:absolute;
+            top: 50%;
+            margin-top: -10px;
+            right: 0px;
+            margin-right: -20px;
+
+            /* 以下是制作三角形 */
+            width: 0px;
+            height: 0px;
+            /* 兼容性 */
+            line-height: 0;
+            font-size: 0;
+
+            border: 10px solid transparent;
+            border-left-color: red;
+        }
+      </style>
+      <div class='box'>
+          <span class='icon'></span>
+      </div>
+    "
+  鼠标样式:
+    - "
+      <ul>
+          <li style='cursor: default;'>default</li>
+          <li style='cursor: pointer;'>pointer</li>
+          <li style='cursor: move;'>move</li>
+          <li style='cursor: text;'>text</li>
+          <li style='cursor: not-allowed;'>not-allowed</li>
+     </ul>
+    "
+  表单去除轮廓和去除文本域拖拽:
+    - "
+      <style>
+          input,
+          textarea {
+              /* 去除表单轮廓 */
+              outline: none;
+          }
+
+          textarea {
+              resize: none;
+          }
+      </style>
+      <input type='text'>
+      <textarea></textarea>
+    "
+  图片与文字对齐:
+    - "
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        .box1 {
+            width: 500px;
+            height: 300px;
+            background-color: pink;
+            margin: 0 auto;
+        }
+
+        .box1 .img {
+            /* 要求该元素必须是行内元素或者行内块元素 */
+            display: inline-block;
+
+            width: 100px;
+            height: 100px;
+
+            /* 要求图片和文字的顶线对齐 */
+            /* vertical-align: top; */
+            /* 要求图片和文字的中线对齐 */
+            vertical-align: middle;
+            /* 要求图片和文字的基线对齐 */
+            /* vertical-align: baseline; */
+            /* 要求图片和文字的顶线对齐 */
+            /* vertical-align: bottom; */
+        }
+    </style>
+    <div class='box1'>
+        <a href='#'>我们都是朋友</a>
+        <span>213p我</span>
+        <img class='img'
+            src='https://img1.baidu.com/it/u=3217543765,3223180824&fm=253&app=120&size=w931&n=0&f=JPEG&fmt=auto?sec=1658163600&t=dde414ccc49d8e6ad4c5e287bbfbfa7d'>
+        <span>213p我</span>
+        123
+    </div>
+    "
+    - "
+      <style>
+          * {
+              padding: 0;
+              margin: 0;
+          }
+
+
+          .box2 {
+              width: 500px;
+              /* height: 300px; */
+              background-color: pink;
+              margin: 0 auto;
+
+          }
+          .box2 img{
+             width: 300px;
+             height: 300px;
+
+              /*
+                  解决方式1
+                  默认是用基线对齐方式，所以会导致底部出现间隙
+               */
+              /* vertical-align: bottom; */
+
+              /* 解决方式2 */
+              display: block;
+          }
+      </style>
+      <div class='box2'>
+          <img class='img'
+              src='https://img1.baidu.com/it/u=3217543765,3223180824&fm=253&app=120&size=w931&n=0&f=JPEG&fmt=auto?sec=1658163600&t=dde414ccc49d8e6ad4c5e287bbfbfa7d'>
+      </div>
+    "
+  去除文字顶部和底部距离:
+    - "
+      <style>
+          *{
+              padding: 0;
+              margin: 0;
+          }
+         div{
+          width: 300px;
+          height: 16px;
+          background-color: pink;
+          margin: 0 auto;
+
+          /* 设置字体大小 */
+          font-size: 16px;
+          /* 去除文字的顶部距离和底部距离 */
+          line-height: 16px;
+         }
+      </style>
+      <div>我们都是好朋友！！！我们都是好朋友！！！我们都是好朋友！！！</div>
+    "
+  溢出显示省略号:
+    单行溢出:
+      - "
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+
+            div {
+                width: 300px;
+                height: 16px;
+                background-color: pink;
+                margin: 0 auto;
+
+                /* 设置字体大小 */
+                font-size: 16px;
+                /* 去除文字的顶部距离和底部距离 */
+                line-height: 16px;
+
+
+                /* 条件1，先强制一行内显示文本 */
+                white-space: nowrap;
+                /* 条件2，超出的部分隐藏 */
+                overflow: hidden;
+                /* 条件3，用省略号代替超出的部分 */
+                text-overflow: ellipsis;
+            }
+        </style>
+        <div>我们都是好朋友！！我们都是好朋友！！我们都是好朋友！！！</div>
+      "
+    多行溢出:
+      - "
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+
+            div {
+                width: 300px;
+                height: 48px;
+                background-color: pink;
+                margin: 0 auto;
+
+                /* 设置字体大小 */
+                font-size: 16px;
+                /* 去除文字的顶部距离和底部距离 */
+                line-height: 16px;
+
+
+                /* 可能存在兼容性问题，适合于webkit内核浏览器和移动端 */
+                /* 条件1，超出的部分隐藏 */
+                overflow: hidden;
+                /* 条件2，用省略号代替超出的部分 */
+                text-overflow: ellipsis;
+                /* 条件3，弹性伸缩盒子模型显示 */
+                display: -webkit-box;
+                /* 条件4，限制在一个快元素显示的文本的行数 */
+                -webkit-line-clamp: 3;
+                /* 条件5，设置检索伸缩盒对象的子元素的排列方式 */
+                -webkit-box-orient: vertical;
+            }
+        </style>
+        <div>我们都是好朋友！！我们都是好朋友！！我们都是好朋友！！！我们都是好朋友！！我们都是好朋友！！我们都是好朋友！！！我们都是好朋友！！我们都是好朋友！！我们都是好朋友！！！</div>
+      "
