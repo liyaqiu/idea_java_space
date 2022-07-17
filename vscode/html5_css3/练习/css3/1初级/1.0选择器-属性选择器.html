@@ -16,20 +16,49 @@
     <title>Document</title>
 
     <style>
-        /* [aaa] {
-            color: red;
-        } */
-        [aaa='111'] {
-            color: red;
+        div {
+            width: 100px;
+            height: 100px;
+            background-color: pink;
         }
+        /* 交集选择器 */
+        /* div#div3.div3[a][b][c] {
+            background-color: red;
+        } */
+
+        /* 属性选择器 */
+
+            /* 选择属性为id */
+            /* [id] {
+                background-color: red;
+            } */
+
+            /* 选择属性为id，值为div3 */
+            /* [id='div3'] {
+                background-color: red;
+            } */
+
+            /* 选择属性为id，值得为div开头的 */
+            /* [id^='div']{
+                background-color: red;
+            } */
+
+            /* 选择属性为id，值为3结尾 */
+            /* [id$='3']{
+                background-color: red;
+            } */
+
+            /* 选择属性为hello，值包含bc */
+            [hello*='bc']{
+                background-color: red;
+            }
     </style>
 </head>
 
 <body>
-
-    <div aaa="111">1</div>
-    <div aaa="111">1</div>
-    <div aaa="222">1</div>
+    <div id="div1" hello="abcd" class="div1" a>1</div>
+    <div id="div2" hello="abdbc" class="div2" a b>2</div>
+    <div id="div3" hello="bcaa" class="div3" a b c>3</div>
 </body>
 
 </html>

@@ -579,7 +579,7 @@ class:
 模块化:
   静态导入使用方式1:
     - "
-      步骤一 17.1模块化-案例1.html
+      步骤一 17.1模块化-8.1图片与文字居中对齐-1.1小三角-案例1.html
       <script type='module'>
           //方式1
           /* import * as m1 from './17module.js'
@@ -637,7 +637,7 @@ class:
     "
   静态导入使用方式2:
     - "
-      步骤一 17.2模块化-案例2.html
+      步骤一 17.2模块化-8.2图片与文字居中对齐-1.2小三角案例2.html
         <script src='./17moduleManager.js' type='module'></script>
       步骤二 17moduleManager.js
         //方式1

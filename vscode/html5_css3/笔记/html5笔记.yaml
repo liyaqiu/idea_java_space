@@ -1,326 +1,416 @@
 官网:
   - mdn https://developer.mozilla.org/en-US/
   - w3school https://www.w3school.com.cn/h.asp
-Web标准:
-  - 结构(HTML)
-  - 表现(css)
-  - 行为(js)
-标题标签:
-  - 标签内的所有内容都在一行内显示,并且每个标签独占一行
-  - "
-    <h1>我</h1>
-    <h2>我</h2>
-    <h3>我</h3>
-    <h4>我</h4>
-    <h5>我</h5>
-    <h6>我</h6>
-  "
-段落标签:
-  - 会根据浏览器大小自动换行
-  - "
-    <p>
-        李白
-        日照香炉生紫烟，遥看瀑布挂前川。
-        飞流直下三千尺，疑是银河落九天。</p>
+HTML标签:
+  Web标准:
+    - 结构(HTML)
+    - 表现(css)
+    - 行为(js)
+  标题标签:
+    - 标签内的所有内容都在一行内显示,并且每个标签独占一行
+    - "
+      <h1>我</h1>
+      <h2>我</h2>
+      <h3>我</h3>
+      <h4>我</h4>
+      <h5>我</h5>
+      <h6>我</h6>
+    "
+  段落标签:
+    - 会根据浏览器大小自动换行
+    - "
+      <p>
+          李白
+          日照香炉生紫烟，遥看瀑布挂前川。
+          飞流直下三千尺，疑是银河落九天。</p>
 
-    <p>
-        郢门一为客，巴月三成弦。朔风正摇落，行子愁归旋。
-        杳杳山外日，茫茫江上天。人迷洞庭水，雁度潇湘烟。
-        清旷谐宿好，缁磷及此年。百龄何荡漾，万化相推迁。
-        空谒苍梧帝，徒寻溟海仙。已闻蓬海浅，岂见三桃圆。
-        倚剑增浩叹，扪襟还自怜。终当游五湖，濯足沧浪泉。
-    </p>
-  "
-换行标签:
-  - 它是一个单标签，用于换行 <br/>
-文本格式化标签:
-  功能:
-    - 更突出文字的重要性
-  加粗:
-    - "
-      <strong>我</strong><br/>
-      <b>我</b><br/>
+      <p>
+          郢门一为客，巴月三成弦。朔风正摇落，行子愁归旋。
+          杳杳山外日，茫茫江上天。人迷洞庭水，雁度潇湘烟。
+          清旷谐宿好，缁磷及此年。百龄何荡漾，万化相推迁。
+          空谒苍梧帝，徒寻溟海仙。已闻蓬海浅，岂见三桃圆。
+          倚剑增浩叹，扪襟还自怜。终当游五湖，濯足沧浪泉。
+      </p>
     "
-  倾斜:
+  换行标签:
+    - 它是一个单标签，用于换行 <br/>
+  文本格式化标签:
+    功能:
+      - 更突出文字的重要性
+    加粗:
+      - "
+        <strong>我</strong><br/>
+        <b>我</b><br/>
+      "
+    倾斜:
+      - "
+        <em>我</em><br/>
+        <i>我</i><br/>
+      "
+    删除线:
+      - "
+        <del>我</del><br/>
+        <s>我</s><br/>
+      "
+    下划线:
+      - "
+        <ins>我</ins><br/>
+        <u>我</u><br/>
+      "
+  盒子标签:
+    功能:
+      - 没有任何默认样式
+    大盒子:
+      - 一个div独占一行
+      - "
+        <div>独占一行</div>
+        <div>独占一行</div>
+        <div>独占一行</div>
+      "
+    小盒子:
+      - 多个span可以在同一行显示
+      - "
+        <span>跨距，同一行显示</span>
+        <span>跨距，同一行显示</span>
+        <span>跨距，同一行显示</span>
+      "
+  图像标签:
+    - 当宽度或者高度设置一个的时候，另一个会进行等比例缩放
     - "
-      <em>我</em><br/>
-      <i>我</i><br/>
+      <img src='1.jpg' title='提示文本' width='500' height='500' alt='当图片显示不出来的时候显示' border='10'>
     "
-  删除线:
-    - "
-      <del>我</del><br/>
-      <s>我</s><br/>
-    "
-  下划线:
-    - "
-      <ins>我</ins><br/>
-      <u>我</u><br/>
-    "
-盒子标签:
-  功能:
-    - 没有任何默认样式
-  大盒子:
-    - 一个div独占一行
-    - "
-      <div>独占一行</div>
-      <div>独占一行</div>
-      <div>独占一行</div>
-    "
-  小盒子:
-    - 多个span可以在同一行显示
-    - "
-      <span>跨距，同一行显示</span>
-      <span>跨距，同一行显示</span>
-      <span>跨距，同一行显示</span>
-    "
-图像标签:
-  - 当宽度或者高度设置一个的时候，另一个会进行等比例缩放
-  - "
-    <img src='1.jpg' title='提示文本' width='500' height='500' alt='当图片显示不出来的时候显示' border='10'>
-  "
-超链接标签:
-  功能:
-    - 可以链接到别的页面
-  外部链接:
-    - "<a href='https://www.baidu.com' target='_blank'  title='提示词'>外部链接</a>"
-  内部链接:
-    - "<a href='./0demo.html' target='_blank'  title='提示词'>内部链接</a>"
-  空链接:
-    - "<a href='#'  title='提示词'>空链接</a>"
-  下载链接:
-    - "<a href='abc.zip'  title='提示词'>下载链接</a>"
-  图片链接:
-    - "<a href='https://www.baidu.com' target='_blank'  title='提示词'><img src='https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png' alt=''></a>"
-  锚点链接:
-    - "
-      <a href='#1'  title='提示词'>作文300字 篇1</a><br>
-      <a href='#2'  title='提示词'>作文300字 篇2</a><br>
-      <a href='#3'  title='提示词'>作文300字 篇3</a><br>
-      <a href='#4'  title='提示词'>作文300字 篇4</a><br>
-      <a href='#5'  title='提示词'>作文300字 篇5</a><br>
-      <a href='#6'  title='提示词'>作文300字 篇6</a><br>
+  超链接标签:
+    功能:
+      - 可以链接到别的页面
+    外部链接:
+      - "<a href='https://www.baidu.com' target='_blank'  title='提示词'>外部链接</a>"
+    内部链接:
+      - "<a href='./2鼠标样式.html' target='_blank'  title='提示词'>内部链接</a>"
+    空链接:
+      - "<a href='#'  title='提示词'>空链接</a>"
+    下载链接:
+      - "<a href='abc.zip'  title='提示词'>下载链接</a>"
+    图片链接:
+      - "<a href='https://www.baidu.com' target='_blank'  title='提示词'><img src='https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png' alt=''></a>"
+    锚点链接:
+      - "
+        <a href='#1'  title='提示词'>作文300字 篇1</a><br>
+        <a href='#2'  title='提示词'>作文300字 篇2</a><br>
+        <a href='#3'  title='提示词'>作文300字 篇3</a><br>
+        <a href='#4'  title='提示词'>作文300字 篇4</a><br>
+        <a href='#5'  title='提示词'>作文300字 篇5</a><br>
+        <a href='#6'  title='提示词'>作文300字 篇6</a><br>
 
 
-      <p><h4 id='1'>作文300字 篇1</h4>
-      时光流逝，转眼间就要到我们期盼的春节了。想着想着，我的思绪早就飘到了千里之外的老家。
-      老家一阵瑞雪一定会从天而降，伴随着“噼咧啪啦”的鞭炮声，先知人们又一个春节即将来到了。除夕之夜那天，我和爸爸妈妈都会高高兴兴地住在外公外婆家，晚上，大家一边品尝着“山珍海味”般的年夜饭，一边观看着一年一度的春节联欢晚会，一家人其乐融融。午夜12点整，一阵阵炮竹声响彻了黑夜，黑色的幕布上“盛开”了不少五颜六色的花朵，该放“烟花”了！那时，爸爸会去点燃导火线，而我呢，更会喜滋滋地邀请小朋友们去家里玩耍。不一会儿，巨大的声响就会震撼整个村庄，让这个夜晚充满喜庆，喜庆回忆着这样的场面，让人久久不能入睡。
-      正月初一的时候，就要在显身手了：笔墨纸砚“齐唰唰”地道来，我持起一根毛笔，浸上一点墨儿，胸有成竹地写下一副对联，一定会令人啧啧赞叹，瞧，这是不是很有趣儿？过了一会儿，孩子们就都起床了，大家哼着小曲儿，走在田埂上，去挨家挨户地拜年……
-      春节呀，你怎么就不长上双翅膀飞到我们身边呢？</p>
-      <p><h4 id='2'>作文300字 篇2</h4>
-      我会有很多的事要做，比如做饭做家务，辅导孩子做作业……假如我是妈妈，我会随时监督我的孩子做功课的时候一定要做到“眼离书本一尺远，手离笔尖一寸远，胸离桌子一拳远”的正确姿势来做好功课。
-      假如我是妈妈，我会每天把饭菜做得有滋有味，让每天上完学疲劳的孩子回家立即尝到我的饭菜后疲劳顿消。我要让我的孩子多吃蔬菜，对身体有好处，我也会把一些他不爱吃的食物千方百计的做成不同味道的营养食品。
-      假如我是妈妈，我会和孩子一起去大自然实践。例如，如果他有作文要写，而且是有关大自然的，我一定会将手中的工作放下，和孩子一起去大自然里亲自实践，然后他拍照，我记笔记，回到家，再把资料整理一下，写成一篇优秀的作文。
-      假如我是妈妈，我绝对不会让孩子在星期天不去玩，而是在家里埋头写如山一样的课外作业。我一定让孩子劳逸结合，写完自己的所有功课后，再去玩，只要不是危险的地方，我同意他与小伙伴们一起快乐的玩耍。
-      我好想好想成为这样的一位妈妈，现在的妈妈一点都不会体谅孩子的感受，所以我要成为这样的一位好妈妈。</p>
-      <p><h4 id='3'>作文300字 篇3</h4>
-      大明湖自然景色秀美，名胜古迹争辉。每年都有很多慕名而来的游客来这里游玩。它位于山东省济南市历城区东北部，由珍珠泉、芙蓉泉、王府池等泉水汇集而成。
-      “四面荷花三面柳，一城山色半城湖”，这说的是咱济南的大明湖，他是怎么来的呢？清嘉庆九年夏天，历史学家刘凤浩与书法大家铁保在一起宴饮，兴致勃然，刘凤浩就写下“四面荷花三面柳，一城山色半城湖”。
-      大明湖最引人注目的就是湖水、荷花、柳树了。
-      大明湖的湖水颜色碧绿碧绿的，非常美。阳光照在波光细细的湖面上，像给水面铺上了一层闪闪发光的碎银，又像被揉皱了的绿缎。一阵微风吹过，湖水便泛起层层波纹，看着非常舒服。
-      大明湖的荷花非常娇艳，好像一碰就会受伤似的。大明湖的荷花有白的、粉的，随着风朝不同的方向摆动，好像一个个穿着美丽霓裳跳舞的小仙子。
-      大明湖的柳树很美，好像一个个守护大明湖的士兵。细长的柳条上长着一片片娇嫩的柳叶。大明湖的柳条就像妈妈柔顺的长头发。
-      大明湖的新园建设得也很漂亮，有超然楼、稼轩园……
-      大明湖非常美，希望大家可以来大明湖游玩！</p>
-      <p><h4 id='4'>作文300字 篇4</h4>
-      八语上第一单元是游记，上作文课的前一天，我布置的任务是收集写作素材，理清写作思路，课上我们先说作文。
-      尽管课堂教学我反复强调“游踪”、景物特点的重要性，可学生的说作文还是让我很失望。只有少数同学说的还可以，大部分学生要么只说行踪，没有景物描写；要么只说景物描写，没有行踪；还有的什么也没说，理由是哪儿都没去过。
-      反思一，课堂教学中，对游记写作讲得不够细，导致学生思路不清晰。
-      反思二，有些学生游览时，眼中无物，导致学生说不出来，有的家长从没带孩子出去玩过，以至于没有内容可说。教师应及时指导学生，让他们养成平时善于搜集写作素材的好习惯，随时记下自己的所见、所闻、所感，避免写作时搜肠刮肚，没有内容可写。</p>
-      <p><h4 id='5'>作文300字 篇5</h4>
-      记一次班队活动“悠悠天宇旷，切切故乡情。”今天，我们班举行了一个名为“浓浓的乡情”的主题队会。
-      支持人正准备闪亮登场，却被邓贵阳抢了风头，朗诵起诗来，别看他紧皱眉头，眼里却颇有笑意。“……”一阵美妙的琴声打破了教师的寂静，原来是彭爱宁在弹古筝，那声音悠扬而深远，令人听了如痴如醉。终于到我了，我打开我的书法作品，几个漂亮有劲的大字映入大家的眼帘，同学们都不约而同地读起来。“吾爱巫山！”这四个字表达了我对家乡的喜爱。同学们最期待的节目来了，那就是管乐演奏，刘衡霄和鲁卓越拿着乐器走上了讲台，刘衡霄的中音萨克，声音低沉；而鲁卓越的高音萨克，声音高昂。两种不同风格的乐器合在一起吹，声音时高时低，动听极了！
-      最后，我们又采用了“击鼓传花”的玩法，就是一个人敲着鼓，全班同学轮流传花，鼓停了，话在谁手上就归谁表演，这种玩法十分有趣。一时间，整个教室都沉浸在欢乐之中。
-      “叮铃铃……”下课了，我依依不舍的走出了教室，今天这次主题队会别开生面，它深深地印在我的脑海里；这些美好的回忆，我一辈子也不会忘记！</p>
-      <p><h4 id='6'>作文300字 篇6</h4>
-      今天早上我和妈妈去姥姥家的时候，是坐公共汽车去的。
-      因为我和妈妈是在车站直接上的车，所以虽然车上人很多，但大家都有座位。车像一位年迈的老人慢慢地行驶在马路上，我舒舒服服地坐在座位上惬意地欣赏着窗外的美丽风景。随着车经过了一个个站点，车上的人渐渐多了起来，前后所有的座位都坐满了人。
-      又到了一个站点，车停了下来，这回一下子上来了四五个人。大家有的拥拥挤挤地坐在一起，有的只好站在过道里。一位六十多岁的老奶奶没找到座位，她非常吃力地站在那里。看到这个情景，我再也坐不住了，我毫不犹豫地站了起来，对那位老奶奶说：“奶奶，请坐在我这里吧！”老奶奶一点也没有客气就坐了下来，甚至连看也没有看我一眼。我和妈妈挤在一个痤位上，我的屁股只坐了半边座位，垫得生疼，身子一动也不能动，胳膊也挤在窗上，疼得我下了车好一阵才缓过劲来。我觉得自己差点被挤成了肉饼。</p>
-      <a href='#'  title='提示词'>回到顶部</a><br>
+        <p><h4 id='1'>作文300字 篇1</h4>
+        时光流逝，转眼间就要到我们期盼的春节了。想着想着，我的思绪早就飘到了千里之外的老家。
+        老家一阵瑞雪一定会从天而降，伴随着“噼咧啪啦”的鞭炮声，先知人们又一个春节即将来到了。除夕之夜那天，我和爸爸妈妈都会高高兴兴地住在外公外婆家，晚上，大家一边品尝着“山珍海味”般的年夜饭，一边观看着一年一度的春节联欢晚会，一家人其乐融融。午夜12点整，一阵阵炮竹声响彻了黑夜，黑色的幕布上“盛开”了不少五颜六色的花朵，该放“烟花”了！那时，爸爸会去点燃导火线，而我呢，更会喜滋滋地邀请小朋友们去家里玩耍。不一会儿，巨大的声响就会震撼整个村庄，让这个夜晚充满喜庆，喜庆回忆着这样的场面，让人久久不能入睡。
+        正月初一的时候，就要在显身手了：笔墨纸砚“齐唰唰”地道来，我持起一根毛笔，浸上一点墨儿，胸有成竹地写下一副对联，一定会令人啧啧赞叹，瞧，这是不是很有趣儿？过了一会儿，孩子们就都起床了，大家哼着小曲儿，走在田埂上，去挨家挨户地拜年……
+        春节呀，你怎么就不长上双翅膀飞到我们身边呢？</p>
+        <p><h4 id='2'>作文300字 篇2</h4>
+        我会有很多的事要做，比如做饭做家务，辅导孩子做作业……假如我是妈妈，我会随时监督我的孩子做功课的时候一定要做到“眼离书本一尺远，手离笔尖一寸远，胸离桌子一拳远”的正确姿势来做好功课。
+        假如我是妈妈，我会每天把饭菜做得有滋有味，让每天上完学疲劳的孩子回家立即尝到我的饭菜后疲劳顿消。我要让我的孩子多吃蔬菜，对身体有好处，我也会把一些他不爱吃的食物千方百计的做成不同味道的营养食品。
+        假如我是妈妈，我会和孩子一起去大自然实践。例如，如果他有作文要写，而且是有关大自然的，我一定会将手中的工作放下，和孩子一起去大自然里亲自实践，然后他拍照，我记笔记，回到家，再把资料整理一下，写成一篇优秀的作文。
+        假如我是妈妈，我绝对不会让孩子在星期天不去玩，而是在家里埋头写如山一样的课外作业。我一定让孩子劳逸结合，写完自己的所有功课后，再去玩，只要不是危险的地方，我同意他与小伙伴们一起快乐的玩耍。
+        我好想好想成为这样的一位妈妈，现在的妈妈一点都不会体谅孩子的感受，所以我要成为这样的一位好妈妈。</p>
+        <p><h4 id='3'>作文300字 篇3</h4>
+        大明湖自然景色秀美，名胜古迹争辉。每年都有很多慕名而来的游客来这里游玩。它位于山东省济南市历城区东北部，由珍珠泉、芙蓉泉、王府池等泉水汇集而成。
+        “四面荷花三面柳，一城山色半城湖”，这说的是咱济南的大明湖，他是怎么来的呢？清嘉庆九年夏天，历史学家刘凤浩与书法大家铁保在一起宴饮，兴致勃然，刘凤浩就写下“四面荷花三面柳，一城山色半城湖”。
+        大明湖最引人注目的就是湖水、荷花、柳树了。
+        大明湖的湖水颜色碧绿碧绿的，非常美。阳光照在波光细细的湖面上，像给水面铺上了一层闪闪发光的碎银，又像被揉皱了的绿缎。一阵微风吹过，湖水便泛起层层波纹，看着非常舒服。
+        大明湖的荷花非常娇艳，好像一碰就会受伤似的。大明湖的荷花有白的、粉的，随着风朝不同的方向摆动，好像一个个穿着美丽霓裳跳舞的小仙子。
+        大明湖的柳树很美，好像一个个守护大明湖的士兵。细长的柳条上长着一片片娇嫩的柳叶。大明湖的柳条就像妈妈柔顺的长头发。
+        大明湖的新园建设得也很漂亮，有超然楼、稼轩园……
+        大明湖非常美，希望大家可以来大明湖游玩！</p>
+        <p><h4 id='4'>作文300字 篇4</h4>
+        八语上第一单元是游记，上作文课的前一天，我布置的任务是收集写作素材，理清写作思路，课上我们先说作文。
+        尽管课堂教学我反复强调“游踪”、景物特点的重要性，可学生的说作文还是让我很失望。只有少数同学说的还可以，大部分学生要么只说行踪，没有景物描写；要么只说景物描写，没有行踪；还有的什么也没说，理由是哪儿都没去过。
+        反思一，课堂教学中，对游记写作讲得不够细，导致学生思路不清晰。
+        反思二，有些学生游览时，眼中无物，导致学生说不出来，有的家长从没带孩子出去玩过，以至于没有内容可说。教师应及时指导学生，让他们养成平时善于搜集写作素材的好习惯，随时记下自己的所见、所闻、所感，避免写作时搜肠刮肚，没有内容可写。</p>
+        <p><h4 id='5'>作文300字 篇5</h4>
+        记一次班队活动“悠悠天宇旷，切切故乡情。”今天，我们班举行了一个名为“浓浓的乡情”的主题队会。
+        支持人正准备闪亮登场，却被邓贵阳抢了风头，朗诵起诗来，别看他紧皱眉头，眼里却颇有笑意。“……”一阵美妙的琴声打破了教师的寂静，原来是彭爱宁在弹古筝，那声音悠扬而深远，令人听了如痴如醉。终于到我了，我打开我的书法作品，几个漂亮有劲的大字映入大家的眼帘，同学们都不约而同地读起来。“吾爱巫山！”这四个字表达了我对家乡的喜爱。同学们最期待的节目来了，那就是管乐演奏，刘衡霄和鲁卓越拿着乐器走上了讲台，刘衡霄的中音萨克，声音低沉；而鲁卓越的高音萨克，声音高昂。两种不同风格的乐器合在一起吹，声音时高时低，动听极了！
+        最后，我们又采用了“击鼓传花”的玩法，就是一个人敲着鼓，全班同学轮流传花，鼓停了，话在谁手上就归谁表演，这种玩法十分有趣。一时间，整个教室都沉浸在欢乐之中。
+        “叮铃铃……”下课了，我依依不舍的走出了教室，今天这次主题队会别开生面，它深深地印在我的脑海里；这些美好的回忆，我一辈子也不会忘记！</p>
+        <p><h4 id='6'>作文300字 篇6</h4>
+        今天早上我和妈妈去姥姥家的时候，是坐公共汽车去的。
+        因为我和妈妈是在车站直接上的车，所以虽然车上人很多，但大家都有座位。车像一位年迈的老人慢慢地行驶在马路上，我舒舒服服地坐在座位上惬意地欣赏着窗外的美丽风景。随着车经过了一个个站点，车上的人渐渐多了起来，前后所有的座位都坐满了人。
+        又到了一个站点，车停了下来，这回一下子上来了四五个人。大家有的拥拥挤挤地坐在一起，有的只好站在过道里。一位六十多岁的老奶奶没找到座位，她非常吃力地站在那里。看到这个情景，我再也坐不住了，我毫不犹豫地站了起来，对那位老奶奶说：“奶奶，请坐在我这里吧！”老奶奶一点也没有客气就坐了下来，甚至连看也没有看我一眼。我和妈妈挤在一个痤位上，我的屁股只坐了半边座位，垫得生疼，身子一动也不能动，胳膊也挤在窗上，疼得我下了车好一阵才缓过劲来。我觉得自己差点被挤成了肉饼。</p>
+        <a href='#'  title='提示词'>回到顶部</a><br>
 
+      "
+  特殊符号:
+    - "
+      <div>空格&nbsp;&nbsp;空格</div>
+      <div>大于号&gt;</div>
+      <div>大于号&lt;</div>
+      <div>版本符号&copy;</div>
     "
-特殊符号:
-  - "
-    <div>空格&nbsp;&nbsp;空格</div>
-    <div>大于号&gt;</div>
-    <div>大于号&lt;</div>
-    <div>版本符号&copy;</div>
-  "
-表格标签:
-  功能:
-    - 表格主要用来显示数据的
-    - cellpadding 表格填充，内容与单元格之间距离
-    - cellspacing 表格空间，单元格与单元格之间距离
-    - "
-    <table align='center' border='1' cellpadding='0' cellspacing='0' width='300' height='300'>
-        <thead>
-            <tr>
-                <th>姓名</th>
-                <th>年龄</th>
-                <th>性别</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>eric</td>
-                <td>31</td>
-                <td>男</td>
-            </tr>
-            <tr>
-                <td>tom</td>
-                <td>40</td>
-                <td>男</td>
-            </tr>
-            <tr>
-                <td>jerry</td>
-                <td>52</td>
-                <td>男</td>
-            </tr>
-        </tbody>
-    </table>
-  "
-  合并单元格:
-    - "
-      <table align='center' border='1' cellpadding='0' cellspacing='0' width='700'>
+  表格标签:
+    功能:
+      - 表格主要用来显示数据的
+      - cellpadding 表格填充，内容与单元格之间距离
+      - cellspacing 表格空间，单元格与单元格之间距离
+      - "
+      <table align='center' border='1' cellpadding='0' cellspacing='0' width='300' height='300'>
           <thead>
-              <tr height='50'>
-                  <th colspan='6'>个人简历</th>
+              <tr>
+                  <th>姓名</th>
+                  <th>年龄</th>
+                  <th>性别</th>
               </tr>
           </thead>
-          <tbody align='center'>
-              <tr height='40'>
-                  <td width='80'>姓名:</td>
-                  <td width='100'></td>
-                  <td width='80'>性别:</td>
-                  <td width='100'></td>
-                  <td rowspan='5' width='120'>照片</td>
+          <tbody>
+              <tr>
+                  <td>eric</td>
+                  <td>31</td>
+                  <td>男</td>
               </tr>
-              <tr height='40'>
-                  <td>婚姻状况:</td>
-                  <td></td>
-                  <td>出生年月:</td>
-                  <td></td>
-
+              <tr>
+                  <td>tom</td>
+                  <td>40</td>
+                  <td>男</td>
               </tr>
-              <tr height='40'>
-                  <td>民族:</td>
-                  <td></td>
-                  <td>政治面貌:</td>
-                  <td></td>
-
-              </tr>
-              <tr height='40'>
-                  <td>身高:</td>
-                  <td></td>
-                  <td>学历:</td>
-                  <td></td>
-
+              <tr>
+                  <td>jerry</td>
+                  <td>52</td>
+                  <td>男</td>
               </tr>
           </tbody>
       </table>
     "
-列表标签:
-  功能:
-    - 列表主要用来布局，列表最大的特点就是整齐，有序。
-  无序列表:
+    合并单元格:
+      - "
+        <table align='center' border='1' cellpadding='0' cellspacing='0' width='700'>
+            <thead>
+                <tr height='50'>
+                    <th colspan='6'>个人简历</th>
+                </tr>
+            </thead>
+            <tbody align='center'>
+                <tr height='40'>
+                    <td width='80'>姓名:</td>
+                    <td width='100'></td>
+                    <td width='80'>性别:</td>
+                    <td width='100'></td>
+                    <td rowspan='5' width='120'>照片</td>
+                </tr>
+                <tr height='40'>
+                    <td>婚姻状况:</td>
+                    <td></td>
+                    <td>出生年月:</td>
+                    <td></td>
+
+                </tr>
+                <tr height='40'>
+                    <td>民族:</td>
+                    <td></td>
+                    <td>政治面貌:</td>
+                    <td></td>
+
+                </tr>
+                <tr height='40'>
+                    <td>身高:</td>
+                    <td></td>
+                    <td>学历:</td>
+                    <td></td>
+
+                </tr>
+            </tbody>
+        </table>
+      "
+  列表标签:
+    功能:
+      - 列表主要用来布局，列表最大的特点就是整齐，有序。
+    无序列表:
+      - "
+        <!-- 无序列表 -->
+        <ul>
+            <li>你好1</li>
+            <li>你好2</li>
+            <li>你好3</li>
+            <li>你好4</li>
+        </ul>
+      "
+    有序列表:
+      - "
+        <!-- 有序列表 -->
+        <ol>
+            <li>你好1</li>
+            <li>你好2</li>
+            <li>你好3</li>
+            <li>你好4</li>
+        </ol>
+      "
+    自定义列表:
+      - "
+        <!-- 自定义列表方式1 -->
+        <dl>
+            <dt>搜索引擎如下</dt>
+            <dd>百度</dd>
+            <dd>谷歌</dd>
+            <dd>必应</dd>
+        </dl>
+        <!-- 自定义列表方式2 -->
+        <dl>
+            <dt>搜索引擎如下</dt>
+                <dd>百度</dd>
+                <dd>谷歌</dd>
+                <dd>必应</dd>
+            <dt>关注如下</dt>
+                <dd>百度</dd>
+                <dd>谷歌</dd>
+                <dd>必应</dd>
+        </dl>
+      "
+  表单标签:
     - "
-      <!-- 无序列表 -->
-      <ul>
-          <li>你好1</li>
-          <li>你好2</li>
-          <li>你好3</li>
-          <li>你好4</li>
-      </ul>
+      <!-- 表单域 -->
+      <form action='http://192.168.1.1' method='get' name='表单名称' enctype='application/x-www-form-urlencoded'>
+          <input type='hidden' name='a1' value='隐藏'><br>
+          <input type='text' name='a2' maxlength='5' placeholder='输入最大5位'><br>
+          <input type='number'><br><!-- 只允许输入数值 -->
+          <input type='password' name='a3'><br>
+          <input type='checkbox' name='a4'><br>
+          <input type='checkbox' name='a4'><br>
+          <input type='radio' name='a5'><br>
+          <input type='radio' name='a5'><br>
+
+          <textarea name='a6' rows='5' cols='50'></textarea><br>
+
+          <!-- 单选 -->
+          <select name='a7'>
+              <option value=''></option>
+              <option value='1'>1</option>
+              <option value='2'>2</option>
+              <option value='3'>3</option>
+          </select><br>
+
+          <!-- 多选 -->
+          <select name='a8' multiple>
+              <option value=''></option>
+              <option value='11'>11</option>
+              <option value='22'>22</option>
+              <option value='33'>33</option>
+          </select><br>
+
+          <!-- <input type='file' name=''><br> -->
+          <input type='button' value='免费获取验证码，不会提交表单'><br>
+
+          <input type='reset'  value='重置内容'>
+          <input type='submit' value='提交表单1'>
+          <button>提交表单2</button>
+      </form>
     "
-  有序列表:
+  label标签:
+    - label可以镜像一个标签(input)出来，当点击label标签的时候，会触发到原始标签身上
+    - label用for属性来镜像某个标签的id属性
     - "
-      <!-- 有序列表 -->
-      <ol>
-          <li>你好1</li>
-          <li>你好2</li>
-          <li>你好3</li>
-          <li>你好4</li>
-      </ol>
+      <script>
+          function aa(){
+              alert(11)
+          }
+      </script>
+      <input type='text' name='' id='inp1'><br>
+      <input type='text' name='' id='inp2'><br>
+      <input type='button' onclick='aa()' id='bt' value='点我试试'>
+      <button onclick='aa()' id='bt1'>点我</button><br>
+
+      <label for='inp3' >男<input type='radio' name='' id='inp3'></label>
+      <label for='inp4'>女<input type='radio' name='' id='inp4'></label><br>
+
+      <label for='inp1'>点我获取焦点</label><br>
+      <label for='inp2'>点我获取焦点</label><br>
+      <label for='bt'>点我试试</label><br>
+      <label for='bt1'>点我</label><br>
     "
-  自定义列表:
+HTML5标签:
+  兼容问题: ie9+以上支持
+  语义话DIV标签:
     - "
-      <!-- 自定义列表方式1 -->
-      <dl>
-          <dt>搜索引擎如下</dt>
-          <dd>百度</dd>
-          <dd>谷歌</dd>
-          <dd>必应</dd>
-      </dl>
-      <!-- 自定义列表方式2 -->
-      <dl>
-          <dt>搜索引擎如下</dt>
-              <dd>百度</dd>
-              <dd>谷歌</dd>
-              <dd>必应</dd>
-          <dt>关注如下</dt>
-              <dd>百度</dd>
-              <dd>谷歌</dd>
-              <dd>必应</dd>
-      </dl>
+      <header>头部标签</header>
+      <nav>导航标签</nav>
+      <article>内容标签</article>
+      <section>定义文档某个区域标签</section>
+      <aside>侧边栏标签</aside>
+      <footer>尾部标签</footer>
     "
-表单标签:
-  - "
-    <!-- 表单域 -->
-    <form action='http://192.168.1.1' method='get' name='表单名称' enctype='application/x-www-form-urlencoded'>
-        <input type='hidden' name='a1' value='隐藏'><br>
-        <input type='text' name='a2' maxlength='5' placeholder='输入最大5位'><br>
-        <input type='number'><br><!-- 只允许输入数值 -->
-        <input type='password' name='a3'><br>
-        <input type='checkbox' name='a4'><br>
-        <input type='checkbox' name='a4'><br>
-        <input type='radio' name='a5'><br>
-        <input type='radio' name='a5'><br>
-
-        <textarea name='a6' rows='5' cols='50'></textarea><br>
-
-        <!-- 单选 -->
-        <select name='a7'>
-            <option value=''></option>
-            <option value='1'>1</option>
-            <option value='2'>2</option>
-            <option value='3'>3</option>
-        </select><br>
-
-        <!-- 多选 -->
-        <select name='a8' multiple>
-            <option value=''></option>
-            <option value='11'>11</option>
-            <option value='22'>22</option>
-            <option value='33'>33</option>
-        </select><br>
-
-        <!-- <input type='file' name=''><br> -->
-        <input type='button' value='免费获取验证码，不会提交表单'><br>
-
-        <input type='reset'  value='重置内容'>
-        <input type='submit' value='提交表单1'>
-        <button>提交表单2</button>
-    </form>
-  "
-label标签:
-  - label可以镜像一个标签(input)出来，当点击label标签的时候，会触发到原始标签身上
-  - label用for属性来镜像某个标签的id属性
-  - "
-    <script>
-        function aa(){
-            alert(11)
-        }
-    </script>
-    <input type='text' name='' id='inp1'><br>
-    <input type='text' name='' id='inp2'><br>
-    <input type='button' onclick='aa()' id='bt' value='点我试试'>
-    <button onclick='aa()' id='bt1'>点我</button><br>
-
-    <label for='inp3' >男<input type='radio' name='' id='inp3'></label>
-    <label for='inp4'>女<input type='radio' name='' id='inp4'></label><br>
-
-    <label for='inp1'>点我获取焦点</label><br>
-    <label for='inp2'>点我获取焦点</label><br>
-    <label for='bt'>点我试试</label><br>
-    <label for='bt1'>点我</label><br>
-
-  "
+  视频标签:
+    - 支持格式 MP4 WebM Ogg，常用MP4格式
+    - 有这个标签以后，flash退出历史舞台
+    - "
+      <!--
+          autoplay='autoplay' 部分浏览器默认禁用自动播放，使用muted='muted'静音播放可以解决次问题
+          controls='controls' 显示播放控件
+          loop='loop' 循环播放
+          preload='auto'  auto预先加载   none不预先加载，如果有了autoplay='autoplay'自动播放则不需要设置此属性也可以
+          poster
+       -->
+       <video
+              width='500'
+              height='500'
+              autoplay='autoplay'
+              src='https://cdn.cnbj1.fds.api.mi-img.com/mi-mall/cc59d927b67a1c6d7c068a3dee95e872.mp4'
+              muted='muted'
+              controls='controls'
+              loop='loop'
+              poster='https://img.youpin.mi-img.com/ferriswheel/b576f55e_57fe_421d_bb20_c1f628502982.jpeg?w=1920&h=1080'
+              >
+      </video>
+      <!-- 兼容性写法 -->
+      <!-- <video  autoplay='autoplay' muted='muted'>
+          <source src='https://cdn.cnbj1.fds.api.mi-img.com/mi-mall/cc59d927b67a1c6d7c068a3dee95e872.mp4' type='video/mp4'>
+          <source src='https://cdn.cnbj1.fds.api.mi-img.com/mi-mall/cc59d927b67a1c6d7c068a3dee95e872.ogg' type='video/ogg'>
+          如果不支持video标签，则显示此句话
+      </video> -->
+    "
+  音频标签:
+    - 支持格式MP3 Wav Ogg，默认使用MP3不会有兼容性问题
+    - "
+      <!--
+          谷歌默认禁用了自动播放
+       -->
+      <audio src='xxx.mp3' autoplay controls loop></audio>
+      <!-- 兼容性写法 -->
+      <!--
+          <audio src='xxx.mp3' autoplay controls loop>
+              <source src='xxx.mp3' type='audio/mp4'>
+              <source src='xxx.ogg' type='audio/ogg'>
+              如果不支持audio标签，则显示此句话
+          </audio>
+      -->
+    "
+  表单标签:
+    标签:
+      - "
+        <!-- 部分表单控件需要配合表单域才有功能 -->
+        <form action=''>
+            email<input type='email'><br>
+            url<input type='url'><br>
+            date<input type='date'><br>
+            time<input type='time'><br>
+            month<input type='month'><br>
+            week<input type='week'><br>
+            number<input type='number'><br>
+            tel<input type='tel'><br>
+            search<input type='search'><br>
+            color<input type='color'><br>
+            <button>提交</button>
+        </form>
+      "
+    标签属性:
+      - "
+        <!--
+            部分表单控件需要配合表单域才有功能
+            autocomplete='on/off' 需要配合name属性才可以使用 name='search'
+            required='required' 强行需要输入才通过
+            placeholder='请输入search' 支持占位符提示语
+            autofocus='autofocus' 支持自动获取焦点
+            multiple='multiple' 支持多选文件上传
+        -->
+        <form action=''>
+            search<input type='search' placeholder='请输入search' required='required' autofocus='autofocus' autocomplete='on' name='search'><br>
+            file <input type='file' multiple='multiple'>
+            <button>提交</button>
+        </form>
+      "

@@ -1,5 +1,7 @@
 CSS官方:
-  - 官方 https://www.w3school.com.cn/h.asp
+  - mdn https://developer.mozilla.org/en-US/
+  - CSS参考文档 https://www.w3school.com.cn/h.asp
+  - CSS参考文档 http://www.runoob.com/css
   - photoshop 快速导出图层插件 https://www.cutterman.cn/zh/cutterman
   - 字体图标 https://icomoon.io/#icons
   - 字体图标 https://www.iconfont.cn/
@@ -15,7 +17,7 @@ CSS编写规范:
   - 其他属性(CSS3) content/cursor/border-radius/box-shadow/text-shadow/backrground:linear-gradient
 初级:
   选择器分类:
-    基础选择器:
+    基础选择器(7种):
       id选择器:
         - 规则声明，如果定义了id选择器样式，只允许一个标签调用，其他标签不允许在次调用
         - "#my_unique_style{}"
@@ -104,20 +106,494 @@ CSS编写规范:
           <div >我们都是好朋友</div>
           <div >我们都是好朋友</div>
         "
-      屬性选择器:
+      属性选择器(css3):
         - "
-        /* [aaa] {
-            color: red;
-        } */
-        [aaa='111'] {
-            color: red;
-        }
+        <style>
+            div {
+                width: 100px;
+                height: 100px;
+                background-color: pink;
+            }
+            /* 交集选择器 */
+            /* div#div3.div3[a][b][c] {
+                background-color: red;
+            } */
 
-        <div aaa='111'>1</div>
-        <div aaa='111'>1</div>
-        <div aaa='222'>1</div>
+            /* 属性选择器 */
+
+                /* 选择属性为id */
+                /* [id] {
+                    background-color: red;
+                } */
+
+                /* 选择属性为id，值为div3 */
+                /* [id='div3'] {
+                    background-color: red;
+                } */
+
+                /* 选择属性为id，值得为div开头的 */
+                /* [id^='div']{
+                    background-color: red;
+                } */
+
+                /* 选择属性为id，值为3结尾 */
+                /* [id$='3']{
+                    background-color: red;
+                } */
+
+                /* 选择属性为hello，值包含bc */
+                [hello*='bc']{
+                    background-color: red;
+                }
+        </style>
+        <div id='div1' hello='abcd' class='div1' a>1</div>
+        <div id='div2' hello='abdbc' class='div2' a b>2</div>
+        <div id='div3' hello='bcaa' class='div3' a b c>3</div>
+      "
+      伪类选择器:
+        - ":hover 等同于 *:hover"
+        - "
+        <style>
+            /* 如果全部写，一定要按照lvha顺序下，否则可能不生效 */
+            /* 未访问过 a:link*/
+            /* 已访问过 a:visited*/
+            /* 鼠标划过 a:hover*/
+            /* 鼠标按下 a:active*/
+            footer{
+                width: 50px;
+                height: 50px;
+                background-color: rgb(112, 103, 105);
+                margin-top: 10px;
+
+            }
+
+            div {
+                width: 100px;
+                height: 100px;
+                background-color: pink;
+                margin-top: 10px;
+            }
+
+            /* 给span下的所有元素添加 伪类选择器 */
+            /* span :hover {
+                background-color: red;
+            } */
+
+            /* 给span下的所有后代footer元素添加 伪类选择器 */
+            /* span footer:hover {
+                background-color: red;
+            } */
+
+            /* 给span下的所有儿子footer元素添加 伪类选择器 */
+            /* span > footer:hover {
+                background-color: red;
+            } */
+
+        </style>
+        <span>
+            <div>
+                <footer></footer>
+            </div>
+            <div></div>
+            <hr>
+            <footer></footer>
+            <footer></footer>
+        </span>
+        <hr>
+        <div></div>
+        <div></div>
         "
-    复合选择器:
+      结构伪类选择器(css3):
+        功能:
+          - 此选择器调试的时候，禁止使用LiveServer插件，会有BUG问题
+          - "
+            :first-child
+            :last-child
+            :nth-child([n代表0-n][具体数值][表达式5n-1等价于5*(0-n)-1])
+            情况1，冒号前面没类型(:first-child)
+              查找方式，直接找到具体位置元素
+            情况2，冒号前面有类型(div:first-child)
+              查找方式，直接找到具体位置元素，在匹配类型
+
+            :first-of-type
+            :last-of-type
+            :nth-of-type([n代表0-n][具体数值][表达式5n-1等价于5*(0-n)-1])
+            情况1，冒号前面没有类型(:first-of-type)
+              查找方式，对所有类型元素进行分类，然后依次找出每种类型的元素
+            情况2，冒号前面有类型(div:first-of-type)
+              查找方式，对该类型元素进行分类，然后找出该类型的元素
+          "
+        入门案例:
+          - "
+            <style>
+                footer{
+                    width: 50px;
+                    height: 50px;
+                    background-color: rgb(112, 103, 105);
+                    margin-top: 10px;
+
+                }
+
+                div {
+                    width: 100px;
+                    height: 100px;
+                    background-color: pink;
+                    margin-top: 10px;
+                }
+
+
+                /* 选择body所有后代第一个元素 */
+                /* body  :first-child {
+                    background-color: red;
+                } */
+
+                /* 选择body所有后代最后一个元素 */
+                /* body  :last-child {
+                    background-color: red;
+                } */
+
+
+                /* 选择body所有儿子第一个元素 */
+                /* body > :first-child {
+                    background-color: red;
+                } */
+
+                /* 选择body所有儿子第一个元素 */
+                /* body > :last-child {
+                    background-color: red;
+                } */
+
+
+                /* 选择body所有后代最后一个footer元素 */
+                /* body footer:last-child {
+                    background-color: red;
+                } */
+
+                /* 选择body所有后代的第一个span元素 */
+                /* body  span:first-child {
+                    background-color: red;
+                } */
+
+
+                /*
+                    语句拆解
+                    body的儿子，的span 的最后一个，的属性为att
+                */
+                /* body > span:last-child[att] {
+                    background-color: red;
+                } */
+
+
+                /* 看父级，如果自己是span，并且是第一个元素则满足条件 */
+                /* span:first-child{
+                    background-color: red;
+                } */
+
+                /* body的所有后代，第二个元素全部选择出来 */
+                /* body :nth-child(2){
+                    background-color: red;
+                } */
+
+                /* body的儿子，第二个元素选择出来 */
+                /* body > :nth-child(2){
+                    background-color: red;
+                } */
+
+                /* body的后代，从0开始找，把所有的span元素找出来 */
+                /* body span:nth-child(n){
+                    background-color: red;
+                } */
+
+                /* body的儿子，从0开始找，把所有的span元素找出来 */
+                /* body > span:nth-child(n){
+                    background-color: red;
+                } */
+
+                /* body的儿子，从0开始找，把所有的元素找出来 */
+                /* body > :nth-child(n){
+                    background-color: red;
+                } */
+
+                /* body的后代，从0开始找，把所有的元素找出来 */
+                /* body :nth-child(n+2){
+                    background-color: red;
+                } */
+
+                /* body的后代，从1开始找，找出所有的span元素 */
+                /* body span:nth-child(n+1){
+                    background-color: red;
+                } */
+
+            </style>
+
+            <span>1111
+                <div>222
+                    <span>3333</span>
+                    <footer>4444</footer>
+                </div>
+                <div>5555</div>
+                <footer>6666</footer>
+                <footer>7777</footer>
+            </span>
+            <div>8888</div>
+            <span att>
+                9999
+            </span>
+          "
+        高级案例:
+          - "
+            <style>
+
+                /*
+                    even 偶数 odd基数
+                    找出body儿子的所有基数行，并且元素是span
+                */
+                /* body > span:nth-child(odd){
+                    background-color: red;
+                } */
+
+                /*
+                    当元素给了n值以后，就会从0-n开始找
+                    找出body儿子的0-n的元素，并且元素是span
+                */
+                /* body > span:nth-child(n){
+                    background-color: red;
+                } */
+
+                /*
+                当元素给了n值以后，就会从0-n开始找
+                找出
+                    2 * 0 = 0
+                    2 * 1 = 2
+                    2 * 2 = 4
+                    2 * 3 = 6
+                    2 * 4 = 8
+                    2 * 5 = 10
+                    2 * 6 = 12
+                元素 */
+                /* body > span:nth-child(2n){
+                    background-color: red;
+                } */
+
+                /*
+                当元素给了n值以后，就会从0-n开始找
+                找出
+                  5 * 0 = 0
+                  5 * 1 = 5
+                  5 * 2 = 10
+                  5 * 3 = 15
+                  5 * 4 = 20
+                  5 * 5 = 25
+                  5 * 6 = 30
+                元素 */
+                /* body > span:nth-child(5n){
+                    background-color: red;
+                } */
+
+                /*
+                当元素给了n值以后，就会从0-n开始找
+                找出
+                    -0 + 2 = 2
+                    -1 + 2 = 1
+                    -2 + 2 = 0
+                    -3 + 2 = -1
+                    -4 + 2 = -2
+                    -5 + 2 = -3
+                    -6 + 2 = -4
+                元素
+                */
+                /* body > span:nth-child(-n+2){
+                    background-color: red;
+                } */
+
+
+                /*
+                当元素给了n值以后，就会从0-n开始找
+                找出
+                    2 * 0 + 1 = 1
+                    2 * 1 + 1 = 3
+                    2 * 2 + 1 = 5
+                    2 * 3 + 1 = 7
+                    2 * 4 + 1 = 9
+                    2 * 5 + 1 = 11
+                    2 * 6 + 1 = 13
+                元素
+                */
+                body > span:nth-child(2n+1){
+                    background-color: red;
+                }
+
+            </style>
+            <span>111</span>
+            <span>222</span>
+            <span>333</span>
+            <span>444</span>
+            <span>555</span>
+            <span>666</span>
+            <span>777</span>
+          "
+        进阶案例:
+          - "
+          <style>
+
+              /* 具备包容所有儿子 */
+              /*  */
+
+              /* 只包容具体类型儿子 */
+              /*  */
+
+
+
+              /* body儿子，第一个元素，并且是span，具有包容性，包容所有类型元素 */
+              /* body > span:first-child {
+                  color: red;
+              } */
+
+              /* body儿子，第一个元素，并且是span，不具有包容性，只包容所有div类型元素 */
+              /* body > div:first-of-type {
+                  color: red;
+              } */
+
+              /* body的儿子，不具备包容性，找出每种类型的第一个元素 */
+              /* body > :first-of-type {
+                  color: red;
+              } */
+
+
+
+              /* body儿子，第一个元素，并且是div */
+              /* body > div:last-child {
+                  color: red;
+              } */
+
+
+              /* 具备包容性，所以直接找到第5个 */
+              /* body > :nth-child(5) {
+                  color: red;
+              } */
+
+              /* 不具备包容性，先进行分类，然后分别找出每种类型的第3个 */
+              /* body > :nth-of-type(3) {
+                  color: red;
+              } */
+
+              /* 不具备包容性，找出所有div类型的，然后在进行选择第3个 */
+             /*  body > div:nth-of-type(3) {
+                  color: red;
+              } */
+
+
+        </style>
+        <span>111</span>
+        <div>222</div>
+        <span>333</span>
+        <div>444</div>
+        <span>555</span>
+        <div>666</div>
+        <span>777</span>
+        <div>888</div>
+          "
+      伪元素选择器:
+        功能:
+          - 伪元素选择器可以帮助我们利用CSS样式的方式创建虚拟的标签
+          - ::before和::after创建一个虚拟标签
+          - 伪元素必须包含content属性
+        案例:
+          入门案例1:
+            - "
+                <style>
+                    div{
+                        width: 100px;
+                        height: 100px;
+                        background-color: pink;
+                    }
+
+                   /*
+                        在div元素最前面创建一个伪元素
+                        div:before 单冒号写法也是可以，兼容IE8
+                    */
+                    div::before{
+                        /* 必须要有样式 */
+                        content: '我';
+                    }
+                   /* 在div元素最后面创建一个伪元素 */
+                   div::after{
+                        /* 必须要有样式 */
+                        content: 'eric';
+                    }
+                </style>
+                <div>是</div>
+            "
+          入门案例2:
+            - "
+              <style>
+                  @font-face {
+                      font-family: 'icomoon';
+                      src: url('fonts/icomoon.eot?73a6t8');
+                      src: url('fonts/icomoon.eot?73a6t8#iefix') format('embedded-opentype'),
+                          url('fonts/icomoon.ttf?73a6t8') format('truetype'),
+                          url('fonts/icomoon.woff?73a6t8') format('woff'),
+                          url('fonts/icomoon.svg?73a6t8#icomoon') format('svg');
+                      font-weight: normal;
+                      font-style: normal;
+                      font-display: block;
+                  }
+
+                  body{
+                      font-family: '宋体','icomoon';
+                  }
+
+                  div{
+                      position: relative;
+                      width: 200px;
+                      height: 30px;
+                      border: 1px solid gray;
+                      line-height: 30px;
+                      margin: 0 auto;
+                  }
+
+                  /* 在该元素后面添加伪元素标签 */
+                  div::after{
+                      /* content: ''; */
+                      content: '\e987';
+                      position: absolute;
+                      right: 0;
+                      color: blue;
+                  }
+
+              </style>
+              <div>我们这个功能好不好?</div>
+            "
+          入门案例3:
+            - "
+              <style>
+                  div {
+                      position: relative;
+                      width: 300px;
+                      height: 200px;
+                      margin: 10px auto;
+                  }
+                  div img{
+                      width: 100%;
+                      height: 100%;
+                  }
+                  div::before{
+                      position: absolute;
+                      content: '爱我中华';
+                      background-color: rgba(0,0,0,0.4);
+                      width: 100%;
+                      height: 100%;
+                      display: none;
+                  }
+
+                  div:hover::before{
+                      display: block;
+                  }
+
+              </style>
+              <div><img src='https://img2.baidu.com/it/u=1792249350,650626052&fm=253&app=120&size=w931&n=0&f=JPEG&fmt=auto?sec=1658250000&t=568d26e67f04b71cbeb81e44f95b4dd1'></div>
+            "
+    复合选择器(4种):
       功能:
         - 复合选择器是由多个基础选择器组合而成
       后代选择器(空格)+子代选择器(>):
@@ -149,55 +625,6 @@ CSS编写规范:
                   </ul>
               </span>
           </div>
-        "
-      伪类选择器(冒号):
-        - 伪类选择器一般需要跟在基础选择器屁股使用
-        - "
-          案例1
-          a {
-              color: rgb(176, 173, 168);
-              text-decoration: none;
-          }
-
-          div a:hover {
-              color: rgb(228, 29, 29);
-              text-decoration: underline;
-          }
-
-          /* 如果全部写，一定要按照lvha顺序下，否则可能不生效 */
-          /* 未访问过 a:link*/
-          /* 已访问过 a:visited*/
-          /* 鼠标划过 a:hover*/
-          /* 鼠标按下 a:active*/
-
-
-          <a href='#'>百度</a>
-          <a href='#'>新浪</a>
-          <div>
-              <a href='#'>百度</a>
-              <a href='#'>新浪</a>
-          </div>
-        "
-        - "
-          案例2
-          body > div > .bt:focus {
-              background-color: antiquewhite;
-          }
-
-          <div>
-              <input class='bt' type='text' >
-              <input class='bt' type='text'>
-          </div>
-
-          <div>
-              <div>
-                  <input class='bt' type='text' >
-                  <input class='bt' type='text'>
-              </div>
-          </div>
-
-          <input class='bt' type='text' >
-          <input class='bt' type='text'>
         "
       交集选择器:
         - "
@@ -331,7 +758,7 @@ CSS编写规范:
     - "行内样式表 <div style='color: green;'>我们都是好朋友 frends</div>"
   CSS的三大特性:
     重叠性:
-      - 当权重一样时，后者声明的相同样式会覆盖前者相同的样式。
+      - 允许样式重叠，但是最终会根据权重决定选择哪个样式
       - "
         #ps {
           color: red;
@@ -351,8 +778,8 @@ CSS编写规范:
           ! important - - - infinity
           行内样式 - - - 1,0,0,0
           ID选择器 - - - 0,1,0,0
-          属性、伪类、类选择器 - - - 0,0,1,0
-          标签选择器 - - - 0,0,0,1
+          类选择器、属性选择器、伪类选择器、结构伪类选择器、 - - - 0,0,1,0
+          标签选择器、伪元素选择器 - - - 0,0,0,1
           通配符选择器、继承 - - - 0,0,0,0
         复合选择器计算权重是累个相加，紧急不会进位
         权重进行比较的时候，逐位进行比较，如果第1位比较大，那么就不往下继续比较了
@@ -640,6 +1067,35 @@ CSS编写规范:
             </ul>
         </div>
       "
+    案例3:
+      - "
+        <style>
+            div {
+                position: relative;
+                width: 300px;
+                height: 200px;
+                margin: 10px auto;
+            }
+            div img{
+                width: 100%;
+                height: 100%;
+            }
+            div::before{
+                position: absolute;
+                content: '爱我中华';
+                background-color: rgba(0,0,0,0.4);
+                width: 100%;
+                height: 100%;
+                display: none;
+            }
+
+            div:hover::before{
+                display: block;
+            }
+
+        </style>
+        <div><img src='https://img2.baidu.com/it/u=1792249350,650626052&fm=253&app=120&size=w931&n=0&f=JPEG&fmt=auto?sec=1658250000&t=568d26e67f04b71cbeb81e44f95b4dd1'></div>
+      "
 中级:
   功能:
     - 页面布局三大核心，盒子模型、浮动、定位
@@ -806,34 +1262,154 @@ CSS编写规范:
         <div>1</div>
         <div>1</div>
       "
-  水平居中:
-    块元素:
-      - "
-        /* 块元素居中，方式一 */
-        /* width: 200px;
-        margin-left: auto;
-        margin-right: auto; */
+  居中:
+    水平居中:
+      块元素:
+        - "
+          /* 块元素居中，方式一 */
+          /* width: 200px;
+          margin-left: auto;
+          margin-right: auto; */
 
-        /* 块元素居中，方式二 */
-        /* width: 200px;
-        margin: auto; */
+          /* 块元素居中，方式二 */
+          /* width: 200px;
+          margin: auto; */
 
-        /* 块元素居中，方式三 */
-        width: 500px;
-        margin: 0px auto;
-      "
-    行内元素&行内块元素&文字内容:
+          /* 块元素居中，方式三 */
+          width: 500px;
+          margin: 0px auto;
+        "
+      行内元素&行内块元素&文字内容:
+        - "
+          /* 行内元素 行内块元素 以及内容都需要找它父亲来做居中 */
+          text-align: center;
+        "
+    垂直居中:
+      行内元素&行内块元素&文字内容:
+        - "
+          /* 指定行高可以实现水平居中 */
+          line-height: 500px;
+        "
+    定位居中问题:
+      固定定位和绝对定位:
+        - "
+            <style>
+                div{
+                    width: 300px;
+                    height: 300px;
+
+                    /* 固定定位 */
+                    /* position: fixed; */
+                    /* 绝对定位 */
+                    position:absolute;
+
+                    /* 水平居中 */
+                    left: 50%;
+                    margin-left: -150px;
+
+                    /* 垂直居中 */
+                    top: 50%;
+                    margin-top: -150px;
+
+                    background-color: pink;
+                }
+            </style>
+            <div></div>
+          "
+      相对定位:
+        - "
+            <style>
+              div {
+
+                 position: relative;
+
+                 width: 300px;
+                 height: 300px;
+
+                 /* 相对定位之水平居中 */
+                 margin: 50px auto;
+                 background-color: pink;
+              }
+           </style>
+           <div></div>
+          "
+    图片与文字居中对齐:
       - "
-        /* 行内元素 行内块元素 以及内容都需要找它父亲来做居中 */
-        text-align: center;
-      "
-  垂直居中:
-    行内元素&行内块元素&文字内容:
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+            }
+
+            .box1 {
+                width: 500px;
+                height: 300px;
+                background-color: pink;
+                margin: 0 auto;
+            }
+
+            .box1 .img {
+                /* 要求该元素必须是行内元素或者行内块元素 */
+                display: inline-block;
+
+                width: 100px;
+                height: 100px;
+
+                /* 要求图片和文字的顶线对齐 */
+                /* vertical-align: top; */
+                /* 要求图片和文字的中线对齐 */
+                vertical-align: middle;
+                /* 要求图片和文字的基线对齐 */
+                /* vertical-align: baseline; */
+                /* 要求图片和文字的顶线对齐 */
+                /* vertical-align: bottom; */
+            }
+        </style>
+        <div class='box1'>
+            <a href='#'>我们都是朋友</a>
+            <span>213p我</span>
+            <img class='img'
+                src='https://img1.baidu.com/it/u=3217543765,3223180824&fm=253&app=120&size=w931&n=0&f=JPEG&fmt=auto?sec=1658163600&t=dde414ccc49d8e6ad4c5e287bbfbfa7d'>
+            <span>213p我</span>
+            123
+        </div>
+        "
       - "
-        /* 指定行高可以实现水平居中 */
-        line-height: 500px;
-      "
+          <style>
+              * {
+                  padding: 0;
+                  margin: 0;
+              }
+
+
+              .box2 {
+                  width: 500px;
+                  /* height: 300px; */
+                  background-color: pink;
+                  margin: 0 auto;
+
+              }
+              .box2 img{
+                 width: 300px;
+                 height: 300px;
+
+                  /*
+                      解决方式1
+                      默认是用基线对齐方式，所以会导致底部出现间隙
+                   */
+                  /* vertical-align: bottom; */
+
+                  /* 解决方式2 */
+                  display: block;
+              }
+          </style>
+          <div class='box2'>
+              <img class='img'
+                  src='https://img1.baidu.com/it/u=3217543765,3223180824&fm=253&app=120&size=w931&n=0&f=JPEG&fmt=auto?sec=1658163600&t=dde414ccc49d8e6ad4c5e287bbfbfa7d'>
+          </div>
+        "
   行内元素: 只允许设置【左右内边距】和【左右外边距】，块元素和行内块元素不限制
+  样式的100%: 一般情况下，该元素写100%宽高，意思就是等于父亲的宽高
   清除所有元素默认的外边距和内边距:
     - "
       * {
@@ -1156,6 +1732,8 @@ CSS编写规范:
        - 父盒子没高度
        - 子盒子浮动了
        - 影响下面布局，我们就应该清除浮动
+     原理:
+       - https://www.bilibili.com/video/BV14J4114768?p=290&vd_source=cc17fab1d456bc3958dcb51e2fdd520b
      案例:
        - "
          <style>
@@ -1290,49 +1868,6 @@ CSS编写规范:
       <div></div>
       <a href='#'>广告</a>
     "
-  定位居中问题:
-    固定定位和绝对定位:
-      - "
-        <style>
-            div{
-                width: 300px;
-                height: 300px;
-
-                /* 固定定位 */
-                /* position: fixed; */
-                /* 绝对定位 */
-                position:absolute;
-
-                /* 水平居中 */
-                left: 50%;
-                margin-left: -150px;
-
-                /* 垂直居中 */
-                top: 50%;
-                margin-top: -150px;
-
-                background-color: pink;
-            }
-        </style>
-        <div></div>
-      "
-    相对定位:
-      - "
-        <style>
-          div {
-
-             position: relative;
-
-             width: 300px;
-             height: 300px;
-
-             /* 相对定位之水平居中 */
-             margin: 50px auto;
-             background-color: pink;
-          }
-       </style>
-       <div></div>
-      "
   元素的显示与隐藏问题:
     display 和 visibility:
       功能:
@@ -1426,7 +1961,6 @@ CSS编写规范:
             <div></div>
           </a>
         "
-高级:
   精灵图:
     - 利用302弱缓存重定向技术，减少图片请求时间。
     - 利用fw的切片工具进行测量，ps测量不准
@@ -1491,31 +2025,59 @@ CSS编写规范:
   小三角制作:
     - "
       <style>
-          .box1 {
-              width: 0;
-              height: 0;
-              /* 兼容性 */
-              line-height: 0;
-              font-size: 0;
+      .box1 {
+          width: 0;
+          height: 0;
+          /* 兼容性 */
+          line-height: 0;
+          font-size: 0;
 
-              border-top: 200px solid rgba(223, 104, 104,0);
-              border-right: 200px solid rgba(33, 32, 32,0);
-              border-bottom: 200px solid rgba(41, 186, 145,0);
-              border-left: 200px solid rgba(136, 15, 229,1);
-          }
-          .box2 {
-              width: 0px;
-              height: 0px;
-              /* 兼容性 */
-              line-height: 0;
-              font-size: 0;
+          border-top: 200px solid rgba(223, 104, 104,0);
+          border-right: 200px solid rgba(33, 32, 32,0);
+          border-bottom: 200px solid rgba(41, 186, 145,0);
+          border-left: 200px solid rgba(136, 15, 229,1);
+      }
+      .box2 {
+          width: 0px;
+          height: 0px;
+          /* 兼容性 */
+          line-height: 0;
+          font-size: 0;
 
-              border: 200px solid transparent;
-              border-top-color: red;
-          }
-      </style>
+          border: 200px solid transparent;
+          border-top-color: red;
+      }
+
+      .box3 {
+          width: 0px;
+          height: 0px;
+          /* 兼容性 */
+          line-height: 0;
+          font-size: 0;
+
+          border-top: 200px solid rgba(223, 104, 104,1);
+          border-right: 100px solid rgba(33, 32, 32,1);
+          border-bottom: 0px solid rgba(41, 186, 145,1);
+          border-left: 100px solid rgba(136, 15, 229,1);
+      }
+
+      .box4 {
+          width: 0px;
+          height: 0px;
+          /* 兼容性 */
+          line-height: 0;
+          font-size: 0;
+
+          border-top: 200px solid rgba(223, 104, 104,1);
+          border-right: 100px solid rgba(33, 32, 32,1);
+          border-bottom: 0px solid rgba(41, 186, 145,1);
+          border-left: 0px solid rgba(136, 15, 229,1);
+      }
+  </style>
       <div class='box1'></div>
       <div class='box2'></div>
+      <div class='box3'></div>
+      <div class='box4'></div>
     "
     - "
       <style>
@@ -1574,81 +2136,6 @@ CSS编写规范:
       </style>
       <input type='text'>
       <textarea></textarea>
-    "
-  图片与文字对齐:
-    - "
-    <style>
-        * {
-            padding: 0;
-            margin: 0;
-        }
-
-        .box1 {
-            width: 500px;
-            height: 300px;
-            background-color: pink;
-            margin: 0 auto;
-        }
-
-        .box1 .img {
-            /* 要求该元素必须是行内元素或者行内块元素 */
-            display: inline-block;
-
-            width: 100px;
-            height: 100px;
-
-            /* 要求图片和文字的顶线对齐 */
-            /* vertical-align: top; */
-            /* 要求图片和文字的中线对齐 */
-            vertical-align: middle;
-            /* 要求图片和文字的基线对齐 */
-            /* vertical-align: baseline; */
-            /* 要求图片和文字的顶线对齐 */
-            /* vertical-align: bottom; */
-        }
-    </style>
-    <div class='box1'>
-        <a href='#'>我们都是朋友</a>
-        <span>213p我</span>
-        <img class='img'
-            src='https://img1.baidu.com/it/u=3217543765,3223180824&fm=253&app=120&size=w931&n=0&f=JPEG&fmt=auto?sec=1658163600&t=dde414ccc49d8e6ad4c5e287bbfbfa7d'>
-        <span>213p我</span>
-        123
-    </div>
-    "
-    - "
-      <style>
-          * {
-              padding: 0;
-              margin: 0;
-          }
-
-
-          .box2 {
-              width: 500px;
-              /* height: 300px; */
-              background-color: pink;
-              margin: 0 auto;
-
-          }
-          .box2 img{
-             width: 300px;
-             height: 300px;
-
-              /*
-                  解决方式1
-                  默认是用基线对齐方式，所以会导致底部出现间隙
-               */
-              /* vertical-align: bottom; */
-
-              /* 解决方式2 */
-              display: block;
-          }
-      </style>
-      <div class='box2'>
-          <img class='img'
-              src='https://img1.baidu.com/it/u=3217543765,3223180824&fm=253&app=120&size=w931&n=0&f=JPEG&fmt=auto?sec=1658163600&t=dde414ccc49d8e6ad4c5e287bbfbfa7d'>
-      </div>
     "
   去除文字顶部和底部距离:
     - "
@@ -1737,3 +2224,156 @@ CSS编写规范:
         </style>
         <div>我们都是好朋友！！我们都是好朋友！！我们都是好朋友！！！我们都是好朋友！！我们都是好朋友！！我们都是好朋友！！！我们都是好朋友！！我们都是好朋友！！我们都是好朋友！！！</div>
       "
+  CSS初始化:
+    - "
+      <style>
+          /* 取消所有元素的默认内外边距 */
+          * {
+              margin: 0;
+              padding: 0;
+          }
+
+          /* 去掉该元素的斜体显示 */
+          em,
+          i {
+              font-style: normal;
+          }
+
+          /* 去掉该元素的小圆点 */
+          li {
+              list-style: none;
+          }
+
+          img {
+              /* 兼容低版本，当图片外部使用a标签做链接的时候会有边框 */
+              border: 0;
+              /* 图片默认对齐方式是 基线对齐，基线对齐会导致底部有小间隙，所以改成中线对齐 */
+              vertical-align: middle;
+          }
+
+          /* 修改a元素默认样式为灰色，去掉底线 */
+          a {
+              color: gray;
+              text-decoration: none;
+          }
+
+          /* 修改鼠标经过为红色 */
+          a:hover {
+              color: red;
+          }
+
+          /* 修改该元素默认鼠标经过为小手 */
+          button {
+              cursor: pointer;
+          }
+
+          /* 修改该元素的默认字体 微软雅黑 和宋体*/
+          button,
+          input {
+              font-family: Microsoft YaHei, \5b8b\4f53;
+          }
+
+          body {
+              /* CSS3 抗锯齿 让蚊子显示的更加清晰 */
+              -webkit-font-sommthing: antialiased;
+              /* 主题背景颜色 */
+              background-color: #fff;
+              /* 默认统一字体为12px，行高为1.5倍 微软雅黑 和宋体*/
+              font-family: 12px/1.5, Microsoft YaHei, \5b8b\4f53;
+              ;
+              /* 默认统一文字颜色 */
+              color: #666;
+          }
+
+          /* 设置2个初始化隐藏的类选择器 */
+          .hide,
+          .none {
+              display: none;
+          }
+
+          /* 清除浮动 方式3伪元素法，是额外标签法的升级版，通过父元素添加*/
+
+          .clearfix:after {
+              content: '';
+              display: block;
+              height: 0;
+              clear: both;
+              visibility: hidden;
+          }
+
+          /*清除浮动 兼容ie6 7 专有 */
+          .clearfix {
+              *zoom: 1;
+          }
+      </style>
+    "
+高级:
+  css3: 支持IE9+
+  css3盒子模型:
+    - 默认不会撑大盒子，浏览器进行了实际计算。
+    - "
+      <style>
+          .box1 {
+              width: 220px;
+              height: 220px;
+              background-color: palegoldenrod;
+              padding: 20px;
+              border: 20px solid red;
+              text-align: center;
+              line-height: 220px;
+              /* 以前默认就是这种盒子模型 */
+              box-sizing: content-box;
+          }
+          .box2 {
+              width: 300px;
+              height: 300px;
+              background-color: palegoldenrod;
+              padding: 20px;
+              border: 20px solid red;
+              text-align: center;
+              line-height: 220px;
+              /* css3盒子模型border-box，虽然不会撑大盒子，但是一样需要减去 边框大小和内边距大小才能让文字居中 */
+              box-sizing: border-box;
+          }
+      </style>
+      <div class='box1'>我们都是好朋友</div>
+      <div class='box2'>我们都是好朋友</div>
+    "
+  css3-filter滤镜函数:
+     - https://developer.mozilla.org/en-US/docs/Web/CSS/filter
+     - "
+      <style>
+          img {
+              width: 300px;
+              height: 300px;
+              /* 图像模糊 */
+              filter: blur(5px);
+              /* filter: contrast(500%); */
+              /* 变黑白 */
+              /* filter: grayscale(100%); */
+              /* 更改色相 */
+              /* filter: hue-rotate(90deg); */
+
+              /* filter: drop-shadow(16px 16px 20px red) invert(75%); */
+          }
+      </style>
+      <img src='https://img2.baidu.com/it/u=1792249350,650626052&fm=253&app=120&size=w931&n=0&f=JPEG&fmt=auto?sec=1658250000&t=568d26e67f04b71cbeb81e44f95b4dd1'>
+     "
+  css3-calc计算函数:
+    - "
+        <style>
+              .father {
+                  width: 300px;
+                  height: 300px;
+                  background-color: pink;
+              }
+              .son{
+                  width: calc(100% - 100px);
+                  height: calc(100% - 100px);
+                  background-color: red;
+              }
+        </style>
+        <div class='father'>
+            <div class='son'></div>
+        </div>
+    "

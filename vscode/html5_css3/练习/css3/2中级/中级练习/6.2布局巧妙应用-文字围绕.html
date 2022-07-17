@@ -16,32 +16,36 @@
     <title>Document</title>
 
     <style>
-        a {
-            color: rgb(176, 173, 168);
-            text-decoration: none;
+        * {
+            padding: 0;
+            margin: 0;
         }
-
-        div a:hover {
-            color: rgb(228, 29, 29);
-            text-decoration: underline;
+        .box {
+            width: 200px;
+            height: 150px;
+            margin: 100px auto;
+            background-color: pink;
         }
-
-        /* 如果全部写，一定要按照lvha顺序下，否则可能不生效 */
-        /* 未访问过 a:link*/
-        /* 已访问过 a:visited*/
-        /* 鼠标划过 a:hover*/
-        /* 鼠标按下 a:active*/
-        
-
+        .divimg {
+            width: 100px;
+            height: 150px;
+            float: left; /* 利用浮动围绕来布局，浮动只压住标准流盒子底部，而不压住文字 */
+            background-color: antiquewhite;
+        }
+       
+        p{
+            border: 1px solid red;
+        }
+       
     </style>
 </head>
 
 <body>
-    <a href="#">百度</a>
-    <a href="#">新浪</a>
-    <div>
-        <a href="#">百度</a>
-        <a href="#">新浪</a>    
+    <div class="box">
+        <div class="divimg">
+            
+        </div>
+        <p>完全恶趣我我1231231212完全恶趣1231231212完全恶趣1231231212</p>
     </div>
 </body>
 

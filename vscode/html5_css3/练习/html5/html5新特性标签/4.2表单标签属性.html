@@ -1,0 +1,36 @@
+<!DOCTYPE html> <!-- 这句代码的意思是告诉浏览器，采用HTML5版本来显示，它不属于HTML标签，属于文档类型声明标签 -->
+
+
+<!-- 
+<html lang="zh-CN"> 代表这个是中文网站
+<html lang="fr"> 代表这个是法文网站
+ -->
+<html lang="en"> <!-- 代表这个是英文网站 -->
+
+<head>
+    <meta charset="UTF-8"> <!-- 告诉浏览器用UTF-8编码解析 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- 手机端用的 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> <!-- 告诉IE用最高级性能解析 -->
+
+    <title>Document</title>
+
+</head>
+
+<body>
+    <!-- 
+        部分表单控件需要配合表单域才有功能 
+        autocomplete="on/off" 需要配合name属性才可以使用 name="search"
+        required="required" 强行需要输入才通过
+        placeholder="请输入search" 支持占位符提示语
+        autofocus="autofocus" 支持自动获取焦点
+        multiple="multiple" 支持多选文件上传
+    -->
+    <form action="">
+        search<input type="search" placeholder="请输入search" required="required" autofocus="autofocus" autocomplete="on" name="search"><br>
+        file <input type="file" multiple="multiple">
+        <button>提交</button>
+    </form>
+    
+</body>
+
+</html>

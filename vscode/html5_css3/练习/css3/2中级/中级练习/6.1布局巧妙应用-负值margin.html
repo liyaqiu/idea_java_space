@@ -1,0 +1,74 @@
+<!DOCTYPE html> <!-- 这句代码的意思是告诉浏览器，采用HTML5版本来显示，它不属于HTML标签，属于文档类型声明标签 -->
+
+
+<!-- 
+<html lang="zh-CN"> 代表这个是中文网站
+<html lang="fr"> 代表这个是法文网站
+ -->
+<html lang="en">
+<!-- 代表这个是英文网站 -->
+
+<head>
+    <meta charset="UTF-8"> <!-- 告诉浏览器用UTF-8编码解析 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- 手机端用的 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> <!-- 告诉IE用最高级性能解析 -->
+
+    <title>Document</title>
+
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        .box {
+            width: 500px;
+            height: 300px;
+            background-color: pink;
+            margin: 100px auto;
+        }
+
+        .box li {
+            position: relative;
+            list-style: none;
+            float: left;
+            width: 99px;
+            height: 149px;
+            background-color: antiquewhite;
+            border: 1px solid rgba(26, 25, 25, 0.817);
+            margin-left: -1px;
+            margin-top: -1px;
+        }
+
+        /* 方式1，如果li盒子里面没有元素浮动 */
+        /* .box li:hover {
+            position: relative;
+            border: 1px solid rgba(235, 6, 6, 0.817);
+        } */
+
+        /* 方式2，li盒子里面有元素浮动 */
+        .box li:hover {
+            z-index: 1; /* 提升它们之间的显示优先级 */
+            border: 1px solid rgba(235, 6, 6, 0.817);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="box">
+        <ul>
+            <li>1</li>
+            <li>2</li>
+            <li>3</li>
+            <li>4</li>
+            <li>5</li>
+            <li>1</li>
+            <li>2</li>
+            <li>3</li>
+            <li>4</li>
+            <li>5</li>
+        </ul>
+    </div>
+</body>
+
+</html>
