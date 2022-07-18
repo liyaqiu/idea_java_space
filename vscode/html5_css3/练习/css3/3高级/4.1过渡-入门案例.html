@@ -1,0 +1,52 @@
+<!DOCTYPE html> <!-- 这句代码的意思是告诉浏览器，采用HTML5版本来显示，它不属于HTML标签，属于文档类型声明标签 -->
+
+
+<!-- 
+<html lang="zh-CN"> 代表这个是中文网站
+<html lang="fr"> 代表这个是法文网站
+ -->
+<html lang="en">
+<!-- 代表这个是英文网站 -->
+
+<head>
+    <meta charset="UTF-8"> <!-- 告诉浏览器用UTF-8编码解析 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- 手机端用的 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> <!-- 告诉IE用最高级性能解析 -->
+
+    <title>Document</title>
+
+    <style>
+        .box{
+            width: 200px;
+            height: 200px;
+            background-color: pink;
+
+            /* 
+                谁做过渡给谁加
+                变化属性，宽、高、内外边距、边框等
+                花费时间，单位秒
+                运动曲线，ease ease-in ease-in-out ease-out
+                语法:transition [变化属性] [花费时间] [运动曲线] [开始时间]
+
+            */
+
+            /* 复合属性 */
+            /*  transition: width 1s ease 0s,height 1s ease 0s */
+            transition: all 1s;
+            
+        }
+
+        .box:hover{
+           width: 400px;
+           height: 400px;
+           background-color: hotpink;
+        }
+
+    </style>
+</head>
+
+<body>
+   <div class='box'></div>
+</body>
+
+</html>

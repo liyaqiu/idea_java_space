@@ -1,3 +1,4 @@
+开发需求: 前提需要准备好原型图(大概预览图)+psd效果图
 CSS官方:
   - mdn https://developer.mozilla.org/en-US/
   - CSS参考文档 https://www.w3school.com.cn/h.asp
@@ -2224,92 +2225,75 @@ CSS编写规范:
         </style>
         <div>我们都是好朋友！！我们都是好朋友！！我们都是好朋友！！！我们都是好朋友！！我们都是好朋友！！我们都是好朋友！！！我们都是好朋友！！我们都是好朋友！！我们都是好朋友！！！</div>
       "
-  CSS初始化:
+  当子盒子装不下的时候如何布局:
+    - 解决思路，当子盒子装不下的时候，可以找一个临时元素(docker)来装下去，然后在利用父父亲元素做裁切即可
+    - "
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+        }
+        .box{
+            width: 300px;
+            height: 500px;
+            background-color: pink;
+            overflow: hidden;
+
+        }
+        .father{
+            width: 1000px;
+        }
+        .father li{
+            float: left;
+            width: 110px;
+            height: 100px;
+            background-color: red;
+        }
+    </style>
+    <div class='box'>
+        <ul class='father'>
+            <li>1</li>
+            <li>2</li>
+            <li>3</li>
+            <li>4</li>
+        </ul>
+   </div>
+    "
     - "
       <style>
-          /* 取消所有元素的默认内外边距 */
-          * {
-              margin: 0;
+          *{
               padding: 0;
+              margin: 0;
           }
-
-          /* 去掉该元素的斜体显示 */
-          em,
-          i {
-              font-style: normal;
+          .box{
+              width: 50px;
+              height: 50px;
+              background-color: pink;
+              overflow: hidden;
           }
-
-          /* 去掉该元素的小圆点 */
-          li {
-              list-style: none;
+          p{
+              width: 10px;
+              height: 10px;
+              float: left;
           }
-
-          img {
-              /* 兼容低版本，当图片外部使用a标签做链接的时候会有边框 */
-              border: 0;
-              /* 图片默认对齐方式是 基线对齐，基线对齐会导致底部有小间隙，所以改成中线对齐 */
-              vertical-align: middle;
-          }
-
-          /* 修改a元素默认样式为灰色，去掉底线 */
-          a {
-              color: gray;
-              text-decoration: none;
-          }
-
-          /* 修改鼠标经过为红色 */
-          a:hover {
-              color: red;
-          }
-
-          /* 修改该元素默认鼠标经过为小手 */
-          button {
-              cursor: pointer;
-          }
-
-          /* 修改该元素的默认字体 微软雅黑 和宋体*/
-          button,
-          input {
-              font-family: Microsoft YaHei, \5b8b\4f53;
-          }
-
-          body {
-              /* CSS3 抗锯齿 让蚊子显示的更加清晰 */
-              -webkit-font-sommthing: antialiased;
-              /* 主题背景颜色 */
-              background-color: #fff;
-              /* 默认统一字体为12px，行高为1.5倍 微软雅黑 和宋体*/
-              font-family: 12px/1.5, Microsoft YaHei, \5b8b\4f53;
-              ;
-              /* 默认统一文字颜色 */
-              color: #666;
-          }
-
-          /* 设置2个初始化隐藏的类选择器 */
-          .hide,
-          .none {
-              display: none;
-          }
-
-          /* 清除浮动 方式3伪元素法，是额外标签法的升级版，通过父元素添加*/
-
-          .clearfix:after {
-              content: '';
-              display: block;
-              height: 0;
-              clear: both;
-              visibility: hidden;
-          }
-
-          /*清除浮动 兼容ie6 7 专有 */
-          .clearfix {
-              *zoom: 1;
-          }
-      </style>
+    </style>
+      <div class='box'>
+         <div class='docker' style='width: 5000px;'>
+              <p>1</p>
+              <p>2</p>
+              <p>3</p>
+              <p>4</p>
+              <p>5</p>
+              <p>6</p>
+              <p>7</p>
+              <p>8</p>
+              <p>9</p>
+          </div>
+     </div>
     "
 高级:
   css3: 支持IE9+
-  css3盒子模型:
+  css3-盒子模型:
     - 默认不会撑大盒子，浏览器进行了实际计算。
     - "
       <style>
@@ -2377,3 +2361,155 @@ CSS编写规范:
             <div class='son'></div>
         </div>
     "
+  css3-过渡:
+    - "
+      <style>
+          .box{
+              width: 200px;
+              height: 200px;
+              background-color: pink;
+
+              /*
+                  谁做过渡给谁加
+                  变化属性，宽、高、内外边距、边框等
+                  花费时间，单位秒
+                  运动曲线，ease ease-in ease-in-out ease-out
+                  语法:transition [变化属性] [花费时间] [运动曲线] [开始时间]
+
+              */
+
+              /* 复合属性 */
+              /*  transition: width 1s ease 0s,height 1s ease 0s */
+              transition: all 1s;
+
+          }
+
+          .box:hover{
+             width: 400px;
+             height: 400px;
+             background-color: hotpink;
+          }
+
+      </style>
+      <div class='box'></div>
+    "
+    - "
+      <style>
+           .outbox{
+                width: 100px;
+                height: 15px;
+                border: 1px solid red;
+                margin: 50px auto;
+           }
+           .outbox .inbox{
+                width: 30%;
+                height: 100%;
+                background-color: pink;
+                transition: all 1s;
+           }
+
+           .outbox:hover .inbox{
+                width: 100%;
+           }
+      </style>
+      <div class='outbox'>
+            <div class='inbox'>
+
+            </div>
+       </div>
+    "
+  favicon图标制作:
+    - `
+      https://www.bitbug.net/
+      更名为favicon.ico，放在网站根目录下
+      在页面引入 <link rel="shortcut icon" href=" /favicon.ico" />
+      `
+  CSS初始化:
+    - "
+        /* 取消所有元素的默认内外边距 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* 去掉该元素的斜体显示 */
+        em,
+        i {
+            font-style: normal;
+        }
+
+        /* 去掉该元素的小圆点 */
+        li {
+            list-style: none;
+        }
+
+        img {
+            /* 兼容低版本，当图片外部使用a标签做链接的时候会有边框 */
+            border: 0;
+            /* 图片默认对齐方式是 基线对齐，基线对齐会导致底部有小间隙，所以改成中线对齐 */
+            vertical-align: middle;
+        }
+
+        /* 修改a元素默认样式为灰色，去掉底线 */
+        a {
+            color: gray;
+            text-decoration: none;
+        }
+
+        /* 修改鼠标经过为红色 */
+        a:hover {
+            color: red;
+        }
+
+        /* 修改该元素默认鼠标经过为小手 */
+        button {
+            cursor: pointer;
+        }
+
+        /* 修改该元素的默认字体 微软雅黑 和宋体*/
+        button,
+        input {
+            font-family:Microsoft YaHei,Heiti SC,tahoma,arial,Hiragino Sans GB,'\5B8B\4F53',sans-serif;
+            /* 去掉按钮边框 */
+            border: 0;
+            /* 去掉焦点后的边框 */
+            outline: none;
+        }
+
+        body {
+            /* CSS3 抗锯齿 让文字显示的更加清晰 */
+            -webkit-font-smoothing:antialiased;
+            /* 主题背景颜色 */
+            background-color: #fff;
+            /* 默认字体*/
+            font-family:Microsoft YaHei,Heiti SC,tahoma,arial,Hiragino Sans GB,'\5B8B\4F53',sans-serif;
+            /* 默认字体大小 */
+            font-size: 12px;
+            /* 默认行高 */
+            line-height: 1.5em;
+            /* 默认颜色 */
+            color: #666;
+        }
+
+        /* 设置2个初始化隐藏的类选择器 */
+        .hide,
+        .none {
+            display: none;
+        }
+
+        /* 清除浮动 方式3伪元素法，是额外标签法的升级版，通过父元素添加*/
+
+        .clearfix:after {
+            content: '';
+            display: block;
+            height: 0;
+            clear: both;
+            visibility: hidden;
+        }
+
+        /*清除浮动 兼容ie6 7 专有 */
+        .clearfix {
+            *zoom: 1;
+        }
+      "

@@ -1,0 +1,87 @@
+
+/* 取消所有元素的默认内外边距 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* 去掉该元素的斜体显示 */
+em,
+i {
+    font-style: normal;
+}
+
+/* 去掉该元素的小圆点 */
+li {
+    list-style: none;
+}
+
+img {
+    /* 兼容低版本，当图片外部使用a标签做链接的时候会有边框 */
+    border: 0;
+    /* 图片默认对齐方式是 基线对齐，基线对齐会导致底部有小间隙，所以改成中线对齐 */
+    vertical-align: middle;
+}
+
+/* 修改a元素默认样式为灰色，去掉底线 */
+a {
+    color: gray;
+    text-decoration: none;
+}
+
+/* 修改鼠标经过为红色 */
+a:hover {
+    color: red;
+}
+
+/* 修改该元素默认鼠标经过为小手 */
+button {
+    cursor: pointer;
+}
+
+/* 修改该元素的默认字体 微软雅黑 和宋体*/
+button,
+input {
+    font-family:Microsoft YaHei,Heiti SC,tahoma,arial,Hiragino Sans GB,'\5B8B\4F53',sans-serif;
+    /* 去掉按钮边框 */
+    border: 0;
+    /* 去掉焦点后的边框 */
+    outline: none;
+}
+
+body {
+    /* CSS3 抗锯齿 让文字显示的更加清晰 */
+    -webkit-font-smoothing:antialiased;
+    /* 主题背景颜色 */
+    background-color: #fff;
+    /* 默认字体*/
+    font-family:Microsoft YaHei,Heiti SC,tahoma,arial,Hiragino Sans GB,'\5B8B\4F53',sans-serif;
+    /* 默认字体大小 */
+    font-size: 12px;
+    /* 默认行高 */
+    line-height: 1.5em;
+    /* 默认颜色 */
+    color: #666;
+}
+
+/* 设置2个初始化隐藏的类选择器 */
+.hide,
+.none {
+    display: none;
+}
+
+/* 清除浮动 方式3伪元素法，是额外标签法的升级版，通过父元素添加*/
+
+.clearfix:after {
+    content: '';
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+
+/*清除浮动 兼容ie6 7 专有 */
+.clearfix {
+    *zoom: 1;
+}
