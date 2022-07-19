@@ -15,11 +15,29 @@
 
     <title>Document</title>
     <style>
+        .box{
+            width: 300px;
+            height: 300px;
+            background-color: red;
+            transition: all 2s;
+        }
+        .box1{
+            width: 300px;
+            height: 300px;
+            background-color: red;
+        }
+
+        .box:hover{
+            /* 正数是顺时针，负数是逆时针，一圈为360deg */
+            transform: translate(50%,50%) rotate(-2880deg);
+        }
         
     </style>
 </head>
 
 <body>
+   <div class="box"></div>
+   <div class="box1"></div>
 </body>
 
 </html>

@@ -6,6 +6,7 @@ CSS官方:
   - photoshop 快速导出图层插件 https://www.cutterman.cn/zh/cutterman
   - 字体图标 https://icomoon.io/#icons
   - 字体图标 https://www.iconfont.cn/
+  - 免费服务器空间 https://free.3v.do/
 CSS介绍:
   - CSS(Cascading Style Sheets)层叠样式表
   - CSS最大价值是，HTML元素专注做结构，CSS专注做元素样式，达到元素和样式分离
@@ -593,6 +594,52 @@ CSS编写规范:
 
               </style>
               <div><img src='https://img2.baidu.com/it/u=1792249350,650626052&fm=253&app=120&size=w931&n=0&f=JPEG&fmt=auto?sec=1658250000&t=568d26e67f04b71cbeb81e44f95b4dd1'></div>
+            "
+          入门案例4:
+            - "
+              <style>
+                  /* 案例1 */
+                  /* .box > li::after{
+                      content: 'Eric1';
+                  } */
+
+                  /* 案例2 */
+                  /* .box  li::after{
+                      content: 'Eric1';
+                  } */
+
+
+                  /*  给box下的任何儿子添加 */
+                  .box > ::after{
+                      content: 'Eric1';
+                  }
+                  /*  给box下的任何后代添加 */
+                  .box  ::after{
+                      content: 'Eric1';
+                  }
+              </style>
+              <div class='box'>
+                  <li>hello:</li>
+                  <ul>
+                      <li>hello:</li>
+                      <li>hello:</li>
+                      <li>hello:</li>
+                      <li>hello:</li>
+                      <a href=''>hello:</a>
+                      <a href=''>hello:</a>
+                      <a href=''>hello:</a>
+                  </ul>
+
+                  <ol>
+                      <li>hello:</li>
+                      <li>hello:</li>
+                      <li>hello:</li>
+                      <li>hello:</li>
+                      <a href=''>hello:</a>
+                      <a href=''>hello:</a>
+                      <a href=''>hello:</a>
+                  </ol>
+              </div>
             "
     复合选择器(4种):
       功能:
@@ -1409,6 +1456,41 @@ CSS编写规范:
                   src='https://img1.baidu.com/it/u=3217543765,3223180824&fm=253&app=120&size=w931&n=0&f=JPEG&fmt=auto?sec=1658163600&t=dde414ccc49d8e6ad4c5e287bbfbfa7d'>
           </div>
         "
+    CSS3-2D转换居中盒子:
+      - "
+        <style>
+            .box1{
+                position: relative;
+                width: 300px;
+                height: 300px;
+                background-color: pink;
+            }
+            .box2{
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 100px;
+                height: 100px;
+                background-color: red;
+
+
+                /* 以前的居中方式 */
+
+                /* margin-left: -50px;
+                margin-top: -50px; */
+
+                /*
+                    2D转换的居中方式
+                    x 50%代表自身的width*50%
+                    y 50%代表自身的height*50%
+                 */
+                transform: translate(-50%,-50%);
+            }
+        </style>
+        <div class='box1'>
+            <div class='box2'></div>
+        </div>
+      "
   行内元素: 只允许设置【左右内边距】和【左右外边距】，块元素和行内块元素不限制
   样式的100%: 一般情况下，该元素写100%宽高，意思就是等于父亲的宽高
   清除所有元素默认的外边距和内边距:
@@ -1730,9 +1812,9 @@ CSS编写规范:
       "
   清除浮动问题:
      功能:
-       - 父盒子没高度
-       - 子盒子浮动了
-       - 影响下面布局，我们就应该清除浮动
+       - 祖宗盒子没高度
+       - 后代盒子用了浮动
+       - 影响后面布局，我们就应该清除浮动
      原理:
        - https://www.bilibili.com/video/BV14J4114768?p=290&vd_source=cc17fab1d456bc3958dcb51e2fdd520b
      案例:
@@ -2361,7 +2443,7 @@ CSS编写规范:
             <div class='son'></div>
         </div>
     "
-  css3-过渡:
+  css3-动画过渡(transition):
     - "
       <style>
           .box{
@@ -2513,3 +2595,74 @@ CSS编写规范:
             *zoom: 1;
         }
       "
+  css3-2D转换:
+    功能:
+      - 2D转换核心功能分为移动、旋转、缩放。
+    移动(translate):
+      - 根据X轴和Y轴进行移动
+      - 移动(translate)的最大优点是不影响到其他元素的位置。(定位，外边距都无法做到)
+      - 移动中的百分比单位translate(50%,50%)是相对于自身宽高的百分比
+      - 对行内标签没有效果
+      - "
+        <style>
+            .box1{
+                width: 300px;
+                height: 300px;
+                background-color: red;
+
+                /* transform: translateX(100px);
+                transform: translateY(100px); */
+
+                transform: translate(335px,303px);
+
+            }
+            .box2{
+                width: 300px;
+                height: 300px;
+                background-color: pink;
+            }
+        </style>
+        <div class='box1'>1</div>
+        <div class='box2'>2</div>
+      "
+      - "
+        <style>
+            .box1{
+                position: relative;
+                width: 300px;
+                height: 300px;
+                background-color: pink;
+            }
+            .box2{
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 100px;
+                height: 100px;
+                background-color: red;
+
+
+                /* 以前的居中方式 */
+
+                /* margin-left: -50px;
+                margin-top: -50px; */
+
+                /*
+                    2D转换的居中方式
+                    x 50%代表自身的width*50%
+                    y 50%代表自身的height*50%
+                 */
+                transform: translate(-50%,-50%);
+            }
+            /* 2D转换对于行内元素无效 */
+            span{
+                transform: translate(100px,100px);
+            }
+        </style>
+        <div class='box1'>
+            <div class='box2'></div>
+        </div>
+        <span>123</span>
+      "
+    旋转(rotate):
+    缩放(scale):

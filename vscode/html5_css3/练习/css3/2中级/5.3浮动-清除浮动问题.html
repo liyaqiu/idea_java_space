@@ -21,7 +21,7 @@
          padding: 0;
       }
       
-      /* 方式3 伪元素法，是额外标签法的升级版，通过父元素添加
+      /* 方式3 伪元素法，是额外标签法的升级版，通过父元素添加 */
          .clearfix:after {
                content: '';
                display: block;
@@ -29,26 +29,26 @@
                clear: both;
                visibility: hidden;
          }
-         兼容ie6 7 专有 
+         /* 兼容ie6 7 专有  */
          .clearfix {
             *zoom: 1;
          }
-      */
+     
 
       /* 方式4，双伪元素 */
-      .clearfix:before,
+      /* .clearfix:before,
       .clearfix:after{
          content: '';
          display: table;
-      }
-      .clearfix:after{
+      } */
+      /* .clearfix:after{
          clear: both;
-      }
+      } */
 
       /* 兼容ie6 7 专有  */
-      .clearfix {
+      /* .clearfix {
          *zoom: 1;
-      }   
+      }    */
 
 
       .box{
