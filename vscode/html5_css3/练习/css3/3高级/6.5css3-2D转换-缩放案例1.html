@@ -18,26 +18,43 @@
         .box{
             width: 300px;
             height: 300px;
-            background-color: red;
-            transition: all 2s;
-        }
-        .box1{
-            width: 300px;
-            height: 300px;
-            background-color: red;
-        }
+            background-color: pink;
+            margin: 0 auto;
+           
+            /* 设置中心点 transform-origin: x y*/
+            /* transform-origin: bottom left; */
+            /* transform-origin: 50px 50px;  */
 
-        .box:hover{
-            /* 正数是顺时针，负数是逆时针，一圈为360deg */
-            transform: translate(50%,50%) rotate(-2880deg);
+            transition: all 1s;
         }
-        
+       
+        .box:hover{
+
+            /* 设置缩放中心点，默认是center center */
+            transform-origin: 0 0;
+
+            /* 
+                缩放百分比参数
+                0% - 100% - n%
+             */
+            /* transform: scale(130%,130%) */
+
+            /* 
+                縮放整数参数(单位:倍数)
+                0 - 1 - n
+             */
+
+            /* transform: scale(0.1,0.1) */
+
+            /* 如果前后参数一样，则可以设置单个属性 */
+            transform: scale(1%)
+        }
     </style>
 </head>
 
 <body>
    <div class="box"></div>
-   <div class="box1"></div>
+   
 </body>
 
 </html>

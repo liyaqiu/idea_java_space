@@ -15,28 +15,33 @@
 
     <title>Document</title>
     <style>
+        .box{
+            width: 300px;
+            height: 300px;
+            background-color: red;
+            transition: all 2s;
+
+            /* 设置中心点 transform-origin: x y*/
+            /* transform-origin: bottom left; */
+            transform-origin: 50px 50px;
+        }
         .box1{
             width: 300px;
             height: 300px;
             background-color: red;
-
-            /* transform: translateX(100px);
-            transform: translateY(100px); */
-            
-            transform: translate(335px,303px);
-
         }
-        .box2{
-            width: 300px;
-            height: 300px;
-            background-color: pink;
+
+        .box:hover{
+            /* 正数是顺时针，负数是逆时针，一圈为360deg */
+            transform: translate(50%,50%) rotate(-2880deg);
         }
+        
     </style>
 </head>
 
 <body>
-   <div class="box1">1</div>
-   <div class="box2">2</div>
+   <div class="box"></div>
+   <div class="box1"></div>
 </body>
 
 </html>

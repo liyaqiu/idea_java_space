@@ -15,28 +15,41 @@
 
     <title>Document</title>
     <style>
-        .box1{
-            width: 300px;
-            height: 300px;
-            background-color: red;
+        /* 声明动画 */
+        @keyframes box-move {
+            0%{
 
-            /* transform: translateX(100px);
-            transform: translateY(100px); */
-            
-            transform: translate(335px,303px);
+            }
+            25%{
+                transform: translate(1000px,0);
+            }
+            50%{
+                transform: translate(1000px,500px);
+            }
+            75%{
+                transform: translate(0,500px);
+            }
+            100%{
 
+            }
         }
-        .box2{
-            width: 300px;
-            height: 300px;
+
+
+        .box{
+            width: 100px;
+            height: 100px;
             background-color: pink;
+
+            /* 使用动画 */
+            animation-name: box-move;
+            animation-duration: 10s;
         }
+
     </style>
 </head>
 
 <body>
-   <div class="box1">1</div>
-   <div class="box2">2</div>
+    <div class='box'></div>
 </body>
 
 </html>

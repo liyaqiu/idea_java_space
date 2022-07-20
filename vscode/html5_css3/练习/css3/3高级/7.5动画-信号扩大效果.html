@@ -1,0 +1,110 @@
+<!DOCTYPE html> <!-- 这句代码的意思是告诉浏览器，采用HTML5版本来显示，它不属于HTML标签，属于文档类型声明标签 -->
+
+
+<!-- 
+<html lang="zh-CN"> 代表这个是中文网站
+<html lang="fr"> 代表这个是法文网站
+ -->
+<html lang="en">
+<!-- 代表这个是英文网站 -->
+
+<head>
+    <meta charset="UTF-8"> <!-- 告诉浏览器用UTF-8编码解析 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- 手机端用的 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> <!-- 告诉IE用最高级性能解析 -->
+
+    <title>Document</title>
+    <style>
+        .map{
+            position: relative;
+            width: 500px;
+            height: 500px;
+            background-color:antiquewhite;
+            margin: 20px auto 0;
+        }
+        .guangzhou{
+            position: absolute;
+            top: 100px;
+            left: 100px;
+        }
+
+        .beijing{
+            position: absolute;
+            top: 200px;
+            left: 200px;
+        }
+
+        .dot{
+            width: 8px;
+            height: 8px;
+            background-color:red; /* #09f; */
+            border-radius: 50%;
+        }
+
+        @keyframes circle_scale{
+            70%{
+                width: 40px;
+                height: 40px;
+                opacity: 1;
+            }
+            100%{
+                /* transform: scale(5); */
+                width: 70px;
+                height: 70px;
+                opacity: 0;
+            }
+        }
+
+        [class^=circle]{
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+
+            box-sizing: border-box;
+
+            width: 8px;
+            height: 8px;
+            
+
+            
+            border: 1px solid red;
+            filter: blur(3px);
+            /* box-shadow: 0 0 12px #009dfd; */
+            
+            border-radius: 50%;
+
+            animation: circle_scale 1.2s infinite linear;
+        }
+
+        [class=circle1]{
+            animation-delay: 0s;
+        }
+        [class=circle2]{
+            animation-delay: 0.4s;
+        }
+        [class=circle3]{
+            animation-delay: 0.8s;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="map">
+        <div class="guangzhou">
+            <div class="dot"></div>
+            <div class="circle1"></div>
+            <div class="circle2"></div>
+            <div class="circle3"></div>
+        </div>
+        <div class="beijing">
+            <div class="dot"></div>
+            <div class="circle1"></div>
+            <div class="circle2"></div>
+            <div class="circle3"></div>
+        </div>
+    </div>
+</body>
+
+</html>

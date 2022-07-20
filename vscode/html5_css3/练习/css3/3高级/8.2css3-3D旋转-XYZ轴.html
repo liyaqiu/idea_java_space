@@ -15,28 +15,33 @@
 
     <title>Document</title>
     <style>
-        .box1{
-            width: 300px;
-            height: 300px;
-            background-color: red;
-
-            /* transform: translateX(100px);
-            transform: translateY(100px); */
-            
-            transform: translate(335px,303px);
-
+        body{ 
+            perspective: 200px;
         }
-        .box2{
+        .box{
             width: 300px;
             height: 300px;
             background-color: pink;
+            margin: 200px auto;
+            
+            transition: all 3s;
+        }
+        .box:hover{
+            /* transform: rotateX(45deg); */
+            transform: rotateY(45deg);
+           /*  transform: rotateZ(45deg); */
+        }
+        img{
+            width: 100%;
+            height: 100%;
         }
     </style>
 </head>
 
 <body>
-   <div class="box1">1</div>
-   <div class="box2">2</div>
+    <div class="box">
+        <img src="https://img1.baidu.com/it/u=1966616150,2146512490&fm=253&app=138&size=w931&n=0&f=JPEG&fmt=auto?sec=1658422800&t=f99225a791b634226dcd5ee47c8b5f3f" alt="">
+    </div>
 </body>
 
 </html>

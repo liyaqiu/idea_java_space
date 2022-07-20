@@ -15,21 +15,33 @@
 
     <title>Document</title>
     <style>
-        span{
-            display: inline-block;
-            /* transform: rotate(-90deg); */
-            font-size: 10px;
-            border-right: 1px solid black;
-            border-bottom: 1px solid black;
+        body{
+            /*
+                透视===视距，意思就是人的眼睛到屏幕的距离
+                用了3D效果的元素必须给祖宗元素加透视
+            */
+            perspective: 500px;
         }
-        ::after{
-            content: '123';
+        .box{
+            width: 100px;
+            height: 100px;
+            background-color: pink;
+            margin: 100px auto;
+
+            /* Z轴方向只能写像px素 */
+            /* transform: translateX(100%) translateY(100%) translateZ(100px); */
+
+            /* 
+                translate3d(x,y,z)
+             */
+            /* transform: translate3d(100%,100%,100px); */
+            transform: translate3d(0,0,100px);
         }
     </style>
 </head>
 
 <body>
-   <span>&lt;</span>
+    <div class='box'></div>
 </body>
 
 </html>
