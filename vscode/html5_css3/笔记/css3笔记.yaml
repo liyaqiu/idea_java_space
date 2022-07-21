@@ -12,6 +12,7 @@ CSS介绍:
   - CSS最大价值是，HTML元素专注做结构，CSS专注做元素样式，达到元素和样式分离
   - CSS样式的声明和使用是严格区分大小写的
 CSS组成部分: 选择器名+花括号 === #bt{}
+CSS样式核心写法: 复合属性一定要写在最后面，部分属性写前面，否则可能出现覆盖现象
 CSS编写规范:
   - 布局定位相关属性 display/position/float/clear/visibility/overflow
   - 自身属性 width/height/margin/padding/border/background
@@ -962,9 +963,18 @@ CSS编写规范:
          }
          body {
           background-image: url(1.jpg);
-          background-position: -1200px -1800px;
+          /* background-position: -1200px -1800px;*/
           background-repeat: no-repeat;
-
+          /* css3背景图片大小 */
+          background-size: 1000px 1000px;
+          /* 写了宽度，那么高度会进行等比例缩放 */
+          background-size: 1000px;
+          /* 写了宽度，那么高度会进行等比例缩放 */
+          background-size: 50%;
+          /* 等比例缩放，直到宽高都完全覆盖盒子才停止 */
+          /* background-size:cover; */
+          /* 等比例缩放，直到有任意一个宽或者高完全覆盖才停止 */
+          background-size:contain;
           /* 图片贴附效果
               fixed 不会随着滚动条的滚动而滚动
               scroll 默认会滚动
@@ -1444,40 +1454,6 @@ CSS编写规范:
             123
         </div>
         "
-      - "
-          <style>
-              * {
-                  padding: 0;
-                  margin: 0;
-              }
-
-
-              .box2 {
-                  width: 500px;
-                  /* height: 300px; */
-                  background-color: pink;
-                  margin: 0 auto;
-
-              }
-              .box2 img{
-                 width: 300px;
-                 height: 300px;
-
-                  /*
-                      解决方式1
-                      默认是用基线对齐方式，所以会导致底部出现间隙
-                   */
-                  /* vertical-align: bottom; */
-
-                  /* 解决方式2 */
-                  display: block;
-              }
-          </style>
-          <div class='box2'>
-              <img class='img'
-                  src='https://img1.baidu.com/it/u=3217543765,3223180824&fm=253&app=120&size=w931&n=0&f=JPEG&fmt=auto?sec=1658163600&t=dde414ccc49d8e6ad4c5e287bbfbfa7d'>
-          </div>
-        "
     CSS3-2D转换居中盒子:
       - "
         <style>
@@ -1514,7 +1490,71 @@ CSS编写规范:
         </div>
       "
   行内元素: 只允许设置【左右内边距】和【左右外边距】，块元素和行内块元素不限制
-  样式的100%: 一般情况下，该元素写100%宽高，意思就是等于父亲的宽高
+  样式的百分百100%-100%属性:
+    - 一般情况下，该元素写100%宽高，意思就是等于父亲的宽高
+    - 绝对定位的情况下，定位到谁身上，100%宽高就是谁的
+    - 固定定位的情况下，100%宽高就是可视窗口的宽高
+    - "
+      <style>
+          html{
+              /* position: relative; */
+              width: 50px;
+              height: 50px;
+          }
+          body{
+              /* position: relative; */
+              width: 100px;
+              height: 100px;
+          }
+         .box{
+          /* position: relative; */
+          width: 200px;
+          height: 200px;
+         }
+
+         .fa{
+          /* position: relative; */
+          width: 300px;
+          height: 300px;
+         }
+
+         .son{
+          position:absolute;
+          /* position: fixed; */
+          width: 100%;
+          height: 100%;
+          background-color: pink;
+         }
+      </style>
+      <div class='box'>
+          <div class='fa'>
+              <div class='son'>
+
+              </div>
+          </div>
+     </div>
+    "
+  宽高的最大值和最小值使用:
+    - "
+      <style>
+         .box{
+            width: 10px;
+            height: 10px;
+         }
+         .inbox{
+            width: 100%;
+            height: 100%;
+            min-width: 50px;
+            max-width: 100px;
+            min-height: 50px;
+            max-height: 100px;
+            background-color: pink;
+         }
+      </style>
+      <div class='box'>
+          <div class='inbox'></div>
+      </div>
+    "
   清除所有元素默认的外边距和内边距:
     - "
       * {
@@ -2066,6 +2106,52 @@ CSS编写规范:
             <div></div>
           </a>
         "
+  图片底部缝隙，导致下面的布局出现间隔问题:
+    - "
+      <style>
+          * {
+              padding: 0;
+              margin: 0;
+          }
+
+
+          .box2 {
+              width: 500px;
+              /* height: 300px; */
+              background-color: pink;
+              margin: 0 auto;
+
+          }
+          .box2 img{
+             width: 300px;
+             height: 300px;
+
+              /*
+                  解决方式1
+                  默认是用基线对齐方式，所以会导致底部出现间隙
+                  vertical-align: bottom; 可以
+                  vertical-align: top; 可以
+                  vertical-align: middle; 可以
+                  vertical-align: baseline; 不可以，默认就是这种
+               */
+              vertical-align:middle;
+
+              /* 解决方式2 */
+              /* display: block; */
+          }
+          .box3{
+              width: 200px;
+              height: 200px;
+              background-color: red;
+              margin: 0 auto;
+          }
+      </style>
+      <div class='box2'>
+          <img class='img'
+              src='https://img1.baidu.com/it/u=3217543765,3223180824&fm=253&app=120&size=w931&n=0&f=JPEG&fmt=auto?sec=1658163600&t=dde414ccc49d8e6ad4c5e287bbfbfa7d'>
+      </div>
+      <div class='box3'>我顶部有缝隙</div>
+    "
   精灵图:
     - 利用302弱缓存重定向技术，减少图片请求时间。
     - 利用fw的切片工具进行测量，ps测量不准
@@ -2242,7 +2328,7 @@ CSS编写规范:
       <input type='text'>
       <textarea></textarea>
     "
-  去除文字顶部和底部距离:
+  去除文字顶部距离和底部距离:
     - "
       <style>
           *{

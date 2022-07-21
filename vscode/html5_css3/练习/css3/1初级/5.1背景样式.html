@@ -30,7 +30,7 @@
 
             /* 设置平铺图片 */
             background-repeat: no-repeat;
-
+            
             /* 
                 background-position: x y
                 方位名词 x(left center right) y(top center bottom)
@@ -48,7 +48,16 @@
        }
        body {
         background-image: url(1.jpg);
-        background-position: -1200px -1800px;
+        /* background-position: -1200px -1800px; */
+
+        /* css3背景图片大小 */
+        /* background-size: 1000px 1000px; */
+        /* 写了宽度，那么高度会进行等比例缩放 */
+        /* background-size: 1000px; */
+        /* 等比例缩放，直到宽高都完全覆盖盒子才停止 */
+        /* background-size:cover; */
+        /* 等比例缩放，直到有任意一个宽或者高完全覆盖才停止 */
+        background-size:contain;
         background-repeat: no-repeat;
 
         /* 图片贴附效果 
