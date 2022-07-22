@@ -1014,6 +1014,42 @@ CSS编写规范:
       <div class='box1'></div>
       <div class='box2'></div>
     "
+  em相对单位和rem相对单位:
+    - em相对于自己或者父亲或者祖宗的font-size
+    - rem相对于HTML的font-size，rem可以实现统一控制页面大小
+    - "
+      <style>
+          html{
+              font-size: 10px;
+          }
+          div{
+              font-size: 10px;
+          }
+          [p1]{
+              /*
+                  em相对于自己或者父亲或者祖宗的font-size大小
+                  200px = 10em x font-size: 20px
+              */
+              font-size: 20px;
+              width: 10em;
+              height: 10em;
+              background-color: pink;
+          }
+          [p2]{
+              /*
+                  rem相对于HTML的font-size大小
+                  100px  = 10ren x font-size: 10px
+               */
+              width: 10rem;
+              height: 10rem;
+              background-color: rgb(55, 23, 236);
+          }
+      </style>
+      <div>
+        <p p1>123</p>
+        <p p2>456</p>
+      </div>
+    "
   反人类选择器问题:
      功能:
        - 把事件绑定在别人身上，通过别人来唤醒自己
@@ -2053,7 +2089,8 @@ CSS编写规范:
                  height: 200px;
                  background-color: pink;
 
-
+                 overflow-x: hidden;
+                 overflow-y: hidden;
                  /* 默认属性，全部都显示 */
                  /* overflow: visible; */
 
@@ -2480,6 +2517,54 @@ CSS编写规范:
               <p>9</p>
           </div>
      </div>
+    "
+  margin负值的巧妙应用:
+    - "
+      <style>
+          div {
+              width: 200px;
+              height: 200px;
+              margin: 0 auto;
+          }
+
+          .top {
+              background-color: pink;
+              /* margin-bottom: -10px; */
+          }
+
+          .center {
+              background-color: green;
+              /* margin-top: -10px; */
+          }
+
+          .bottom {
+              background-color: red;
+          }
+
+          span {
+              float: left;
+              width: 100px;
+              height: 100px;
+          }
+          [sp1]{
+              background-color: grey;
+              /* margin-right: -10px; */
+          }
+          [sp2]{
+              background-color:blue;
+              /* margin-left: -10px; */
+          }
+      </style>
+      <div class='top'>
+          <span sp1></span>
+          <span sp2></span>
+      </div>
+      <div class='center'>
+
+      </div>
+      <div class='bottom'>
+
+      </div>
     "
 高级:
   css3: 支持IE9+
@@ -3260,7 +3345,45 @@ CSS编写规范:
           </style>
           <div class='box'></div>
         "
+  css3线性渐变背景颜色:
+    - "
+      <style>
+         .box{
+          display: flex;
+          flex-direction: column;
+          flex-wrap: wrap;
+          width: 600px;
+          height: 100px;
+         }
+         span{
+          width: 200px;
+          height: 50px;
+          box-sizing: border-box;
+          /*
+              目前浏览器支持不佳，只能加上特定浏览器前缀
+              起始方向可以是方位名词或者度数degree
+          */
+          /* background: -webkit-linear-gradient(left,rgb(152, 94, 94) ,rgb(12, 12, 216)); */
+          /* background: -webkit-linear-gradient(45deg,rgb(152, 94, 94) ,rgb(12, 12, 216)); */
+          /* 默认是从上往下 */
+          background: -webkit-linear-gradient(rgb(152, 94, 94) ,rgb(12, 12, 216));
+         }
+         span:nth-child(1){
+          width: 200px;
+          height: 100px;
+          background: -webkit-linear-gradient(left top,rgb(235, 229, 229) ,rgb(43, 43, 45));
+         }
+      </style>
+      <div class='box'>
+          <span>1</span>
+          <span>2</span>
+          <span>3</span>
+          <span>4</span>
+          <span>5</span>
+      </div>
+    "
   浏览器私有前缀:
+    - 可以实现兼容老版本的浏览器
     - "
       [ -moz- ] 代表火狐
       [-ms-] 代表ie

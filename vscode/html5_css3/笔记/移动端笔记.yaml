@@ -1,3 +1,11 @@
+浏览器私有前缀:
+  - 可以实现兼容老版本的浏览器
+  - "
+      [ -moz- ] 代表火狐
+      [-ms-] 代表ie
+      [-webkit-] 代表safari chrome
+      [-o-] 代表Opera
+    "
 视口:
   布局视口:
     - 一般移动设备的浏览器都默认设置了一个布局视口，用于解决早起的PC端页面在手机上显示的问题。
@@ -49,7 +57,6 @@ CSS初始化:
           -webkit-touch-callout: none;
       }
     "
-
 技术选型:
   单独制作移动端页面:
     流式布局(宽度百分比布局):
@@ -113,7 +120,209 @@ CSS初始化:
         - flex布局，操作方便，布局极为简单，移动端应用很广泛，PC端浏览器支持情况差，IE11或者更低版本有可能不支持
         - 如果是PC端页面布局，我们还是考虑传统布局
         - 如果是移动端或者不考虑兼容性问题的PC端页面布局，我们还是使用flex弹性布局
-    less+rem+媒体查询布局:
+      flex父元素设置:
+        - "
+          <style>
+              .box {
+                  /* 开启flex布局 */
+                  display: flex;
+                  width: 400px;
+                  height: 400px;
+
+                  background-color: pink;
+                  margin: 0 auto;
+
+                  /*
+                      设置主轴，侧轴不用设置，默认另一边就是侧轴
+                      主轴为x     row
+                      主轴为x反转 row-reverse
+                      主轴为y     column
+                      主轴为y反转 column-reverse
+                   */
+                  flex-direction:row;
+
+                  /*
+                      控制是否可以换换
+                      nowrap 默认为不换行，不换行情况下，如果宽度或者高度不够，会自动缩小子元素
+                      wrap 换行
+                   */
+                  flex-wrap: wrap;
+
+                  /*
+                      复合属性
+                      flex-flow = flex-direction + flex-wrap
+                   */
+                  /* flex-flow: row nowrap; */
+
+                  /*
+                      控住主轴，子元素排列方式
+                      flex-start 主轴开始显示
+                      flex-end 主轴结尾显示
+                      space-around 平均分配显示
+                      space-evenly 平均分配显示
+                      space-between 左右各占一个，剩下在中间平均分配显示
+                  */
+                  /* justify-content:space-between; */
+
+                  /*
+                      控制单行侧轴，子元素排列方式
+                      flex-start 侧轴顶部显示
+                      flex-end 侧轴底部显示
+                      center 侧轴垂直居中显示
+                      stretch 侧轴拉伸显示(前提是子元素不能有高度/宽度)
+                   */
+                  /* align-items:center; */
+
+                  /*
+                      控制多行侧轴，子元素排列方式
+                      flex-start 侧轴开始显示
+                      flex-end 侧轴结尾显示
+                      space-around 平均分配显示
+                      space-evenly 平均分配显示
+                      space-between 上下各占一行，剩下在中间平均分配显示
+                   */
+                  align-content:space-between;
+              }
+
+              span {
+                  width: 100px;
+                  height: 100px;
+                  border: 1px solid red;
+                  margin: 10px;
+              }
+          </style>
+          <div class='box'>
+              <span>1</span>
+              <span>2</span>
+              <span>3</span>
+              <span>4</span>
+          </div>
+        "
+      flex子元素设置:
+        - "
+          <style>
+              * {
+                  margin: 0;
+                  padding: 0;
+              }
+
+              .box {
+                  display: flex;
+                  width: 100%;
+                  height: 200px;
+                  max-width: 800px;
+                  min-width: 600px;
+                  margin: 100px auto 0;
+                  background-color: pink;
+              }
+
+              span{
+                  box-sizing: border-box;
+                  border: 1px solid red;
+              }
+
+              .a1,.a2{
+                  width: 100px;
+                  height: 100px;
+              }
+
+              .a3{
+                  /* flex属性用于从父亲剩余空间来进行分数分配,默认值为0 */
+                  flex: 11;
+                  height: 100px;
+                  /* 可以控制子元素在侧轴的*/
+                  align-self:flex-end;
+                  /*控制子元素的排列顺序，默认为0，值越小越靠前*/
+                  order: -1;
+              }
+              .a4{
+                  flex: 5;
+                  order: 1;
+              }
+
+          </style>
+          <div class='box'>
+              <span class='a1'>1</span>
+              <span class='a2'>2</span>
+              <span class='a3'>3</span>
+              <span class='a4'>4</span>
+          </div>
+        "
+        - "
+          <style>
+             .box{
+              display: flex;
+              flex-direction: row;
+              flex-wrap: wrap;
+              width: 500px;
+              height: 100px;
+             }
+             span{
+              /* 设置成百分比，相对于父亲来说，宽高各占20% */
+              flex: 20%;
+              box-sizing: border-box;
+              border: 1px solid red;
+             }
+
+          </style>
+          <div class='box'>
+            <span>1</span>
+            <span>2</span>
+            <span>3</span>
+            <span>4</span>
+            <span>5</span>
+            <span>1</span>
+            <span>2</span>
+            <span>3</span>
+            <span>4</span>
+            <span>5</span>
+          </div>
+        "
+    rem+媒体查询+less布局(市场非常流行的):
+      em相对单位和rem相对单位:
+        - em相对于自己或者父亲或者祖宗的font-size
+        - rem相对于HTML的font-size，rem可以实现统一控制页面大小
+        - "
+            <style>
+                html{
+                    font-size: 10px;
+                }
+                div{
+                    font-size: 10px;
+                }
+                [p1]{
+                    /*
+                        em相对于自己或者父亲或者祖宗的font-size大小
+                        200px = 10em x font-size: 20px
+                    */
+                    font-size: 20px;
+                    width: 10em;
+                    height: 10em;
+                    background-color: pink;
+                }
+                [p2]{
+                    /*
+                        rem相对于HTML的font-size大小
+                        100px  = 10ren x font-size: 10px
+                     */
+                    width: 10rem;
+                    height: 10rem;
+                    background-color: rgb(55, 23, 236);
+                }
+            </style>
+            <div>
+              <p p1>123</p>
+              <p p2>456</p>
+            </div>
+          "
+      媒体查询:
+        - "
+
+        "
+      less:
+        - "
+
+        "
     混合布局:
   响应式页面兼容移动端:
     - 媒体查询

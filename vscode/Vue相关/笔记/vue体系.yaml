@@ -8,6 +8,23 @@ Vue安装:
   安装google浏览器插件:
     - 方式1 打开开发者窗口chrome://extensions/，然后直接拖拽Vue.crx到google开发者窗口
     - 方式2 在plugins包目录下，将Vue.crx改名为Vue.zip，解压即可
+  VScode初始化设置:
+    - "
+      设置目录树的缩进 = 19
+        英文版：File --> Preformences --> Settings
+        中文版：文件 --> 首选项 --> 设置
+        搜索 Workbench › Tree: Indent
+
+      设置参考线 = none
+        Workbench › Tree: Render Indent Guides
+
+      设置双击点开目录 = doubleClick
+        Workbench › Tree: Expand Mode
+
+      设置字体大小 = 14
+        Editor: Font Size
+
+    "
   vscode插件安装:
     - 插件[Vue 3 Snippets]，安装代码提示
     - 插件[JetBrains Icon Theme],显示文件夹管理图标

@@ -1,0 +1,54 @@
+<!DOCTYPE html> <!-- 这句代码的意思是告诉浏览器，采用HTML5版本来显示，它不属于HTML标签，属于文档类型声明标签 -->
+
+
+<!-- 
+<html lang="zh-CN"> 代表这个是中文网站
+<html lang="fr"> 代表这个是法文网站
+ -->
+<html lang="en">
+<!-- 代表这个是英文网站 -->
+
+<head>
+    <meta charset="UTF-8"> <!-- 告诉浏览器用UTF-8编码解析 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- 手机端用的 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> <!-- 告诉IE用最高级性能解析 -->
+
+    <title>Document</title>
+
+    <style>
+        html{
+            font-size: 10px;
+        }
+        div{
+            font-size: 10px;
+        }
+        [p1]{
+            /*
+                em相对于自己或者父亲或者祖宗的font-size大小
+                200px = 10em x font-size: 20px
+            */
+            font-size: 20px;
+            width: 10em;
+            height: 10em;
+            background-color: pink;
+        }
+        [p2]{
+            /* 
+                rem相对于HTML的font-size大小
+                100px  = 10ren x font-size: 10px
+             */
+            width: 10rem;
+            height: 10rem;
+            background-color: rgb(55, 23, 236);
+        }
+    </style>
+</head>
+
+<body>
+   <div>
+        <p p1>123</p>
+        <p p2>456</p>
+   </div>
+</body>
+
+</html>
