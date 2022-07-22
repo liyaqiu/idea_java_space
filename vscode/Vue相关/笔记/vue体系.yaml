@@ -1,6 +1,15 @@
 官方:
   - https://cn.vuejs.org/
   - bootcdn.cn 可以下载一些常用的js库文件
+  - JavaScript遵循ECMAScript规范
+  - 一个完成的JavaScript有3部分组成，ECMAScript、DOM、BOM
+  - JavaScript是一门解析型语言，基于原型的面向对象语言
+  - js下载 https://www.bootcdn.cn/
+  - mdn文档 https://developer.mozilla.org/en-US/
+  - babeljs 语法转换 https://babeljs.io/
+  - 参考文档 https://www.w3cschool.cn/javascript/js-ex-objects.html
+  - 参考文档 https://www.w3cschool.cn/jsref/jsref-obj-number.html
+  - less官方 http://lesscss.cn
 Vue安装:
   安装vue:
     - 开发版本(有警告，有提示) 下载vue.js文件 https://cn.vuejs.org/js/vue.js
@@ -35,6 +44,7 @@ Vue安装:
     - 插件[open in browser]，从vscode选项打开浏览器
     - 插件[Vetur]作者Pine Wu，可以用来显示Vue文件高亮
     - 插件[CSS Peek] 追踪CSS样式
+    - 插件[Easy LESS] less预处理插件
 Vue基础:
   功能:
     - 一个容器只能对应一个vue实例对象

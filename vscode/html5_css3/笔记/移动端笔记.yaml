@@ -1,3 +1,5 @@
+官方网站:
+  - 可以查看不同手机的效果显示 https://responsively.app/download/
 浏览器私有前缀:
   - 可以实现兼容老版本的浏览器
   - "
@@ -317,12 +319,137 @@ CSS初始化:
           "
       媒体查询:
         - "
+          <style>
+              /*
+                  css3 媒体查询可以根据不同的设备设置不同的样式
+                  注意细节，从小到大写可能会有样式覆盖和继承问题
+                  参数1
+                      screen 屏幕显示器(电脑屏幕、平板电脑、智能手机等)
+                      print 打印机
+                      all 所有设备
+                  参数2
+                      and 可以将多个媒体特性链接到一起。
+                      not 排除某个媒体类型
+                      only 指定某个特定的媒体类型，可以省略
+                  参数3，不用媒体类型参数不一样，以下是screen屏幕的参数
+                      width 屏幕宽度 =600px的时候触发
+                      min-width 屏幕宽度 >=600px的时候触发
+                      max-width 屏幕宽度 <=600px的时候触发
+               */
 
+              /* 屏幕宽度 0px - 539px 的时候触发的时候触发 */
+              @media screen and (max-width :539px){
+                  body{
+                      background-color: red;
+                  }
+              }
+              /* 屏幕宽度 540px - 969px 的时候触发的时候触发 */
+              @media screen and (min-width :540px) and (max-width:969px){
+                  body{
+                      background-color: green;
+                  }
+              }
+
+              /* 屏幕宽度 970px - infinity 的时候触发的时候触发 */
+              @media screen and (min-width :970px){
+                  body{
+                      background-color: blue;
+                  }
+              }
+          </style>
         "
       less:
-        - "
+        功能:
+          - 插件安装 Easy LESS
+          - Less是一门CSS预处理语言，它扩展了CSS的动态特性
+          - less官方 http://lesscss.cn
+        变量声明:
+          - "
+            步骤一，定义less文件 3.3单独制作-rem+媒体查询+less布局-demo.less
 
-        "
+            /* less变量定义，严格区分大小写 */
+            @corlor: red;
+            @bgcorlor: rgb(158, 147, 149);
+            @fontSize: 30px;
+
+            .demo1{
+                width: 100px;
+                height: 100px;
+                color: @corlor;
+                font-size: @fontSize;
+                background-color: @bgcorlor;
+            }
+
+            /* less嵌套 */
+            .demo2{
+                width: 100px;
+                height: 100px;
+                background-color: pink;
+
+                a{
+                    /* 后代选择器 */
+                    text-decoration: none;
+                    font-size: 20px;
+
+                    &::before{
+                        /* 伪元素选择器 */
+                        content: '你好';
+                    }
+
+                    &:hover{
+                        /* 伪类选择器 */
+                        color: white;
+                    }
+
+                    &[href]{
+                        /* 交集选择器 */
+                        display: block;
+                        border: 1px solid black;
+                    }
+
+                    &:nth-child(1){
+                        /* 结构伪类选择器 */
+                        color: aqua;
+                    }
+                }
+
+                >a{
+                    /* 子选择器 */
+                    background-color: red;
+                }
+
+                //*[href][href][href][href]{
+                    /* 通配符选择器 */
+                    //color: black;
+                //}
+
+            }
+
+            /* less运算 */
+            @baseFontSize:13px;
+            html{
+                font-size: @baseFontSize;
+            }
+
+            .demo3{
+                /*
+                    版本Bug原因，用到除法必须加./或者小括号
+                    运算符两边最好有空格
+                    如果运算中出现多个单位，则以第一个为准
+                 */
+                /* width: (@width / 2); */
+                width: (100rem / @baseFontSize);
+                height: (100rem / @baseFontSize);
+                background-color: green;
+            }
+
+           步骤2使用less文件 <link rel='stylesheet' href='./3.3单独制作-rem+媒体查询+less布局-demo.css'>
+            <div class='demo1'>demo1</div>
+            <div class='demo2'>
+                <a href='#'>demo2</a>
+            </div>
+            <div class='demo3'></div>
+          "
     混合布局:
   响应式页面兼容移动端:
     - 媒体查询

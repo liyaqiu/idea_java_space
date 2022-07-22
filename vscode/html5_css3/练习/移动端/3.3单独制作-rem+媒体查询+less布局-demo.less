@@ -1,0 +1,75 @@
+/* less变量定义，严格区分大小写 */
+@corlor: red;
+@bgcorlor: rgb(158, 147, 149);
+@fontSize: 30px;
+
+.demo1{
+    width: 100px;
+    height: 100px;
+    color: @corlor;
+    font-size: @fontSize;
+    background-color: @bgcorlor;
+}
+
+/* less嵌套 */
+.demo2{
+    width: 100px;
+    height: 100px;
+    background-color: pink;
+    
+    a{
+        /* 后代选择器 */
+        text-decoration: none;
+        font-size: 20px;    
+        
+        &::before{
+            /* 伪元素选择器 */
+            content: '你好';
+        }
+
+        &:hover{
+            /* 伪类选择器 */
+            color: white;
+        }
+
+        &[href]{
+            /* 交集选择器 */
+            display: block;
+            border: 1px solid black;
+        }
+        
+        &:nth-child(1){
+            /* 结构伪类选择器 */
+            color: aqua;
+        }
+    }
+    
+    >a{
+        /* 子选择器 */ 
+        background-color: red;
+    }
+
+    //*[href][href][href][href]{
+        /* 通配符选择器 */
+        //color: black;
+    //}
+      
+}
+
+/* less运算 */
+@baseFontSize:13px;
+html{
+    font-size: @baseFontSize;
+}
+
+.demo3{
+    /* 
+        版本Bug原因，用到除法必须加./或者小括号 
+        运算符两边最好有空格
+        如果运算中出现多个单位，则以第一个为准
+     */
+    /* width: (@width / 2); */
+    width: (100rem / @baseFontSize);
+    height: (100rem / @baseFontSize);
+    background-color: green;
+}
