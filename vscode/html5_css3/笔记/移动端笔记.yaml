@@ -280,7 +280,12 @@ CSS初始化:
             <span>5</span>
           </div>
         "
-    rem+媒体查询+less布局(市场非常流行的):
+    rem布局(市场非常流行的):
+      rem单位转换神器:
+        - "
+         插件[cssrem] rem转换神器，在设置中修改默认值
+          Cssrem: Root Font Size = 75
+        "
       em相对单位和rem相对单位:
         - em相对于自己或者父亲或者祖宗的font-size
         - rem相对于HTML的font-size，rem可以实现统一控制页面大小
@@ -360,10 +365,12 @@ CSS初始化:
         "
       less:
         功能:
-          - 插件安装 Easy LESS
+          - koala编译软件
+          - vscode编译插件安装 Easy LESS
           - Less是一门CSS预处理语言，它扩展了CSS的动态特性
           - less官方 http://lesscss.cn
-        变量声明:
+          - 市面上的预处理器有，Less、Sass、Stylus
+        less入门使用:
           - "
             步骤一，定义less文件 3.3单独制作-rem+媒体查询+less布局-demo.less
 
@@ -450,6 +457,203 @@ CSS初始化:
             </div>
             <div class='demo3'></div>
           "
+        less进阶使用:
+          - "
+            3.3单独制作-rem+媒体查询+less布局-demo.less
+            //1.less变量定义，严格区分大小写
+            @corlor: red;
+            @bgcorlor: rgb(158, 147, 149);
+            @fontSize: 30px;
+            @demo1:.demo1;
+            @width: width;
+            @{demo1}{
+                @{width}: 100px;
+                height: 100px;
+                color: @corlor;
+                font-size: @fontSize;
+                background-color: @bgcorlor;
+            }
+
+            //2.less嵌套
+            .demo2{
+                width: 100px;
+                height: 100px;
+                background-color: pink;
+
+                //后代选择器
+                a{
+
+                    text-decoration: none;
+                    font-size: 20px;
+
+                    //伪元素选择器
+                    &::before{
+                        content: '你好';
+                    }
+                    //伪类选择器
+                    &:hover{
+
+                        color: white;
+                    }
+                    //交集选择器
+                    &[href]{
+                        display: block;
+                        border: 1px solid black;
+                    }
+                    //结构伪类选择器
+                    &:nth-child(1){
+                        color: aqua;
+                    }
+                }
+
+                //子选择器
+                > a{
+                    /*  */
+                    background-color: red;
+                }
+
+                //通配符选择器
+                /* [href][href][href][href]{
+
+                    color: black;
+                } */
+
+            }
+
+            //3.less运算
+            @baseFontSize:13px;
+            html{
+                font-size: @baseFontSize;
+            }
+
+            .demo3{
+                //版本Bug原因，用到除法必须加./或者小括号
+                //运算符两边最好有空格
+                //如果全部没单位，则最后没有单位
+                //如果全部里面有一个单位，则显示1个单位
+                //如果全部里面有多个单位，则按照第一个出现的单位为准
+                /* width: (@width / 2); */
+                width: (100rem / @baseFontSize);
+                height: (100rem / @baseFontSize);
+                background-color: green;
+            }
+
+            //4.less混合
+            //4.1普通混合一般不使用，会多输出一个类选择器，调用方式 .mixedCss .mixedCss();
+            /* .mixedCss{
+                width: 100px;
+                height: 100px;
+                background-color: blue;
+            } */
+            //4.2不带参数混合，调用方式 .mixedCss; .mixedCss();
+            /* .mixedCss(){
+                width: 100px;
+                height: 100px;
+                background-color: red;
+            } */
+            //4.3带参数混合 调用方式 .mixedCss(100px,100px,red);
+            /* .mixedCss(@w,@h,@bgc){
+                width: @w;
+                height: @h;
+                background-color: @bgc;
+            } */
+            //4.4带默认值混合，调用方式 .mixedCss; .mixedCss(); .mixedCss(50px,50px);  .mixedCss(200px,200px,blue) ;
+            // 支持命名参数传参 .mixedCss(100px,@bgc:black,@h:200px);
+            /* .mixedCss(@w:200px,@h:100px,@bgc:red){
+                width: @w;
+                height: @h;
+                background-color: @bgc;
+            } */
+            //4.5混合匹配模式，调用方式 .mixedCss(C1,C1,@bgc:hotpink);
+            //4.6 @arguments 实现列表变量，用的很少
+            //出BUG
+            /* .mixedCss(@_){
+            font-size: 20px;
+            font-weight: 800;
+            } */
+            .salt(){
+                font-size: 20px;
+                font-weight: 700;
+            }
+            .mixedCss(C1,C1,@w:100px,@h:100px,@bgc:pink){
+                width: @w;
+                height: @h;
+                background-color: @bgc;
+               .salt();
+            }
+            .mixedCss(C1,C2,@w:200px,@h:100px,@bgc:red){
+                width: @w;
+                height: @h;
+                background-color: @bgc;
+                .salt();
+            }
+
+            .demo4{
+                .box1{
+                    .mixedCss(C1,C1,@bgc:hotpink);
+                }
+                .box2{
+                    .mixedCss(C1,C2);
+                }
+            }
+
+
+            //5.less继承 :extend(.css) :extend(.css all)
+
+
+            //6.less 避免编译，可以原样输出 单引号或者双引号都可以
+            /* .demo5{
+                height: ~'100px + 100';
+                background-color: antiquewhite;
+            } */
+
+            //7.less 引入less文件
+            //@import './common.less'; @import './common'
+
+
+            <link rel='stylesheet' href='./3.3单独制作-rem+媒体查询+less布局-demo.css'>
+
+            <div class='demo1'>demo1</div>
+            <hr>
+            <div class='demo2'>
+                <a href='#'>demo2</a>
+            </div>
+            <hr>
+            <div class='demo3'></div>
+            <hr>
+            <div class='demo4'>
+                <div class='box1'>box1</div>
+                <div class='box2'>box2</div>
+            </div>
+            <hr>
+            <div class='demo5'></div>
+          "
+      布局方案1:
+        - rem+媒体查询+less布局
+      布局方案2:
+        - rem+flexible.js+less布局
+        - 下载地址flexible.js https://github.com/amfe/lib-flexible
+        - flexible用来做屏幕适配，flexible是按照10等份来划分的
+      布局设计稿:
+        - 1.先找出一个标准尺寸750px，然后除一个份数，后面所有屏幕都是基于这个份数进行计算font-size的值，这样做的目的是实现等比例缩放
+        - 2.页面元素rem值 = 元素实际宽高 /  font-size
+        - "
+          思路，假设以750的为基准，那么在开发的时候，真实物理像素应该是375px来开发
+          假设设计稿是750设计的，图片高度为88px，那么实际物理像素应该是44px
+          因为我们划分了15等份，所以750像素的font-size = 25px
+          现在需要求出一个整体的基准值 640
+            750设计稿 / 2倍像素比 / 15等份 = 25 font-size
+            750 / ? * 25 = 375
+            ?结果为50
+            88 / 50 = 1.76rem
+            17.6 * 25 = 44px
+
+            750设计稿 / 2倍像素比 / 10等份 = 37.5 font-size
+            750 / ? * 37.5 = 375
+            ?结果为75
+            88 / 75 = 1.173rem
+            1.173rem * 37.5 = 44px
+        "
     混合布局:
   响应式页面兼容移动端:
     - 媒体查询

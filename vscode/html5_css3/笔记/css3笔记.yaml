@@ -7,6 +7,14 @@ CSS官方:
   - 字体图标 https://icomoon.io/#icons
   - 字体图标 https://www.iconfont.cn/
   - 免费服务器空间 https://free.3v.do/
+  - UI切图协作工具 https://www.mockplus.cn/ https://lanhuapp.com/pricing
+  - less官方 http://lesscss.cn
+UI切图协作工具(摹客、蓝湖):
+  - UI切图协作工具 https://www.mockplus.cn/ https://lanhuapp.com/pricing
+  - "
+    1下载 PS插件
+    2启用生成器 编辑->首选项->常规->增效工具->启用生成器  https://help.mockplus.cn/p/292
+  "
 CSS介绍:
   - CSS(Cascading Style Sheets)层叠样式表
   - CSS最大价值是，HTML元素专注做结构，CSS专注做元素样式，达到元素和样式分离
@@ -1432,6 +1440,52 @@ CSS编写规范:
             </style>
             <div></div>
           "
+        - "
+          <style>
+              div{
+                  width: 300px;
+                  height: 300px;
+
+                  /* 固定定位 */
+                  position: fixed;
+                  /* 绝对定位 */
+                 /*  position:absolute; */
+
+
+                  left: 0;
+                  top: 0;
+                  bottom: 0;
+                  right: 0;
+                  margin: auto;
+
+                  background-color: hotpink;
+              }
+          </style>
+          <div></div>
+        "
+        - "
+          <style>
+              div{
+                  width: 300px;
+                  height: 300px;
+
+                  /* 固定定位 */
+                  position: fixed;
+                  /* 绝对定位 */
+                  /* position:absolute; */
+
+                  /* 水平居中 */
+                  left: 50%;
+                  /* 垂直居中 */
+                  top: 50%;
+
+                  transform: translateX(-50%) translateY(-50%);
+
+                  background-color: hotpink;
+              }
+          </style>
+          <div></div>
+        "
       相对定位:
         - "
             <style>
