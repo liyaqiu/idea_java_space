@@ -36,7 +36,7 @@
   二倍图:
     - 因为，在PC端设置的图片为(50px,50px)，最后在移动端就会显示为(100px,100px)
     - 所以，应该在PC端就应该准备好(100px,100px)的图片，然后在PC端的显示为(50px,50px)，最后在移动端就会显示为(100px,100px)，这样图片不会丢失失真
-CSS初始化:
+移动端CSS初始化:
   功能:
     - 保护了有价值的默认值，修复了浏览器的bug，是模块化的，拥有详细的文档
     - 官网 https://github.com/necolas/normalize.css
@@ -654,7 +654,116 @@ CSS初始化:
             88 / 75 = 1.173rem
             1.173rem * 37.5 = 44px
         "
-    混合布局:
+    混合布局: flex+rem+less+单位转换插件+flexible.js+媒体查询
+    vwvh布局:
+      功能:
+        - vw、vh是一个相对相对于视口的单位
+        - 1vw = 1%视口宽度(屏幕可视区域)
+        - 1vh = 1%视口高度(屏幕可视区域)
+        - 假如当前屏幕为375*667像素，那么1vw=3.75像素，1vh=6.67像素
+      换算原理:
+        - "
+          设iphone6/7/8  375像素，1vw=3.75
+            750设计稿，80*80图片，应该是多少vw
+              80*80图片应该是40*40图片
+                40/3.75=10.666667
+                  所以80*80图片 = 10.66vw*10.66vw
+
+        "
+      使用像素大厨进行换算:
+        - https://www.fancynode.com.cn/pxcook
   响应式页面兼容移动端:
-    - 媒体查询
-    - bootstrap
+    功能:
+      - 响应式布局原理，使用媒体查询来做适配
+      - 主要核实思想是把所有元素装入一个.container盒子里面
+    屏幕适配:
+      - "
+        超小屏幕（手机 <768px），适配宽度为100%
+        小屏幕（平板 >=768px ~ <992px），适配宽度为750px
+        中等屏幕（桌面显示器，>=992px ~ <1200px），适配宽度为970px
+        大屏幕（大桌面显示器，>=1200px），适配宽度为1170px
+      "
+    原理案例:
+      - "
+        <style>
+              .container {
+                  height: 150px;
+                  background-color: pink;
+                  margin: 0 auto;
+              }
+              /* 1. 超小屏幕下  小于 768  布局容器的宽度为 100% */
+
+              @media screen and (max-width: 767px) {
+                  .container {
+                      width: 100%;
+                  }
+              }
+              /* 2. 小屏幕下  大于等于768  布局容器改为 750px */
+
+              @media screen and (min-width: 768px) {
+                  .container {
+                      width: 750px;
+                  }
+              }
+              /* 3. 中等屏幕下 大于等于 992px   布局容器修改为 970px */
+
+              @media screen and (min-width: 992px) {
+                  .container {
+                      width: 970px;
+                  }
+              }
+              /* 4. 大屏幕下 大于等于1200 布局容器修改为 1170 */
+
+              @media screen and (min-width: 1200px) {
+                  .container {
+                      width: 1170px;
+                  }
+              }
+          </style>
+          <div class='container'></div>
+      "
+      - "
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+            }
+
+            ul {
+                list-style: none;
+            }
+
+            .container {
+                width: 750px;
+                margin: 0 auto;
+            }
+
+            .container ul li {
+                float: left;
+                width: 93.75px;
+                height: 30px;
+                background-color: green;
+            }
+
+            @media screen and (max-width: 767px) {
+                .container {
+                    width: 100%;
+                }
+                .container ul li {
+                    width: 33.33%;
+                }
+            }
+        </style>
+        <div class='container'>
+            <ul>
+                <li>导航栏</li>
+                <li>导航栏</li>
+                <li>导航栏</li>
+                <li>导航栏</li>
+                <li>导航栏</li>
+                <li>导航栏</li>
+                <li>导航栏</li>
+                <li>导航栏</li>
+            </ul>
+        </div>
+      "

@@ -9,7 +9,6 @@
   - babeljs 语法转换 https://babeljs.io/
   - 参考文档 https://www.w3cschool.cn/javascript/js-ex-objects.html
   - 参考文档 https://www.w3cschool.cn/jsref/jsref-obj-number.html
-  - 轮播图 https://www.swiper.com.cn/
 Vue安装:
   安装vue:
     - 开发版本(有警告，有提示) 下载vue.js文件 https://cn.vuejs.org/js/vue.js
@@ -44,10 +43,21 @@ Vue安装:
     - 插件[open in browser]，从vscode选项打开浏览器
     - 插件[Vetur]作者Pine Wu，可以用来显示Vue文件高亮
     - 插件[CSS Peek] 追踪CSS样式
-    - 插件[Easy LESS] less预处理插件
     - "
-      插件[cssrem] rem转换神器，在设置中修改默认值
+        插件[Easy LESS] less预处理插件
+        'less.compile': {
+            'out': '../css/' 配置输出路径
+        }
+    "
+    - "
+      插件[cssrem] 相对单位转换神器
+
+      设置rem相对单位转换基准值
       Cssrem: Root Font Size = 75
+
+      设置vm相对单位转换基准值
+      cssrem.vw 设置vm转换，默认是不开启的
+      Cssrem: Vw Design 设置 375
     "
 Vue基础:
   功能:

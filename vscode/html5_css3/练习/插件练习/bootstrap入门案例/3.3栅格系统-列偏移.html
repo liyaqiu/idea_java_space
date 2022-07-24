@@ -1,0 +1,75 @@
+<!DOCTYPE html> <!-- 这句代码的意思是告诉浏览器，采用HTML5版本来显示，它不属于HTML标签，属于文档类型声明标签 -->
+
+
+<!-- 
+<html lang="zh-CN"> 代表这个是中文网站
+<html lang="fr"> 代表这个是法文网站
+ -->
+<html lang="en">
+<!-- 代表这个是英文网站 -->
+
+<head>
+    <meta charset="UTF-8"> <!-- 告诉浏览器用UTF-8编码解析 -->
+    <!--
+         理想视口标签
+        width=device-width 表示宽度等于视口的宽度
+        initial-scale=1.0 表示初始缩放比，值大于零
+        user-scalable=no 表示是否允许用户缩放，yes或1表可以，no或0表不行
+        maximum-scale=1.0 最大缩放比
+        minimum-scale=1.0 最小缩放比
+    -->
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no">  -->
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> <!-- 要求当前网页使用IE浏览器最高版本的内核渲染 -->
+
+    <!-- 解决ie9一下浏览器对html5新增标签的不识别，并导致CSS不起作用的问题 -->
+    <!-- 解决ie9一下浏览器对css3媒体查询的不识别问题 -->
+    <!--[if lt IE 9]>
+      <script src="https://cdn.jsdelivr.cn/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+      <script src="https://cdn.jsdelivr.cn/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" href="./bootstrap/css/bootstrap.min.css">
+    <title>Document</title>
+    <style>
+        .container [class=row]:nth-child(1) [class^=col-lg] {
+            background-color: pink;
+        }
+
+        .container [class=row]:nth-child(2) [class^=col-lg] {
+            background-color: rgb(96, 91, 92);
+        }
+        .container [class=row]:nth-child(3) [class^=col-lg] {
+            background-color: rgb(231, 16, 52);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 
+        栅格系统在container里面平均分位12等列
+        大屏幕  >=1200px 实际宽度 1170px col-lg
+        中屏幕  >=992px  实际宽度 970px  col-md
+        小屏幕  >=768px  实际宽度 750px  col-sm
+        超小屏幕<768px   实际宽度 100%   col-xs
+     -->
+    <div class="container">
+        <!-- 12 = 4 + 4 + 4 -->
+        <div class="row">
+            <div class="col-lg-4">1</div>
+            <div class="col-lg-4 col-lg-offset-4">3</div>
+        </div>
+        <!-- 12 = 10 + 2  -->
+        <div class="row">
+            <div class="col-lg-10 col-lg-offset-2">1</div>
+        </div>
+        <!-- 12 = 6 + 3 + 3 -->
+        <div class="row">
+            <div class="col-lg-6 col-lg-offset-3">1</div>
+        </div>
+    </div>
+</body>
+
+</html>

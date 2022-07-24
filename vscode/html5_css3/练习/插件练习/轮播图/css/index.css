@@ -1,4 +1,22 @@
-
+.box{
+    position: relative;
+    width: 500px;
+    height: 200px;
+    border: 2px solid red;
+    margin: 100px auto;
+}
+.box .swiper-slide img{
+    width: 100%;
+    height: 100%;
+}
+.swiper-button-prev{
+    position: absolute;
+    margin-left: -80px;
+}
+.swiper-button-next {
+    position: absolute;
+    margin-right: -80px;
+}
 
 .box .swiper-container {
     width: 100%;
@@ -25,9 +43,12 @@
     align-items: center;
     transition: 300ms;
     transform: scale(0.8);
+    filter: blur(5px);
 }
 
 .box .swiper-slide-active,
 .box .swiper-slide-duplicate-active {
-    transform: scale(1);
+    transform: scale(2);
+    z-index: 1;
+    filter: blur(0px);
 }

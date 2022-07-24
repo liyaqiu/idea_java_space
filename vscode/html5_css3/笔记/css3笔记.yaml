@@ -9,12 +9,18 @@ CSS官方:
   - 免费服务器空间 https://free.3v.do/
   - UI切图协作工具 https://www.mockplus.cn/ https://lanhuapp.com/pricing
   - less官方 http://lesscss.cn
-UI切图协作工具(摹客、蓝湖):
-  - UI切图协作工具 https://www.mockplus.cn/ https://lanhuapp.com/pricing
-  - "
-    1下载 PS插件
-    2启用生成器 编辑->首选项->常规->增效工具->启用生成器  https://help.mockplus.cn/p/292
-  "
+  - 轮播图 https://www.swiper.com.cn/
+  - 查询css样式兼容性 https://caniuse.com/
+UI切图协作工具():
+  蓝湖: 收费了
+  摹客:
+    - UI切图协作工具 https://www.mockplus.cn/ https://lanhuapp.com/pricing
+    - "
+      1下载 PS插件
+      2启用生成器 编辑->首选项->常规->增效工具->启用生成器  https://help.mockplus.cn/p/292
+    "
+  像素大厨:
+    - https://www.fancynode.com.cn/pxcook
 CSS介绍:
   - CSS(Cascading Style Sheets)层叠样式表
   - CSS最大价值是，HTML元素专注做结构，CSS专注做元素样式，达到元素和样式分离
@@ -1220,6 +1226,46 @@ CSS编写规范:
         </style>
         <div><img src='https://img2.baidu.com/it/u=1792249350,650626052&fm=253&app=120&size=w931&n=0&f=JPEG&fmt=auto?sec=1658250000&t=568d26e67f04b71cbeb81e44f95b4dd1'></div>
       "
+  反人类的浮动布局:
+    - "
+    <style>
+        body ul{
+            width: 500px;
+            height: 500px;
+        }
+       ul li{
+        list-style: none;
+        float: left;
+        width: 20%;
+        height: 50px;
+        background-color: red;
+       }
+       ul li:nth-child(1){
+        width: 60%;
+        height: 100px;
+        background-color: pink;
+       }
+       ul li:nth-child(6){
+        width: 60%;
+        height: 100px;
+        background-color: pink;
+       }
+    </style>
+    <div class='box'>
+        <ul>
+            <li>1</li>
+            <li>2</li>
+            <li>3</li>
+            <li>4</li>
+            <li>5</li>
+            <li>6</li>
+            <li>7</li>
+            <li>8</li>
+            <li>9</li>
+            <li>10</li>
+        </ul>
+    </div>
+    "
 中级:
   功能:
     - 页面布局三大核心，盒子模型、浮动、定位
