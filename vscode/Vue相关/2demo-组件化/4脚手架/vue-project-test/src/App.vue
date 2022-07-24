@@ -1,34 +1,54 @@
 <template>
-  <div> 
-    <input type="text" v-show="isshow" :value="msg" ref='input1'>
-    <button @click="inputOnfocus">点击获取焦点</button>
+  <div class="box"> 
+    <button @click="isShow=!isShow">{{isShow}}</button>
+    <transition>
+         <h1 v-show="isShow">你好{{msg}}</h1>
+    </transition>
+
   </div>
 </template>
 
+
 <script>
-
-  
-
   export default {
     name:'App',
     data() {
       return {
         msg:'eric',
-        isshow:false
-      }
-    },
-    methods: {
-      inputOnfocus(){
-        console.log(this)
-        this.isshow = !this.isshow
-        this.$nextTick(()=>{ //等渲染以后在执行
-          this.$refs.input1.focus()
-        })
+        isShow:false
       }
     },
   }
 </script>
 
-<style>
+<style scoped>
+  .box{
+    width: 500px;
+    height: 500px;
+    border: 1px solid red;
+    margin: 0 auto;
+    /* overflow: hidden; */
+  }
+
+  h1{
+    transform: translateX(-200px);
+  }
+  .v-enter-active{
+    animation: come 1s linear forwards;
+  }
+  .v-leave-active{
+    animation: go 1s linear forwards;
+  }
+
+  @keyframes come {
+    100%{
+      transform: translateX(200px);
+    }
+  }
+  @keyframes go {
+    100%{
+      transform: translateX(-200px);
+    }
+  }
 
 </style>

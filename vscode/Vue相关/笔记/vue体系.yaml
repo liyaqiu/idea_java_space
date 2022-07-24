@@ -520,12 +520,12 @@ Vue基础:
             "
     组件使用默认事件:
       - "
-                <Person ref='personRef' @click.native='fun'/>  默认会认为使用自定义事件，只有加上native修饰才可以
-              "
+          <Person ref='personRef' @click.native='fun'/>  默认会认为使用自定义事件，只有加上native修饰才可以
+        "
     全局事件总线传输信息:
       - 一般用来实现夸组件之间通讯，或者兄弟组件之间的通讯，减少不必要的多层传递
       - "
-            第一步
+            第一步，在跟VM上注册
             new Vue({
               el:'#app',
               render: h => h(App),
@@ -542,7 +542,7 @@ Vue基础:
             beforeDestroy() {
               this.$bus.$off(['personTransNameToStudent'])
             },
-            第三步
+            第三步，需要传递参数的VC
             this.$bus.$emit('personTransNameToStudent',this.name)
           "
     消息订阅与发布:
