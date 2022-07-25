@@ -1,23 +1,19 @@
 <template>
   <div>
       <h2>globalmsg{{globalmsg}}</h2>
-      <h2>localmsg{{localmsg}}</h2>
-     
   </div>
 </template>
 
 <script>
     //export Vue.extend({})
-    import {localConfig} from '../mixinjs/common-mixin.js'
 
     export default {
-      name:'Person',
+      name:'Person2',
       data(){
-        console.log('Person1',this)
+        console.log('Person2',this)
         return {
         }
       },
-      mixins:[localConfig]
     }
 </script>
 

@@ -26,6 +26,7 @@ public class Launcher {
 
 }
 
+/*
 
 @Configuration
 class WebMvcConfig implements WebMvcConfigurer {
@@ -41,4 +42,4 @@ class WebMvcConfig implements WebMvcConfigurer {
                 .allowedHeaders("*");//允许ajax发送哪些自定义(浏览器默认允许所有除预定义的)请求头信息
 
     }
-}
+}*/

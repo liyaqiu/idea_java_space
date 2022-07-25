@@ -14,6 +14,6 @@ export const localConfig ={
         }
     },
     mounted() {
-        console.log('mounted',this)
+        console.log('当前注册的VC对象实例',this)
     },
 }

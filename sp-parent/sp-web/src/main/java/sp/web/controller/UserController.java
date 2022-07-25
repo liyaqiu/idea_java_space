@@ -45,11 +45,11 @@ public class UserController {
         return userEntity;
     }
 
-    @RequestMapping("/test1")
-    public String test1(){
+    @GetMapping("/test1")
+    public UserEntity test1(){
         log.info("jmeter-test1");
         byte[] b = new byte[1024*1024*1];
-        return "success";
+        return new UserEntity("liyaqiu","31");
     }
     @RequestMapping("/test2")
     public String test2(){

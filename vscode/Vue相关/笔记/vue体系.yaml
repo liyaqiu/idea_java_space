@@ -9,6 +9,109 @@
   - babeljs 语法转换 https://babeljs.io/
   - 参考文档 https://www.w3cschool.cn/javascript/js-ex-objects.html
   - 参考文档 https://www.w3cschool.cn/jsref/jsref-obj-number.html
+Vue第三方库:
+  动画库:
+    功能:
+      - https://animate.style/
+    使用:
+      - npm install animate.css --save
+      - import 'animate.css';
+  发ajax请求:
+    - "
+        1安装axios库，并且导入第三方库
+          npm i axios
+          import axios from 'axios'
+        2使用axios发ajax请求
+          getMessage(){
+            axios.get('http://192.168.0.109:8899/test1')
+            .then(
+                response =>{
+                  console.log(response.data)
+                },
+                error =>{
+                  console.log(error.message)
+                }
+            )
+          }
+        利用脚手架开启代理服务器解决跨域问题 https://cli.vuejs.org/zh/config/#devserver-proxy
+          脚手架配置
+            /*
+              方式1
+              开启代理服务器，解决跨域问题
+              会现在自己身上找资源，找不到在去服务器找
+             */
+            /* devServer: {
+              proxy: 'http://cookie2.aaa.com:8899'
+            }, */
+            /* 方式2 */
+            devServer: {
+              proxy: {
+                '/server1': {
+                  target: 'http://cookie1.aaa.com:8899',
+                  pathRewrite:{'^/server1':''},
+                  //ws: true, //websocket使用
+                  /*
+                    changeOrigin: true
+                        x-forwarded-host : 192.168.0.109:8080
+                        x-forwarded-proto : http
+                        x-forwarded-port : 8080
+                        x-forwarded-for : 192.168.0.109
+                        accept-language : zh-CN,zh;q=0.9
+                        accept-encoding : gzip, deflate
+                        referer : http://192.168.0.109:8080/index.html
+                        user-agent : Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36
+                        accept : application/json, text/plain
+                        connection : close
+                        host : cookie2.aaa.com:8899
+                    changeOrigin: false
+                        x-forwarded-host : 192.168.0.109:8080
+                        x-forwarded-proto : http
+                        x-forwarded-port : 8080
+                        x-forwarded-for : 192.168.0.109
+                        accept-language : zh-CN,zh;q=0.9
+                        accept-encoding : gzip, deflate
+                        referer : http://192.168.0.109:8080/index.html
+                        user-agent : Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36
+                        accept : application/json, text/plain
+                        connection : close
+                        host : 192.168.0.109:8080
+                  */
+                  changeOrigin: true  //是否改变请求头的host属性的值
+                },
+                '/server2': {
+                  target: 'http://cookie2.aaa.com:8899',
+                  pathRewrite:{'^/server2':''},
+                  //ws: true, //websocket使用
+                  changeOrigin: true  //是否改变请求头的host属性的值
+                },
+              }
+            }
+
+      "
+  消息订阅与发布:
+    - 建议使用全局事件总线来处理，可以在开发者工具看到事件的触发
+    - "
+              第一步
+              npm i pubsub-js
+              第二步
+              mounted() {
+
+              this.id = pubsub.subscribe('personTransNameToStudent',(queueName,value)=>{
+                  this.name = value
+                  console.log(queueName,value)
+              })
+              console.log(this.id)
+            },
+              beforeDestroy() {
+                //this.$bus.$off(['personTransNameToStudent'])
+                pubsub.unsubscribe(this.id)
+              },
+              第三步
+              personTransNameToStudent(){
+                //this.$bus.$emit('personTransNameToStudent',this.name) //触发事件
+                pubsub.publish('personTransNameToStudent',this.name)
+              }
+            "
 Vue安装:
   安装vue:
     - 开发版本(有警告，有提示) 下载vue.js文件 https://cn.vuejs.org/js/vue.js
@@ -466,22 +569,17 @@ Vue基础:
           }
           "
     mixins属性:
-      - 可以定义成共享工具，支持局部注册和全局注册
       - "
-            Vue.mixin(globalConfig) 全局注册
-          "
-      - "
-            export default {
-              name:'Person',
-              data(){
-                console.log(this)
-                return {
-                }
-              },
-              mixins:[localConfig] //局部注册
-            }
-          "
+        /*
+          混合属性注册了，可以和data一样直接使用。
+              混合属性全局注册，所有的VC都可以获取到该配置对象
+                  Vue.mixin(globalConfig)
+              局部注册，当前VC可以获取到该配置对象
+                  mixins:[localConfig]
+         */
+      "
     install属性:
+      - 通过插件的方式注册对象到Vue原型对象上，共享给VC实例对象使用
       - 可以定义全局配置，一般用于插件注册
       - "
                 //定义插件
@@ -524,6 +622,7 @@ Vue基础:
         "
     全局事件总线传输信息:
       - 一般用来实现夸组件之间通讯，或者兄弟组件之间的通讯，减少不必要的多层传递
+      - 接收者绑定事件，发送者触发事件
       - "
             第一步，在跟VM上注册
             new Vue({
@@ -545,30 +644,6 @@ Vue基础:
             第三步，需要传递参数的VC
             this.$bus.$emit('personTransNameToStudent',this.name)
           "
-    消息订阅与发布:
-      - 建议使用全局事件总线来处理，可以在开发者工具看到事件的触发
-      - "
-            第一步
-            npm i pubsub-js
-            第二步
-            mounted() {
-
-            this.id = pubsub.subscribe('personTransNameToStudent',(queueName,value)=>{
-                this.name = value
-                console.log(queueName,value)
-            })
-            console.log(this.id)
-          },
-            beforeDestroy() {
-              //this.$bus.$off(['personTransNameToStudent'])
-              pubsub.unsubscribe(this.id)
-            },
-            第三步
-            personTransNameToStudent(){
-              //this.$bus.$emit('personTransNameToStudent',this.name) //触发事件
-              pubsub.publish('personTransNameToStudent',this.name)
-            }
-          "
     下次渲染执行$nextTick:
       - $nextTick
       - "
@@ -580,6 +655,40 @@ Vue基础:
               })
             }
           "
+  样式:
+    less的使用:
+      - "
+        <style scoped lang='less'>
+        /* npm i less-loader */
+        .box {
+          width: 500px;
+          height: 500px;
+          border: 1px solid red;
+          margin: 0 auto;
+          a {
+            text-decoration: none;
+            margin: 0 10px;
+            &:hover{
+              color: gray;
+              text-decoration:underline;
+            }
+          }
+        }
+        </style>
+      "
+    动画与过渡:
+      - "
+        1.准备好样式
+          元素进入的样式:
+            v-enter: 进入的起点
+            v-enter-active: 进入的过程中
+            v-enter-to:进入的终点
+          元素离开的样式
+            v-leave: 离开的起点
+            v-leave-active: 离开的过程中
+            v-leave-to:离开的终点
+        2.使用<transition>元素包裹，多个元素使用<transition-group>元素包裹,并且每个元素需要配置key
+      "
 Vue组件:
   模块与模块化:
     - 向外提供特定功能的js程序，一般就是一个js文件，将一个js拆分成多少个js成为模块化

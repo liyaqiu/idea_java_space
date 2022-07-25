@@ -1,4 +1,4 @@
 server:
-  port: 8080
+  port: 8899
 logging:
   config: classpath:log4j2.xml

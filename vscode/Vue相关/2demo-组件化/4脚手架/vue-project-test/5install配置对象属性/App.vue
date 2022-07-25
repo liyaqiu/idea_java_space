@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Person name='eric' sex='男' v-bind:age="18"/>
+    <Person/>
   </div>
 </template>
 
