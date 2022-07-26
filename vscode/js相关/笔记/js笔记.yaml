@@ -1104,6 +1104,7 @@ JS介绍:
           Fun()
 
         `
+  es6import提升: 在加载js文件会预算扫描到import然后进行提升，与var function提升类似
   作用域:
     全局作用域:
     函数作用域:

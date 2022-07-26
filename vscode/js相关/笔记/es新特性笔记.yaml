@@ -705,6 +705,7 @@ class:
           }
       </script>
     "
+  模块化import提升: 带有import导入的js模块文件，都会预先提升到最前面先执行，和var变量提升一个原理
 async函数:
   功能:
     - 只要 return，都是返回成功的Promise对象

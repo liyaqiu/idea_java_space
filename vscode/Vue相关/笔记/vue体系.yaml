@@ -112,6 +112,24 @@ Vue第三方库:
                 pubsub.publish('personTransNameToStudent',this.name)
               }
             "
+  vuex:
+    功能:
+      - 专门在Vue中实现集中式状态管理的一个Vue插件，对Vue应用中多个组件的共享状态进行集中式管理，也是一种组件间通讯的方式，而且适用于任意组件间通讯。
+      - https://github.com/vuejs/vuex
+    好处: 可以利用vuex插件进行调试
+    什么时候使用Vuex:
+      - 多个组件依赖同一状态
+      - 来自不同组件的行为需要改变同一状态
+    vue使用对应vuex版本:
+      - vue2使用vuex3版本  npm i vuex@3
+      - vue3使用vuex4版本  npm i vuex@4
+    vuex使用:
+      - "
+        参考vuex环境搭建
+        参考vuex入门案例
+        参考vuex mapState,mapGetters,mapActions,mapMutations
+        参加vuex模块化案例
+      "
 Vue安装:
   安装vue:
     - 开发版本(有警告，有提示) 下载vue.js文件 https://cn.vuejs.org/js/vue.js
@@ -298,16 +316,44 @@ Vue基础:
       - 如果是元素，则返回元素对象，如果是组件，则返回VueComponent实例对象
       - 配置方式 <Person ref="person"/>
       - 获取方式 this.$refs
-    样式作用域scoped属性:
-      - 因为Vue最后会将所有组件样式进行合并，在同名的情况下可能会导致样式覆盖，所以需要用到scoped属性
-      - "
-        <style lang='css' scoped>
-        /* <style lang='less'> */
-          .style1{
-            background-color: red;
-          }
-        </style>
-      "
+    样式属性:
+      功能: 因为Vue最后会将所有组件样式进行合并，在同名的情况下可能会导致样式覆盖，所以需要用到scoped属性
+      less的使用:
+        - "
+              <style scoped lang='less'>
+              /* npm i less-loader */
+              .box {
+                width: 500px;
+                height: 500px;
+                border: 1px solid red;
+                margin: 0 auto;
+                a {
+                  text-decoration: none;
+                  margin: 0 10px;
+                  &:hover{
+                    color: gray;
+                    text-decoration:underline;
+                  }
+                }
+              }
+              </style>
+            "
+      动画与过渡:
+        - "
+            1.准备好样式
+              元素进入的样式:
+                v-enter: 进入的起点
+                v-enter-active: 进入的过程中
+                v-enter-to:进入的终点
+              元素离开的样式
+                v-leave: 离开的起点
+                v-leave-active: 离开的过程中
+                v-leave-to:离开的终点
+            2.使用<transition>元素包裹，多个元素使用<transition-group>元素包裹,并且每个元素需要配置key
+          "
+    插槽属性:
+      - 可以实现组件之间的传递参数
+      - 插槽分为:默认插槽，具名插槽，作用域插槽
   配置对象属性:
     el属性:
       - 方式1 el:'#box'
@@ -655,40 +701,6 @@ Vue基础:
               })
             }
           "
-  样式:
-    less的使用:
-      - "
-        <style scoped lang='less'>
-        /* npm i less-loader */
-        .box {
-          width: 500px;
-          height: 500px;
-          border: 1px solid red;
-          margin: 0 auto;
-          a {
-            text-decoration: none;
-            margin: 0 10px;
-            &:hover{
-              color: gray;
-              text-decoration:underline;
-            }
-          }
-        }
-        </style>
-      "
-    动画与过渡:
-      - "
-        1.准备好样式
-          元素进入的样式:
-            v-enter: 进入的起点
-            v-enter-active: 进入的过程中
-            v-enter-to:进入的终点
-          元素离开的样式
-            v-leave: 离开的起点
-            v-leave-active: 离开的过程中
-            v-leave-to:离开的终点
-        2.使用<transition>元素包裹，多个元素使用<transition-group>元素包裹,并且每个元素需要配置key
-      "
 Vue组件:
   模块与模块化:
     - 向外提供特定功能的js程序，一般就是一个js文件，将一个js拆分成多少个js成为模块化
@@ -736,6 +748,5 @@ Vue-cli(脚手架):
     - 修改配置参考文档 https://cli.vuejs.org/zh/config/
     - 在vue.config.js文件中修改，lintOnSave=false可以关闭语法检查
 Vue-router:
-Vuex:
 Element-UI:
 Vue3:
