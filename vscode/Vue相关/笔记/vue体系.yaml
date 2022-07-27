@@ -112,24 +112,6 @@ Vue第三方库:
                 pubsub.publish('personTransNameToStudent',this.name)
               }
             "
-  vuex:
-    功能:
-      - 专门在Vue中实现集中式状态管理的一个Vue插件，对Vue应用中多个组件的共享状态进行集中式管理，也是一种组件间通讯的方式，而且适用于任意组件间通讯。
-      - https://github.com/vuejs/vuex
-    好处: 可以利用vuex插件进行调试
-    什么时候使用Vuex:
-      - 多个组件依赖同一状态
-      - 来自不同组件的行为需要改变同一状态
-    vue使用对应vuex版本:
-      - vue2使用vuex3版本  npm i vuex@3
-      - vue3使用vuex4版本  npm i vuex@4
-    vuex使用:
-      - "
-        参考vuex环境搭建
-        参考vuex入门案例
-        参考vuex mapState,mapGetters,mapActions,mapMutations
-        参加vuex模块化案例
-      "
 Vue安装:
   安装vue:
     - 开发版本(有警告，有提示) 下载vue.js文件 https://cn.vuejs.org/js/vue.js
@@ -747,6 +729,32 @@ Vue-cli(脚手架):
     - vue inspect > test.json //查看脚手架默认配置
     - 修改配置参考文档 https://cli.vuejs.org/zh/config/
     - 在vue.config.js文件中修改，lintOnSave=false可以关闭语法检查
+Vuex:
+  功能:
+    - 专门在Vue中实现集中式状态管理的一个Vue插件，对Vue应用中多个组件的共享状态进行集中式管理，也是一种组件间通讯的方式，而且适用于任意组件间通讯。
+    - https://github.com/vuejs/vuex
+  好处: 可以利用vuex插件进行调试
+  什么时候使用Vuex:
+    - 多个组件依赖同一状态
+    - 来自不同组件的行为需要改变同一状态
+  vue使用对应vuex版本:
+    - vue2使用vuex3版本  npm i vuex@3
+    - vue3使用vuex4版本  npm i vuex@4
+  vuex使用:
+    - "
+        参考vuex环境搭建
+        参考vuex入门案例
+        参考vuex mapState,mapGetters,mapActions,mapMutations
+        参加vuex模块化案例
+      "
 Vue-router:
+  功能:
+    - 单页Web应用，简称(SPA)，全名(single page web application)
+    - 单页面应用整个应用只有一个页面，点击页面中的导航链接不会刷新页面，只会做页面的局部更新，数据需要通过ajax请求获取
+    - "
+      路由可以实现前端(浏览器)以及后端(nodejs)路由
+        前端路由，当浏览器的路径发生改变时，对应的组件就会显示
+        后端路由，服务器接收到一个请求时，根据请求路径匹配到对应的函数来处理请求，并且返回响应数据
+    "
 Element-UI:
 Vue3:

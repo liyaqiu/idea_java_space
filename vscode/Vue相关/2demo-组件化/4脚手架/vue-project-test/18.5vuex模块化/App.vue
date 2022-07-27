@@ -1,19 +1,20 @@
 <template>
   <div class="box"> 
-    <User/>
+    helloworld
+    <!-- <User/>
     <hr>
-    <Shop/>
+    <Shop/> -->
   </div>
 </template>
 
 <script>
 
-  import User from './components/User'
-  import Shop from './components/Shop'
+/*   import User from './components/User'
+  import Shop from './components/Shop' */
 
   export default {
     name:'App',
-    components:{User,Shop},
+    /* components:{User,Shop}, */
     data() {
       return {
         
