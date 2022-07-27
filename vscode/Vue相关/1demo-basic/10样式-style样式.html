@@ -7,26 +7,17 @@
     <script src="../js/vue.js"></script>
 </head>
 <style>
-    .basic{
-        width: 200px;
-        height: 200px;
-        border: solid  rgba(26, 25, 26, 0.416);
-    }
-    /* .案例{
-        background: rgb(35, 35, 212);
-        font-size: 100px;
-    } */
+ 
 </style>
 <body>
     
 
     <!-- <div id="box" class="basic" :style="{background}"> -->
-    <div id="box" class="basic" :style="styleObj">
-        你好
+    <div id="box" style="width: 200px;height: 200px;border: 1px solid red;" :style="styleObj">
+        大家好
+        <!-- <input type="text"  v-model:value="styleObj.opacity"> -->
     </div>
-    <div id="box1" class="basic" :style="[styleObj,styleObj1]">
-        你好
-    </div>
+   
     
     <script>
         //设置为 false 以阻止 vue 在启动时生成生产提示。
@@ -36,22 +27,10 @@
         new Vue({
             el: '#box',  //绑定容器，等同于el: document.getElementById("box")
             data: {
-                background: 'red',
+                size:'0',
                 styleObj:{
-                    background: 'red',
-                    fontSize: '100px'
-                }
-            }
-        })
-        //创建Vue实例
-        new Vue({
-            el: '#box1',  //绑定容器，等同于el: document.getElementById("box")
-            data: {
-                styleObj:{
-                    background: 'green',
-                },
-                styleObj1:{
-                    fontSize: '50px'
+                    backgroundColor: 'pink',
+                    opacity: 1
                 }
             }
         })

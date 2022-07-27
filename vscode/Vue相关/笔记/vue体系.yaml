@@ -298,7 +298,15 @@ Vue基础:
       - 如果是元素，则返回元素对象，如果是组件，则返回VueComponent实例对象
       - 配置方式 <Person ref="person"/>
       - 获取方式 this.$refs
-    样式属性:
+    样式绑定-class属性:
+      - "
+        10样式-class样式.html
+      "
+    样式绑定-style属性:
+      - "
+        10样式-style样式.html
+      "
+    单文件组件样式属性:
       功能: 因为Vue最后会将所有组件样式进行合并，在同名的情况下可能会导致样式覆盖，所以需要用到scoped属性
       less的使用:
         - "
@@ -378,7 +386,7 @@ Vue基础:
             }
         })
         "
-    生命周期属性:
+    生命周期钩子属性:
       功能:
         - 官方生命周期图 https://cn.vuejs.org/v2/guide/instance.html#%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E5%9B%BE%E7%A4%BA
       beforeCreate:
@@ -410,6 +418,11 @@ Vue基础:
             一般不会在beforeDestroy操作数据，因为即便操作数据，也不会在触发更新流程了。
         "
       destroyed:
+      $nextTick:
+        - 下次渲染执行
+      路由器专有的钩子:
+        - acticated  当组件被路由回来的时候触发
+        - deacticated 当组件被路由走的时候触发
     computed属性:
       - 实现原理借助了数据代理方法实现。
       - get函数只执行第一次，后续如果在获取就会从缓存中获取，执行效率高。
@@ -755,6 +768,18 @@ Vue-router:
       路由可以实现前端(浏览器)以及后端(nodejs)路由
         前端路由，当浏览器的路径发生改变时，对应的组件就会显示
         后端路由，服务器接收到一个请求时，根据请求路径匹配到对应的函数来处理请求，并且返回响应数据
+    "
+  vue使用对应router版本:
+    - vue2使用vuex3版本  npm i vue-router@3
+    - vue3使用vuex4版本  npm i vue-router@4
+  router注意事项:
+    - 用来做页面跳转的组件，成为路由组件，反之则为一般组件
+    - 路由组件放在pages文件夹中，一般组件放在components文件夹中
+    - 路由组件的切换，默认是销毁的，需要用的时候重新在挂载
+    - 每个路由组件都有$route属性和$router属性，$route属性存储的自己独有的路由信息，而$router属性整个应用只有一份
+  router使用:
+    - "
+
     "
 Element-UI:
 Vue3:
