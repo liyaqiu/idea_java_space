@@ -27,6 +27,7 @@ public class LoginInterceptor implements HandlerInterceptor {
             String s = headerNames.nextElement();
             log.info("{} : {}",s,request.getHeader(s));
         }
+        log.info("查询字符串 {}",request.getQueryString());
 
         //浏览器每次请求会提交 cookie token
         /*for (Cookie cookie : request.getCookies()) {

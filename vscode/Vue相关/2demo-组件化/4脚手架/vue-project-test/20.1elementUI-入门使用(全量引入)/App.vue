@@ -12,10 +12,8 @@
     components:{Demo},
     data() {
       return {
+        
       }
-    },
-    mounted() {
-      console.log('demo',this)
     },
   }
 </script>

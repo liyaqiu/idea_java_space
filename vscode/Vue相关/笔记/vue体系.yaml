@@ -9,109 +9,7 @@
   - babeljs 语法转换 https://babeljs.io/
   - 参考文档 https://www.w3cschool.cn/javascript/js-ex-objects.html
   - 参考文档 https://www.w3cschool.cn/jsref/jsref-obj-number.html
-Vue第三方库:
-  动画库:
-    功能:
-      - https://animate.style/
-    使用:
-      - npm install animate.css --save
-      - import 'animate.css';
-  发ajax请求:
-    - "
-        1安装axios库，并且导入第三方库
-          npm i axios
-          import axios from 'axios'
-        2使用axios发ajax请求
-          getMessage(){
-            axios.get('http://192.168.0.109:8899/test1')
-            .then(
-                response =>{
-                  console.log(response.data)
-                },
-                error =>{
-                  console.log(error.message)
-                }
-            )
-          }
-        利用脚手架开启代理服务器解决跨域问题 https://cli.vuejs.org/zh/config/#devserver-proxy
-          脚手架配置
-            /*
-              方式1
-              开启代理服务器，解决跨域问题
-              会现在自己身上找资源，找不到在去服务器找
-             */
-            /* devServer: {
-              proxy: 'http://cookie2.aaa.com:8899'
-            }, */
-            /* 方式2 */
-            devServer: {
-              proxy: {
-                '/server1': {
-                  target: 'http://cookie1.aaa.com:8899',
-                  pathRewrite:{'^/server1':''},
-                  //ws: true, //websocket使用
-                  /*
-                    changeOrigin: true
-                        x-forwarded-host : 192.168.0.109:8080
-                        x-forwarded-proto : http
-                        x-forwarded-port : 8080
-                        x-forwarded-for : 192.168.0.109
-                        accept-language : zh-CN,zh;q=0.9
-                        accept-encoding : gzip, deflate
-                        referer : http://192.168.0.109:8080/index.html
-                        user-agent : Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36
-                        accept : application/json, text/plain
-                        connection : close
-                        host : cookie2.aaa.com:8899
-                    changeOrigin: false
-                        x-forwarded-host : 192.168.0.109:8080
-                        x-forwarded-proto : http
-                        x-forwarded-port : 8080
-                        x-forwarded-for : 192.168.0.109
-                        accept-language : zh-CN,zh;q=0.9
-                        accept-encoding : gzip, deflate
-                        referer : http://192.168.0.109:8080/index.html
-                        user-agent : Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36
-                        accept : application/json, text/plain
-                        connection : close
-                        host : 192.168.0.109:8080
-                  */
-                  changeOrigin: true  //是否改变请求头的host属性的值
-                },
-                '/server2': {
-                  target: 'http://cookie2.aaa.com:8899',
-                  pathRewrite:{'^/server2':''},
-                  //ws: true, //websocket使用
-                  changeOrigin: true  //是否改变请求头的host属性的值
-                },
-              }
-            }
-
-      "
-  消息订阅与发布:
-    - 建议使用全局事件总线来处理，可以在开发者工具看到事件的触发
-    - "
-              第一步
-              npm i pubsub-js
-              第二步
-              mounted() {
-
-              this.id = pubsub.subscribe('personTransNameToStudent',(queueName,value)=>{
-                  this.name = value
-                  console.log(queueName,value)
-              })
-              console.log(this.id)
-            },
-              beforeDestroy() {
-                //this.$bus.$off(['personTransNameToStudent'])
-                pubsub.unsubscribe(this.id)
-              },
-              第三步
-              personTransNameToStudent(){
-                //this.$bus.$emit('personTransNameToStudent',this.name) //触发事件
-                pubsub.publish('personTransNameToStudent',this.name)
-              }
-            "
+  - 包查找地址 https://www.npmjs.com/
 Vue安装:
   安装vue:
     - 开发版本(有警告，有提示) 下载vue.js文件 https://cn.vuejs.org/js/vue.js
@@ -419,7 +317,7 @@ Vue基础:
         "
       destroyed:
       $nextTick:
-        - 下次渲染执行
+        - 此钩子用于下次渲染执行，比如，一个元素隐藏了，突然需要显式并且获取焦点，那么获取焦点的操作就需要等下一次渲染在执行
       路由器专有的钩子:
         - acticated  当组件被路由回来的时候触发
         - deacticated 当组件被路由走的时候触发
@@ -619,7 +517,7 @@ Vue基础:
                   mixins:[localConfig]
          */
       "
-    install属性:
+    use&install属性:
       - 通过插件的方式注册对象到Vue原型对象上，共享给VC实例对象使用
       - 可以定义全局配置，一般用于插件注册
       - "
@@ -696,7 +594,7 @@ Vue基础:
               })
             }
           "
-Vue组件:
+Vue组件化与JS模块化:
   模块与模块化:
     - 向外提供特定功能的js程序，一般就是一个js文件，将一个js拆分成多少个js成为模块化
     - js代码复用
@@ -738,6 +636,7 @@ Vue-cli(脚手架):
     - vue create vue-project-test 利用Vue脚手架创建项目
     - cd vue-project-test 进入目录
     - npm run serve 启动脚手架项目
+    - npm run build 构建项目
   配置:
     - vue inspect > test.json //查看脚手架默认配置
     - 修改配置参考文档 https://cli.vuejs.org/zh/config/
@@ -779,7 +678,152 @@ Vue-router:
     - 每个路由组件都有$route属性和$router属性，$route属性存储的自己独有的路由信息，而$router属性整个应用只有一份
   router使用:
     - "
-
+        19.1router-入门使用
+        19.2router-嵌套使用
+        19.3router-多级嵌套
+        19.4router-query传参
+        19.5router-命名路由
+        19.6router-params传参
+        19.7router-props传递给组件的props
+        19.8router-replace属性(历史记录push和replace)
+        19.9router--编程式路由导航
+        19.10router--缓存路由组件
+        19.11router--生命周期钩子
+        19.12router--全局路由守卫(前置和后置)
+        19.13router-独享守卫和组件守卫(调试执行顺序)
+        19.14router-hash问题(脚手架的2种工作模式)
     "
-Element-UI:
+  路由守卫的执行顺序:
+    - "
+      全局路由守卫-前置路由守卫(beforeEach,next)
+        独享路由守卫(beforeEnter,next)
+          组件路由守卫Enter(beforeRouteEnter,next)
+            全局路由守卫-后置路由守卫(afterEach)
+              HaiXian组件创建
+              HaiXian组件挂载
+                组件路由守卫Leave(beforeRouteLeave,next)
+                  全局路由守卫-前置路由守卫(beforeEach,next)
+                    全局路由守卫-后置路由守卫(afterEach)
+                      YiFu组件创建
+                      HaiXian组件销毁
+                      YiFu组件挂载
+    "
+Vue第三方库:
+  动画库:
+    功能:
+      - https://animate.style/
+    使用:
+      - npm install animate.css --save
+      - import 'animate.css';
+  发ajax请求:
+    - "
+        1安装axios库，并且导入第三方库
+          npm i axios
+          import axios from 'axios'
+        2使用axios发ajax请求
+          getMessage(){
+            axios.get('http://192.168.0.109:8899/test1')
+            .then(
+                response =>{
+                  console.log(response.data)
+                },
+                error =>{
+                  console.log(error.message)
+                }
+            )
+          }
+        利用脚手架开启代理服务器解决跨域问题 https://cli.vuejs.org/zh/config/#devserver-proxy
+          脚手架配置
+            /*
+              方式1
+              开启代理服务器，解决跨域问题
+              会现在自己身上找资源，找不到在去服务器找
+             */
+            /* devServer: {
+              proxy: 'http://cookie2.aaa.com:8899'
+            }, */
+            /* 方式2 */
+            devServer: {
+              proxy: {
+                '/server1': {
+                  target: 'http://cookie1.aaa.com:8899',
+                  pathRewrite:{'^/server1':''},
+                  //ws: true, //websocket使用
+                  /*
+                    changeOrigin: true
+                        x-forwarded-host : 192.168.0.109:8080
+                        x-forwarded-proto : http
+                        x-forwarded-port : 8080
+                        x-forwarded-for : 192.168.0.109
+                        accept-language : zh-CN,zh;q=0.9
+                        accept-encoding : gzip, deflate
+                        referer : http://192.168.0.109:8080/index.html
+                        user-agent : Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36
+                        accept : application/json, text/plain
+                        connection : close
+                        host : cookie2.aaa.com:8899
+                    changeOrigin: false
+                        x-forwarded-host : 192.168.0.109:8080
+                        x-forwarded-proto : http
+                        x-forwarded-port : 8080
+                        x-forwarded-for : 192.168.0.109
+                        accept-language : zh-CN,zh;q=0.9
+                        accept-encoding : gzip, deflate
+                        referer : http://192.168.0.109:8080/index.html
+                        user-agent : Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36
+                        accept : application/json, text/plain
+                        connection : close
+                        host : 192.168.0.109:8080
+                  */
+                  changeOrigin: true  //是否改变请求头的host属性的值
+                },
+                '/server2': {
+                  target: 'http://cookie2.aaa.com:8899',
+                  pathRewrite:{'^/server2':''},
+                  //ws: true, //websocket使用
+                  changeOrigin: true  //是否改变请求头的host属性的值
+                },
+              }
+            }
+
+      "
+  消息订阅与发布:
+    - 建议使用全局事件总线来处理，可以在开发者工具看到事件的触发
+    - "
+              第一步
+              npm i pubsub-js
+              第二步
+              mounted() {
+
+              this.id = pubsub.subscribe('personTransNameToStudent',(queueName,value)=>{
+                  this.name = value
+                  console.log(queueName,value)
+              })
+              console.log(this.id)
+            },
+              beforeDestroy() {
+                //this.$bus.$off(['personTransNameToStudent'])
+                pubsub.unsubscribe(this.id)
+              },
+              第三步
+              personTransNameToStudent(){
+                //this.$bus.$emit('personTransNameToStudent',this.name) //触发事件
+                pubsub.publish('personTransNameToStudent',this.name)
+              }
+            "
+Vue第三方UI库:
+  移动端UI库:
+    - 京东移动端nutui（nutui.jd.com）
+    - Vant (https://youzan.github.io/vant)
+    - Cube UI (https://didi.github.io/cube-ui)
+    - Mint UI (http://mint-ui.github.io)
+  PC端UI库:
+    - 饿了么团队Element UI (https://element.eleme.cn)
+    - IView UI (https://www.iviewui.com)
+Vue-elementUI使用:
+  - "
+    20.1elementUI-入门使用(全量引入)
+    20.2elementUI-入门使用(按需引入)
+  "
 Vue3:
+  - https://www.bilibili.com/video/BV1Zy4y1K7SH?p=136&spm_id_from=pageDriver&vd_source=cc17fab1d456bc3958dcb51e2fdd520b

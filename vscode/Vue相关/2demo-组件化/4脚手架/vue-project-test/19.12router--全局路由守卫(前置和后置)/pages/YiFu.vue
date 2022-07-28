@@ -14,12 +14,6 @@
     beforeDestroy() {
       console.log('YiFu组件销毁')
     },
-    activated() {
-      console.log('YiFu','当组件被路由回来的时候触发')
-    },
-    deactivated() {
-      console.log('YiFu','当组件被路由走的时候触发')
-    },
   }
 </script>
 
