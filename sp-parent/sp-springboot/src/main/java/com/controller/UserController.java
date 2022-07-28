@@ -38,7 +38,7 @@ public class UserController  {
 
 
     //@GetMapping("/test")
-    @PostMapping("/test")
+    //@PostMapping("/test")
     //@PutMapping("/test")
     //@DeleteMapping("/test")
     public Result test0(HttpServletResponse response,JSRequestLineInfo requestLineInfo ,@RequestBody JSRequestBodyUser requestBodyUser){

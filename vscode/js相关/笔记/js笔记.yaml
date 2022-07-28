@@ -1372,7 +1372,7 @@ JS介绍:
             console.log('分线程执行任务完毕')
         }
     "
-  AJAX:
+  AJAX&跨域问题:
     功能:
       - 可以实现页面无刷新与服务器进行交互
     缺点:
@@ -1527,4 +1527,39 @@ JS介绍:
             })
         })()
       "
+  Cookie问题:
+    - "
+    Cookie cookie1 = new Cookie('token1', 'token1');
+    cookie1.setPath('/');
+    cookie1.setDomain('aaa.com');
+    response.addCookie(cookie1);
+
+    Cookie cookie2 = new Cookie('token2', 'token2');
+    cookie2.setPath('/');
+    cookie2.setDomain('cookie1.aaa.com');
+    response.addCookie(cookie2);
+
+
+    Cookie cookie3 = new Cookie('token3', 'token3');
+    cookie3.setPath('/');
+    cookie3.setDomain('a1.cookie1.aaa.com');
+    response.addCookie(cookie3);
+
+
+
+    如果用http://a1.cookie1.aaa.com:9999/setCookie 发起请求
+        http://aaa.com:9999/getCookie             可以获得 token1
+        http://cookie1.aaa.com:9999/getCookie     可以获得 token1 token2
+        http://a1.cookie1.aaa.com:9999/getCookie  可以获得 token1 token2 token3
+
+    如果用http://cookie1.aaa.com:9999/setCookie 发起请求
+        http://aaa.com:9999/getCookie             可以获得 token1
+        http://cookie1.aaa.com:9999/getCookie     可以获得 token1 token2
+        http://a1.cookie1.aaa.com:9999/getCookie  可以获得 token1 token2
+
+    如果用http://aaa.com:9999/setCookie 发起请求
+        http://aaa.com:9999/getCookie             可以获得 token1
+        http://cookie1.aaa.com:9999/getCookie     可以获得 token1
+        http://a1.cookie1.aaa.com:9999/getCookie  可以获得 token1
+    "
 
