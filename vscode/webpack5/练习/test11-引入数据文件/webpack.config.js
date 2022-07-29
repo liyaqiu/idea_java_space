@@ -6,6 +6,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 //引入css压缩插件
 const CssMinimizerWebpackPlugin = require('css-minimizer-webpack-plugin')
+//引入yaml
+const yaml = require('yaml')
 
 module.exports = {
     entry: './src/main.js',
@@ -72,13 +74,36 @@ module.exports = {
             }, */
             {
                 test: /\.(css|less)$/,
-                use: [MiniCssExtractPlugin.loader,'css-loader','less-loader'] // css合并&链接
-            }
+                use: [MiniCssExtractPlugin.loader, 'css-loader', 'less-loader'] // css合并&链接
+            },
+            {
+                test: /\.(eot|ttf|woff|svg)/,
+                type: 'asset/resource',//输出文件到指定路径，并提供url访问
+                /* 局部指定资源加载 */
+                generator: {
+                    filename: 'fonts/[contenthash][ext]'
+                }
+            },
+            {
+                test: /\.(csv|tsv)$/,
+                use: 'csv-loader'
+            },
+            {
+                test: /\.xml$/,
+                use: 'xml-loader'
+            },
+            {
+                test: /\.(yaml|yml)$/,
+                type: 'json',
+                parser: {
+                    parse: yaml.parse
+                }
+            },
         ]
     },
 
-    optimization:{
-        minimizer:[new CssMinimizerWebpackPlugin()]
+    optimization: {
+        minimizer: [new CssMinimizerWebpackPlugin()]
     },
 
     /* mode: 'none', */

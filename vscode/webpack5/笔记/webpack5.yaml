@@ -24,3 +24,4 @@ webpack模式:
       npx webpack
       npx webpack -w/--watch 可以监测js文件发生变化实时打包
   "
+webpack默认支持解析的文件: js文件和json文件

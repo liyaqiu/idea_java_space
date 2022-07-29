@@ -14,15 +14,17 @@ test04-开发调试
 
 test05-webpack-dev-server
     在内存中实现模块的热更新,主要注意的是没有对目标文件进行更新，只是在内存中做热更新
-    安装 npm i webpack-dev-server -D
+    安装 
+        npm i webpack-dev-server -D
     配置
         devServer:{
             static:'./dist'
         },
-    启动 npx webpack-dev-server
+    启动 
+        npx webpack-dev-server
+        npx webpack-dev-server --open
     
-test06-assets
-    webapck提供了4种加载外部资源的方式，除了(js)外
+test06-4种内置引入外部资源方式
     assetModuleFilename: 'images/[contenthash][ext]' //全局指定资源加载
     module: {
         rules: [
@@ -82,10 +84,14 @@ test09-css合并&压缩&链接
     引入css合并&链接插件
         const MiniCssExtractPlugin = require('mini-css-extract-plugin')
     配置
+        new MiniCssExtractPlugin({
+            filename: './styles/[contenthash].css' //设置css文件保存的路径
+        })
         {
             test: /\.(css|less)$/,
             use: [MiniCssExtractPlugin.loader,'css-loader','less-loader'] // css合并&链接
         },
+        
     安装 
         npm i css-minimizer-webpack-plugin -D
     引入css压缩插件
@@ -95,3 +101,66 @@ test09-css合并&压缩&链接
             minimizer:[new CssMinimizerWebpackPlugin()]
         },    
         mode: 'production', //使用压缩需要改成生产环境模式
+
+test10-引入字体图标fonts
+    下载字体图标
+        fonts文件夹
+    在css中声明，并且声明哪个选择器进行使用
+        @font-face {
+            font-family: 'icomoon';
+            src: url('../fonts/icomoon.eot?ej1z4w');
+            src: url('../fonts/icomoon.eot?ej1z4w#iefix') format('embedded-opentype'),
+                url('../fonts/icomoon.ttf?ej1z4w') format('truetype'),
+                url('../fonts/icomoon.woff?ej1z4w') format('woff'),
+                url('../fonts/icomoon.svg?ej1z4w#icomoon') format('svg');
+            font-weight: normal;
+            font-style: normal;
+            font-display: block;
+        }
+        .box {
+            font-family: 'icomoon';
+            width: 100px;
+            height: 100px;
+            background-color: pink;
+            /* background-image: url('../assets/shanshui.png'); */
+        }
+    配置
+        {
+            test: /\.(eot|ttf|woff|svg)/,
+            type: 'asset/resource',//输出文件到指定路径，并提供url访问
+            /* 局部指定资源加载 */
+            generator: {
+                filename: 'fonts/[contenthash][ext]'
+            }
+        },
+test11-引入数据文件
+    引入csv或者tsv文件，并且解析
+        安装
+            npm i csv-loader -D
+        配置
+            {
+                test: /\.(csv|tsv)$/,
+                use: ['csv-loader']
+            },
+
+    引入xml文件，并且解析
+        安装
+            npm i xml-loader -D
+        配置
+            {
+                test: /\.xml$/,
+                use: ['xml-loader']
+            },
+    //引入yaml或者yml，并解析
+        安装
+            npm i yaml -D
+        引入
+            const yaml = require('yaml')
+        配置
+            {
+                test: /\.(yaml|yml)$/,
+                type: 'json',
+                parser: {
+                    parse: yaml.parse
+                }
+            },
