@@ -1,0 +1,1 @@
+(()=>{function o(o,l){console.log("hello-world",o+l)}o(100,200),o(400,200)})();

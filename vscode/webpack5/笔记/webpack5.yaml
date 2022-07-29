@@ -1,0 +1,26 @@
+官方:
+  - 官网 https://webpack.js.org/
+  - 插件 https://webpack.js.org/plugins/
+wenpack介绍:
+  - 能够实现压缩(js css)，编译(vue react less sass)，语法兼容转换(es6-es5)
+  - 创建的打包工具有，【Webpack Vite】 Grunt Gulp Parcel Rollup
+  - Webpack是一个静态资源打包工具，它会以一个或多个文件作为打包入口，将我们整个项目所有文件编译组合成一个或多个文件的输出，我们将Webpack输出的文件叫做bundle
+webpack模式:
+  开发模式: 仅能编译JS中分的ES Module语法
+  生产模式: 能编译JS中的ES Module语法，还能压缩JS代码
+安装webpack:
+  - "
+    1.安装node
+    2.初始化node工程项目
+      npm init -y
+    3.安装webpack
+      全局安装
+        npm i webpack webpack-cli -g
+        webpack -v
+      局部安装(推荐)
+        npm i webpack webpack-cli --save-dev
+        npx webpack -v
+    4.打包命令
+      npx webpack
+      npx webpack -w/--watch 可以监测js文件发生变化实时打包
+  "
