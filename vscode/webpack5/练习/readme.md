@@ -164,3 +164,121 @@ test11-引入数据文件
                     parse: yaml.parse
                 }
             },
+
+test12-js-es6转es5语法
+    安装
+        npm install  babel-loader @babel/core @babel/preset-env -D  可以将es6转es5
+        npm i @babel/runtime  @babel/plugin-transform-runtime -D  但是需要一个函数，这个函数在这个插件里
+    配置
+        {
+            test: /\.js$/,
+            exclude: /node_modules/,
+            use: {
+                loader: 'babel-loader',
+                options:{
+                    presets: ['@babel/preset-env'],
+                    plugins: [
+                        ['@babel/plugin-transform-runtime']
+                    ]
+                }
+            }
+        },
+
+test13.1-代码分离-多入口mainjs-静态导入-方式1
+    此方式引入多个入口js文件，会有重复代码，每一个入口文件都会有一份
+    安装:
+        npm i lodash -S
+    配置
+        /* 引入多个入口文件 */
+        entry:{
+            index: './src/main.js',
+            another: './src/main2.js',
+        },
+
+        output: {
+            /* 输出多个入口文件的写法 */
+            filename: '[name].bundle.js',
+        },
+
+test13.2-代码分离-多入口mainjs-静态导入-方式2-手动
+    此方式引入多个入口js文件，不会有重复代码
+    安装:
+        npm i lodash -S
+    配置
+        entry:{
+            index:{
+                import: './src/main.js',
+                dependOn: 'gongxiang'
+            },
+            another:{
+                import: './src/main2.js',
+                dependOn: 'gongxiang'
+            },
+            gongxiang: 'lodash'
+        },
+        filename: '[name].bundle.js',
+test13.3-代码分离-多入口mainjs-静态导入--方式2-自动
+    此方式引入多个入口js文件，不会有重复代码
+    安装:
+        npm i lodash -S
+    配置
+        /* 引入多个入口文件 */
+        entry:{
+            index: './src/main.js',
+            another: './src/main2.js',
+        },
+
+        output: {
+            /* 输出多个入口文件的写法 */
+            filename: '[name].bundle.js',
+        },
+        /* 配置重复代码自动分离 */
+        splitChunks:{
+            chunks: 'all'
+        }
+
+test13.4-代码分离-多入口mainjs-动态导入
+    此方式利用es6的动态导入来完成代码，不会有重复代码
+    安装:
+        npm i lodash -S
+    配置
+        /* 引入多个入口文件 */
+        entry:{
+            index: './src/main.js',
+            another: './src/main2.js',
+        },
+
+        output: {
+            /* 输出多个入口文件的写法 */
+            filename: '[name].bundle.js',
+        },
+    //es6动态导入
+    import('lodash').then(
+        ({default:_})=>{
+            console.log(_.join(['es6动态导入main2','hello','world']))
+        }
+    )
+test13.5-代码分离-多入口mainjs-动态导入+静态导入
+    此方式利用es6的动态导入来完成代码，不会有重复代码
+    安装:
+        npm i lodash -S
+    配置
+        /* 引入多个入口文件 */
+        entry:{
+            index: './src/main.js',
+            another: './src/main2.js',
+        },
+
+        output: {
+            /* 输出多个入口文件的写法 */
+            filename: '[name].bundle.js',
+        },
+    //es6动态导入
+    import('lodash').then(
+        ({default:_})=>{
+            console.log(_.join(['es6动态导入main2','hello','world']))
+        }
+    )
+    //es6静态导入
+    import _ from 'lodash'
+    console.log(_.join(['es6静态导入main','hello','world']))

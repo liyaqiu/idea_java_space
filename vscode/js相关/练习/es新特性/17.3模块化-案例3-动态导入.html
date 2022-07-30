@@ -8,10 +8,13 @@
     
     <script type='module'>
         document.getElementById('bt').onclick = function(){
-            import('./17module.js').then(module =>{
-                console.log(module.default().name)
-                module.default().sayHello()
-            })
+            import('./17module.js')
+            .then(
+                module =>{
+                    console.log(module.default().name)
+                    module.default().sayHello()
+                }
+            )
         }
     </script>
     
