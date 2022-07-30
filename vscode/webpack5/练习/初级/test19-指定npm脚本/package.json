@@ -1,0 +1,12 @@
+{
+  "name": "test18",
+  "version": "1.0.0",
+  "description": "",
+  "main": "",
+  "scripts": {
+    "dev": "webpack -c ./dev.config.js  &&  webpack serve -c ./dev.config.js",
+    "pro": "webpack -c ./pro.config.js"
+  },
+  "author": "eric",
+  "license": "ISC"
+}

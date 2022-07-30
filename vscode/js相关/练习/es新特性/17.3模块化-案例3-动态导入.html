@@ -8,6 +8,7 @@
     
     <script type='module'>
         document.getElementById('bt').onclick = function(){
+            //动态导入的好处就是可以实现懒加载
             import('./17module.js')
             .then(
                 module =>{

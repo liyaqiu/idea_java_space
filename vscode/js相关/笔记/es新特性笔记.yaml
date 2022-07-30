@@ -710,6 +710,7 @@ class:
         }
     "
   动态导入:
+    - 好处就是可以实现js的懒加载
     - "
       <script type='module'>
           document.getElementById('bt').onclick = function(){
