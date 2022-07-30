@@ -1,0 +1,12 @@
+{
+  "name": "test20",
+  "version": "1.0.0",
+  "description": "",
+  "main": "",
+  "scripts": {
+    "dev": "webpack -c ./webpack.config.js --env dev &&  webpack serve -c ./webpack.config.js --open --env dev",
+    "pro": "webpack -c ./webpack.config.js --env pro"
+  },
+  "author": "eric",
+  "license": "ISC"
+}
