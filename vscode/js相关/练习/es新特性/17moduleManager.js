@@ -28,3 +28,4 @@ m3.sayHello() */
 import m3 from  './17module.js'
 console.log(m3.name)
 m3.sayHello()
+

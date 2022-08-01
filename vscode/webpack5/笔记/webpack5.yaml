@@ -25,4 +25,9 @@ webpack模式:
       npx webpack
       npx webpack -w/--watch 可以监测js文件发生变化实时打包
   "
-webpack默认支持解析的文件: js文件和json文件
+webpack5大核心配置:
+  - entry 指定从哪个入口文件开发打包
+  - output 指定打包完成文件输出到什么位置
+  - loader webpack本身只能处理js,json等资源，其他资源需要借助第三方loader进行解析
+  - plugins 扩展webpack功能
+  - mode 生产模式production 开发模式development

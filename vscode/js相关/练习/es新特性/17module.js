@@ -19,7 +19,9 @@ export {name,sayHello} */
         console.log('默认暴露','sayHello')
     }
 } */
+
 export default function(){
+    console.log(2222)
     return {
         name: '默认暴露',
         sayHello(){
