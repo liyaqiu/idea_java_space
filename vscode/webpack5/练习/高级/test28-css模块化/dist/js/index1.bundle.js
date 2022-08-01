@@ -204,7 +204,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 // extracted by mini-css-extract-plugin
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({"box":"Gl89FCJH_YoQiXeRCbJI"});
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({"box":"Gl89FCJH_YoQiXeRCbJI","boxmodule":"th6z315t_pdxFkUosNu8"});
 
 /***/ }),
 

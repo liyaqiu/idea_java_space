@@ -113,6 +113,7 @@ npm:
       - npm config ls 查看配置
       - npm config ls -l 查看配置列表
       - npm config set registry=www.xxx.com 设置镜像源
+      - npm config get registry 查看镜像源
       - npm install packName -registry=www.xxx.com 从某个镜像源安装
       - npm i/install packName 在当前目录安装包
     淘宝cnpm:

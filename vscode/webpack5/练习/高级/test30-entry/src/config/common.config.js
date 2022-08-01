@@ -7,12 +7,22 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const yaml = require('yaml')
 
 module.exports = {
-    entry: ['./src/main.js','./src/main2.js','./src/main3.js'],
+    /* entry: ['./src/main.js','./src/main2.js','./src/main3.js'], */
     /* entry: './src/main.js', */
     /* entry: {
         index1: ['./src/main.js','./src/main2.js'],
         index3: './src/main3.js'
     }, */
+    entry: {
+        index1:{
+            import: ['./src/main.js','./src/main2.js'],
+            dependOn: 'testjs',
+            filename: './index1js/[name].bundle.js',
+        },
+        index3: './src/main3.js',
+        testjs: './src/js/test.js'
+    },
+
 
     output: {
         /* filename: 'bundle.js', */
@@ -20,7 +30,7 @@ module.exports = {
         /* filename: '[name].bundle.js', */
         /* 可以解决每次修改文件内容的时候被浏览器缓存的问题，增加hash值，让每次改动文件都会产生不同的hash值 */
         /* filename: '[name].[contenthash].bundle.js', */
-        filename: './js/[name].bundle.js',
+        filename: './comm_js/[name].bundle.js',
 
         path: path.resolve(__dirname, '../../dist'),
         clean: true, //每次都清理dist目录
