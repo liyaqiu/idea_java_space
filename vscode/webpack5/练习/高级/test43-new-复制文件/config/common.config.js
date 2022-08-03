@@ -118,30 +118,7 @@ module.exports = {
             {
                 //每个文件只能被其中一个loader配置进行处理
                 oneOf: [
-                    {
-                        test: /\.js$/,
-                        exclude: /node_modules/,
-                        use: [
-                            {
-                                loader: "thread-loader", //开启多线程
-                                options: {
-                                    works: os.cpus().length
-                                }
-                            },
-                            {
-                                loader: 'babel-loader',
-                                options: {
-                                    /* 写到了babel.config.js文件中 */
-                                    /* presets: ['@babel/preset-env'],
-                                    plugins: [
-                                        ['@babel/plugin-transform-runtime']
-                                    ] */
-                                    cacheDirectory: path.resolve('../../node_modules/.cache/babel_cache_dir'), //开启babel缓存
-                                    cacheCompression: false, //关闭压缩
-                                }
-                            }
-                        ]
-                    },
+                    
                     {
                         test: /\.png$/,
                         type: 'asset/resource',//输出文件到指定路径，并提供url访问
@@ -249,6 +226,30 @@ module.exports = {
                         parser: {
                             parse: yaml.parse
                         }
+                    },
+                    {
+                        test: /\.js$/,
+                        exclude: /node_modules/,
+                        use: [
+                            {
+                                loader: "thread-loader", //开启多线程
+                                options: {
+                                    works: os.cpus().length
+                                }
+                            },
+                            {
+                                loader: 'babel-loader',
+                                options: {
+                                    /* 写到了babel.config.js文件中 */
+                                    /* presets: ['@babel/preset-env'],
+                                    plugins: [
+                                        ['@babel/plugin-transform-runtime']
+                                    ] */
+                                    cacheDirectory: path.resolve('../../node_modules/.cache/babel_cache_dir'), //开启babel缓存
+                                    cacheCompression: false, //关闭压缩
+                                }
+                            }
+                        ]
                     },
                 ]
             }

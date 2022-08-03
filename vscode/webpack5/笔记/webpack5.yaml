@@ -32,3 +32,34 @@ webpack-5大核心配置:
   - plugins 扩展webpack功能
   - mode 生产模式production 开发模式development
 
+Loader原理:
+  功能:
+    - 帮助webpack将不同类型的文件转换为webpack可识别的模块
+  分类:
+    - pre 前置loader
+    - normal 普通loader(默认)
+    - inline内联loader
+    - post 后置loader
+  执行顺序:
+    - pre > normal > inline > post
+    - 相同优先级的loader执行顺序为 从右到左，从下到上
+  使用:
+    - "
+      inline内联loader(行内定义的)
+      {
+          enforce: 'pre',
+          test: /\.(txt|vue)$/,
+          type: 'asset/source', //以原格式输出，并且保存在bundle文件中
+      }
+      {
+          enforce: 'normal',
+          test: /\.(txt|vue)$/,
+          type: 'asset/source', //以原格式输出，并且保存在bundle文件中
+      }
+      {
+          enforce: 'post',
+          test: /\.(txt|vue)$/,
+          type: 'asset/source', //以原格式输出，并且保存在bundle文件中
+      }
+    "
+
