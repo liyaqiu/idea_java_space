@@ -56,7 +56,7 @@ import('lodash').then(
 )
 //es6动态导入起名，预加载
 import(/*webpackChunkName:'test2',webpackPrefetch:true*/'@js/test2.js').then()
-
+//import(/*webpackChunkName:'test3',webpackPrefetch:true*/'./css/dynamic.css')
 
 
 

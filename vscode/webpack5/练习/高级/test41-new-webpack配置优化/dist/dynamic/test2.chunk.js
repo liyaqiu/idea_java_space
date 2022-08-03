@@ -15,4 +15,4 @@ function helloworld(x, y) {
 /***/ })
 
 }]);
-//# sourceMappingURL=test2.bundle.js.map
+//# sourceMappingURL=test2.chunk.js.map

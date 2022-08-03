@@ -208,7 +208,8 @@ Promise.resolve(/*! import() */).then(__webpack_require__.t.bind(__webpack_requi
   console.log(_.join(['es6动态导入main', 'hello', 'world']));
 }); //es6动态导入起名，预加载
 
-__webpack_require__.e(/*! import() | test2 */ "test2").then(__webpack_require__.t.bind(__webpack_require__, /*! @js/test2.js */ "./src/js/test2.js", 23)).then();
+__webpack_require__.e(/*! import() | test2 */ "test2").then(__webpack_require__.t.bind(__webpack_require__, /*! @js/test2.js */ "./src/js/test2.js", 23)).then(); //import(/*webpackChunkName:'test3',webpackPrefetch:true*/'./css/dynamic.css')
+
 /* 使用路径别名 */
 
 
@@ -607,7 +608,7 @@ module.exports = JSON.parse('{"person":{"name":"eric","age":31,"sex":"男","hobb
 /******/ 		// This function allow to reference async chunks
 /******/ 		__webpack_require__.u = function(chunkId) {
 /******/ 			// return url for filenames based on template
-/******/ 			return "dynamic/" + chunkId + ".bundle.js";
+/******/ 			return "dynamic/" + chunkId + ".chunk.js";
 /******/ 		};
 /******/ 	}();
 /******/ 	

@@ -119,6 +119,21 @@ npm:
     淘宝cnpm:
       - https://npmmirror.com/
       - npm install -g cnpm --registry=https://registry.npmmirror.com
+serve好用的服务器:
+  全局安装:
+    - "
+      安装
+        npm i serve -g
+      使用
+        serve ./dist
+    "
+  局部安装:
+    - "
+      安装
+        npm i serve -D
+      使用
+        npx serve ./dist
+    "
 nodejs模块:
   fs文件系统模块:
   path路径模块:
