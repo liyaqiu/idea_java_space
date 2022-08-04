@@ -46,8 +46,10 @@
       let obj3 = Object.assign(obj1,obj2)
       
       console.log(obj3)
-      console.log(Object.keys(obj3))
-      console.log(Object.values(obj3))
+      console.log(Object.keys(obj3)) //获取对象的所有Key
+      console.log(Object.values(obj3)) //获取对象的所有value
+      console.log(Object.entries(obj3)) //将对象编程二维数组
+
 
 
       const map = new Map(Object.entries(obj3))

@@ -35,6 +35,7 @@ webpack-5大核心配置:
 Loader原理:
   功能:
     - 帮助webpack将不同类型的文件转换为webpack可识别的模块
+    - loader-api https://webpack.docschina.org/api/loaders/#thiscallback
   分类:
     - pre 前置loader
     - normal 普通loader(默认)
@@ -62,4 +63,18 @@ Loader原理:
           type: 'asset/source', //以原格式输出，并且保存在bundle文件中
       }
     "
-
+Plugin原理:
+  功能:
+    - 通过插件我们可以扩展webpack，加入自定义的构建行为，使webpack可以执行更广泛的任务，拥有更强的构建能力
+    - wenpack就像一条生产线，要经过一系列处理流程后才能将源文件转换成输出结果。
+    - 这条生产线上的每个处理流程职责都是单一的，多个流程之间有存在依赖关系，只有完成当前处理后才能交给下一个流程处理。
+    - 插件就像是一个插入到生产线中的一个功能，在特定的时机对生产线上的资源做处理。
+    - webpack通过Tapable来组织这条复杂的生产线。
+    - webpack在运行过程中会广播事件，插件只需要监听它所关心的事件，就能加入到这条生产线中，区改变生产线的运作。
+    - webpack的事件流机制保证了插件的有序性，使得整个系统扩展性很好。
+    - webpack插件类似于maven中的插件绑定事件。在固定的时间点触发到该插件的执行。webpack会在整个打包流程中提供很多钩子，让插件作为切入点进行处理。
+    - 插件钩子文档 https://webpack.docschina.org/api/compiler-hooks/#entryoption
+  Tapable:
+    - tap 可以注册同步钩子和异步钩子
+    - tapAsync 回调方式注册异步钩子
+    - tapPromise Promise方式注册异步钩子

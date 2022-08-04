@@ -119,6 +119,14 @@ npm:
     淘宝cnpm:
       - https://npmmirror.com/
       - npm install -g cnpm --registry=https://registry.npmmirror.com
+node-dubug:
+  - "
+    利用chrome浏览器来做debug
+      node --inspect-brk  ./xxxx.js
+    加上需要断点的地方
+      debugger
+    然后右键检查，左边有一个绿色按钮，点一下即可，然后点调到下一个断点
+  "
 serve好用的服务器:
   全局安装:
     - "

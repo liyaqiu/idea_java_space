@@ -1,0 +1,58 @@
+/*!******************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/css-loader/dist/cjs.js!../../node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[0].oneOf[4].use[2]!../../node_modules/less-loader/dist/cjs.js!./src/css/test.css ***!
+  \******************************************************************************************************************************************************************************************************/
+@font-face {
+  font-family: 'icomoon';
+  src: url(../fonts/91ed688fda9ab54b9b83.eot);
+  src: url(../fonts/91ed688fda9ab54b9b83.eot#iefix) format('embedded-opentype'), url(../fonts/640a4c8bb0a6db668c55.ttf) format('truetype'), url(../images/a572562e9d.woff) format('woff'), url(../fonts/5c0e5987ad62b11e52ec.svg#icomoon) format('svg');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+.box {
+  font-family: 'icomoon';
+  width: 200px;
+  height: 200px;
+  background-color: pink;
+  /* background-image: url('../assets/shanshui.png'); */
+}
+
+/*!*********************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/css-loader/dist/cjs.js!../../node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[0].oneOf[4].use[2]!../../node_modules/less-loader/dist/cjs.js!./src/less/test1.less ***!
+  \*********************************************************************************************************************************************************************************************************/
+.box {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  border: 3px solid red;
+}
+.less1box {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  border: 3px solid red;
+}
+
+/*!**************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[0].oneOf[5].use[1]!../../node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[0].oneOf[5].use[2]!../../node_modules/less-loader/dist/cjs.js!./src/css_module/box1.css ***!
+  \**************************************************************************************************************************************************************************************************************************************************/
+.Gl89FCJH_YoQiXeRCbJI {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  width: 100px;
+  height: 100px;
+  background-color: hotpink;
+}
+
+/*!**************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[0].oneOf[5].use[1]!../../node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[0].oneOf[5].use[2]!../../node_modules/less-loader/dist/cjs.js!./src/css_module/box2.css ***!
+  \**************************************************************************************************************************************************************************************************************************************************/
+.wOCIdPipqROEF940A17k {
+  width: 200px;
+  height: 200px;
+  background-color: red;
+}
+
+
+/*# sourceMappingURL=c8e417349c637d87d89d.css.map*/

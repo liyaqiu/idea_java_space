@@ -1,0 +1,1 @@
+{"version":3,"file":"dynamic/test2.chunk.js","mappings":";;;;;;;;;;;;;;;;;AAAA;AACA;AACA;AACA;AACA","sources":["webpack://test20/./src/js/test2.js"],"sourcesContent":["function helloworld(x,y){\r\n    return new Promise((resolve,reject)=>{\r\n        resolve(x+y)\r\n    })\r\n}\r\n\r\n\r\n"],"names":[],"sourceRoot":""}
