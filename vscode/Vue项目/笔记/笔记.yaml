@@ -1,0 +1,11 @@
+技术栈:
+  - vue
+  - vue-router 路由
+  - vuex 状态管理
+  - mint-ui 构建界面
+  - vue-lazyload 图片懒加载
+  - vue-scroller 实现页面滑动
+  - better-scroll 实现页面滑动
+  - swiper 轮播图
+  - moment 日期处理
+  - date-ins 日期处理
