@@ -6,7 +6,9 @@
 
 <script>
     export default {
-
+        mounted() {
+            //console.log('register',this)
+        },
     }
 </script>
 

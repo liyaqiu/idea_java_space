@@ -9,6 +9,10 @@ import YiFu from '../pages/YiFu'
 /* 配置相关路由信息 */
 export default new VueRouter({
     routes:[
+        /* {
+            path:'/haixian/:name?/:price?', 代表可以传参或者不传
+            component:HaiXian
+        }, */
         {
             path:'/haixian/:name/:price',
             component:HaiXian

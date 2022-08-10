@@ -647,6 +647,7 @@ Vue-cli(脚手架):
     - 在vue.config.js文件中修改，lintOnSave=false可以关闭语法检查
 Vuex:
   功能:
+    - vuex状态管理库
     - 专门在Vue中实现集中式状态管理的一个Vue插件，对Vue应用中多个组件的共享状态进行集中式管理，也是一种组件间通讯的方式，而且适用于任意组件间通讯。
     - https://github.com/vuejs/vuex
   好处: 可以利用vuex插件进行调试

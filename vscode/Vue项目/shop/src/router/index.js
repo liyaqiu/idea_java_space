@@ -9,18 +9,22 @@ import Login from '@/pages/Login'
 import Register from '@/pages/Register'
 import Search from '@/pages/Search'
 
-//编程式导航重复路由控制台报错问题
+//编程式导航重复路由控制台报错问题，重写原型上的方法
 const originalPush = VueRouter.prototype.push
 const originalReplace = VueRouter.prototype.replace
 // push
-VueRouter.prototype.push = function push(location, onResolve, onReject) {
-  if (onResolve || onReject) return originalPush.call(this, location, onResolve, onReject)
-  return originalPush.call(this, location).catch(err => err)
+VueRouter.prototype.push = function (location, onResolve, onReject) {
+    if (onResolve || onReject) {
+        return originalPush.call(this, location, onResolve, onReject)
+    }
+    return originalPush.call(this, location,(result)=>{result},(error)=>{error})
 }
 // replace
-VueRouter.prototype.replace = function push(location, onResolve, onReject) {
-  if (onResolve || onReject) return originalReplace.call(this, location, onResolve, onReject)
-  return originalReplace.call(this, location).catch(err => err)
+VueRouter.prototype.replace = function (location, onResolve, onReject) {
+    if (onResolve || onReject) {
+        return originalReplace.call(this, location, onResolve, onReject)
+    }
+    return originalReplace.call(this, location,(result)=>{result},(error)=>{error})
 }
 
 /* 注册Router */
@@ -32,23 +36,35 @@ export default new VueRouter({
         {
             //路由重定向
             path: '*',
-            redirect: "/home"
+            redirect: "/home",
         },
         {
             path: '/home',
-            component: Home
+            component: Home,
+            meta: {
+                footerIsShow: true
+            }
         },
         {
             path: '/login',
-            component: Login
+            component: Login,
+            meta: {
+                footerIsShow: false
+            }
         },
         {
             path: '/register',
-            component: Register
+            component: Register,
+            meta: {
+                footerIsShow: false
+            }
         },
         {
             path: '/search',
-            component: Search
+            component: Search,
+            meta: {
+                footerIsShow: true
+            }
         },
     ],
 })

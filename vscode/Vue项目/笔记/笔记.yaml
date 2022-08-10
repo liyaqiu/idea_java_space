@@ -9,3 +9,15 @@
   - swiper 轮播图
   - moment 日期处理
   - date-ins 日期处理
+  - "
+    nprogress 进度条
+      cnpm i nprogress -S
+      import nprogress from 'nprogress'
+      import  'nprogress/nprogress.css'
+      nprogress.start()
+      nprogress.done()
+  "
+  - "
+    lodashjs 好用的函数库
+    https://www.lodashjs.com/
+  "

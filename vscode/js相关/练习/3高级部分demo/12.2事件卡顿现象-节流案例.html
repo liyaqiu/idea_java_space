@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- <script src="https://cdn.bootcdn.net/ajax/libs/lodash.js/4.17.21/lodash.core.js"></script> -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/lodash-compat/3.10.2/lodash.js"></script>
+    <style>
+        .box{
+            border: 1px solid red;
+        }
+        li{
+            list-style: none;
+            width: 800px;
+            height: 30px;
+            background-color: pink;
+            text-align: center;
+            margin-top: 5px;
+        }
+    </style>
+    <script>
+        
+        onload = function(){
+            const lis= document.querySelectorAll(".box li")
+            lis.forEach(el =>{
+                /* el.onmouseenter = function(){
+                    console.log(el.innerHTML)
+                } */
+                el.onmouseenter = _.debounce(function(){
+                    console.log(el.innerHTML)
+                },1000)
+            })
+            
+        }
+    </script>
+</head>
+<body>
+  <div class="box">
+    <ul>
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+        <li>5</li>
+        <li>6</li>
+        <li>7</li>
+        <li>8</li>
+        <li>9</li>
+        <li>10</li>
+        <li>11</li>
+        <li>12</li>
+        <li>13</li>
+        <li>14</li>
+        <li>15</li>
+        <li>16</li>
+    </ul>
+  </div>
+</body>
+</html>

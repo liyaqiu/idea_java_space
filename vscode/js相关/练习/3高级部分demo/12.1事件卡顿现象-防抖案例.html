@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- <script src="https://cdn.bootcdn.net/ajax/libs/lodash.js/4.17.21/lodash.core.js"></script> -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/lodash-compat/3.10.2/lodash.js"></script>
+    <style>
+        .box{
+            border: 1px solid red;
+        }
+  
+    </style>
+    <script>
+        
+        onload = function(){
+            /* document.querySelector("input").oninput = function(){
+                console.log('发ajax请求')
+            } */
+            
+
+            /*
+                防抖，前面的所有触发都被取消，最后一次执行在规定的时间之后才会触发，也就是说如果连续快速的触发，只会执行一次
+                参考文档，https://www.lodashjs.com/docs/lodash.debounce
+            */
+            document.querySelector("input").oninput = _.debounce(function(){
+                console.log('防抖发ajax请求')
+            },1000)
+
+        }
+    </script>
+</head>
+<body>
+  <div class="box">
+    <input type="text" name="" id="">
+  </div>
+</body>
+</html>

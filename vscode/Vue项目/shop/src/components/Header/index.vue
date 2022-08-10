@@ -50,9 +50,13 @@
 <script>
   export default {
     name: 'Header',
+    data() {
+      return {
+       
+      }
+    },
     methods: {
       onSearch(url){
-        console.log(this)
         this.$router.push({
           path:url,
           /* query:{},

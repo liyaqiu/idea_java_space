@@ -32,6 +32,13 @@
       }
     },
     methods: {
+      /* testPath(val){
+        this.$router.push({
+          path:val,
+          query:{name:'eric1111'},
+           params:{}
+        },result=>{},error=>{}) //解决重复刷新的问题
+      }, */
       testPath(val){
         this.$router.push({
           path:val,
