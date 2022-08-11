@@ -2,7 +2,32 @@
   <!-- 商品分类导航 -->
     <div class="type-nav">
         <div class="container">
-            <h2 class="all">全部商品分类</h2>
+            <div @mouseenter="mouseEnterIsShow" @mouseleave="mouseLeaveIsShow">
+                <h2 class="all">全部商品分类</h2>
+                <div class="sort" @click="onSearch" v-show="isShow" >
+                    <div class="all-sort-list2">
+                        <div class="item" v-for="c1 in categoryListData" :key="c1.categoryId">
+                            <h3>
+                                <a :data-categroyname='c1.categoryName' :data-categroy1id='c1.categoryId'>{{c1.categoryName}}</a>
+                            </h3>
+                            <div class="item-list clearfix">
+                                <div class="subitem">
+                                    <dl class="fore" v-for="c2 in c1.categoryChild" :key="c2.categoryId">
+                                        <dt>
+                                            <a :data-categroyname='c2.categoryName' :data-categroy2id='c2.categoryId'>{{c2.categoryName}}</a>
+                                        </dt>
+                                        <dd>
+                                            <em v-for="c3 in c2.categoryChild" :key="c3.categoryId">
+                                                <a :data-categroyname='c3.categoryName' :data-categroy3id='c3.categoryId'>{{c3.categoryName}}</a>
+                                            </em>
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <nav class="nav">
                 <a href="###">服装城</a>
                 <a href="###">美妆馆</a>
@@ -13,56 +38,73 @@
                 <a href="###">有趣</a>
                 <a href="###">秒杀</a>
             </nav>
-            <div class="sort">
-                <div class="all-sort-list2">
-                    <div class="item" v-for="c1 in categoryList" :key="c1.categoryId">
-                        <h3>
-                            <a href="">{{c1.categoryName}}</a>
-                        </h3>
-                        <div class="item-list clearfix">
-                            <div class="subitem">
-                                <dl class="fore" v-for="c2 in c1.categoryChild" :key="c2.categoryId">
-                                    <dt>
-                                        <a href="">{{c2.categoryName}}</a>
-                                    </dt>
-                                    <dd>
-                                        <em v-for="c3 in c2.categoryChild" :key="c3.categoryId">
-                                            <a href="">{{c3.categoryName}}</a>
-                                        </em>
-                                    </dd>
-                                </dl>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </template>
 
 <script>
-    /* import {mapState,mapGetters,mapActions,mapMutations} from 'vuex' */
-    import {mapState,mapActions} from 'vuex'
+    import {mapState} from 'vuex'
     export default {
         name: 'TypeNav',
+        data() {
+            return {
+                isShow:true,
+            }
+        },
         methods: {
-            ...mapActions('home',['baseCategoryList']),
-            /* ...mapMutations('shopOptions',['UPDATE_SHOP_PRICE']), */
+            onSearch(event){
+                const {categroyname,categroy1id,categroy2id,categroy3id} = event.target.dataset
+                
+                const query = {}
+                const location = {
+                    name:'search',
+                    query,
+                    params:this.$route.params
+                }
+
+                if(categroyname){
+                    query.categroyname = categroyname
+                    if(categroy1id){
+                        query.categroy1id = categroy1id
+                    }else if(categroy2id){
+                        query.categroy2id = categroy2id
+                    }else if(categroy3id){
+                        query.categroy3id = categroy3id
+                    }
+                }
+                
+                this.$router.push(location)
+            },
+            mouseEnterIsShow(){
+                this.isShow = true
+            },
+            mouseLeaveIsShow(){
+                if(this.$route.name==='search'){
+                    this.isShow=false
+                }
+            },
         },
         computed: {
-            ...mapState('home',['categoryList']),
-            /* ...mapGetters('shopOptions',['producer']), */
+            ...mapState('home',['categoryListData']),
         },
         mounted() {
-            this.baseCategoryList()
+            console.log('TypeNav',this)
+            if(this.$route.name==='search'){
+                this.isShow=false
+            }
         },
     }
 </script>
 
-<style scope lang='less'>
+<style scoped lang='less'>
     .type-nav {
         border-bottom: 2px solid #e1251b;
-
+        a{
+            &:hover{
+                text-decoration: underline;
+                cursor: pointer;
+            }
+        }
         .container {
             width: 1200px;
             margin: 0 auto;

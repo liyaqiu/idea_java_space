@@ -1,17 +1,15 @@
 <template>
-    <div>
-        search
-    </div>
+    <TypeNav/>
 </template>
 
 <script>
     export default {
         mounted() {
-            //console.log('search',this)
+            console.log('search',this)
         },
     }
 </script>
 
-<style>
+<style scoped lang='less'>
 
 </style>

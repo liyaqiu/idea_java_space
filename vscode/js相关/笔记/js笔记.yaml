@@ -1563,4 +1563,58 @@ JS介绍:
         http://cookie1.aaa.com:9999/getCookie     可以获得 token1
         http://a1.cookie1.aaa.com:9999/getCookie  可以获得 token1
     "
+  抖动与节流:
+    - "
+      /*
+          防抖，前面的所有触发都被取消，最后一次执行在规定的时间之后才会触发，也就是说如果连续快速的触发，只会执行一次
+          参考文档，https://www.lodashjs.com/docs/lodash.debounce
+      */
+      document.querySelector('input').oninput = _.debounce(function(){
+          console.log('防抖发ajax请求')
+      },1000)
 
+    "
+    - "
+      /*
+          节流，在规定的间隔时间范围内不会重复处罚回调，只有大于这个时间间隔才会触发回调，把频繁触发变为少量触发
+          https://www.lodashjs.com/docs/lodash.throttle
+       */
+      onload = function () {
+          /* document.getElementById('bt').onclick = function(){
+              let val = document.getElementById('sp').innerHTML
+              document.getElementById('sp').innerHTML = ++val
+          } */
+
+          document.getElementById('bt').onclick = _.throttle(function () {
+              let val = document.getElementById('sp').innerHTML
+              document.getElementById('sp').innerHTML = ++val
+          }, 1000)
+      }
+    "
+  事件委派:
+    - "
+      onload = function (){
+          document.getElementById('box').onclick = function(even){
+              console.dir(even.target)
+              console.log(even.target.dataset)
+              if(even.target.attributes.need){
+                  console.log(even.target.innerHTML)
+              }else{
+                  console.log('不需要的元素')
+              }
+          }
+      }
+      <div class='box' id='box'>
+          <ul>
+              <li need data-hello='1'>1</li>
+              <li need data-hello='2'>2</li>
+              <li need data-hello='3'>3</li>
+              <li need data-hello='4'>4</li>
+              <li need data-hello='5'>5</li>
+          </ul>
+          <h1 class='h' need>6</h1>
+          <h2 class='h' need>7</h2>
+          <h3 class='h' need>8</h3>
+          <h4 class='h' need>9</h4>
+      </div>
+    "

@@ -37,8 +37,9 @@
             type="text"
             id="autocomplete"
             class="input-error input-xxlarge"
+            v-model="keyword"
           />
-          <button class="sui-btn btn-xlarge btn-danger" type="button" @click="onSearch('/search')">
+          <button class="sui-btn btn-xlarge btn-danger" type="button" @click="onSearch('search')">
             搜索
           </button>
         </form>
@@ -52,21 +53,21 @@
     name: 'Header',
     data() {
       return {
-       
+        keyword:""
       }
     },
     methods: {
       onSearch(url){
         this.$router.push({
-          path:url,
-          /* query:{},
-          params:{} */
+          name:url,
+          params:{keyword:this.keyword||undefined},
+          query: this.$route.query
         })
       }
     },
   };
 </script>
-<style scope lang='less'>
+<style scoped lang='less'>
   .header {
         &>.top {
             background-color: #eaeaea;

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- <script src="https://cdn.bootcdn.net/ajax/libs/lodash.js/4.17.21/lodash.core.js"></script> -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/lodash-compat/3.10.2/lodash.js"></script>
+    <style>
+        .box {
+            border: 1px solid red;
+        }
+    </style>
+    <script>
+
+        /* 
+            节流，在规定的间隔时间范围内不会重复处罚回调，只有大于这个时间间隔才会触发回调，把频繁触发变为少量触发
+            https://www.lodashjs.com/docs/lodash.throttle
+         */
+        onload = function () {
+            /* document.getElementById("bt").onclick = function(){
+                let val = document.getElementById('sp').innerHTML
+                document.getElementById('sp').innerHTML = ++val
+            } */
+
+            document.getElementById("bt").onclick = _.throttle(function () {
+                let val = document.getElementById('sp').innerHTML
+                document.getElementById('sp').innerHTML = ++val
+            }, 1000)
+        }
+    </script>
+</head>
+
+<body>
+    <div class="box">
+        结果:<span id="sp">1</span>
+        <button id="bt">计数</button>
+    </div>
+</body>
+
+</html>

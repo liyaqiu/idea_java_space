@@ -6,18 +6,9 @@
                 <!--banner轮播-->
                 <div class="swiper-container" id="mySwiper">
                     <div class="swiper-wrapper">
-                        <div class="swiper-slide">
-                            <img src="./images/banner1.jpg" />
+                        <div class="swiper-slide" v-for="banner in bannerListData" :key="banner.id">
+                            <img :src="banner.imgUrl" />
                         </div>
-                        <!-- <div class="swiper-slide">
-                            <img src="./images/banner2.jpg" />
-                        </div>
-                        <div class="swiper-slide">
-                            <img src="./images/banner3.jpg" />
-                        </div>
-                        <div class="swiper-slide">
-                            <img src="./images/banner4.jpg" />
-                        </div> -->
                     </div>
                     <!-- 如果需要分页器 -->
                     <div class="swiper-pagination"></div>
@@ -111,12 +102,45 @@
 </template>
 
 <script>
+    import {mapActions,mapState} from 'vuex'
+    import Swiper from 'swiper'
     export default {
-        name: 'ListContainer'
+        name: 'ListContainer',
+        methods: {
+            ...mapActions('home',['bannerList']),
+        },
+        computed: {
+            ...mapState('home',['bannerListData']),
+        },
+        watch:{
+            //监听bannerListData计算属性的变化
+            bannerListData(newData,oldData){
+                //console.log(newData,oldData)
+                this.$nextTick(()=>{
+                    new Swiper('#mySwiper', {
+                        loop: true, // 循环模式选项
+                        autoplay: true,
+                        pagination: {// 分页器
+                            el: '.swiper-pagination',
+                            clickable :true,
+                        },
+                        // 如果需要前进后退按钮
+                        navigation: {
+                            nextEl: '.swiper-button-next',
+                            prevEl: '.swiper-button-prev',
+                        },
+                    });
+                })
+            }
+        },
+        mounted() {
+            console.log('ListContainer',this)
+            this.bannerList()
+        },
     }
 </script>
 
-<style scope lang="less">
+<style scoped lang="less">
     .list-container {
         width: 1200px;
         margin: 0 auto;

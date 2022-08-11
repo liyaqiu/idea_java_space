@@ -32,7 +32,7 @@
     }
 </script>
 
-<style scope lang="less">
+<style scoped lang="less">
     .today-recommend {
         .py-container {
             width: 1200px;

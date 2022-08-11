@@ -17,8 +17,16 @@ getBaseCategoryListRequest().then(result=>{
     console.log('result',result)
 }) */
 
+
 /* 引入vuex */
 import store from './store'
+
+/* 引入Mockjs */
+import './MockServe'
+
+/* 引入swiper样式 */
+import 'swiper/css/swiper.css'
+
 
 new Vue({
     el: '#app',

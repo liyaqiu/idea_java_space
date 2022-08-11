@@ -99,7 +99,7 @@
     }
 </script>
 
-<style scope lang="less">
+<style scoped lang="less">
     .floor {
         margin-top: 15px;
 

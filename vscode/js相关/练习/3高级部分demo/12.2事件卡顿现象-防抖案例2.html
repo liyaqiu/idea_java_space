@@ -23,14 +23,20 @@
     <script>
         
         onload = function(){
+
+
+
             const lis= document.querySelectorAll(".box li")
+
+            const fun = _.debounce(function(){
+                    console.log(1)
+            },1000)
+
             lis.forEach(el =>{
                 /* el.onmouseenter = function(){
                     console.log(el.innerHTML)
                 } */
-                el.onmouseenter = _.debounce(function(){
-                    console.log(el.innerHTML)
-                },1000)
+                el.onmouseenter = fun
             })
             
         }

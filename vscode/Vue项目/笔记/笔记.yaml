@@ -1,3 +1,5 @@
+前端常用的网站:
+  - https://docschina.org/
 技术栈:
   - vue
   - vue-router 路由
@@ -6,7 +8,35 @@
   - vue-lazyload 图片懒加载
   - vue-scroller 实现页面滑动
   - better-scroll 实现页面滑动
-  - swiper 轮播图
+  - "
+    swiper 轮播图
+      cnpm i swiper@5 -S
+      /* main引入swiper样式 */
+      import 'swiper/css/swiper.css'
+      /* 组件引入swiper */
+      import Swiper from 'swiper'
+      /* 初始化swiper */
+      watch:{
+          bannerListData(newData,oldData){
+              //console.log(newData,oldData)
+              this.$nextTick(()=>{
+                  new Swiper('#mySwiper', {
+                      loop: true, // 循环模式选项
+                      // 如果需要分页器
+                      pagination: {
+                          el: '.swiper-pagination',
+                          clickable :true,
+                      },
+                      // 如果需要前进后退按钮
+                      navigation: {
+                          nextEl: '.swiper-button-next',
+                          prevEl: '.swiper-button-prev',
+                      },
+                  });
+              })
+          }
+      },
+  "
   - moment 日期处理
   - date-ins 日期处理
   - "
@@ -20,4 +50,8 @@
   - "
     lodashjs 好用的函数库
     https://www.lodashjs.com/
+  "
+  - "
+    mockjs
+      cnpm i mockjs -D
   "

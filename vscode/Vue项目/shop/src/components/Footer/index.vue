@@ -111,7 +111,7 @@
   };
 </script>
 
-<style scope lang='less'>
+<style scoped lang='less'>
   .footer {
     background-color: #eaeaea;
 

@@ -1,4 +1,4 @@
-import {getBaseCategoryListRequest} from '@/api'
+import {getCategoryListRequest,getBannerListRequest} from '@/api'
 
 export default {
     namespaced:true,
@@ -7,11 +7,16 @@ export default {
         store.dispatch 调用的是actions的方法
      */
     actions:{
-        async baseCategoryList(context){
-            console.log('baseCategoryList-actions')
-            const result = await getBaseCategoryListRequest()
+        async categoryList(context){
+            const result = await getCategoryListRequest()
             if(result.code === 200){
-                context.commit('BASE_CATEGORY_LIST',result.data)
+                context.commit('CATEGORY_LIST',result.data)
+            }
+        },
+        async bannerList(context){
+            const result = await getBannerListRequest()
+            if(result.code === 200){
+                context.commit('BANNER_LIST',result.data)
             }
         }
     },
@@ -20,13 +25,16 @@ export default {
         store.commit 调用的是mutations的方法
         */
     mutations:{
-        BASE_CATEGORY_LIST(state,result){
-            console.log('BASE_CATEGORY_LIST-mutations',state,result)
-            state.categoryList = result
+        CATEGORY_LIST(state,result){
+            state.categoryListData = result
+        },
+        BANNER_LIST(state,result){
+            state.bannerListData = result
         }
     },
     state:{
-        categoryList:[],
+        categoryListData:[],
+        bannerListData:[],
     },
     getters:{
         /* producer(){
