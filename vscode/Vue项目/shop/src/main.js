@@ -6,9 +6,12 @@ import router from './router'
 
 Vue.config.productionTip = false
 
-//注册全局组件
+//注册全局组件-3级导航
 import TypeNav from '@/components/TypeNav'
 Vue.component(TypeNav.name,TypeNav)
+//注册全局组件-轮播图
+import Carousel from '@/components/Carousel'
+Vue.component(Carousel.name,Carousel)
 
 /* 
 测试ajax请求

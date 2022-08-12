@@ -58,6 +58,7 @@
     },
     methods: {
       onSearch(url){
+        console.log(11111)
         this.$router.push({
           name:url,
           params:{keyword:this.keyword||undefined},

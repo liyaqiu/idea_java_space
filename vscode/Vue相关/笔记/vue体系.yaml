@@ -45,6 +45,7 @@ Vue安装:
     - 插件[Vetur]作者Pine Wu，可以用来显示Vue文件高亮
     - 插件[CSS Peek] 追踪CSS样式
     - 插件[ESLint] 代码检查
+    - 插件[Text Edits] 转换代码大小写
     - "
         插件[Easy LESS] less预处理插件
         'less.compile': {

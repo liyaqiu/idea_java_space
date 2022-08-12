@@ -6,7 +6,7 @@
                 <h2 class="all">全部商品分类</h2>
                 <div class="sort" @click="onSearch" v-show="isShow" >
                     <div class="all-sort-list2">
-                        <div class="item" v-for="c1 in categoryListData" :key="c1.categoryId">
+                        <div class="item" v-for="c1 in categoryList" :key="c1.categoryId">
                             <h3>
                                 <a :data-categroyname='c1.categoryName' :data-categroy1id='c1.categoryId'>{{c1.categoryName}}</a>
                             </h3>
@@ -85,7 +85,7 @@
             },
         },
         computed: {
-            ...mapState('home',['categoryListData']),
+           ...mapState('home',['categoryList']),
         },
         mounted() {
             console.log('TypeNav',this)
