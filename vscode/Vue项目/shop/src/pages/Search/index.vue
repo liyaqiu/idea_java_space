@@ -11,38 +11,37 @@
             </li>
           </ul>
           <ul class="fl sui-tag">
-            <li class="with-x">手机</li>
-            <li class="with-x">iphone<i>×</i></li>
-            <li class="with-x">华为<i>×</i></li>
-            <li class="with-x">OPPO<i>×</i></li>
+            <li class="with-x" v-if="queryParams.categroyName">{{queryParams.categroyName}}<i @click="removeBreadCategroyName">×</i></li>
+            <li class="with-x" v-if="queryParams.keyword">{{queryParams.keyword}}<i @click="removeBreadKeyword">×</i></li>
+            <li class="with-x" v-if="queryParams.trademark">{{queryParams.trademark.split(":")[1]}}<i @click="removeBreadTrademark">×</i></li>
+            <li class="with-x" v-for="(prop,index) in queryParams.props" :key="index">
+                {{prop.split(":")[1]}}<i @click="removeBreadProps(index)">×</i>
+            </li>
           </ul>
         </div>
 
         <!--selector-->
-        <SearchSelector />
+        <!-- 绑定自定义事件给子组件 -->
+        <SearchSelector @trademarkInfo="trademarkInfo" @propsInfo="propsInfo"/>
 
         <!--details-->
         <div class="details clearfix">
           <div class="sui-navbar">
             <div class="navbar-inner filter">
               <ul class="sui-nav">
-                <li class="active">
-                  <a href="#">综合</a>
+                <li :class="{active:queryParams.order.indexOf('1')!==-1}" @click="changeOrder('1')">
+                  <a>
+                    综合
+                    <span class="iconfont icon-up" v-if="queryParams.order.indexOf('asc')!==-1 && queryParams.order.indexOf('1')!==-1"></span>
+                    <span class="iconfont icon-down" v-if="queryParams.order.indexOf('desc')!==-1 && queryParams.order.indexOf('1')!==-1"></span>
+                  </a>
                 </li>
-                <li>
-                  <a href="#">销量</a>
-                </li>
-                <li>
-                  <a href="#">新品</a>
-                </li>
-                <li>
-                  <a href="#">评价</a>
-                </li>
-                <li>
-                  <a href="#">价格⬆</a>
-                </li>
-                <li>
-                  <a href="#">价格⬇</a>
+                <li :class="{active:queryParams.order.indexOf('2')!==-1}" @click="changeOrder('2')">
+                  <a>
+                    价格
+                    <span class="iconfont icon-up" v-if="queryParams.order.indexOf('asc')!==-1 && queryParams.order.indexOf('2')!==-1"></span>
+                    <span class="iconfont icon-down" v-if="queryParams.order.indexOf('desc')!==-1 && queryParams.order.indexOf('2')!==-1"></span>
+                  </a>
                 </li>
               </ul>
             </div>
@@ -61,7 +60,7 @@
                     </strong>
                   </div>
                   <div class="attr">
-                    <a target="_blank" href="item.html" title="seo相关的优化信息">{{goods.title}}</a>
+                    <a target="_blank" href="item.html" title="seo相关的优化信息" v-html="goods.title"></a>
                   </div>
                   <div class="commit">
                     <i class="command">已有<span>2000</span>人评价</i>
@@ -118,18 +117,84 @@
     data() {
       return {
         queryParams:{
-          category1Id: "",
-          category2Id: "",
-          category3Id: "",
-          categoryName: "",
-          keyword: "",
-          order: "",
+          categroy1Id: undefined,
+          categroy2Id: undefined,
+          categroy3Id: undefined,
+          categroyName: undefined,
+          keyword: undefined,
+          order: "1:desc",
           pageNo: 1,
           pageSize: 30,
           props: [],
-          trademark: ""
+          trademark: undefined
         }
       }
+    },
+    methods: {
+      changeOrder(flag){
+        const rawFlag = this.queryParams.order.split(':')[0]
+        if(rawFlag===flag){
+          //console.log('原始等于',rawFlag===flag)
+          this.queryParams.order = `${flag}:${this.queryParams.order.split(':')[1]==='desc'?'asc':'desc'}`
+        }else{
+          //console.log('原始不等于',rawFlag===flag)
+          this.queryParams.order = `${flag}:desc`
+        }
+        this.getData()
+      },
+      getData(){
+        console.log('当前请求参数',this.queryParams)
+        this.$store.dispatch('search/getProductList',this.queryParams)  
+      },
+      removeBreadCategroyName(){
+        console.log('removeBreadCategroyName 重新路由')
+        //更改路由地址
+        this.$router.push({
+          name:'search',
+          params:this.$route.params,
+          query: {
+            categroyName: undefined //查询参数置空，当路由参数变更时，变监听到，并且在监听逻辑上做了对象合并
+          } 
+        })
+      },
+      removeBreadKeyword(){
+        console.log('removeBreadKeyword 重新路由')
+        this.$bus.$emit('removeKeyword') //清空header组件上Keyword
+        //更改路由地址
+        this.$router.push({
+          name:'search',
+          params:{
+            keyword:undefined //查询参数置空，当路由参数变更时，变监听到，并且在监听逻辑上做了对象合并
+          },
+          query: this.$route.query
+        })
+        
+      },
+      trademarkInfo(trademark){
+        console.log("trademarkInfo到子组件传递过来的参数",trademark)
+        const newTrademark = `${trademark.tmId}:${trademark.tmName}`
+        if(newTrademark!== this.queryParams.trademark){
+          this.queryParams.trademark = newTrademark
+          this.getData()
+        }
+      },
+      removeBreadTrademark(){
+          console.log('removeBreadTrademark')
+          this.queryParams.trademark = undefined
+          this.getData()
+      },
+      propsInfo(props){
+        console.log("propsInfo收到子组件传递过来的参数",props)
+        if(this.queryParams.props.indexOf(props)===-1){
+          this.queryParams.props.push(props)
+          this.getData()
+        }
+      },
+      removeBreadProps(index){
+          console.log('removeBreadProps')
+          this.queryParams.props.splice(index,1)
+          this.getData()
+      },
     },
     computed:{
       ...mapGetters('search',['goodsList'])
@@ -138,8 +203,20 @@
       Object.assign(this.queryParams,this.$route.query,this.$route.params)
     },
     mounted() {
-      console.log('Search',this)
-      this.$store.dispatch('search/getProductList',this.queryParams)
+      console.log('Search 挂载完毕')
+      this.getData()
+    },
+    watch:{
+      //监听路由变化
+      $route(newValue,oldValue){
+        //console.log(newValue,oldValue)
+        console.log('Search 监听到路由变化')
+        Object.assign(this.queryParams,{categroy1Id:undefined,categroy2Id:undefined,categroy3Id:undefined,},this.$route.query,this.$route.params)
+        this.getData() 
+      }
+    },
+    beforeDestroy() {
+      console.log('search 销毁')
     },
   }
 </script>
@@ -203,7 +280,7 @@
             cursor: pointer;
 
             i {
-              margin-left: 10px;
+              padding-left: 10px;
               cursor: pointer;
               font: 400 14px tahoma;
               display: inline-block;

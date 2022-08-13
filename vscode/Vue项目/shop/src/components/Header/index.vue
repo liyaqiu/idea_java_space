@@ -39,7 +39,7 @@
             class="input-error input-xxlarge"
             v-model="keyword"
           />
-          <button class="sui-btn btn-xlarge btn-danger" type="button" @click="onSearch('search')">
+          <button class="sui-btn btn-xlarge btn-danger" type="button" @click="onSearch">
             搜索
           </button>
         </form>
@@ -57,14 +57,24 @@
       }
     },
     methods: {
-      onSearch(url){
-        console.log(11111)
+      onSearch(){
+        console.log('Header 我要路由了')
         this.$router.push({
-          name:url,
+          name:'search',
           params:{keyword:this.keyword||undefined},
           query: this.$route.query
         })
       }
+    },
+    mounted() {
+      //绑定事件回调到总线身上
+      this.$bus.$on('removeKeyword',(value)=>{
+        this.keyword = ""
+      })
+    },
+    beforeDestroy() {
+      //组件销毁的时候注销回调事件
+      this.$bus.$off(['removeKeyword'])
     },
   };
 </script>

@@ -54,26 +54,24 @@
         methods: {
             onSearch(event){
                 const {categroyname,categroy1id,categroy2id,categroy3id} = event.target.dataset
-                
-                const query = {}
-                const location = {
-                    name:'search',
-                    query,
-                    params:this.$route.params
-                }
-
                 if(categroyname){
-                    query.categroyname = categroyname
-                    if(categroy1id){
-                        query.categroy1id = categroy1id
-                    }else if(categroy2id){
-                        query.categroy2id = categroy2id
-                    }else if(categroy3id){
-                        query.categroy3id = categroy3id
+                    console.log('TypeNav 我要路由了')
+                    const query = {}
+                    const location = {
+                        name:'search',
+                        query,
+                        params:this.$route.params
                     }
+                    query.categroyName = categroyname
+                    if(categroy1id){
+                        query.categroy1Id = categroy1id
+                    }else if(categroy2id){
+                        query.categroy2Id = categroy2id
+                    }else if(categroy3id){
+                        query.categroy3Id = categroy3id
+                    }
+                    this.$router.push(location)
                 }
-                
-                this.$router.push(location)
             },
             mouseEnterIsShow(){
                 this.isShow = true

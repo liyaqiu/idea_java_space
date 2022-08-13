@@ -4,7 +4,8 @@
       <div class="fl key brand">品牌</div>
       <div class="value logos">
         <ul class="logo-list">
-          <li v-for="trademark in trademarkList" :key="trademark.tmId">{{trademark.tmName}}</li>
+          <!-- 调用绑定的事件，并且把参数点滴给父组件 -->
+          <li v-for="trademark in trademarkList" :key="trademark.tmId" @click='$emit("trademarkInfo",trademark)'>{{trademark.tmName}}</li>
           <!-- <li><img src="./images/phone06.png" /></li> -->
         </ul>
       </div>
@@ -18,7 +19,7 @@
       <div class="fl value">
         <ul class="type-list">
           <li v-for="(attrValue,index) in attr.attrValueList" :key="index">
-            <a>{{attrValue}}</a>
+            <a @click='$emit("propsInfo",`${attr.attrId}:${attrValue}:${attr.attrName}`)'>{{attrValue}}</a>
           </li>
         </ul>
       </div>
@@ -36,6 +37,10 @@
     computed:{
       ...mapGetters('search',['attrsList','trademarkList'])
     },
+    mounted() {
+      console.log('SearchSelector 挂载完毕')
+    },
+    
   }
 </script>
 
