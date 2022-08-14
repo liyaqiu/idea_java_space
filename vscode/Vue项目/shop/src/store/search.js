@@ -28,13 +28,16 @@ export default {
     },
     getters: {
         attrsList(state) {
-            return (state.productList?.attrsList) || {}
+            return state.productList.attrsList || {}
         },
         goodsList(state) {
-            return (state.productList?.goodsList) || {}
+            return state.productList.goodsList || {}
         },
         trademarkList(state) {
-            return (state.productList?.trademarkList) || {}
+            return state.productList.trademarkList || {}
+        },
+        total(state) {
+            return state.productList.total || 0
         }
     }
 }

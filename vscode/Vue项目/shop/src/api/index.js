@@ -3,16 +3,49 @@ import request from './request'
 import mockRequest from './mockRequest'
 
 /* home */
-export const getCategoryListRequest = () => request({url:'/product/getBaseCategoryList',method: 'GET',})
+export function getCategoryListRequest(){
+    return request({ 
+        url: '/product/getBaseCategoryList', 
+        method: 'GET', 
+    })
+}
 
-export const getBannerListRequest = () => mockRequest({url:'/getBannerList',method: 'GET',})
-export const getFloorListRequest = () => mockRequest({url:'/getFloorList',method: 'GET',})
+/* home mock */
+export function getBannerListRequest(){
+    return mockRequest({
+         url: '/getBannerList', 
+         method: 'GET', 
+    })
+}
+
+export function getFloorListRequest(){
+    return mockRequest({ 
+        url: '/getFloorList', 
+        method: 'GET', 
+    })
+}
 
 
 
 /* search */
-export const getProductListRequest = (data) => request({url:'/list', method: 'POST',data})
+export function getProductListRequest (queryParams){
+    //console.log('getProductListRequest')
+    return request({ 
+        url: '/list', 
+        method: 'POST', 
+        data: queryParams 
+    })
+}
 
+
+
+/* detail */
+export function getProductDetailRequest (goodsId) {
+    return request({
+        url: `/item/${goodsId}`,
+        method: 'GET',
+    })
+}
 
 
 

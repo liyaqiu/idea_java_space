@@ -12,6 +12,9 @@ Vue.component(TypeNav.name,TypeNav)
 //注册全局组件-轮播图
 import Carousel from '@/components/Carousel'
 Vue.component(Carousel.name,Carousel)
+//注册全局组件-分页器
+import Pagination from '@/components/Pagination'
+Vue.component(Pagination.name,Pagination)
 
 /* 
 测试ajax请求

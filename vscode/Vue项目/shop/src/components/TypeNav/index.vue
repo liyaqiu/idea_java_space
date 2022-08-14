@@ -77,7 +77,7 @@
                 this.isShow = true
             },
             mouseLeaveIsShow(){
-                if(this.$route.name==='search'){
+                if(this.$route.path!=='/home'){
                     this.isShow=false
                 }
             },
@@ -87,7 +87,7 @@
         },
         mounted() {
             console.log('TypeNav',this)
-            if(this.$route.name==='search'){
+            if(this.$route.path!=='/home'){
                 this.isShow=false
             }
         },

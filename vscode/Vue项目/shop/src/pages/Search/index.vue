@@ -51,7 +51,7 @@
               <li class="yui3-u-1-5" v-for="goods in goodsList" :key="goods.id">
                 <div class="list-wrap">
                   <div class="p-img">
-                    <a href="item.html" target="_blank"><img :src="goods.defaultImg" /></a>
+                    <router-link :to="`/detail/${goods.id}`"><img :src="goods.defaultImg" /></router-link>
                   </div>
                   <div class="price">
                     <strong>
@@ -73,35 +73,8 @@
               </li>
             </ul>
           </div>
-          <div class="fr page">
-            <div class="sui-pagination clearfix">
-              <ul>
-                <li class="prev disabled">
-                  <a href="#">«上一页</a>
-                </li>
-                <li class="active">
-                  <a href="#">1</a>
-                </li>
-                <li>
-                  <a href="#">2</a>
-                </li>
-                <li>
-                  <a href="#">3</a>
-                </li>
-                <li>
-                  <a href="#">4</a>
-                </li>
-                <li>
-                  <a href="#">5</a>
-                </li>
-                <li class="dotted"><span>...</span></li>
-                <li class="next">
-                  <a href="#">下一页»</a>
-                </li>
-              </ul>
-              <div><span>共10页&nbsp;</span></div>
-            </div>
-          </div>
+          <!-- 分页器 -->
+          <Pagination :pageNo='queryParams.pageNo' :pageSize='queryParams.pageSize' :total='total' :continues='5' @pageNoInfo='pageNoInfo'/>
         </div>
       </div>
     </div>
@@ -124,7 +97,7 @@
           keyword: undefined,
           order: "1:desc",
           pageNo: 1,
-          pageSize: 30,
+          pageSize: 10,
           props: [],
           trademark: undefined
         }
@@ -191,13 +164,18 @@
         }
       },
       removeBreadProps(index){
-          console.log('removeBreadProps')
-          this.queryParams.props.splice(index,1)
-          this.getData()
+        console.log('removeBreadProps')
+        this.queryParams.props.splice(index,1)
+        this.getData()
       },
+      pageNoInfo(pageNo){
+        console.log('pageNoInfo',pageNo)
+        this.queryParams.pageNo = pageNo
+        this.getData()
+      }
     },
     computed:{
-      ...mapGetters('search',['goodsList'])
+      ...mapGetters('search',['goodsList','total']),
     },
     beforeMount() {
       Object.assign(this.queryParams,this.$route.query,this.$route.params)
@@ -211,6 +189,7 @@
       $route(newValue,oldValue){
         //console.log(newValue,oldValue)
         console.log('Search 监听到路由变化')
+        this.queryParams.pageNo = 1 //重置当前页
         Object.assign(this.queryParams,{categroy1Id:undefined,categroy2Id:undefined,categroy3Id:undefined,},this.$route.query,this.$route.params)
         this.getData() 
       }
@@ -464,92 +443,7 @@
           }
         }
 
-        .page {
-          width: 733px;
-          height: 66px;
-          overflow: hidden;
-          float: right;
-
-          .sui-pagination {
-            margin: 18px 0;
-
-            ul {
-              margin-left: 0;
-              margin-bottom: 0;
-              vertical-align: middle;
-              width: 490px;
-              float: left;
-
-              li {
-                line-height: 18px;
-                display: inline-block;
-
-                a {
-                  position: relative;
-                  float: left;
-                  line-height: 18px;
-                  text-decoration: none;
-                  background-color: #fff;
-                  border: 1px solid #e0e9ee;
-                  margin-left: -1px;
-                  font-size: 14px;
-                  padding: 9px 18px;
-                  color: #333;
-                }
-
-                &.active {
-                  a {
-                    background-color: #fff;
-                    color: #e1251b;
-                    border-color: #fff;
-                    cursor: default;
-                  }
-                }
-
-                &.prev {
-                  a {
-                    background-color: #fafafa;
-                  }
-                }
-
-                &.disabled {
-                  a {
-                    color: #999;
-                    cursor: default;
-                  }
-                }
-
-                &.dotted {
-                  span {
-                    margin-left: -1px;
-                    position: relative;
-                    float: left;
-                    line-height: 18px;
-                    text-decoration: none;
-                    background-color: #fff;
-                    font-size: 14px;
-                    border: 0;
-                    padding: 9px 18px;
-                    color: #333;
-                  }
-                }
-
-                &.next {
-                  a {
-                    background-color: #fafafa;
-                  }
-                }
-              }
-            }
-
-            div {
-              color: #333;
-              font-size: 14px;
-              float: right;
-              width: 241px;
-            }
-          }
-        }
+        
       }
     }
   }

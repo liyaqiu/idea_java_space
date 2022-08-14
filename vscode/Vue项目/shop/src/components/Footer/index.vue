@@ -107,7 +107,10 @@
 
 <script>
   export default {
-    name: 'Footer'    
+    name: 'Footer',
+    mounted() {
+      console.log('Footer 挂载完毕')
+    },
   };
 </script>
 
