@@ -1,6 +1,8 @@
 
 import axios from 'axios'
 
+import store from '@/store'
+
 /**
  * cnpm i nprogress -S
  * import nprogress from 'nprogress'
@@ -18,10 +20,15 @@ const req = axios.create({
     timeout: 5000,
 })
 
+//请求拦截器
 req.interceptors.request.use(
     (config) => {
         //console.log('request2', config)
         nprogress.start()
+        //在请求头设置用户token
+        if(store.state.detail.userToken){
+            config.headers.userTempId = store.state.detail.userToken
+        }
         return config
         //throw config
     },
@@ -31,6 +38,7 @@ req.interceptors.request.use(
     }
 )
 
+//响应拦截器
 req.interceptors.response.use(
     (response) => {
         //console.log('response1', response)

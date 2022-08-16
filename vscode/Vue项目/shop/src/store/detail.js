@@ -1,5 +1,5 @@
-import { getProductDetailRequest } from '@/api'
-
+import { getProductDetailRequest,addGoodsToCartRequest } from '@/api'
+import {genAnonymousToken} from '@/utils/tokenUtil'
 export default {
     namespaced: true, //使用命名空间，不然全部方法都在同一个集合中
     /* 
@@ -13,6 +13,15 @@ export default {
             if (result.code === 200) {
                 context.commit('GET_PRODUCT_DETAIL', result.data)
             }
+        },
+        async addGoodsToCart(context, {goodsId,buyNum}) {
+            console.log('addGoodsToCart',goodsId,buyNum)
+            const result = await addGoodsToCartRequest(goodsId,buyNum)
+            if (result.code === 200) {
+                return "添加成功"
+            }else{
+                throw new Error('添加失败')
+            }
         }
     },
     /* 
@@ -25,7 +34,8 @@ export default {
         }
     },
     state: {
-        productDetail: {}
+        productDetail: {},
+        userToken:genAnonymousToken() //默认使用匿名token
     },
     getters: {
         //分类信息展示
@@ -38,5 +48,9 @@ export default {
         skuImageList(state) {
             return state.productDetail.skuInfo?.skuImageList || []
         },
+        spuSaleAttrList(state) {
+            return state.productDetail.spuSaleAttrList || []
+        },
+        
     }
 }

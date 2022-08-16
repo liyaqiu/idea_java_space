@@ -48,10 +48,14 @@
       nprogress.done()
   "
   - "
-    lodashjs 好用的函数库
+    lodashjs 好用的函数库，默认可能有安装了
     https://www.lodashjs.com/
   "
   - "
     mockjs
       cnpm i mockjs -D
+  "
+  - "
+    uuid,默认可能有安装了
+    https://www.npmjs.com/package/uuid
   "

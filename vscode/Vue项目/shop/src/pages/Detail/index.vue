@@ -16,7 +16,7 @@
         <!-- 左侧放大镜区域 -->
         <div class="previewWrap">
           <!--放大镜效果-->
-          <Zoom :skuDefaultImg='skuInfo.skuDefaultImg'/>
+          <Zoom :skuImageList='skuImageList'/>
           <!-- 小图列表 -->
           <ImageList :skuImageList='skuImageList'/>
         </div>
@@ -63,39 +63,19 @@
           <div class="choose">
             <div class="chooseArea">
               <div class="choosed"></div>
-              <dl>
-                <dt class="title">选择颜色</dt>
-                <dd changepirce="0" class="active">金色</dd>
-                <dd changepirce="40">银色</dd>
-                <dd changepirce="90">黑色</dd>
-              </dl>
-              <dl>
-                <dt class="title">内存容量</dt>
-                <dd changepirce="0" class="active">16G</dd>
-                <dd changepirce="300">64G</dd>
-                <dd changepirce="900">128G</dd>
-                <dd changepirce="1300">256G</dd>
-              </dl>
-              <dl>
-                <dt class="title">选择版本</dt>
-                <dd changepirce="0" class="active">公开版</dd>
-                <dd changepirce="-1000">移动版</dd>
-              </dl>
-              <dl>
-                <dt class="title">购买方式</dt>
-                <dd changepirce="0" class="active">官方标配</dd>
-                <dd changepirce="-240">优惠移动版</dd>
-                <dd changepirce="-390">电信优惠版</dd>
+              <dl v-for="spuSaleAttr in spuSaleAttrList" :key="spuSaleAttr.id">
+                <dt class="title">{{spuSaleAttr.saleAttrName}}</dt>
+                <dd v-for="spuSaleAttrValue in spuSaleAttr.spuSaleAttrValueList" :key="spuSaleAttrValue.id" :class="{active:spuSaleAttrValue.isChecked==='1'}" @click='changeActive(spuSaleAttr.spuSaleAttrValueList,spuSaleAttrValue)'>{{spuSaleAttrValue.saleAttrValueName}}</dd>
               </dl>
             </div>
             <div class="cartWrap">
               <div class="controls">
-                <input autocomplete="off" class="itxt">
-                <a href="javascript:" class="plus">+</a>
-                <a href="javascript:" class="mins">-</a>
+                <input autocomplete="off" class="itxt" v-model="buyNum" @change="changeBuyNum">
+                <a href="javascript:" class="plus" @click="buyNum++">+</a>
+                <a href="javascript:" class="mins" @click="buyNum > 1 ? buyNum-- : 1 ">-</a>
               </div>
               <div class="add">
-                <a href="javascript:">加入购物车</a>
+                <a @click="addGoodsToCart">加入购物车</a>
               </div>
             </div>
           </div>
@@ -354,8 +334,50 @@
   export default {
     name: 'Detail',
     components: {ImageList,Zoom},
+    data() {
+      return {
+        buyNum :1,
+      }
+    },
+    methods: {
+      async addGoodsToCart(){
+         try {
+            //向仓库发起请求，添加到购物车
+            const result = await this.$store.dispatch('detail/addGoodsToCart',{goodsId:this.$route.params.goodsId,buyNum:this.buyNum})
+            //路由跳转
+            /* this.$router.push({
+              name:'addcartsuccess',
+            }) */
+            //把当前商品信息存储在会话中
+            sessionStorage.setItem('skuInfo',JSON.stringify(this.skuInfo))
+
+            const location = this.$router.resolve({
+              name:'addcartsuccess',
+              params:{buyNum:this.buyNum}
+            })
+            //打开新窗口
+            window.open(location.href,'_blank')
+         } catch (error) {
+            alert(error.message)
+         }
+      },
+      changeActive(spuSaleAttrValueList,spuSaleAttrValue){
+        spuSaleAttrValueList.forEach(el => {
+          el.isChecked = '0'
+        });
+        //console.log(spuSaleAttrValueList,spuSaleAttrValue)
+        spuSaleAttrValue.isChecked = '1'
+      },
+      changeBuyNum(){
+        if(isNaN(this.buyNum)||this.buyNum<1){
+          this.buyNum = 1
+        }else{
+          this.buyNum = parseInt(this.buyNum)
+        }
+      }
+    },
     computed:{
-      ...mapGetters('detail',['categoryView','skuInfo','skuImageList'])
+      ...mapGetters('detail',['categoryView','skuInfo','skuImageList','spuSaleAttrList'])
     },
     mounted() {
       console.log('Detail 挂载完毕')

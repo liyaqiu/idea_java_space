@@ -1,18 +1,52 @@
 <template>
-  <div class="spec-preview">
-    <img :src="skuDefaultImg" />
+  <div class="spec-preview" @mousemove="handle">
+    <img :src="getSkuImgUrl" />
     <div class="event"></div>
-    <div class="big">
-      <img :src="skuDefaultImg" />
+    <div class="big" >
+      <img :src="getSkuImgUrl" ref="big"/>
     </div>
-    <div class="mask"></div>
+    <div class="mask" ref='mask'></div>
   </div>
 </template>
 
 <script>
   export default {
     name: "Zoom",
-    props:['skuDefaultImg']
+    props:['skuImageList'],
+    data() {
+      return {
+        currentIndex:0
+      }
+    },
+    methods: {
+      handle(event){
+        let mask = this.$refs.mask
+        let big = this.$refs.big
+        let left = event.offsetX - mask.offsetWidth / 2
+        let top = event.offsetY - mask.offsetHeight / 2
+        if(left <= 0 ) left = 0
+        if(left >= mask.offsetWidth) left = mask.offsetWidth
+        if(top <= 0 ) top = 0
+        if(top >= mask.offsetHeight) top = mask.offsetHeight
+        mask.style.left = left+'px'
+        mask.style.top = top+'px'
+        big.style.left = -2 * left+'px'
+        big.style.top = -2 * top+'px'
+      }
+    },
+    computed:{
+      getSkuImgUrl(){
+        return this.skuImageList[this.currentIndex]?.imgUrl||''
+      }
+    },
+    mounted() {
+      this.$bus.$on('changeZoomImgIndex',(index)=>{
+        this.currentIndex = index
+      })
+    },
+    beforeDestroy() {
+      this.$bus.$off(['changeZoomImgIndex'])
+    },
   }
 </script>
 

@@ -46,8 +46,18 @@ export function getProductDetailRequest (goodsId) {
         method: 'GET',
     })
 }
+export function addGoodsToCartRequest (goodsId,buyNum) {
+    return request({
+        url: `/cart/addToCart/${goodsId}/${buyNum}`,
+        method: 'POST',
+    })
+}
 
 
-
-
-
+/* shopCart */
+export function getShopCartListRequest () {
+    return request({
+        url: `/cart/cartList`,
+        method: 'get',
+    })
+}

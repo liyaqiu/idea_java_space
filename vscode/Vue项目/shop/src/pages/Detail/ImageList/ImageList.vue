@@ -1,8 +1,8 @@
 <template>
-  <div class="swiper-container" ref="carousel">
+  <div class="swiper-container" ref="cur">
     <div class="swiper-wrapper">
-      <div class="swiper-slide">
-        <img v-for="skuImage in skuImageList" :key="skuImage.id" :src="skuImage.imgUrl">
+      <div class="swiper-slide" v-for="(skuImage,index) in skuImageList" :key="skuImage.id">
+        <img :src="skuImage.imgUrl" :class="{active:currentIndex===index}" @click="changeIndex(index)">
       </div>
     </div>
     <div class="swiper-button-next"></div>
@@ -16,6 +16,33 @@
   export default {
     name: "ImageList",
     props:['skuImageList'],
+    data() {
+      return {
+        currentIndex:0
+      }
+    },
+    methods: {
+      changeIndex(index){
+        this.currentIndex = index
+        this.$bus.$emit('changeZoomImgIndex',index)
+      }
+    },
+    watch:{
+        //监听props属性的变化
+        skuImageList(newData,oldData){
+          this.$nextTick(()=>{
+            new Swiper(this.$refs.cur, {
+              // 如果需要前进后退按钮
+              navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+              },
+              slidesPerView:3,
+              slidesPerGroup:1
+            });
+          })
+        }
+      },
   }
 </script>
 
@@ -44,10 +71,10 @@
           padding: 1px;
         }
 
-        &:hover {
+        /* &:hover {
           border: 2px solid #f60;
           padding: 1px;
-        }
+        } */
       }
     }
 
