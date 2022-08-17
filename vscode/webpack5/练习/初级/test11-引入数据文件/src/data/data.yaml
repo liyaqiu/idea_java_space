@@ -1,8 +1,0 @@
-person:
-  name: eric
-  age: 31
-  sex: 男
-  hobbies:
-    - tom
-    - jerry
-    - jeck
