@@ -106,10 +106,9 @@
 
     <dependencyManagement>
         <dependencies>
-
             <dependency>
                 <!--
-                    Hoxton.SR10 在fegin与sentinel整合是够出现循环依赖问题
+                    Hoxton.SR10 在fegin与sentinel整合是会出现循环依赖问题
                     Requested bean is currently in creation: Is there an unresolvable circular reference?
                 -->
                 <groupId>org.springframework.cloud</groupId>
@@ -179,8 +178,6 @@
                 <artifactId>springfox-swagger2</artifactId>
                 <version>2.6.1</version>
             </dependency>
-
-
         </dependencies>
     </dependencyManagement>
     <build>

@@ -1,0 +1,13 @@
+spring:
+  profiles:
+    active: dev
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss #对json返回时间进行格式化
+    time-zone: GMT+8
+logging:
+  #引入文件方式
+  config: classpath:log4j2.xml
+
+mybatis-plus:
+  #configuration:
+    #log-impl: org.apache.ibatis.logging.stdout.StdOutImpl #可以更改显示查询格式

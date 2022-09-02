@@ -2,6 +2,7 @@ package test;
 
 import com.Launcher;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.PageDto;
 import com.controller.UserController;
@@ -58,9 +59,20 @@ public class PageTest {
         userDao.selectList(query);
     }
 
+
+
     @Test
     public void test4() {
         User user = userService.getById(1);
         log.info("{}",user);
+    }
+
+    @Test
+    public void test5() {
+        QueryWrapper<User> query = new QueryWrapper();
+        //设置查询显示的列
+        query.select("id","name");
+        //query.last("可以拼接sql");
+        userDao.selectList(query);
     }
 }
