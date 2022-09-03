@@ -22,5 +22,9 @@
             <appender-ref ref="console"/>
         </logger>
 
+        <logger name="com.gzzn.service.common.exception" level="debug" additivity="false">
+            <appender-ref ref="console"/>
+        </logger>
+
     </loggers>
 </configuration>

@@ -1,4 +1,4 @@
-package zms.config;
+package com.gzzn.service.edu.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,16 +14,17 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  * @author eric
  * @date 2022/3/23 16:24
  **/
-@Configuration(proxyBeanMethods = false)
-@EnableSwagger2 //http://localhost:8080/swagger-ui.html
+@Configuration
+@EnableSwagger2
 public class SwaggerConfig {
 
+    //http://localhost:8001/swagger-ui.html
     @Bean
     public Docket docket(){
         return new Docket(DocumentationType.SWAGGER_2).apiInfo(apiInfo())
                 .enable(true) //true则显示文档
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("zms.controller"))//要扫描接口的目录
+                .apis(RequestHandlerSelectors.basePackage("com.gzzn.service.edu.controller"))//要扫描接口的目录
                 .paths(PathSelectors.any())
                 .build();
     }
@@ -32,7 +33,7 @@ public class SwaggerConfig {
         return new ApiInfoBuilder()
                 .title("自定义标题信息")
                 .description("自定义描述")
-                .termsOfServiceUrl("自定义下载地址www.baidu.com")
+                //.termsOfServiceUrl("http://www.baidu.com")
                 .version("1.0")
                 .build();
 

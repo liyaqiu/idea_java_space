@@ -1,7 +1,7 @@
 package com.gzzn.service.edu.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.gzzn.service.edu.entity.EduTeacher;
+import com.gzzn.service.edu.entity.EduTeacherEntity;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -9,5 +9,5 @@ import org.apache.ibatis.annotations.Mapper;
  * @date 2021/12/5 12:32
  */
 @Mapper
-public interface EduTeacherMapper extends BaseMapper<EduTeacher> {
+public interface EduTeacherMapper extends BaseMapper<EduTeacherEntity> {
 }
