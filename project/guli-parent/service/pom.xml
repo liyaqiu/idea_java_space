@@ -15,11 +15,6 @@
         <module>service-edu</module>
     </modules>
 
-    <properties>
-        <service.commom.version>1.0-SNAPSHOT</service.commom.version>
-    </properties>
-
-
     <dependencies>
 
         <dependency>

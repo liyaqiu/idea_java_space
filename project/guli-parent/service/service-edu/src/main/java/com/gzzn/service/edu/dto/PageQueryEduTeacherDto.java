@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
@@ -15,10 +16,12 @@ import java.util.Date;
 @ApiModel
 public class PageQueryEduTeacherDto {
 
-    @ApiModelProperty(value = "开始时间，使用东八区时间",allowableValues = "Sun Sep 04 02:24:01 CST 2022")
+    @ApiModelProperty(value = "开始时间 yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date beginTime;
 
-    @ApiModelProperty(value = "结束时间,使用东八区时间",allowableValues="Sun Sep 04 02:24:01 CST 2022")
+    @ApiModelProperty(value = "结束时间 yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date endTime;
 
     @ApiModelProperty(value = "讲师姓名")

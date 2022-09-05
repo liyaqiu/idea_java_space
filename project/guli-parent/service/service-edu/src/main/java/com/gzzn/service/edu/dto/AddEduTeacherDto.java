@@ -22,7 +22,7 @@ public class AddEduTeacherDto {
 
     @ApiModelProperty(value = "讲师姓名",required = true)
     @NotNull(message = "字段不能为空")
-    @Length(min = 5,message = "最小长度为5")
+    @Length(min = 1,message = "最小长度为1")
     private String name;
 
     @NotNull(message = "字段不能为空")
@@ -40,4 +40,9 @@ public class AddEduTeacherDto {
     @Min(value = 1,message = "最少为1")
     @Max(value = 2,message = "最大值为2")
     private Integer level;
+
+    @ApiModelProperty(value = "排序 1-10")
+    @Min(value = 1,message = "最少为1")
+    @Max(value = 2,message = "最大值为10")
+    private Integer sort;
 }

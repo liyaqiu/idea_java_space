@@ -13,6 +13,7 @@ import com.gzzn.service.edu.entity.EduTeacherEntity;
 import com.gzzn.service.edu.service.EduTeacherService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -74,8 +75,8 @@ public class EduTeacherController {
 
     @GetMapping("/{currentPage}/{pageSize}")
     @ApiOperation("条件分页查询讲师")
-    public Res PageQueryEduTeacher(@PathVariable("currentPage") long currentPage,
-                                   @PathVariable("pageSize") long pageSize,
+    public Res PageQueryEduTeacher(@ApiParam(name = "currentPage",value = "当前页",required = true) @PathVariable("currentPage") long currentPage,
+                                   @ApiParam(name = "pageSize",value = "每页大小",required = true) @PathVariable("pageSize") long pageSize,
                                    PageQueryEduTeacherDto dto){
         log.debug("PageQueryEduTeacher {} {} {}",currentPage,pageSize,dto);
 
@@ -87,10 +88,10 @@ public class EduTeacherController {
             wrapper.le("gmt_create", dto.getEndTime());
         }
         if(!StringUtils.isEmpty(dto.getName())){
-            wrapper.like("name", dto.getEndTime());
+            wrapper.like("name", dto.getName());
         }
         if(!StringUtils.isEmpty(dto.getLevel())){
-            wrapper.eq("level", dto.getEndTime());
+            wrapper.eq("level", dto.getLevel());
         }
 
         wrapper.orderByDesc("gmt_create");
@@ -103,8 +104,12 @@ public class EduTeacherController {
         return Res.ok().setData(map);
     }
 
-    public static void main(String[] args) {
-        System.out.println(new Date());
+    @GetMapping("/{id}")
+    @ApiOperation("根据id查询讲师")
+    public Res getEduTeacherById(@ApiParam(name = "id",value = "讲师id",required = true) @PathVariable("id") String id){
+        log.debug("updateEduTeacher {}",id);
+        EduTeacherEntity eduTeacher = eduTeacherService.getById(id);
+        return Res.ok().setData(eduTeacher);
     }
 
 }
