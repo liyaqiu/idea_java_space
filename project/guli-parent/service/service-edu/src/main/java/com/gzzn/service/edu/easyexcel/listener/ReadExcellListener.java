@@ -10,12 +10,12 @@ import lombok.extern.slf4j.Slf4j;
  * @date 2022/9/6 23:32
  **/
 @Slf4j
-public class ReadExcelListener extends AnalysisEventListener<SubjectModel> {
+public class ReadExcellListener extends AnalysisEventListener<SubjectModel> {
 
-    private ReadExceCallback readExceCallback;
+    private ReadExcelCallback readExcelCallback;
 
-    public ReadExcelListener(ReadExceCallback readExceCallback) {
-        this.readExceCallback = readExceCallback;
+    public ReadExcellListener(ReadExcelCallback readExcelCallback) {
+        this.readExcelCallback = readExcelCallback;
     }
 
     /*读取表头*/
@@ -28,7 +28,7 @@ public class ReadExcelListener extends AnalysisEventListener<SubjectModel> {
     @Override
     public void invoke(SubjectModel subjectModel, AnalysisContext analysisContext) {
         log.debug("invoke {}",subjectModel);
-        readExceCallback.readLine(subjectModel);
+        readExcelCallback.readLine(subjectModel);
     }
 
     @Override
@@ -37,7 +37,7 @@ public class ReadExcelListener extends AnalysisEventListener<SubjectModel> {
     }
 
     @FunctionalInterface
-    public interface ReadExceCallback{
+    public interface ReadExcelCallback{
         void readLine(SubjectModel subjectModel);
     }
 }
