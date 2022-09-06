@@ -1,0 +1,22 @@
+spring:
+  profiles:
+    active: dev
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss #对json返回时间进行格式化
+    time-zone: GMT+8
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 5MB #单个文件大小
+      max-request-size: 20MB #总上传的数据大小
+
+
+logging:
+  #引入文件方式
+  config: classpath:log4j2.xml
+
+oss-config:
+  endpoint: oss-cn-hangzhou.aliyuncs.com
+  access-key-id: LTAI5t8RLgN1tavLe52NKGJZ
+  access-key-secret: WaBPa5iZjcS1v2rXx4QdoD2P5MYhC9
+  bucket-name: liyaqiu-bucket

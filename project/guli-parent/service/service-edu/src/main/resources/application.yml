@@ -8,6 +8,6 @@ logging:
   #引入文件方式
   config: classpath:log4j2.xml
 
-mybatis-plus:
+#mybatis-plus:
   #configuration:
     #log-impl: org.apache.ibatis.logging.stdout.StdOutImpl #可以更改显示查询格式

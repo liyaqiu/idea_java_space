@@ -1,6 +1,4 @@
-package com.gzzn.service.common.utils;
-
-import lombok.Setter;
+package com.gzzn.test.service.common.utils;
 
 /**
  * @author eric

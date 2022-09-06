@@ -1,4 +1,4 @@
-package com.gzzn.service.common.utils;
+package com.gzzn.test.service.common.utils;
 
 /**
  * @author eric
@@ -9,4 +9,5 @@ public interface ResCode {
     int FAIL = 40000;
     int BUSINESS_FAIL = 40001;
     int DATA_VALIDATION_FAIL = 40002;
+    int FILE_UPLOAD_FAIL = 40003;
 }

@@ -18,15 +18,11 @@
             <appender-ref ref="console"/>
         </root>
 
-        <logger name="com.gzzn.service.edu" level="debug" additivity="false">
+        <logger name="com.gzzn.service.oss" level="debug" additivity="false">
             <appender-ref ref="console"/>
         </logger>
 
         <logger name="com.gzzn.service.common.exception" level="debug" additivity="false">
-            <appender-ref ref="console"/>
-        </logger>
-
-        <logger name="com.gzzn.easyexcel" level="debug" additivity="false">
             <appender-ref ref="console"/>
         </logger>
 
