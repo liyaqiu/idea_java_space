@@ -1,5 +1,6 @@
 package com.gzzn.service.edu.controller;
 
+import com.gzzn.service.edu.service.EduSubjectService;
 import com.gzzn.test.service.common.utils.Res;
 import com.gzzn.service.edu.service.EduTeacherService;
 import io.swagger.annotations.Api;
@@ -20,12 +21,13 @@ import org.springframework.web.multipart.MultipartFile;
 public class EduSubjectController {
 
     @Autowired
-    private EduTeacherService  eduTeacherService;
+    private EduSubjectService eduSubjectService;
 
     @PostMapping
     @ApiOperation("添加课程分类")
     public Res addEduSubject(MultipartFile file){
         log.debug("addEduSubject {}",file);
+        eduSubjectService.addEduSubject(file);
         return Res.ok();
     }
 
