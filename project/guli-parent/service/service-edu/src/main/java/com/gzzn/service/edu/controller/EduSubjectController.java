@@ -1,5 +1,6 @@
 package com.gzzn.service.edu.controller;
 
+import com.gzzn.service.edu.entity.EduSubjectEntity;
 import com.gzzn.service.edu.service.EduSubjectService;
 import com.gzzn.test.service.common.utils.Res;
 import com.gzzn.service.edu.service.EduTeacherService;
@@ -9,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 /**
  * @author lyq
@@ -29,6 +32,14 @@ public class EduSubjectController {
         log.debug("addEduSubject {}",file);
         eduSubjectService.addEduSubject(file);
         return Res.ok();
+    }
+
+    @GetMapping("/all")
+    @ApiOperation("课程分类列表")
+    public Res queryAllEduSubject(){
+        log.debug("queryAllEduSubject");
+        List<EduSubjectEntity> eduSubjectList = eduSubjectService.queryAllEduSubject();
+        return Res.ok().setData(eduSubjectList);
     }
 
 }

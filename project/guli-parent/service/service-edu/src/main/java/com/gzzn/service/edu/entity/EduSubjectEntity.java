@@ -1,11 +1,13 @@
 package com.gzzn.service.edu.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author eric
@@ -21,4 +23,6 @@ public class EduSubjectEntity {
     private Integer sort;
     private Date gmtCreate;
     private Date gmtModified;
+    @TableField(exist = false)
+    private List<EduSubjectEntity> children;
 }

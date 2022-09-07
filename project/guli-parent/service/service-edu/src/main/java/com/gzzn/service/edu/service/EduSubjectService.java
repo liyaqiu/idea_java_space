@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.gzzn.service.edu.entity.EduSubjectEntity;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+import java.util.List;
 
 /**
  * @author lyq
@@ -14,4 +14,6 @@ import java.io.IOException;
 public interface EduSubjectService extends IService<EduSubjectEntity> {
 
     void addEduSubject(MultipartFile file);
+
+    List<EduSubjectEntity> queryAllEduSubject();
 }

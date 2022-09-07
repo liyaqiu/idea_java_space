@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author lyq
@@ -56,8 +57,6 @@ public class EduSubjectServiceImpl extends ServiceImpl<EduSubjectMapper, EduSubj
         }
     }
 
-
-
     /*模型转换实体*/
     private void modelTransEntity(EduSubjectEntity entity,String title){
         entity.setTitle(title);
@@ -72,5 +71,27 @@ public class EduSubjectServiceImpl extends ServiceImpl<EduSubjectMapper, EduSubj
         wrapper.eq("title", title);
         EduSubjectEntity entity = eduSubjectMapper.selectOne(wrapper);
         return entity;
+    }
+
+
+    @Override
+    public List<EduSubjectEntity> queryAllEduSubject() {
+        QueryWrapper wrapper = new QueryWrapper();
+        wrapper.isNull("parent_id");
+        List<EduSubjectEntity> eduSubjectList = eduSubjectMapper.selectList(wrapper);
+        for (EduSubjectEntity parent : eduSubjectList) {
+            getEduSubjectChild(parent);
+        }
+        return eduSubjectList;
+    }
+
+    private void getEduSubjectChild(EduSubjectEntity parent){
+        QueryWrapper wrapper = new QueryWrapper();
+        wrapper.eq("parent_id", parent.getId());
+        List<EduSubjectEntity> childList = eduSubjectMapper.selectList(wrapper);
+        parent.setChildren(childList);
+        for (EduSubjectEntity child : childList) {
+            getEduSubjectChild(child);
+        }
     }
 }
