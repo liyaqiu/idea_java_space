@@ -4,11 +4,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.gzzn.service.edu.converter.EduTeacherConverter;
-import com.gzzn.service.edu.dto.AddEduTeacherDto;
+import com.gzzn.service.edu.converter.req.EduTeacherConverter;
+import com.gzzn.service.edu.vo.req.AddEduTeacherVo;
 import com.gzzn.test.service.common.utils.Res;
-import com.gzzn.service.edu.dto.PageQueryEduTeacherDto;
-import com.gzzn.service.edu.dto.UpdateEduTeacherDto;
+import com.gzzn.service.edu.vo.req.PageQueryEduTeacherVo;
+import com.gzzn.service.edu.vo.req.UpdateEduTeacherVo;
 import com.gzzn.service.edu.entity.EduTeacherEntity;
 import com.gzzn.service.edu.service.EduTeacherService;
 import io.swagger.annotations.Api;
@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -39,9 +40,9 @@ public class EduTeacherController {
 
     @PostMapping
     @ApiOperation("添加讲师")
-    public Res addEduTeacher(@RequestBody @Validated AddEduTeacherDto dto){
-        log.debug("addEduTeacher {}",dto);
-        EduTeacherEntity eduTeacher = EduTeacherConverter.INSTANCE.convert(dto);
+    public Res addEduTeacher(@RequestBody @Validated AddEduTeacherVo vo){
+        log.debug("addEduTeacher {}",vo);
+        EduTeacherEntity eduTeacher = EduTeacherConverter.INSTANCE.convert(vo);
         eduTeacher.setGmtCreate(new Date());
         eduTeacher.setGmtModified(new Date());
         System.out.println(JSONObject.toJSON(eduTeacher));
@@ -61,9 +62,9 @@ public class EduTeacherController {
 
     @PutMapping
     @ApiOperation("修改讲师")
-    public Res updateEduTeacher(@RequestBody @Validated UpdateEduTeacherDto dto){
-        log.debug("updateEduTeacher {}",dto);
-        EduTeacherEntity eduTeacher = EduTeacherConverter.INSTANCE.convert(dto);
+    public Res updateEduTeacher(@RequestBody @Validated UpdateEduTeacherVo vo){
+        log.debug("updateEduTeacher {}",vo);
+        EduTeacherEntity eduTeacher = EduTeacherConverter.INSTANCE.convert(vo);
         eduTeacher.setGmtModified(new Date());
         if(!eduTeacherService.updateById(eduTeacher)){
             throw new RuntimeException("修改失败");
@@ -77,21 +78,21 @@ public class EduTeacherController {
     @ApiOperation("条件分页查询讲师")
     public Res PageQueryEduTeacher(@ApiParam(name = "currentPage",value = "当前页",required = true) @PathVariable("currentPage") long currentPage,
                                    @ApiParam(name = "pageSize",value = "每页大小",required = true) @PathVariable("pageSize") long pageSize,
-                                   PageQueryEduTeacherDto dto){
-        log.debug("PageQueryEduTeacher {} {} {}",currentPage,pageSize,dto);
+                                   PageQueryEduTeacherVo vo){
+        log.debug("PageQueryEduTeacher {} {} {}",currentPage,pageSize,vo);
 
         QueryWrapper wrapper = new QueryWrapper();
-        if(dto.getBeginTime()!=null){
-            wrapper.ge("gmt_create", dto.getBeginTime());
+        if(vo.getBeginTime()!=null){
+            wrapper.ge("gmt_create", vo.getBeginTime());
         }
-        if(dto.getEndTime()!=null){
-            wrapper.le("gmt_create", dto.getEndTime());
+        if(vo.getEndTime()!=null){
+            wrapper.le("gmt_create", vo.getEndTime());
         }
-        if(!StringUtils.isEmpty(dto.getName())){
-            wrapper.like("name", dto.getName());
+        if(!StringUtils.isEmpty(vo.getName())){
+            wrapper.like("name", vo.getName());
         }
-        if(!StringUtils.isEmpty(dto.getLevel())){
-            wrapper.eq("level", dto.getLevel());
+        if(!StringUtils.isEmpty(vo.getLevel())){
+            wrapper.eq("level", vo.getLevel());
         }
 
         wrapper.orderByDesc("gmt_create");
@@ -110,6 +111,14 @@ public class EduTeacherController {
         log.debug("updateEduTeacher {}",id);
         EduTeacherEntity eduTeacher = eduTeacherService.getById(id);
         return Res.ok().setData(eduTeacher);
+    }
+
+    @GetMapping("/all")
+    @ApiOperation("查询所有讲师")
+    public Res getAllEduTeacher(){
+        log.debug("getAllEduTeacher");
+        List<EduTeacherEntity> list = eduTeacherService.list();
+        return Res.ok().setData(list);
     }
 
 }

@@ -1,6 +1,5 @@
-package com.gzzn.service.edu.dto;
+package com.gzzn.service.edu.vo.req;
 
-import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -14,7 +13,7 @@ import java.util.Date;
  **/
 @Data
 @ApiModel
-public class PageQueryEduTeacherDto {
+public class PageQueryEduTeacherVo {
 
     @ApiModelProperty(value = "开始时间 yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")

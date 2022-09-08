@@ -1,7 +1,7 @@
-package com.gzzn.service.edu.converter;
+package com.gzzn.service.edu.converter.req;
 
-import com.gzzn.service.edu.dto.AddEduTeacherDto;
-import com.gzzn.service.edu.dto.UpdateEduTeacherDto;
+import com.gzzn.service.edu.vo.req.AddEduTeacherVo;
+import com.gzzn.service.edu.vo.req.UpdateEduTeacherVo;
 import com.gzzn.service.edu.entity.EduTeacherEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
@@ -17,7 +17,7 @@ public interface EduTeacherConverter {
 
     EduTeacherConverter INSTANCE = Mappers.getMapper(EduTeacherConverter.class);
 
-    EduTeacherEntity convert(AddEduTeacherDto dto);
+    EduTeacherEntity convert(AddEduTeacherVo vo);
 
-    EduTeacherEntity convert(UpdateEduTeacherDto dto);
+    EduTeacherEntity convert(UpdateEduTeacherVo vo);
 }

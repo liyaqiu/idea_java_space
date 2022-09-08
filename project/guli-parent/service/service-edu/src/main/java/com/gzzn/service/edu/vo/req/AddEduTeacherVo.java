@@ -1,4 +1,4 @@
-package com.gzzn.service.edu.dto;
+package com.gzzn.service.edu.vo.req;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -8,7 +8,6 @@ import org.hibernate.validator.constraints.Length;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
 
 /**
  * @author eric
@@ -16,23 +15,22 @@ import java.util.Date;
  **/
 @Data
 @ApiModel
-public class UpdateEduTeacherDto {
+public class AddEduTeacherVo {
 
-    @ApiModelProperty(value = "讲师id",required = true)
+    @ApiModelProperty(value = "讲师姓名",required = true)
     @NotNull(message = "字段不能为空")
-    private String id;
-
-    @ApiModelProperty(value = "讲师姓名")
     @Length(min = 1,message = "最小长度为1")
     private String name;
 
-    @ApiModelProperty(value = "讲师简介")
+    @NotNull(message = "字段不能为空")
+    @ApiModelProperty(value = "讲师简介",required = true)
     private String intro;
 
-    @ApiModelProperty(value = "讲师资历,一句话说明讲师")
+    @NotNull(message = "字段不能为空")
+    @ApiModelProperty(value = "讲师资历,一句话说明讲师",required = true)
     private String career;
 
-    @ApiModelProperty(value = "讲师头像")
+    @ApiModelProperty(value = "讲师头像",required = false)
     private String avatar;
 
     @ApiModelProperty(value = "头衔 1高级讲师 2首席讲师")
