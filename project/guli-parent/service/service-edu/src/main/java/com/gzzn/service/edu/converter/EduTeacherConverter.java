@@ -1,4 +1,4 @@
-package com.gzzn.service.edu.converter.req;
+package com.gzzn.service.edu.converter;
 
 import com.gzzn.service.edu.vo.req.AddEduTeacherVo;
 import com.gzzn.service.edu.vo.req.UpdateEduTeacherVo;

@@ -5,7 +5,7 @@ import cn.hutool.core.util.IdUtil;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.gzzn.service.oss.service.OssService;
-import com.gzzn.test.service.common.exception.FileUploadException;
+import com.gzzn.service.common.exception.FileUploadException;
 import com.gzzn.service.oss.config.OSSConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

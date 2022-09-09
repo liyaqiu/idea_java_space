@@ -1,7 +1,7 @@
 package com.gzzn.service.oss.controller;
 
 import com.gzzn.service.oss.service.OssService;
-import com.gzzn.test.service.common.utils.Res;
+import com.gzzn.service.common.utils.Res;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;

@@ -1,4 +1,4 @@
-package com.gzzn.test.service.common.utils;
+package com.gzzn.service.common.utils;
 
 /**
  * @author eric

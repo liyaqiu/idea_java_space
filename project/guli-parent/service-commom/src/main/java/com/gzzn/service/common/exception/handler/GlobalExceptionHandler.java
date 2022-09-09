@@ -1,8 +1,8 @@
-package com.gzzn.test.service.common.exception.handler;
+package com.gzzn.service.common.exception.handler;
 
-import com.gzzn.test.service.common.exception.FileUploadException;
-import com.gzzn.test.service.common.utils.Res;
-import com.gzzn.test.service.common.utils.ResCode;
+import com.gzzn.service.common.exception.FileUploadException;
+import com.gzzn.service.common.utils.Res;
+import com.gzzn.service.common.utils.ResCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;

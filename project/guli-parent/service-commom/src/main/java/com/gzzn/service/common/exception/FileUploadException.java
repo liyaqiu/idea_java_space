@@ -1,4 +1,4 @@
-package com.gzzn.test.service.common.exception;
+package com.gzzn.service.common.exception;
 
 /**
  * @author eric
