@@ -1,12 +1,16 @@
 package com.gzzn.service.edu.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gzzn.service.edu.converter.EduCourseConverter;
 import com.gzzn.service.edu.entity.EduCourseDescriptionEntity;
 import com.gzzn.service.edu.entity.EduCourseEntity;
+import com.gzzn.service.edu.mapper.EduChapterMapper;
 import com.gzzn.service.edu.mapper.EduCourseDescriptionMapper;
 import com.gzzn.service.edu.mapper.EduCourseMapper;
+import com.gzzn.service.edu.mapper.EduVideoMapper;
 import com.gzzn.service.edu.service.EduCourseService;
+import com.gzzn.service.edu.vo.resp.QueryEduCourseDetailVo;
 import com.gzzn.service.edu.vo.resp.QueryEduCourseVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +32,10 @@ public class EduCourseServiceImpl extends ServiceImpl<EduCourseMapper, EduCourse
     EduCourseMapper eduCourseMapper;
     @Autowired
     EduCourseDescriptionMapper eduCourseDescriptionMapper;
-
+    @Autowired
+    EduChapterMapper eduChapterMapper;
+    @Autowired
+    EduVideoMapper eduVideoMapper;
 
     @Override
     @Transactional
@@ -72,5 +79,39 @@ public class EduCourseServiceImpl extends ServiceImpl<EduCourseMapper, EduCourse
         if (eduCourseDescriptionMapper.updateById(eduCourseDescription)!=1) {
             throw new RuntimeException("课程描述修改失败");
         }
+    }
+
+    @Override
+    public QueryEduCourseDetailVo queryEduCourseDetail(String id) {
+        QueryEduCourseDetailVo vo = eduCourseMapper.selectEduCourseDetail(id);
+        return vo;
+    }
+
+    @Override
+    public void publishEduCourse(EduCourseEntity eduCourse) {
+        if (eduCourseMapper.updateById(eduCourse)!=1) {
+            throw new RuntimeException("发布课程失败");
+        }
+    }
+
+    @Override
+    @Transactional
+    public void removeEduCourse(String id) {
+        //删除课程基本信息
+        if (eduCourseMapper.deleteById(id)!=1) {
+            throw new RuntimeException("删除课程失败");
+        }
+        //删除课程描述信息
+        eduCourseDescriptionMapper.deleteById(id);
+
+        //删除章节
+        QueryWrapper chapterWrapper = new QueryWrapper();
+        chapterWrapper.eq("course_id", id);
+        eduChapterMapper.delete(chapterWrapper);
+
+        //删除小节
+        QueryWrapper videoWrapper = new QueryWrapper();
+        chapterWrapper.eq("course_id", id);
+        eduVideoMapper.delete(videoWrapper);
     }
 }

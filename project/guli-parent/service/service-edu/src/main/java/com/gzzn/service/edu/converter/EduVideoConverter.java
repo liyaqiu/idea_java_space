@@ -1,16 +1,15 @@
 package com.gzzn.service.edu.converter;
 
 import com.gzzn.service.edu.entity.EduChapterEntity;
+import com.gzzn.service.edu.entity.EduVideoEntity;
 import com.gzzn.service.edu.vo.req.AddEduChapterVo;
-import com.gzzn.service.edu.vo.req.UpdateEduChapterVo;
-import com.gzzn.service.edu.vo.resp.QueryChapterVo;
+import com.gzzn.service.edu.vo.req.AddEduVideoVo;
+import com.gzzn.service.edu.vo.req.UpdateEduVideoVo;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-import java.util.List;
-
 @Mapper
-public interface EduChapterConverter {
+public interface EduVideoConverter {
 
     /*@Mapping(source = "birthday",target = "birth")
     @Mapping(source = "birthday",target = "birthDateFormat",dateFormat = "yyyy-HH-dd HH:mm:ss")
@@ -18,11 +17,8 @@ public interface EduChapterConverter {
     @Mapping(source = "email",target = "email",ignore = true)*/
 
 
-    EduChapterConverter INSTANCE = Mappers.getMapper(EduChapterConverter.class);
+    EduVideoConverter INSTANCE = Mappers.getMapper(EduVideoConverter.class);
 
-    EduChapterEntity convert(AddEduChapterVo vo);
-
-    List<QueryChapterVo> convert(List<EduChapterEntity> list);
-
-    EduChapterEntity convert(UpdateEduChapterVo vo);
+    EduVideoEntity convert(AddEduVideoVo vo);
+    EduVideoEntity convert(UpdateEduVideoVo vo);
 }

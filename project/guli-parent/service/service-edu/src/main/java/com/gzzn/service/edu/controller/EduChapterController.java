@@ -1,20 +1,27 @@
 package com.gzzn.service.edu.controller;
 
 import com.gzzn.service.edu.converter.EduChapterConverter;
+import com.gzzn.service.edu.converter.EduCourseConverter;
+import com.gzzn.service.edu.converter.EduCourseDescriptionConverter;
 import com.gzzn.service.edu.entity.EduChapterEntity;
+import com.gzzn.service.edu.entity.EduCourseDescriptionEntity;
+import com.gzzn.service.edu.entity.EduCourseEntity;
 import com.gzzn.service.edu.service.EduChapterService;
 import com.gzzn.service.edu.vo.req.AddEduChapterVo;
 import com.gzzn.service.common.utils.Res;
+import com.gzzn.service.edu.vo.req.UpdateEduChapterVo;
+import com.gzzn.service.edu.vo.req.UpdateEduCourseVo;
+import com.gzzn.service.edu.vo.resp.QueryChapterVo;
+import com.gzzn.service.edu.vo.resp.QueryEduCourseVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author lyq
@@ -40,6 +47,34 @@ public class EduChapterController {
         return Res.ok();
     }
 
+
+    @GetMapping("/{courseId}")
+    @ApiOperation("查询章节")
+    public Res queryChapter(@PathVariable("courseId") String courseId){
+        log.debug("queryChapter {}",courseId);
+        List<QueryChapterVo> list = eduChapterService.queryChapter(courseId);
+        return Res.ok().setData(list);
+    }
+
+    @DeleteMapping("/{id}")
+    @ApiOperation("删除章节")
+    public Res removeChapter(@PathVariable("id") String id){
+        log.debug("removeChapter {}",id);
+        eduChapterService.removeChapter(id);
+        return Res.ok();
+    }
+
+    @PutMapping
+    @ApiOperation("修改章节")
+    public Res updateChapter(@RequestBody @Validated UpdateEduChapterVo vo){
+        log.debug("updateChapter {}",vo);
+
+        EduChapterEntity eduChapter = EduChapterConverter.INSTANCE.convert(vo);
+        eduChapter.setGmtModified(new Date());
+
+        eduChapterService.updateChapter(eduChapter);
+        return Res.ok();
+    }
 
 
 }

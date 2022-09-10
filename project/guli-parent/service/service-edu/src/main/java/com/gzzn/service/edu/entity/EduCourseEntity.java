@@ -17,6 +17,8 @@ import java.util.List;
 @Data
 @TableName("edu_course")
 public class EduCourseEntity {
+   public static final String DRAFT = "Draft";
+   public static final String NORMAL = "Normal";
    @TableId(type = IdType.ASSIGN_ID)
    private String id;
    private String teacherId;
@@ -29,7 +31,7 @@ public class EduCourseEntity {
    private Long buyCount;
    private Long viewCount;
    private Long version;
-   private String status;
+   private String status; //课程状态 Draft未发布  Normal已发布
    private String isDeleted;
    private Date gmtCreate;
    private Date gmtModified;
