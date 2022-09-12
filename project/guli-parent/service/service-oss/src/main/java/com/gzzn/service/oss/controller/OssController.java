@@ -6,9 +6,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
@@ -32,10 +30,24 @@ public class OssController {
     @ApiOperation("文件上传")
     public Res uploadFile(MultipartFile file){
         log.debug("uploadFile {}",file);
-        String fileUrl = ossService.upload(file);
-        Map<String,String> map = new HashMap<>();
-        map.put("url",fileUrl);
-        return Res.ok().setData(map);
+        Map<String,String> result = ossService.upload(file);
+        return Res.ok().setData(result);
+    }
+
+    @PostMapping("/video")
+    @ApiOperation("视频上传")
+    public Res uploadVideo(MultipartFile file){
+        log.debug("uploadVideo {}",file);
+        Map<String,String> result = ossService.uploadVideo(file);
+        return Res.ok().setData(result);
+    }
+
+    @DeleteMapping("/video/{filename}")
+    @ApiOperation("视频删除")
+    public Res removeVideo(@PathVariable("filename") String objectName){
+        log.debug("removeFile {}",objectName);
+        ossService.removeFile(objectName);
+        return Res.ok();
     }
 
 }

@@ -21,4 +21,8 @@ public class AddEduVideoVo {
     private Integer sort;
     @ApiModelProperty(value = "是否可以试听：0免费 1收费")
     private Integer isFree;
+    @ApiModelProperty(value = "视频id")
+    private String videoSourceId;
+    @ApiModelProperty(value = "视频名")
+    private String videoOriginalName;
 }

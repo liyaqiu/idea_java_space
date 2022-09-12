@@ -10,6 +10,6 @@ import org.springframework.context.annotation.Bean;
 public class FeignLoggerConfig {
     @Bean
     public Logger.Level test0() {
-        return Logger.Level.HEADERS;
+        return Logger.Level.BASIC;
     }
 }

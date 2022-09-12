@@ -12,7 +12,11 @@
     <artifactId>service-oss</artifactId>
 
     <dependencies>
-        <!--不继承依赖，不然启动报错-->
+        <!--
+            不继承依赖，不然启动报错
+            方式1 @SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
+            方式2 <scope>test</scope>
+        -->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>

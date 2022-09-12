@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author lyq
@@ -26,8 +28,7 @@ public class OssServiceImpl implements OssService {
     OSSConfig ossConfig;
 
     @Override
-    public String upload(MultipartFile file) {
-
+    public Map<String, String> upload(MultipartFile file) {
         String endpoint = ossConfig.getEndpoint();
         String accessKeyId = ossConfig.getAccessKeyId();
         String accessKeySecret = ossConfig.getAccessKeySecret();
@@ -44,7 +45,64 @@ public class OssServiceImpl implements OssService {
 
             //https://liyaqiu-bucket.oss-cn-hangzhou.aliyuncs.com/2022/09/06/700e8db58d5b4240abff15f3f978e488-nihao.png
             String url = "https://"+bucketName+"."+endpoint+"/"+objectName;
-            return url;
+            Map<String,String> map = new HashMap<>();
+            map.put("url",url);
+            return map;
+        } catch (Exception e) {
+            throw new FileUploadException(e);
+        }finally {
+            if (ossClient != null) {
+                ossClient.shutdown();
+            }
+        }
+    }
+
+    @Override
+    public void removeFile(String objectName) {
+        String endpoint = ossConfig.getEndpoint();
+        String accessKeyId = ossConfig.getAccessKeyId();
+        String accessKeySecret = ossConfig.getAccessKeySecret();
+        String bucketName = ossConfig.getBucketName();
+
+        // 创建OSSClient实例。
+        OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
+
+        try {
+            // 删除文件或目录。如果要删除目录，目录必须为空。
+            ossClient.deleteObject(bucketName, objectName+".png");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (ossClient != null) {
+                ossClient.shutdown();
+            }
+        }
+    }
+
+    @Override
+    public Map<String, String> uploadVideo(MultipartFile file) {
+        String endpoint = ossConfig.getEndpoint();
+        String accessKeyId = ossConfig.getAccessKeyId();
+        String accessKeySecret = ossConfig.getAccessKeySecret();
+        String bucketName = ossConfig.getBucketName();
+
+        String uuid = IdUtil.simpleUUID();
+
+
+        String videoOriginalName = uuid+"-"+file.getOriginalFilename().split("\\.")[0];
+        String objectName = uuid+"-"+file.getOriginalFilename();
+        // 创建OSSClient实例。
+        OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
+        try {
+            // 创建PutObject请求。
+            ossClient.putObject(bucketName, objectName, file.getInputStream());
+
+            //https://liyaqiu-bucket.oss-cn-hangzhou.aliyuncs.com/2022/09/06/700e8db58d5b4240abff15f3f978e488-nihao.png
+            String url = "https://"+bucketName+"."+endpoint+"/"+objectName;
+            Map<String,String> map = new HashMap<>();
+            map.put("videoSourceId",url);
+            map.put("videoOriginalName",videoOriginalName);
+            return map;
         } catch (Exception e) {
             throw new FileUploadException(e);
         }finally {

@@ -41,6 +41,7 @@ public class EduVideoController {
     public Res addVideo(@RequestBody @Validated AddEduVideoVo vo){
         log.debug("addVideo {}",vo);
         EduVideoEntity eduVideo = EduVideoConverter.INSTANCE.convert(vo);
+        System.out.println(eduVideo);
         eduVideo.setGmtCreate(new Date());
         eduVideo.setGmtModified(new Date());
         eduVideoService.addVideo(eduVideo);

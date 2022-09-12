@@ -1,6 +1,8 @@
 package com.gzzn.service.edu.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.gzzn.service.common.utils.Res;
+import com.gzzn.service.edu.client.ServiceOssClient;
 import com.gzzn.service.edu.entity.EduVideoEntity;
 import com.gzzn.service.edu.mapper.EduChapterMapper;
 import com.gzzn.service.edu.mapper.EduVideoMapper;
@@ -9,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 /**
  * @author lyq
@@ -22,6 +25,9 @@ public class EduVideoServiceImpl extends ServiceImpl<EduVideoMapper, EduVideoEnt
     EduVideoMapper eduVideoMapper;
     @Autowired
     EduChapterMapper eduChapterMapper;
+    @Autowired
+    ServiceOssClient serviceOssClient;
+
 
     @Override
     @Transactional
@@ -45,8 +51,21 @@ public class EduVideoServiceImpl extends ServiceImpl<EduVideoMapper, EduVideoEnt
     @Override
     @Transactional
     public void removeVideo(String id) {
+        EduVideoEntity eduVideo = eduVideoMapper.selectById(id);
+        if(eduVideo==null){
+            throw new RuntimeException("小节不存在，不允许删除");
+        }
         if (eduVideoMapper.deleteById(id)!=1) {
             throw new RuntimeException("删除小节失败");
+        }
+        if(!StringUtils.isEmpty(eduVideo.getVideoOriginalName())){
+            Res res = serviceOssClient.removeVideo(eduVideo.getVideoOriginalName());
+            if(res == null){
+                throw new RuntimeException("oss服务连接失败");
+            }
+            if(!res.isSuccess()){
+                throw new RuntimeException("删除视频资源失败");
+            }
         }
     }
 }

@@ -2,9 +2,12 @@ package com.gzzn.service.edu.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.gzzn.service.common.utils.Res;
+import com.gzzn.service.edu.client.ServiceOssClient;
 import com.gzzn.service.edu.converter.EduCourseConverter;
 import com.gzzn.service.edu.entity.EduCourseDescriptionEntity;
 import com.gzzn.service.edu.entity.EduCourseEntity;
+import com.gzzn.service.edu.entity.EduVideoEntity;
 import com.gzzn.service.edu.mapper.EduChapterMapper;
 import com.gzzn.service.edu.mapper.EduCourseDescriptionMapper;
 import com.gzzn.service.edu.mapper.EduCourseMapper;
@@ -16,8 +19,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -36,6 +41,8 @@ public class EduCourseServiceImpl extends ServiceImpl<EduCourseMapper, EduCourse
     EduChapterMapper eduChapterMapper;
     @Autowired
     EduVideoMapper eduVideoMapper;
+    @Autowired
+    ServiceOssClient serviceOssClient;
 
     @Override
     @Transactional
@@ -109,9 +116,23 @@ public class EduCourseServiceImpl extends ServiceImpl<EduCourseMapper, EduCourse
         chapterWrapper.eq("course_id", id);
         eduChapterMapper.delete(chapterWrapper);
 
-        //删除小节
+
+        //查询所有小节关联的视频
         QueryWrapper videoWrapper = new QueryWrapper();
-        chapterWrapper.eq("course_id", id);
+        videoWrapper.eq("course_id", id);
+        List<EduVideoEntity> eduVideolist = eduVideoMapper.selectList(videoWrapper);
+        for (EduVideoEntity eduVideo : eduVideolist) {
+            if(!StringUtils.isEmpty(eduVideo.getVideoOriginalName())){
+                Res res = serviceOssClient.removeVideo(eduVideo.getVideoOriginalName());
+                if(res == null){
+                    throw new RuntimeException("oss服务连接失败");
+                }
+                if(!res.isSuccess()){
+                    throw new RuntimeException("删除视频资源失败");
+                }
+            }
+        }
+        //删除小节
         eduVideoMapper.delete(videoWrapper);
     }
 }
