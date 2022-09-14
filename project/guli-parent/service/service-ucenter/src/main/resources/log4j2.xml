@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--日志级别以及优先级排序: OFF > FATAL > ERROR > WARN > INFO > DEBUG > TRACE > ALL -->
+<configuration status="WARN" monitorInterval="1800">
+    <Properties>
+        <property name="format" value="%d{HH:mm:ss.SSS} %pid [%-5level] [%thread] %c : %m%n"/>
+    </Properties>
+
+    <appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${format}"/>
+        </Console>
+    </appenders>
+
+
+
+    <loggers>
+        <root level="info">
+            <appender-ref ref="console"/>
+        </root>
+
+        <logger name="com.gzzn.service.ucenter" level="debug" additivity="false">
+            <appender-ref ref="console"/>
+        </logger>
+
+        <logger name="com.gzzn.service.common.exception" level="debug" additivity="false">
+            <appender-ref ref="console"/>
+        </logger>
+
+    </loggers>
+</configuration>

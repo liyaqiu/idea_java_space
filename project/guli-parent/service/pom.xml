@@ -14,6 +14,10 @@
     <modules>
         <module>service-edu</module>
         <module>service-oss</module>
+        <module>service-crm</module>
+        <module>service-acl</module>
+        <module>service-ucenter</module>
+        <module>service-msm</module>
     </modules>
 
     <dependencies>
@@ -87,7 +91,6 @@
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
         </dependency>
-
 
         <!-- nacos注册中心-->
         <dependency>

@@ -1,0 +1,12 @@
+spring:
+  #单机redis
+  redis:
+    host: 192.168.88.10
+    port: 6379
+    client-type: lettuce
+    database: 0  #指定数据 redis数据库 默认0-15
+    lettuce: #默认为lettuce实现
+      pool:
+        max-active: 10
+server:
+  port: 8005
