@@ -21,6 +21,11 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -77,16 +82,4 @@ public class EduChapterController {
         eduChapterService.updateChapter(eduChapter);
         return Res.ok();
     }
-
-    //http://localhost:8001/edu/chapter?ids=1,2,3
-    //http://localhost:8001/edu/chapter?ids=1&ids=2&ids=3
-    @DeleteMapping()
-    @ApiOperation("111111")
-    public Res test(String[] ids){
-        System.out.println(ids);
-        //log.debug("removeChapter {} {} {}", ids[0],ids[1],ids[2]);
-        return Res.ok();
-    }
-
-
 }

@@ -1,4 +1,4 @@
-package com.gzzn.service.crm.controller;
+package com.gzzn.service.crm.controller.frontend;
 
 import com.baomidou.mybatisplus.extension.conditions.query.QueryChainWrapper;
 import com.gzzn.service.common.utils.Res;
@@ -19,7 +19,7 @@ import java.util.List;
  * @date 2021/12/4 12:33
  */
 @RestController
-@RequestMapping("/crm/banner")
+@RequestMapping("/crm/frontend/banner")
 @Slf4j
 @Api(tags = {"横幅管理"})
 public class CrmBannerController {
