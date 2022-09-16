@@ -2,7 +2,6 @@ package com.gzzn.service.edu.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.gzzn.service.edu.entity.EduTeacherEntity;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @author lyq

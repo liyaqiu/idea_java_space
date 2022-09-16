@@ -5,7 +5,6 @@ import com.gzzn.service.edu.entity.EduTeacherEntity;
 import com.gzzn.service.edu.mapper.EduTeacherMapper;
 import com.gzzn.service.edu.service.EduTeacherService;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @author lyq
@@ -13,4 +12,5 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @Service
 public class EduTeacherServiceImpl extends ServiceImpl<EduTeacherMapper, EduTeacherEntity> implements EduTeacherService {
+
 }

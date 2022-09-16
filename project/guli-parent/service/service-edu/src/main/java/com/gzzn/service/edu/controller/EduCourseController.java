@@ -104,7 +104,7 @@ public class EduCourseController {
     public Res PageQueryEduCourse(@ApiParam(name = "currentPage",value = "当前页",required = true) @PathVariable("currentPage") long currentPage,
                                   @ApiParam(name = "pageSize",value = "每页大小",required = true) @PathVariable("pageSize") long pageSize,
                                   @Validated PageQueryEduCourseVo vo){
-        log.debug("PageQueryEduTeacher {} {} {}",currentPage,pageSize,vo);
+        log.debug("PageQueryEduCourse {} {} {}",currentPage,pageSize,vo);
 
         QueryWrapper wrapper = new QueryWrapper();
         if(vo.getBeginTime()!=null){
