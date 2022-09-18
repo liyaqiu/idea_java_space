@@ -1,4 +1,4 @@
-package com.controller;
+package com.controller接收参数测试;
 
 import com.bean.TestObj;
 import com.bean.UserEntity;

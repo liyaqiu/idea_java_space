@@ -4,12 +4,15 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.gzzn.service.common.utils.Res;
 import com.gzzn.service.edu.entity.EduTeacherEntity;
 import com.gzzn.service.edu.service.EduTeacherService;
+import com.gzzn.service.edu.vo.resp.TeacherMetricVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -42,5 +45,13 @@ public class EduFrontendTeacherController {
         log.debug("queryEduTeacherById");
         EduTeacherEntity eduTeacher = eduTeacherService.getById(id);
         return Res.ok().setData(eduTeacher);
+    }
+
+    @GetMapping("/metric")
+    @ApiOperation("查询讲师指标")
+    public Res queryEduTeacherMetric(@DateTimeFormat(pattern = "yyyy-MM-dd")Date startDate, @DateTimeFormat(pattern = "yyyy-MM-dd")Date endDate){
+        log.debug("queryEduTeacherMetric startDate {} endDate {}",startDate,endDate);
+        List<TeacherMetricVo> list = eduTeacherService.queryEduTeacherMetric(startDate, endDate);
+        return Res.ok().setData(list);
     }
 }

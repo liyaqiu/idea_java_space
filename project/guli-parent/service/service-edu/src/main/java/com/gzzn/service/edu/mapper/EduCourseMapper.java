@@ -3,6 +3,7 @@ package com.gzzn.service.edu.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.gzzn.service.edu.entity.EduCourseEntity;
 import com.gzzn.service.edu.entity.EduSubjectEntity;
+import com.gzzn.service.edu.vo.resp.ForntQueryEduCourseDetailVo;
 import com.gzzn.service.edu.vo.resp.QueryEduCourseDetailVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -27,4 +28,16 @@ public interface EduCourseMapper extends BaseMapper<EduCourseEntity> {
             "\t\t\tLEFT JOIN  edu_subject twosub on twosub.id = cou.subject_id\n" +
             "WHERE cou.id = #{uid}")
     QueryEduCourseDetailVo selectEduCourseDetail(String uid);
+
+    @Select("SELECT cou.id,cou.title,cou.lesson_num,cou.price,cou.cover, cou.buy_count,cou.view_count,cou.view_count,ecd.description,\n" +
+            "            tea.name as teacher_name, tea.intro,tea.avatar,\n" +
+            "            onesub.title as one_subject, \n" +
+            "            twosub.title as two_subject \n" +
+            "            FROM edu_course cou \n" +
+            "\t\t\t\t\t\tLEFT JOIN  edu_course_description ecd on ecd.id = cou.id\n" +
+            "            LEFT JOIN  edu_teacher tea on tea.id = cou.teacher_id \n" +
+            "            LEFT JOIN  edu_subject onesub on onesub.id = cou.subject_parent_id \n" +
+            "            LEFT JOIN  edu_subject twosub on twosub.id = cou.subject_id \n" +
+            "            WHERE cou.id = #{cid}")
+    ForntQueryEduCourseDetailVo ForntSelectEduCourseDetail(String cid);
 }

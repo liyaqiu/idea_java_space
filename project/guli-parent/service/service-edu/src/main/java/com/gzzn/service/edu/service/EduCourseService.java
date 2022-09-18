@@ -3,6 +3,7 @@ package com.gzzn.service.edu.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.gzzn.service.edu.entity.EduCourseDescriptionEntity;
 import com.gzzn.service.edu.entity.EduCourseEntity;
+import com.gzzn.service.edu.vo.resp.ForntQueryEduCourseDetailVo;
 import com.gzzn.service.edu.vo.resp.QueryEduCourseDetailVo;
 import com.gzzn.service.edu.vo.resp.QueryEduCourseVo;
 
@@ -26,4 +27,6 @@ public interface EduCourseService extends IService<EduCourseEntity> {
     void publishEduCourse(EduCourseEntity eduCourse);
 
     void removeEduCourse(String id);
+
+    ForntQueryEduCourseDetailVo forntQueryEduCourseDetail(String id);
 }

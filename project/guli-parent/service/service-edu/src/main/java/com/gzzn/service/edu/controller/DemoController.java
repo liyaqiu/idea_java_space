@@ -8,10 +8,8 @@ package com.gzzn.service.edu.controller;
 import com.gzzn.service.common.utils.Res;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
@@ -28,7 +26,6 @@ public class DemoController {
         System.out.println("重定向方式1");
         return "redirect:https://www.baidu.com";
     }*/
-
     @PostMapping("/test")
     public void test(HttpServletResponse response){
         System.out.println("重定向方式2");

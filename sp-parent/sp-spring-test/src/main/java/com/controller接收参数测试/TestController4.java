@@ -1,4 +1,4 @@
-package com.controller;
+package com.controller接收参数测试;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;

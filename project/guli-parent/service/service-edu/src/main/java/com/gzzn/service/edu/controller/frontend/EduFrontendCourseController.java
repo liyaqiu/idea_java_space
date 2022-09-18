@@ -13,6 +13,7 @@ import com.gzzn.service.edu.vo.req.AddEduCourseVo;
 import com.gzzn.service.edu.vo.req.FrontendPageQueryEduCourseVo;
 import com.gzzn.service.edu.vo.req.PageQueryEduCourseVo;
 import com.gzzn.service.edu.vo.req.UpdateEduCourseVo;
+import com.gzzn.service.edu.vo.resp.ForntQueryEduCourseDetailVo;
 import com.gzzn.service.edu.vo.resp.QueryEduCourseDetailVo;
 import com.gzzn.service.edu.vo.resp.QueryEduCourseVo;
 import io.swagger.annotations.Api;
@@ -80,5 +81,13 @@ public class EduFrontendCourseController {
         map.put("total", page.getTotal());
         map.put("records", page.getRecords());
         return Res.ok().setData(map);
+    }
+
+    @GetMapping("/{id}")
+    @ApiOperation("查询课程详情")
+    public Res queryEduCourseDetail(@PathVariable("id") String id){
+        log.debug("queryEduCourseDetail {}",id);
+        ForntQueryEduCourseDetailVo vo = eduCourseService.forntQueryEduCourseDetail(id);
+        return Res.ok().setData(vo);
     }
 }

@@ -1,4 +1,4 @@
-package com.controller;
+package com.restful;
 
 import com.bean.UserEntity;
 import lombok.extern.slf4j.Slf4j;

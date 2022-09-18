@@ -4,11 +4,8 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.util.StringUtils;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
-import java.util.Map;
 
 /**
  * @author eric
@@ -16,6 +13,7 @@ import java.util.Map;
  **/
 public class JWTUtil {
     //有效期为30分钟
+
     public static final long EXPIRE = 1000*60*30;
     //public static final long EXPIRE = 1000*6;
     public static final String SECRET = "abcdefgHIJKLMN";
@@ -54,7 +52,8 @@ public class JWTUtil {
 
     public static void main(String[] args) throws InterruptedException {
         String token = JWTUtil.createToken("12345678");
-        Thread.sleep(3000);
+        System.out.println(token);
+        //Thread.sleep(3000);
         try {
             JWTUtil.verifyToken(token);
         } catch (Exception e) {

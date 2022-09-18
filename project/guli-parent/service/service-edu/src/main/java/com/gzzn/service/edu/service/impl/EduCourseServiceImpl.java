@@ -13,6 +13,7 @@ import com.gzzn.service.edu.mapper.EduCourseDescriptionMapper;
 import com.gzzn.service.edu.mapper.EduCourseMapper;
 import com.gzzn.service.edu.mapper.EduVideoMapper;
 import com.gzzn.service.edu.service.EduCourseService;
+import com.gzzn.service.edu.vo.resp.ForntQueryEduCourseDetailVo;
 import com.gzzn.service.edu.vo.resp.QueryEduCourseDetailVo;
 import com.gzzn.service.edu.vo.resp.QueryEduCourseVo;
 import lombok.extern.slf4j.Slf4j;
@@ -134,5 +135,14 @@ public class EduCourseServiceImpl extends ServiceImpl<EduCourseMapper, EduCourse
         }
         //删除小节
         eduVideoMapper.delete(videoWrapper);
+    }
+
+    @Override
+    public ForntQueryEduCourseDetailVo forntQueryEduCourseDetail(String id) {
+        ForntQueryEduCourseDetailVo vo = eduCourseMapper.ForntSelectEduCourseDetail(id);
+        if(vo==null){
+            throw new RuntimeException("查询的课程不存在");
+        }
+        return vo;
     }
 }
