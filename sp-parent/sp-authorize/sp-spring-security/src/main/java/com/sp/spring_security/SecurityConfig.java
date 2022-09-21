@@ -44,10 +44,15 @@ import java.util.List;
  * @date 2022/3/19 15:02
  **/
 @Slf4j
-@Configuration(proxyBeanMethods = true)
-//@EnableGlobalMethodSecurity(securedEnabled =true,prePostEnabled = true) //启用方法权限配置
+@Configuration
+/*
+    增加启用方法权限配置
+        @EnableGlobalMethodSecurity(securedEnabled =true,prePostEnabled = true)
+    可以在方法上面增加如下注解
+        @PreAuthorize("hasAuthority('p2')")权限
+        @Secured({"ROLE_admin"})角色
+*/
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-
     //认证数据与
     @Bean
     public UserDetailsService infoDatabase(){

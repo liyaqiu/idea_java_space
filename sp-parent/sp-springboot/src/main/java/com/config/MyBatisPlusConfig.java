@@ -1,20 +1,19 @@
-package com.gzzn.service.edu.config;
+package com.config;
 
+import com.baomidou.mybatisplus.core.MybatisConfiguration;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.BlockAttackInnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
-import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * @author eric
- * @date 2022/9/2 23:16
- **/
+ * @author lyq
+ * @date 2021/12/6 11:27
+ * MybatisPlusPageConfig
+ */
 @Configuration
-@MapperScan("com.gzzn.service.edu.mapper")
 public class MyBatisPlusConfig {
-
     @Bean
     public MybatisPlusInterceptor mybatisPlusInterceptor(){
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
@@ -25,4 +24,3 @@ public class MyBatisPlusConfig {
         return interceptor;
     }
 }
-

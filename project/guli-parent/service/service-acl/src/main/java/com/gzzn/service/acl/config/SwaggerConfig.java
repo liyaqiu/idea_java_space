@@ -24,7 +24,7 @@ public class SwaggerConfig {
         return new Docket(DocumentationType.SWAGGER_2).apiInfo(apiInfo())
                 .enable(true) //true则显示文档
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.gzzn.service.crm.controller"))//要扫描接口的目录
+                .apis(RequestHandlerSelectors.basePackage("com.gzzn.service.acl.controller"))//要扫描接口的目录
                 .paths(PathSelectors.any())
                 .build();
     }

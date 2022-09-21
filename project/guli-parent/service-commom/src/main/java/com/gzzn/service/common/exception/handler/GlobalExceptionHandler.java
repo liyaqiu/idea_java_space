@@ -31,7 +31,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public Res doMethodArgumentNotValidException(MethodArgumentNotValidException e){
         log.error("",e);
-        return Res.fail().setMessage(e.getMessage()).setCode(ResCode.DATA_VALIDATION_FAIL);
+        return Res.fail()
+                .setMessage(e.getBindingResult().getAllErrors().stream().findFirst().get().toString())
+                .setCode(ResCode.DATA_VALIDATION_FAIL);
     }
 
     @ExceptionHandler(FileUploadException.class)

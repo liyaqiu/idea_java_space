@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
  * @date 2022/9/2 23:16
  **/
 @Configuration
-@MapperScan("com.gzzn.service.edu.mapper")
+@MapperScan("com.gzzn.service.acl.mapper")
 public class MyBatisPlusConfig {
     /**
      * 分页插件

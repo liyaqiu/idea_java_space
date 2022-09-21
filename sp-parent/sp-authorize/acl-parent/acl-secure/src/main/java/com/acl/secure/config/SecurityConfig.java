@@ -36,7 +36,7 @@ import java.util.ArrayList;
  * @date 2022/3/19 15:02
  **/
 @Slf4j
-@Configuration(proxyBeanMethods = false)
+@Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired

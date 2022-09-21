@@ -55,13 +55,13 @@ public class UcenterMemberServiceImpl extends ServiceImpl<UcenterMemberMapper, U
 
     @Override
     public UcenterMemberEntity getMemberInfo(String token) {
+        String id = null;
         try {
-            JWTUtil.verifyToken(token);
+            id = JWTUtil.parseToken(token);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-        String id = (String) JWTUtil.parseToken(token);
         QueryWrapper wrapper = new QueryWrapper();
         wrapper.eq("id", id);
         wrapper.select("nickname","avatar");

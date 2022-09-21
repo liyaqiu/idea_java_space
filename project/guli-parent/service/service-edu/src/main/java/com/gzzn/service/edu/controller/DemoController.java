@@ -5,8 +5,10 @@ package com.gzzn.service.edu.controller;
  * @date 2022/9/15 14:40
  **/
 
+import cn.hutool.core.map.MapUtil;
 import com.gzzn.service.common.utils.Res;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +28,7 @@ public class DemoController {
         System.out.println("重定向方式1");
         return "redirect:https://www.baidu.com";
     }*/
+
     @PostMapping("/test")
     public void test(HttpServletResponse response){
         System.out.println("重定向方式2");

@@ -1,2 +1,8 @@
 server:
-  port: 8003
+  port: 8008
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://192.168.88.10:3306/guli?useSSL=false
+    username: root
+    password: 123456
