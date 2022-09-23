@@ -17,6 +17,7 @@
         <module>sp-spring-cache-caffeine</module>
         <module>sp-spring-cache-redis</module>
         <module>sp-alibaba-jetcache</module>
+        <module>sp-oschina-j2cache</module>
     </modules>
 
     <properties>

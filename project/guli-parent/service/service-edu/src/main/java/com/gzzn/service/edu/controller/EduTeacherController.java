@@ -12,6 +12,7 @@ import com.gzzn.service.edu.vo.req.UpdateEduTeacherVo;
 import com.gzzn.service.edu.entity.EduTeacherEntity;
 import com.gzzn.service.edu.service.EduTeacherService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
@@ -73,12 +74,12 @@ public class EduTeacherController {
     }
 
 
-
+    @ApiImplicitParam
     @GetMapping("/{currentPage}/{pageSize}")
     @ApiOperation("条件分页查询讲师")
     public Res PageQueryEduTeacher(@ApiParam(name = "currentPage",value = "当前页",required = true) @PathVariable("currentPage") long currentPage,
                                    @ApiParam(name = "pageSize",value = "每页大小",required = true) @PathVariable("pageSize") long pageSize,
-                                   PageQueryEduTeacherVo vo){
+                                   @RequestParam(required = false) PageQueryEduTeacherVo vo){
         log.debug("PageQueryEduTeacher {} {} {}",currentPage,pageSize,vo);
 
         QueryWrapper wrapper = new QueryWrapper();

@@ -3,5 +3,5 @@ org.springframework.context.ApplicationContextInitializer=\
 org.springframework.boot.SpringApplicationRunListener=\
     com.init.metainfo_init.MySpringApplicationRunListener
 org.springframework.context.ApplicationListener=\
-    com.listen.enentlisten.Default.DefaultStartListener,\
-    com.listen.globalevent.MyApplicationListener
+    com.evenListen.enentlisten.Default.DefaultStartListener,\
+    com.evenListen.globalevent.MyApplicationListener

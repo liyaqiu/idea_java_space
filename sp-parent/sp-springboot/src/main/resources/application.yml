@@ -44,3 +44,11 @@ logging:
 #  mapper-locations:
 #    - classpath:mybatis/mapper/*.xml
 #  type-aliases-package: com.sp.entity
+
+other:
+  a1: eric
+  a2: 18
+
+myconfig:
+  name: ${other.a1}
+  age: ${other.a2}

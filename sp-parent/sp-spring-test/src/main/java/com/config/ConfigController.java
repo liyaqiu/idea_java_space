@@ -69,4 +69,13 @@ public class ConfigController {
         log.debug("test7 myConfig,{}",myConfig.getClass());
     }
 
+    @Autowired
+    MyconfigYAML2 myconfigYAML2;
+
+    @GetMapping("/test8")
+    @ResponseBody
+    public String test8(){
+        log.debug("test8 {}",myconfigYAML2);
+        return "你好";
+    }
 }

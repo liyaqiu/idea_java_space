@@ -1,6 +1,7 @@
 package com.controller;
 
 import com.common.Result;
+import com.config获取其他配置.MyConfig;
 import com.entity.User;
 import com.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -60,6 +61,7 @@ public class UserController  {
         log.debug("你好 {}",user);
         return new Result(Result.OK,"执行成功11111",true,new User());
     }
+
 
 
     @GetMapping("/test2")

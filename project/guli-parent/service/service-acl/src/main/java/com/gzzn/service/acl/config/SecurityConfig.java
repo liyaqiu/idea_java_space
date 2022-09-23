@@ -6,6 +6,7 @@ import com.gzzn.service.acl.security.filter.TokenAuthenticationFilter;
 import com.gzzn.service.acl.security.handler.LoginFailureHandler;
 import com.gzzn.service.acl.security.handler.LoginSuccessHandler;
 import com.gzzn.service.acl.security.handler.TokenAccessDeniedHandler;
+import com.gzzn.service.acl.security.handler.TokenLogoutSuccessHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -35,6 +36,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private LoginSuccessHandler loginSuccessHandler;
     @Autowired
     private LoginFailureHandler loginFailureHandler;
+    @Autowired
+    private TokenLogoutSuccessHandler tokenLogoutSuccessHandler;
     @Autowired
     private CaptchaFilter captchaFilter;
     @Autowired
@@ -68,7 +71,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .failureHandler(loginFailureHandler)
         .and()
                 .sessionManagement()
+                //禁用session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        //退出登录配置
+        .and()
+                .logout()
+                .logoutSuccessHandler(tokenLogoutSuccessHandler)
         //配置拦截规则
         .and()
                 .authorizeRequests()
@@ -79,7 +87,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         //配置异常处理器
         .and()
                 .exceptionHandling()
+                //未登陆的处理
                 .authenticationEntryPoint(tokenAuthenticationEntryPoint)
+                //没权限的处理
                 .accessDeniedHandler(tokenAccessDeniedHandler)
         //配置自定义过滤器
         .and()

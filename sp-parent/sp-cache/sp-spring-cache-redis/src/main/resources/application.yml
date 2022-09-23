@@ -3,7 +3,7 @@ server:
 logging:
   config: classpath:log4j2.xml
 
-
+spring:
   cache:  #spring提供缓存
     cache-names: "userCache,cache2"
     type: REDIS

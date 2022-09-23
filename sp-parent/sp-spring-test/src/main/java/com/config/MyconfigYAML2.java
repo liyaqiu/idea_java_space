@@ -19,8 +19,7 @@ import java.time.temporal.ChronoUnit;
 /**
  * @author lyq
  * @date 2022/2/26 23:59
- * @EnableConfigurationProperties({MyconfigYAML2.class})   利用开关来同意管理配置
- * 等同于在类上加了 @Component @Configuration
+ * @EnableConfigurationProperties({MyconfigYAML2.class}) 利用开关来统一管理配置
  */
 @Getter
 @Setter

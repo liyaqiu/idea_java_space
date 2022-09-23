@@ -26,13 +26,13 @@ public class JWTUtil {
         return Jwts.builder()
                 //JWT头信息
                 .setHeaderParam("typ", "JWT")
-                .setHeaderParam("alg", "HS2256")
-                //设置分类；设置过期时间 一个当前时间，一个加上设置的过期时间常量
-                .setSubject("lin-user")
+                .setHeaderParam("alg", SignatureAlgorithm.HS256)
+                //JWT Body
+                //.setSubject("")
                 .setIssuedAt(new Date(currentTime))
                 .setExpiration(new Date(expireTime))
-                //设置token主体信息，存储用户信息
                 .claim("data", data)
+                //JWT 签名
                 .signWith(SignatureAlgorithm.HS256, SECRET)
                 .compact();
     }
@@ -43,6 +43,7 @@ public class JWTUtil {
         Claims body = claimsJws.getBody();
         return (T)body.get("data");
     }
+
 
     public static void main(String[] args) throws InterruptedException {
         String token = JWTUtil.createToken("12345678");

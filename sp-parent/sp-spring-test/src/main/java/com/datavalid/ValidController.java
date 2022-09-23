@@ -9,9 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -26,7 +23,7 @@ public class ValidController {
 
     @GetMapping("test1")
 
-    public String test1(@Validated User3 user3){
+    public String test1(@Validated ValidDemo2 user3){
         log.info("test1   {}",user3);
         return "success";
     }
@@ -39,7 +36,7 @@ public class ValidController {
     }
 
     @Autowired
-    User4 user4;
+    ValidDemo3 user4;
     @GetMapping("test3")
     public String test3(){
         log.info("test3 user4:{}",user4);

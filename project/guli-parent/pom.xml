@@ -20,6 +20,7 @@
     <modules>
         <module>service</module>
         <module>service-commom</module>
+        <module>tool-log</module>
     </modules>
 
     <properties>
