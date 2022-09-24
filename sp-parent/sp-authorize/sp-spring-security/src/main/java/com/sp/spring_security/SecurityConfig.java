@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -114,6 +115,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     })
                 .and()
                     .authorizeRequests()
+                    .antMatchers(HttpMethod.DELETE,"/a/b/c").hasRole("admin")
                     .antMatchers("/security/resource1").hasAuthority("resource2Permission")//授权认证
                     .antMatchers("/security/resource1").hasAuthority("resource1Permission")//授权认证
                     .antMatchers("/security/resource2").hasAuthority("resource2Permission")//授权认证

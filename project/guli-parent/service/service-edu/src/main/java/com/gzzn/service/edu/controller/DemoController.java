@@ -6,6 +6,7 @@ package com.gzzn.service.edu.controller;
  **/
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -16,10 +17,13 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 
 @RestController
+@RequestMapping("${myconf.path:/ggggg}")
 //@Controller
 @Validated
 public class DemoController {
 
+    @Value("${myconf.path:rrrrrr}")
+    String path;
 
     @GetMapping("/test1")
     public String test1(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date name){
@@ -32,6 +36,12 @@ public class DemoController {
         System.out.println("重定向方式2");
         response.setStatus(302);
         response.setHeader("Location","https://www.baidu.com");
+    }
+
+    @PostMapping("/test3")
+    public void test3(){
+        System.out.println(path);
+
     }
 
     //http://localhost:8001/edu/chapter?ids=1,2,3

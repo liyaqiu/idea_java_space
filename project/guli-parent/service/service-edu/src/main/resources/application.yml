@@ -34,3 +34,5 @@ logging:
 #mybatis-plus:
   #configuration:
     #log-impl: org.apache.ibatis.logging.stdout.StdOutImpl #可以更改显示查询格式
+myconf:
+  path: /abc/hello

@@ -25,6 +25,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,9 +57,21 @@ public class MyUsernamePasswordAuthenticationFilter extends UsernamePasswordAuth
      * */
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+        System.out.println("attemptAuthentication");
+
         //return super.attemptAuthentication(request, response);
         String username = request.getParameter("username");
         String password = request.getParameter("password");
+
+        //获取请求体
+        try(BufferedReader reader = request.getReader()){
+            while (reader.ready()) {
+                System.out.println("@@@"+reader.readLine());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
 
         log.info("获取表单信息并且返回给框架做用户校验 {}  {}",username,password);
 
