@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: service-gateway
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      server-addr: 192.168.88.10:8848
+      discovery:
+        cluster-name: hangzhou
+        ephemeral: false #默认为true 临时实例，靠客户端去做心跳，false为永久实例，nacos发心跳到客户端
+    gateway:
+      routes: #网关配置
+        - id: service-edu #可以任意起id
+          uri: lb://service-edu #lb可以实现服务的负载均衡  可以填写http:127.0.0.1:8080具体的地址
+          predicates: #断言规则
+            - Path=/dev-api/**
+          filters:
+            - StripPrefix=1 #过滤掉前缀 /dev-api/
+logging:
+  #引入文件方式
+  config: classpath:log4j2.xml

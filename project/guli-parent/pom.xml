@@ -21,6 +21,7 @@
         <module>service</module>
         <module>service-commom</module>
         <module>tool-log</module>
+        <module>service-gateway</module>
     </modules>
 
     <properties>
