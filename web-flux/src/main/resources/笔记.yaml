@@ -1,0 +1,353 @@
+lambda:
+  箭头函数:
+    - (x) -> System.out.print(x)
+  4大核心函数接口:
+    Consumer: 有参有无返回值函数
+    Supplier: 无参有返回值函数
+    Function: 有参有返回值函数
+    Predicate: 断言函数
+  双冒号的使用:
+    方法引用:
+      类实例对象+非静态方法名:
+        - "
+          Consumer<Integer> consumer = System.out::println;
+          consumer.accept(1000);
+        "
+      类对象+静态方法名:
+        - "
+          Function<Double,String> supplier = String::valueOf;
+          System.out.println(supplier.apply(500.12D));
+        "
+      类对象+非静态方法名:
+        - "
+          前提条件，第一个参数作为对象使用，第二个参数作为参数使用
+          BiFunction<Integer,Integer,Integer> biFunction = (s1,s2) -> s1.compareTo(s2);
+          System.out.println(biFunction.apply(1000, 200));
+
+          BiFunction<Integer,Integer,Integer> function = Integer::compareTo;
+          System.out.println(function.apply(2000, 2000));
+        "
+    构造器引用之对象:
+      调用无参构造器:
+        - "
+          Supplier<Person> supplier = Person::new;
+          System.out.println(supplier.get());
+        "
+      调用有参构造器:
+        - "
+          BiFunction<String,Integer,Person> biFunction = Person::new;
+          System.out.println(biFunction.apply('eric', 18));
+        "
+    构造器引用之数组:
+      - "
+        方式1
+          //Function<Integer,String[]> function = (length) -> new String[length];
+            Function<Integer,String[]> function = String[]::new;
+            System.out.println(function.apply(100).length);
+        方式2
+          Function<Integer,Person[]> function = Person[]::new;
+          System.out.println(function.apply(100).length);
+      "
+  Stream:
+    概念:
+      - Stream主要对集合或者数组进行操作
+      - Stream自己不会存储元素
+      - Stream不会改变源头对象，但是会返回一个持有结果的新Stream
+      - Stream操作是延迟执行的，这意味着他们会等到需要结果的时候才会执行
+      - Stream的操作只有遇到了终止操作才会触发中间操作，这个过程称为【惰性求值】
+    Stream的三个操作步骤:
+      创建Stream:
+        串行流:
+          - "
+            //创建普通流
+                //方式1
+                Stream<String> stream1 = new ArrayList<String>().stream();
+                //方式2
+                Stream<String> stream2 = Arrays.stream(new String[10]);
+                //方式3
+                Stream<ArrayList<String>> stream3 = Stream.of(new ArrayList<String>());
+            //创建无限流
+                //方式1
+                Stream<Integer> stream4 = Stream.iterate(10, (x) -> x + 1);
+                //方式2
+                Stream<Integer> stream5 = Stream.generate(() -> 1);
+          "
+        并行流:
+          - "
+            //创建并行流，底层用到了JDK原生的 fork join框架
+            Stream<String> parallel = new ArrayList<String>().stream().parallel();
+            System.out.println(parallel.isParallel());
+
+            //创建串行流，默认为串行
+            Stream<String> sequential = new ArrayList<String>().stream().sequential();
+            System.out.println(sequential.isParallel());
+          "
+      中间操作Stream:
+        筛选与切片:
+          - "
+              Stream<Person> stream = personList.stream()
+                              .filter((person) -> person.getAge() >= 19) //过滤
+                              .limit(40) //指定条数
+                              .skip(2) //跳过多少条
+                              .distinct();//去重
+            "
+        map与flatMap:
+          - "
+            //map
+            Short[] arr = new Short[]{1,2,3,4,5,6,7};
+            Stream<Short> stream = Arrays.stream(arr).map((el) -> el+1);
+            //flatMap
+            Short[][] arr = new Short[][]{{1,2,3},{4,5,6},{7,8,9}};
+            Stream<Short> stream = Arrays.stream(arr).flatMap(Arrays::stream);
+          "
+        排序:
+          - "
+            Integer[] arr = {4,5,7,1,2,3,6,8,4};
+            Stream<Integer> stream =  = Arrays.stream(arr).sorted();
+
+            Integer[] arr = {4,5,7,1,2,3,6,8,4};
+            Stream<Integer> stream =  = Arrays.stream(arr).sorted((e1,e2) -> -Integer.compare(e1,e2));
+          "
+      终止操作Stream:
+        打印:
+          - "
+            String[] arr = new String[]{'张三','李四','王五','赵六','田七'};
+            Arrays.stream(arr).forEach(System.out::println);
+          "
+        查找与匹配:
+          - "
+            //如何所有元素是否符合条件返回真，否则返回假
+            boolean allMatch = personList.stream().allMatch((person) -> person.age > 10);
+            System.out.println(allMatch);
+
+            //只要有任意一个元素符合条件返回真，否则为假
+            boolean anyMatch = personList.stream().anyMatch((p) -> p.getName().equals('eric'));
+            System.out.println(anyMatch);
+
+            //没有任何一个元素匹配则返回真，否则返回假
+            boolean noneMatch = personList.stream().noneMatch((p) -> p.getName().equals('eric21'));
+            System.out.println(noneMatch);
+
+            //获取第一个元素
+            Optional<Person> person = personList.stream().findFirst();
+            System.out.println(person);
+
+            //获取任意一个元素
+            Optional<Person> person1 = personList.stream().findAny();
+            System.out.println(person1);
+
+            //计算元素的总个数
+            long count = personList.stream().count();
+            System.out.println(count);
+
+            //返回最小值
+            Optional<Person> person2 = personList.stream().min(Comparator.comparingInt(Person::getAge));
+            System.out.println(person2);
+
+            //返回最大值
+            Optional<Person> person3 = personList.stream().max(Comparator.comparingInt(Person::getAge));
+            System.out.println(person3);
+          "
+        归约reduce:
+          - "
+            方式1
+              Integer[] ints = new Integer[]{1,2,3,4,5,6,7};
+              Integer reduce = Arrays.stream(ints).reduce(0, (n1, n2) -> n1 + n2);
+              System.out.println(reduce);
+            方式2
+              //计算总年龄
+              Integer reduce = Arrays.stream(ints).reduce(0, Integer::sum);
+              System.out.println(reduce);
+          "
+        收集:
+          - "
+            //收集到set集合中
+            Set<String> set = personList.stream().map((p) -> p.getName()).collect(Collectors.toSet());
+            System.out.println(set);
+
+            //收集到list集合中
+            List<String> list = personList.stream().map((p) -> p.getName()).collect(Collectors.toList());
+            System.out.println(list);
+
+            //收集到Arraylist集合中
+            List<String> arrayList = personList.stream().map((p) -> p.getName()).collect(Collectors.toCollection(ArrayList::new));
+            System.out.println(list);
+
+            //收集并计算总条数
+            System.out.println(personList.stream().collect(Collectors.counting()));
+            //收集并计算总和
+            System.out.println(personList.stream().collect(Collectors.summingInt((p)->p.getAge())));
+            //收集并计算最大值
+            System.out.println(personList.stream().collect(Collectors.maxBy((p1,p2)->p1.getAge().compareTo(p2.getAge()))));
+            //收集并计算最小值
+            System.out.println(personList.stream().collect(Collectors.minBy((p1,p2)->p1.getAge().compareTo(p2.getAge()))));
+            //收集并计算平均值
+            System.out.println(personList.stream().collect(Collectors.averagingInt((p) -> p.getAge())));
+
+            //各种统计统一计算
+            System.out.println(personList.stream().collect(Collectors.summarizingInt((p) -> p.getAge())));
+
+            //分组
+            Map<Person.State, List<Person>> collect = personList.stream().collect(Collectors.groupingBy((p) -> p.getState()));
+            System.out.println(collect);
+            //分区
+            Map<Boolean, List<Person>> collect1 = personList.stream().collect(Collectors.partitioningBy((p) -> p.getAge() >= 20));
+            System.out.println(collect1);
+
+
+            //拼接
+            String collect = personList.stream().map(p -> p.getName()).collect(Collectors.joining(","));
+            System.out.println(collect);
+
+            //拼接
+            String collect1 = personList.stream().map(p -> p.getName()).collect(Collectors.joining(',','<','>'));
+            System.out.println(collect1);
+          "
+  Optional:
+    概念:
+      - 当一个返回值有可能为Null的时候，可以使用Optional包装返回，如果能保证不返回Null的结果则不需要
+    基本使用:
+      - "
+        //创建一个有值的
+        Optional<Person> optional1 = Optional.of(new Person());
+        //创建一个空值的
+        Optional<Object> optional2 = Optional.empty();
+        //创建一个可能有值，可能没值的
+        Optional<Person> optional3 = Optional.ofNullable(new Person());
+        Optional<Person> optional4 = Optional.ofNullable(null);
+
+        //判断值否存在
+        boolean bl = optional1.isPresent();
+
+        //当值不存在则返回默认的
+        Person person = optional1.orElse(new Person());
+      "
+  接口方法:
+    概念:
+      - 当一个子类继承了父类，并且实现了接口，如果接口有默认实现方法和父类方法同名，则优先使用父类的方法。
+    基本使用:
+      - "
+        public class Demo {
+            @Test
+            public void test(){
+                new Animal(){}.print();
+                Animal.hello();
+            }
+        }
+
+        interface Animal{
+            //默认方法
+            default void print(){
+                System.out.println('hello-world');
+            }
+            //静态方法
+            static void hello(){
+                System.out.println('hello-world');
+            }
+        }
+      "
+    冲突问题:
+      - "
+        public class Demo2 {
+            @Test
+            public void test(){
+                Son son = new Son();
+                son.print();
+            }
+        }
+
+        class Son extends Father implements Inter1,Inter2{}
+
+        class Father{
+            //可以在子类实现，解决冲突，或者利用父类的实现来解决冲突
+            public void print(){
+                System.out.println('hello-Father');
+            }
+        }
+
+        interface Inter1{
+            default void print(){
+                System.out.println('hello-inter1');
+            }
+        }
+
+        interface Inter2{
+            default void print(){
+                System.out.println('hello-inter2');
+            }
+        }
+      "
+  时间日期:
+    概念:
+      - LocalDate(本地日期) LocalTime(本地时间) LocalDateTime(本地日期时间)
+      - jdk8的时间日期是线程安全的，并且是不可变对象，每次都会产生新对象。
+    本地日期时间:
+      - "
+        //创建一个指定的本地日期时间
+        LocalDateTime oldDateTime = LocalDateTime.of(LocalDate.of(2016, 1, 1), LocalTime.of(8, 8, 8));
+        System.out.println(oldDateTime);
+
+        //创建一个本地日期时间
+        LocalDateTime newDateTime = LocalDateTime.now();
+        System.out.println(newDateTime);
+
+        //指定时区创建本地日期时间
+        System.out.println(LocalDateTime.now(ZoneId.of('Asia/Shanghai')));
+
+        //比较2个日期时间的间隔
+        Duration between = Duration.between(oldDateTime, newDateTime);
+        System.out.println(between.toDays());
+        System.out.println(between.toMinutes());
+        System.out.println(between.getSeconds());
+        System.out.println(between.toMillis());
+
+
+        LocalDateTime nowDateTime = LocalDateTime.now();
+        System.out.println(nowDateTime);
+        //计算出后10天的日期
+        System.out.println(nowDateTime.plusDays(10));
+        //计算出前10天的日期
+        System.out.println(nowDateTime.minusDays(10));
+
+        //预定义的格式化
+        System.out.println(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
+
+        //根据指定格式格式化时间
+        System.out.println(LocalDateTime.now().format(DateTimeFormatter.ofPattern('yyyy年MM月dd日 HH时mm分ss秒SSS毫秒',Locale.CHINA)));
+
+        //根据指定格式解析时间
+        System.out.println(LocalDateTime.parse('2022年09月27日 01时32分00秒313毫秒', DateTimeFormatter.ofPattern('yyyy年MM月dd日 HH时mm分ss秒SSS毫秒',Locale.CHINA)));
+      "
+    本地时间:
+      - "
+        //创建一个指定的本地时间
+        LocalTime localTime1 = LocalTime.of(7, 20,12);
+        System.out.println(localTime1.toString());
+
+        //创建一个本地时间
+        LocalTime localTime2 = LocalTime.now();
+        System.out.println(localTime2.toString());
+
+        //比较2个时间的间隔
+        Duration duration = Duration.between(localTime2,localTime1);
+        System.out.println(duration.toHours());
+        System.out.println(duration.toMinutes());
+        System.out.println(duration.toMillis());
+      "
+    本地日期:
+      - "
+        //创建一个指定的本地日期
+         LocalDate localDate1 = LocalDate.of(2018, 8, 8);
+         System.out.println(localDate1);
+
+         //创建一个本地日期
+         LocalDate localDate2 = LocalDate.now();
+         System.out.println(localDate2);
+
+
+         //比较2个日期的间隔
+         Period period = Period.between(localDate1, localDate2);
+         System.out.println(period.get(ChronoUnit.DAYS));
+      "
+
+
