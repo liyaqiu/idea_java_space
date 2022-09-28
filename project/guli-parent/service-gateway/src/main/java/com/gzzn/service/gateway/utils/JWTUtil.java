@@ -12,10 +12,9 @@ import java.util.Date;
  * @date 2022/9/14 15:48
  **/
 public class JWTUtil {
-    //有效期为30分钟
-
-    //public static final long EXPIRE = 1000*60*30;
-    public static final long EXPIRE = 1000*3;
+    //有效期为1天
+    public static final long EXPIRE = 1000*60*60*24;
+    //public static final long EXPIRE = 1000*3;
     public static final String SECRET = "abcdefgHIJKLMN";
 
     /*创建token*/
@@ -35,6 +34,11 @@ public class JWTUtil {
                 //JWT 签名
                 .signWith(SignatureAlgorithm.HS256, SECRET)
                 .compact();
+    }
+
+    /*校验token是否合法*/
+    public static void check(String token) throws Exception{
+        Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token);
     }
 
     /*解析token*/

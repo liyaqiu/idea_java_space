@@ -1,5 +1,6 @@
 package com.gzzn.service.gateway.security2.model;
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,32 +16,47 @@ import java.util.List;
 @Slf4j
 public class UserModel implements UserDetails {
 
-    String userName;
-    String password;
-    List<GrantedAuthority> list;
+    private String userName;
+    private String password;
+    private List<String> authorityList;
 
-    public UserModel(String userName, String password, List<GrantedAuthority> list) {
+
+    public UserModel(String userName, List<String> authorityList) {
+        this.userName = userName;
+        this.authorityList = authorityList;
+    }
+
+    public UserModel(String userName, String password, List<String> authorities) {
         this.userName = userName;
         this.password = password;
-        this.list = list;
+        this.authorityList = authorities;
+    }
+
+    public List<String> getAuthorityList() {
+        return authorityList;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         log.debug("getAuthorities");
-        return this.list;
+        List<GrantedAuthority> ga = new ArrayList<>();
+        authorityList.stream().forEach((authority)-> {
+            ga.add(()-> authority);
+        });
+
+        return ga;
     }
 
     @Override
     public String getPassword() {
         log.debug("getPassword");
-        return this.password;
+        return password;
     }
 
     @Override
     public String getUsername() {
         log.debug("getUsername");
-        return this.userName;
+        return userName;
     }
 
     @Override
@@ -65,5 +81,14 @@ public class UserModel implements UserDetails {
     public boolean isEnabled() {
         log.debug("isEnabled");
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "UserModel{" +
+                "userName='" + userName + '\'' +
+                ", password='" + password + '\'' +
+                ", authorityList=" + authorityList +
+                '}';
     }
 }

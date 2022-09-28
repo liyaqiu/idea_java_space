@@ -43,11 +43,12 @@ public class LoginSuccessHandler implements ServerAuthenticationSuccessHandler {
         HttpHeaders headers = response.getHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        //生成jwtToken
+        //根据用户名生成jwtToken
         String token = JWTUtil.createToken(authentication.getName());
+        //可以存入redis来做token过期
         //返回
         Res res = Res.ok().setData(MapUtil.builder().put("token", token).build());
-
+        System.out.println(token);
         DataBuffer buffer = response.bufferFactory().wrap(JSONUtil.toJsonStr(res).getBytes(StandardCharsets.UTF_8));
         return response.writeWith(Mono.just(buffer));
     }
