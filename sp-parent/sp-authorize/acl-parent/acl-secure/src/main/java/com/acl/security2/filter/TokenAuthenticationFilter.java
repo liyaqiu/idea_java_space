@@ -1,4 +1,4 @@
-package com.gzzn.service.acl.security.filter;
+package com.acl.security2.filter;
 
 import com.gzzn.service.common.utils.JWTUtil;
 import lombok.extern.slf4j.Slf4j;

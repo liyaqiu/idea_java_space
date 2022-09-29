@@ -30,8 +30,8 @@ public class UserDetailService implements ReactiveUserDetailsService {
             String userName = "liyaqiu";
             String password = "$2a$10$7WdbN5Bw7H0CwWXTv97fyenS4w/rwGTrG2YvW6tT0oXGLmPe2vHCK";
             List<String> authorities = new ArrayList<>();
-            /*authorities.add("subject:list");
-            authorities.add("teacher:list");*/
+            authorities.add("subject:list");
+            authorities.add("teacher:list");
             authorities.add("teacher:get");
             authorities.add("teacher:delete");
             return Mono.just(new UserModel(userName,password,authorities));

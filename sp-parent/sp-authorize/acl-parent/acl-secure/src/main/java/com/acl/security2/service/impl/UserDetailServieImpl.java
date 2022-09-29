@@ -1,4 +1,4 @@
-package com.gzzn.service.acl.security.service.impl;
+package com.acl.security2.service.impl;
 
 import com.gzzn.service.acl.entity.AclUserEntity;
 import com.gzzn.service.acl.mapper.AclUserMapper;

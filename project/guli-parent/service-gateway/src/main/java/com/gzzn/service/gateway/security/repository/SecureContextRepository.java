@@ -41,7 +41,7 @@ public class SecureContextRepository implements ServerSecurityContextRepository 
     @Override
     public Mono<SecurityContext> load(ServerWebExchange exchange) {
         //访问登录URL地址的时候会调用此方法，以及save方法
-        //后面如果是请求api了，只调用此方法，不会调用save方法
+        //访问退出登录URL和其他API请求也会调用此方法，不会调用save方法
         log.debug("MyContextRepository load");
 
         HttpHeaders headers = exchange.getRequest().getHeaders();
@@ -54,6 +54,14 @@ public class SecureContextRepository implements ServerSecurityContextRepository 
                 //解析token获得用户名
                 userName = JWTUtil.parseToken(token);
                 String authorities = redisTemplate.opsForValue().get(userName);
+                /**
+                 *因为颁发的token是jwt的，所以令牌有可能还没过期，但用户是可以退出登录了，依靠这个key来做判断
+                 *如果登陆过，那么肯定key存在，不会返回null，如果key不存在，肯定没登陆过
+                 */
+                if(authorities ==null){
+                    log.debug("改用户已经退出登录了");
+                    return Mono.empty();
+                }
 
                 List<String> authorityList = new Gson().fromJson(authorities, ArrayList.class);
                 UserModel userModel = new UserModel(userName,authorityList);

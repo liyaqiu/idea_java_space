@@ -3,10 +3,7 @@ package com.gzzn.service.gateway.security.config;
 
 
 import com.gzzn.service.gateway.security.filter.JwtParseFilter;
-import com.gzzn.service.gateway.security.handler.LoginFailureHandler;
-import com.gzzn.service.gateway.security.handler.LoginSuccessHandler;
-import com.gzzn.service.gateway.security.handler.NoAuthorityHandler;
-import com.gzzn.service.gateway.security.handler.NoLoginHander;
+import com.gzzn.service.gateway.security.handler.*;
 import com.gzzn.service.gateway.security.repository.SecureContextRepository;
 import com.gzzn.service.gateway.security.service.UserDetailService;
 import lombok.extern.slf4j.Slf4j;
@@ -52,6 +49,11 @@ public class SecurityConfig {
     SecureContextRepository secureContextRepository;
     @Autowired
     JwtParseFilter jwtParseFilter;
+    @Autowired
+    LogoutHandler logoutHandler;
+    @Autowired
+    LogoutSuccessHandler logoutSuccessHandler;
+
 
     @Autowired
     UserDetailService userDetailService;
@@ -77,16 +79,21 @@ public class SecurityConfig {
                 .pathMatchers(HttpMethod.GET,"/dev-api/edu/teacher/all").hasAuthority("teacher:list")
                 .pathMatchers(HttpMethod.GET,"/dev-api/edu/teacher/*").hasAuthority("teacher:get")
                 .pathMatchers(HttpMethod.DELETE,"/dev-api/edu/teacher/*").hasAuthority("teacher:delete")
-                .pathMatchers("/mylogin","/mylogout").permitAll()
+                .pathMatchers("/test1","/test2","/test3").permitAll()
                 .anyExchange().authenticated()
             .and()
                 //提供了仓库，覆盖默认的WebSessionServerSecurityContextRepository，默认仓库用的是session来做处理
                 //以及响应头的cookie里面也不会存在session信息了
                 .securityContextRepository(secureContextRepository)
                 .formLogin()
-                .loginPage("/mylogin")
+                .loginPage("/mylogin")//post请求 默认不会拦截此接口
                 .authenticationSuccessHandler(loginSuccessHandler) //登陆成功
                 .authenticationFailureHandler(loginFailureHandler) //登陆失败
+            .and()//退出
+                .logout()
+                .logoutUrl("/mylogout") //post请求 默认不会拦截此接口
+                .logoutHandler(logoutHandler)
+                .logoutSuccessHandler(logoutSuccessHandler)
             .and()
                 .exceptionHandling()
                 .authenticationEntryPoint(noLoginHander) //没登录，配置这个就不会返回默认的登陆界面了
@@ -95,10 +102,5 @@ public class SecurityConfig {
                 .addFilterAt(jwtParseFilter,SecurityWebFiltersOrder.FIRST) //添加jwt解析器
             .cors().disable().csrf().disable();
         return http.build();
-    }
-
-
-    public static void main(String[] args) {
-        System.out.println(new BCryptPasswordEncoder().encode("123456"));
     }
 }

@@ -1,4 +1,4 @@
-package com.gzzn.service.acl.security.filter;
+package com.acl.security2.filter;
 
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;

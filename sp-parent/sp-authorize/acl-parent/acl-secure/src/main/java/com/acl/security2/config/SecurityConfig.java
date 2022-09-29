@@ -1,12 +1,13 @@
-package com.gzzn.service.acl.config;
+package com.acl.security2.config;
 
-import com.gzzn.service.acl.security.TokenAuthenticationEntryPoint;
-import com.gzzn.service.acl.security.filter.CaptchaFilter;
-import com.gzzn.service.acl.security.filter.TokenAuthenticationFilter;
-import com.gzzn.service.acl.security.handler.LoginFailureHandler;
-import com.gzzn.service.acl.security.handler.LoginSuccessHandler;
-import com.gzzn.service.acl.security.handler.TokenAccessDeniedHandler;
-import com.gzzn.service.acl.security.handler.TokenLogoutSuccessHandler;
+import com.acl.security2.TokenAuthenticationEntryPoint;
+import com.acl.security2.filter.CaptchaFilter;
+import com.acl.security2.filter.TokenAuthenticationFilter;
+import com.acl.security2.handler.LoginFailureHandler;
+import com.acl.security2.handler.LoginSuccessHandler;
+
+import com.acl.security2.handler.TokenAccessDeniedHandler;
+import com.acl.security2.handler.TokenLogoutSuccessHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -14,11 +15,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**

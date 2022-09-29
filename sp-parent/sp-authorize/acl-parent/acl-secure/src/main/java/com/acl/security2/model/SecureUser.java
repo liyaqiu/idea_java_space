@@ -1,4 +1,4 @@
-package com.gzzn.service.acl.security.model;
+package com.acl.security2.model;
 
 import com.gzzn.service.acl.entity.AclUserEntity;
 import org.springframework.security.core.GrantedAuthority;

@@ -21,4 +21,14 @@ public class AclUserEntity {
    private Integer sort;
    private Date gmtCreate;
    private Date gmtModified;
+
+  /* id
+           username
+   password
+           nick_name
+   avatar
+           is_deleted
+   gmt_create
+           gmt_modified*/
+
 }
