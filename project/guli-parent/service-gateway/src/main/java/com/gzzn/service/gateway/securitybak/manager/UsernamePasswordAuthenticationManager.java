@@ -1,10 +1,9 @@
-package com.gzzn.service.gateway.security.manager;
+package com.gzzn.service.gateway.securitybak.manager;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.util.Collection;

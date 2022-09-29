@@ -1,138 +1,104 @@
 package com.gzzn.service.gateway.security.config;
 
 
-import com.gzzn.service.gateway.security.filter.CaptchaFilter;
-import com.gzzn.service.gateway.security.filter.LoginFilter;
-import com.gzzn.service.gateway.security.filter.TokenAuthenticationFilter;
-import com.gzzn.service.gateway.security.handler.*;
-import com.gzzn.service.gateway.security.manager.UsernamePasswordAuthenticationManager;
+
+import com.gzzn.service.gateway.security.filter.JwtParseFilter;
+import com.gzzn.service.gateway.security.handler.LoginFailureHandler;
+import com.gzzn.service.gateway.security.handler.LoginSuccessHandler;
+import com.gzzn.service.gateway.security.handler.NoAuthorityHandler;
+import com.gzzn.service.gateway.security.handler.NoLoginHander;
+import com.gzzn.service.gateway.security.repository.SecureContextRepository;
+import com.gzzn.service.gateway.security.service.UserDetailService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
-import org.springframework.security.core.userdetails.*;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import reactor.core.publisher.Mono;
-
-import java.sql.SQLOutput;
 
 /**
+ * https://blog.csdn.net/qq_43692950/article/details/122513687
+ * https://blog.csdn.net/qq_43692950/article/details/122513687?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522166426668116800184172884%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fblog.%2522%257D&request_id=166426668116800184172884&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~blog~first_rank_ecpm_v1~rank_v31_ecpm-6-122513687-null-null.nonecase&utm_term=SpringSecurity&spm=1018.2226.3001.4450
  * @author eric
  * @date 2022/3/19 15:02
  **/
 @Slf4j
-//@EnableWebFluxSecurity
-public class SecurityConfig{
-
-    //@Autowired
-    //private ReactiveAuthenticationManager authenticationManager;
-    //url白名单
-    private final static String[] URL_WHITELIST = {"/login","/logout","/dev-api/captcha","/favicon.ico"};
-    @Autowired
-    private LoginSuccessHandler loginSuccessHandler;
-    @Autowired
-    private LoginFailureHandler loginFailureHandler;
-    @Autowired
-    private TokenLogoutSuccessHandler tokenLogoutSuccessHandler;
-    @Autowired
-    private CaptchaFilter captchaFilter;
-    @Autowired
-    private NotLoginHander notLoginHander;
-    @Autowired
-    private NotAuthorizeHandler notAuthorizeHandler;
-    @Autowired
-    private UserDetailsService userDetailsService;
-    @Autowired
-    private LoginFilter loginFilter;
-
-    @Autowired
-    UsernamePasswordAuthenticationManager authenticationManager;
-
-    /*@Bean
-    public TokenAuthenticationFilter tokenAuthenticationFilter(){
-        return  new TokenAuthenticationFilter(authenticationManager);
-    }*/
-
-
-    //密码编码器
-    /*@Bean
-    public PasswordEncoder passwordEncoder(){
-        log.info("passwordEncoder");
-        return NoOpPasswordEncoder.getInstance();
-        //return new BCryptPasswordEncoder();
-    }*/
-
+//@EnableReactiveMethodSecurity
+@EnableWebFluxSecurity
+public class SecurityConfig {
 
 
     /*@Bean
-    public UserDetailsService userDetailsService(){
-        return new UserDetailsService(){
-
-            @Override
-            public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-                log.debug("UserDetailsService");
-                return null;
-            }
-        };
+    public ReactiveUserDetailsService userDetailsService() {
+        UserDetails user = User.withUsername("admin").password(passwordEncoder().encode("1234")).authorities("admin").build();
+        return new MapReactiveUserDetailsService(user);
     }*/
 
-    /*
-    * 核心配置
-    * */
+    @Autowired
+    LoginSuccessHandler loginSuccessHandler;
+    @Autowired
+    LoginFailureHandler loginFailureHandler;
+    @Autowired
+    NoLoginHander noLoginHander;
+    @Autowired
+    NoAuthorityHandler noAuthorityHandler;
+    @Autowired
+    SecureContextRepository secureContextRepository;
+    @Autowired
+    JwtParseFilter jwtParseFilter;
+
+    @Autowired
+    UserDetailService userDetailService;
+
     @Bean
-    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity  http) throws Exception {
-        log.info("核心配置 {}");
+    public ReactiveAuthenticationManager authenticationManager() {
+        UserDetailsRepositoryReactiveAuthenticationManager authenticationManager = new UserDetailsRepositoryReactiveAuthenticationManager(userDetailService);
+        authenticationManager.setPasswordEncoder(passwordEncoder());
+        return authenticationManager;
+    }
 
-        http.cors()
-                //禁用csrf校验
-                .and()
-                    .csrf().disable()
-                //登录配置
-                /*.formLogin()
-                    .authenticationSuccessHandler(loginSuccessHandler)
-                    .authenticationFailureHandler(loginFailureHandler)*/
 
-               // .and()
-                //退出登录配置
-                    .logout()
-                    .logoutSuccessHandler(tokenLogoutSuccessHandler)
-                //配置拦截规则
-                .and().authenticationManager(authenticationManager)
-                    .authorizeExchange()
-                    //设置白名单
-                    .pathMatchers(URL_WHITELIST).permitAll()
-                    //其他的任何url都需要进行认证
-                    .anyExchange().authenticated()
-                //异常处理
-                .and()
-                    .exceptionHandling()
-                    //未登陆的处理
-                    //.authenticationEntryPoint(notLoginHander)
-                    //没权限的处理
-                    .accessDeniedHandler(notAuthorizeHandler)
-                    //配置自定义过滤器
-                .and()
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-                    //验证码过滤器
-                    //.addFilterBefore(captchaFilter, SecurityWebFiltersOrder.FORM_LOGIN)
-                    //登陆过滤器
-                    .addFilterAt(loginFilter, SecurityWebFiltersOrder.FORM_LOGIN);
-                    //配置token认证过滤器
-                    //.addFilterAt(tokenAuthenticationFilter(), SecurityWebFiltersOrder.AUTHENTICATION);
+    @Bean
+    SecurityWebFilterChain webFluxSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+        http
+            .authorizeExchange()
+                .pathMatchers(HttpMethod.GET,"/dev-api/edu/subject/all").hasAuthority("subject:list")
+                .pathMatchers(HttpMethod.GET,"/dev-api/edu/teacher/all").hasAuthority("teacher:list")
+                .pathMatchers(HttpMethod.GET,"/dev-api/edu/teacher/*").hasAuthority("teacher:get")
+                .pathMatchers(HttpMethod.DELETE,"/dev-api/edu/teacher/*").hasAuthority("teacher:delete")
+                .pathMatchers("/mylogin","/mylogout").permitAll()
+                .anyExchange().authenticated()
+            .and()
+                //提供了仓库，覆盖默认的WebSessionServerSecurityContextRepository，默认仓库用的是session来做处理
+                //以及响应头的cookie里面也不会存在session信息了
+                .securityContextRepository(secureContextRepository)
+                .formLogin()
+                .loginPage("/mylogin")
+                .authenticationSuccessHandler(loginSuccessHandler) //登陆成功
+                .authenticationFailureHandler(loginFailureHandler) //登陆失败
+            .and()
+                .exceptionHandling()
+                .authenticationEntryPoint(noLoginHander) //没登录，配置这个就不会返回默认的登陆界面了
+                .accessDeniedHandler(noAuthorityHandler) //没权限
+            .and()
+                .addFilterAt(jwtParseFilter,SecurityWebFiltersOrder.FIRST) //添加jwt解析器
+            .cors().disable().csrf().disable();
         return http.build();
     }
 
 
-   /* @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService);
-    }*/
+    public static void main(String[] args) {
+        System.out.println(new BCryptPasswordEncoder().encode("123456"));
+    }
 }

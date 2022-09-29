@@ -1,17 +1,10 @@
-package com.gzzn.service.gateway.security.impl;
+package com.gzzn.service.gateway.securitybak.impl;
 
 
-import com.gzzn.service.gateway.entity.AclUserEntity;
-import com.gzzn.service.gateway.security.model.SecureUser;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.Collection;

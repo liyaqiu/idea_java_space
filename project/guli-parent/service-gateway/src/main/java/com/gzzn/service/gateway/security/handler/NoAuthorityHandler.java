@@ -1,4 +1,4 @@
-package com.gzzn.service.gateway.security2.handler;
+package com.gzzn.service.gateway.security.handler;
 
 import cn.hutool.json.JSONUtil;
 import com.gzzn.service.gateway.utils.Res;

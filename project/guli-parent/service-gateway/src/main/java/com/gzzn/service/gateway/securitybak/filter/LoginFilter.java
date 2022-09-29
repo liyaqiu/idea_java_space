@@ -1,26 +1,17 @@
-package com.gzzn.service.gateway.security.filter;
+package com.gzzn.service.gateway.securitybak.filter;
 
-import cn.hutool.core.collection.SpliteratorUtil;
-import com.gzzn.service.gateway.security.manager.UsernamePasswordAuthenticationManager;
+import com.gzzn.service.gateway.securitybak.manager.UsernamePasswordAuthenticationManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
-import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
-
-import java.util.function.Predicate;
 
 /**
  * @author eric

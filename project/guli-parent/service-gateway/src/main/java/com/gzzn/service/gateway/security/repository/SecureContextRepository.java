@@ -1,18 +1,13 @@
-package com.gzzn.service.gateway.security2.repository;
+package com.gzzn.service.gateway.security.repository;
 
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
 import com.google.gson.Gson;
-import com.gzzn.service.gateway.security2.model.UserModel;
+import com.gzzn.service.gateway.security.model.UserModel;
 import com.gzzn.service.gateway.utils.JWTUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
@@ -22,8 +17,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author eric
@@ -31,15 +24,15 @@ import java.util.stream.Collectors;
  **/
 @Component
 @Slf4j
-public class MyContextRepository implements ServerSecurityContextRepository {
+public class SecureContextRepository implements ServerSecurityContextRepository {
     @Autowired
     StringRedisTemplate redisTemplate;
     @Override
     public Mono<Void> save(ServerWebExchange exchange, SecurityContext context) {
-        System.out.println(context.getAuthentication().getClass());
+        log.debug("MyContextRepository save");
+        //将登陆的数据保存到redis
         //只有登录的时候会调用此方法
         UserModel userModel = (UserModel) context.getAuthentication().getPrincipal();
-        log.debug("MyContextRepository save {}",userModel);
         //存入权限列表信息到redis
         redisTemplate.opsForValue().set(userModel.getUsername(), new Gson().toJson(userModel.getAuthorityList()));
         return Mono.empty();
@@ -52,7 +45,7 @@ public class MyContextRepository implements ServerSecurityContextRepository {
         log.debug("MyContextRepository load");
 
         HttpHeaders headers = exchange.getRequest().getHeaders();
-        //前面token过滤器已经做了校验，所以这里不需要再次校验
+
         String token = headers.getFirst("token");
 
         if(token!=null){
@@ -64,15 +57,19 @@ public class MyContextRepository implements ServerSecurityContextRepository {
 
                 List<String> authorityList = new Gson().fromJson(authorities, ArrayList.class);
                 UserModel userModel = new UserModel(userName,authorityList);
-                System.out.println(userModel);
+                log.debug("获取用户信息及权限信息 {}",userModel);
 
                 SecurityContext securityContext = new SecurityContextImpl();
                 securityContext.setAuthentication(new UsernamePasswordAuthenticationToken(userModel,null,userModel.getAuthorities()));
                 return Mono.just(securityContext);
             } catch (Exception e) {
-                e.printStackTrace();
+                return Mono.error(e);
             }
         }
+        /**
+         * token为什么为空？此方法除了登录接口会调用，其他api接口访问的时候也会进行调用
+         * 如果返回空会走NoLoginHander未登录的处理逻辑
+         * */
         return Mono.empty();
     }
 }

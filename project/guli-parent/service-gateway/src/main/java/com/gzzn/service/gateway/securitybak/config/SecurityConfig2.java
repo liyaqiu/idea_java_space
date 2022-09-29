@@ -1,21 +1,14 @@
-package com.gzzn.service.gateway.security.config;
+package com.gzzn.service.gateway.securitybak.config;
 
 
-import com.gzzn.service.gateway.security.filter.CaptchaFilter;
-import com.gzzn.service.gateway.security.filter.LoginFilter;
-import com.gzzn.service.gateway.security.handler.*;
-import com.gzzn.service.gateway.security.manager.UsernamePasswordAuthenticationManager;
+import com.gzzn.service.gateway.securitybak.filter.LoginFilter;
+import com.gzzn.service.gateway.securitybak.handler.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.authentication.ReactiveAuthenticationManager;
-import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import reactor.core.publisher.Mono;
 
 /**
  * @author eric

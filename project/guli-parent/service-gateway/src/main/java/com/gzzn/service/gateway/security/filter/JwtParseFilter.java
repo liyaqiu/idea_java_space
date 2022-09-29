@@ -1,6 +1,5 @@
-package com.gzzn.service.gateway.security2.filter;
+package com.gzzn.service.gateway.security.filter;
 
-import cn.hutool.core.map.MapUtil;
 import cn.hutool.json.JSONUtil;
 import com.gzzn.service.gateway.utils.JWTUtil;
 import com.gzzn.service.gateway.utils.Res;
@@ -25,16 +24,7 @@ import java.nio.charset.StandardCharsets;
 @Slf4j
 public class JwtParseFilter implements WebFilter {
 
-    public static void main(String[] args) throws Exception {
-        //根据用户名生成jwtToken
-        String token = JWTUtil.createToken("liyaqiu");
-        //可以存入redis来做token过期
-        //返回
-        Res res = Res.ok().setData(MapUtil.builder().put("token", token).build());
 
-        String userName = JWTUtil.parseToken(token);
-        System.out.println(userName);
-    }
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {

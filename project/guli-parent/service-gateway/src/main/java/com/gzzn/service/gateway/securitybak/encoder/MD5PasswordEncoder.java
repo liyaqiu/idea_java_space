@@ -1,4 +1,4 @@
-package com.gzzn.service.gateway.security.encoder;
+package com.gzzn.service.gateway.securitybak.encoder;
 
 import cn.hutool.crypto.digest.DigestUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;

@@ -1,4 +1,4 @@
-package com.gzzn.service.gateway.security.model;
+package com.gzzn.service.gateway.securitybak.model;
 
 import com.gzzn.service.gateway.entity.AclUserEntity;
 import org.springframework.security.core.GrantedAuthority;
