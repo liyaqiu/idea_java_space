@@ -24,14 +24,11 @@ import java.nio.charset.StandardCharsets;
 @Slf4j
 public class JwtParseFilter implements WebFilter {
 
-
-
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         log.debug("filter");
         HttpHeaders headers = exchange.getRequest().getHeaders();
         String token = headers.getFirst("token");
-
 
         //如果token不存在则放行
         if(token==null){
@@ -39,12 +36,14 @@ public class JwtParseFilter implements WebFilter {
         }
 
         try {
-            //校验tokne是否合法
-            //TODO 理论上这里做了解析后面就不需要解析，但是由于不能修改请求头的原因，暂时这样做，这样做会存在一个时间差问题，导致后面json二次解析可能出现失败
-            JWTUtil.check(token);
+            //校验token合法性，并解析
+            String userName = JWTUtil.parseToken(token);
+            //把用户名设置进请求头
+            headers= HttpHeaders.writableHttpHeaders(headers);
+            headers.set("username",userName);
+            //放行
             return chain.filter(exchange);
         } catch (Exception e) {
-            e.printStackTrace();
             log.error("token非法或者过期 {}",e.getMessage());
             //如果token解析失败（有可能token非法或者过期），则返回
             ServerHttpResponse response = exchange.getResponse();

@@ -30,7 +30,6 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 @EnableWebFluxSecurity
 public class SecurityConfig {
 
-
     /*@Bean
     public ReactiveUserDetailsService userDetailsService() {
         UserDetails user = User.withUsername("admin").password(passwordEncoder().encode("1234")).authorities("admin").build();

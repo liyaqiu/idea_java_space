@@ -31,6 +31,10 @@ public class UserModel implements UserDetails {
         this.authorityList = authorities;
     }
 
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public List<String> getAuthorityList() {
         return authorityList;
     }

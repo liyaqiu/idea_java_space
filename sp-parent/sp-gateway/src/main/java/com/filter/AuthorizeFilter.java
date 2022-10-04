@@ -5,6 +5,7 @@ import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
@@ -25,6 +26,16 @@ public class AuthorizeFilter implements GlobalFilter,Ordered{
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+
+        //写request header方式
+        //方法一 设置为可修改的
+            HttpHeaders headers = exchange.getRequest().getHeaders();
+            headers= HttpHeaders.writableHttpHeaders(headers);
+            //设置请求头
+            headers.set("username","lyq");
+        //方法二 bulid
+            //exchange.getRequest().mutate().header("username","eric").build();
+
         ServerHttpRequest request = exchange.getRequest();
         MultiValueMap<String, String> queryParams = request.getQueryParams();
         log.info("tou1:{}",request.getHeaders().get("tou1"));

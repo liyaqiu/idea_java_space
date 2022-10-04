@@ -108,8 +108,8 @@ public class EduTeacherController {
 
     @GetMapping("/{id}")
     @ApiOperation("根据id查询讲师")
-    public Res getEduTeacherById(@ApiParam(name = "id",value = "讲师id",required = true) @PathVariable("id") String id){
-        log.debug("updateEduTeacher {}",id);
+    public Res getEduTeacherById(@RequestHeader("username") String username, @ApiParam(name = "id",value = "讲师id",required = true) @PathVariable("id") String id){
+        log.debug("getEduTeacherById {} {}",id,username);
         EduTeacherEntity eduTeacher = eduTeacherService.getById(id);
         return Res.ok().setData(eduTeacher);
     }

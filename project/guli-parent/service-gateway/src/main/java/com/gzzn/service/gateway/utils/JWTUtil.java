@@ -36,11 +36,6 @@ public class JWTUtil {
                 .compact();
     }
 
-    /*校验token是否合法*/
-    public static void check(String token) throws Exception{
-        Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token);
-    }
-
     /*解析token*/
     public static <T> T parseToken(String token) throws Exception{
         Jws<Claims> claimsJws = Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token);

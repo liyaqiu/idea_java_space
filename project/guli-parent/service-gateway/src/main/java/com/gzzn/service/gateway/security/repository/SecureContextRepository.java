@@ -9,6 +9,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.stereotype.Component;
@@ -33,8 +34,9 @@ public class SecureContextRepository implements ServerSecurityContextRepository 
         //将登陆的数据保存到redis
         //只有登录的时候会调用此方法
         UserModel userModel = (UserModel) context.getAuthentication().getPrincipal();
+        userModel.setPassword(null);
         //存入权限列表信息到redis
-        redisTemplate.opsForValue().set(userModel.getUsername(), new Gson().toJson(userModel.getAuthorityList()));
+        redisTemplate.opsForValue().set(userModel.getUsername(), new Gson().toJson(userModel));
         return Mono.empty();
     }
 
@@ -46,38 +48,33 @@ public class SecureContextRepository implements ServerSecurityContextRepository 
 
         HttpHeaders headers = exchange.getRequest().getHeaders();
 
-        String token = headers.getFirst("token");
+        String username = headers.getFirst("username");
 
-        if(token!=null){
-            String userName = null;
-            try {
-                //解析token获得用户名
-                userName = JWTUtil.parseToken(token);
-                String authorities = redisTemplate.opsForValue().get(userName);
-                /**
-                 *因为颁发的token是jwt的，所以令牌有可能还没过期，但用户是可以退出登录了，依靠这个key来做判断
-                 *如果登陆过，那么肯定key存在，不会返回null，如果key不存在，肯定没登陆过
-                 */
-                if(authorities ==null){
-                    log.debug("改用户已经退出登录了");
-                    return Mono.empty();
-                }
-
-                List<String> authorityList = new Gson().fromJson(authorities, ArrayList.class);
-                UserModel userModel = new UserModel(userName,authorityList);
-                log.debug("获取用户信息及权限信息 {}",userModel);
-
-                SecurityContext securityContext = new SecurityContextImpl();
-                securityContext.setAuthentication(new UsernamePasswordAuthenticationToken(userModel,null,userModel.getAuthorities()));
-                return Mono.just(securityContext);
-            } catch (Exception e) {
-                return Mono.error(e);
-            }
-        }
         /**
-         * token为什么为空？此方法除了登录接口会调用，其他api接口访问的时候也会进行调用
+         * username为什么为空？此方法除了登录接口会调用，其他api接口访问的时候也会进行调用
          * 如果返回空会走NoLoginHander未登录的处理逻辑
          * */
-        return Mono.empty();
+        if(username==null){
+            return Mono.empty();
+        }
+
+        String userInfo = redisTemplate.opsForValue().get(username);
+
+        /**
+         *因为颁发的token是jwt的，所以令牌有可能还没过期，但用户是可以退出登录了，依靠这个key来做判断
+         *如果登陆过，那么肯定key存在，不会返回null，如果key不存在，肯定没登陆过
+         */
+        if(userInfo ==null){
+            log.debug("该用户已经退出登录了");
+            return Mono.empty();
+        }
+
+        UserModel userModel = new Gson().fromJson(userInfo, UserModel.class);
+        log.debug("获取用户信息及权限信息 {}",userModel);
+
+        SecurityContext securityContext = new SecurityContextImpl();
+        securityContext.setAuthentication(new UsernamePasswordAuthenticationToken(userModel,null,userModel.getAuthorities()));
+
+        return Mono.just(securityContext);
     }
 }
