@@ -2,6 +2,7 @@ package com.gzzn.service.gateway.security.config;
 
 
 
+import com.gzzn.service.gateway.security.encoder.MD5PasswordEncoder;
 import com.gzzn.service.gateway.security.filter.JwtParseFilter;
 import com.gzzn.service.gateway.security.handler.*;
 import com.gzzn.service.gateway.security.repository.SecureContextRepository;
@@ -53,7 +54,6 @@ public class SecurityConfig {
     @Autowired
     LogoutSuccessHandler logoutSuccessHandler;
 
-
     @Autowired
     UserDetailService userDetailService;
 
@@ -67,17 +67,22 @@ public class SecurityConfig {
 
     @Bean
     PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new MD5PasswordEncoder();
+    }
+
+    public static void main(String[] args) {
+        System.out.println(new BCryptPasswordEncoder().encode("123456"));
+        System.out.println(new BCryptPasswordEncoder().matches("123456", "$2a$10$2lOoC6KMp8RMHS85Ryu4I.wkw2mUYGi394eu0u48ZaqX.MKSIKsRq"));
     }
 
     @Bean
     SecurityWebFilterChain webFluxSecurityFilterChain(ServerHttpSecurity http) throws Exception {
         http
             .authorizeExchange()
-                .pathMatchers(HttpMethod.GET,"/dev-api/edu/subject/all").hasAuthority("subject:list")
-                .pathMatchers(HttpMethod.GET,"/dev-api/edu/teacher/all").hasAuthority("teacher:list")
-                .pathMatchers(HttpMethod.GET,"/dev-api/edu/teacher/*").hasAuthority("teacher:get")
-                .pathMatchers(HttpMethod.DELETE,"/dev-api/edu/teacher/*").hasAuthority("teacher:delete")
+                .pathMatchers(HttpMethod.GET,"/dev-api/edu/subject/all").hasAuthority("subject.list")
+                .pathMatchers(HttpMethod.GET,"/dev-api/edu/teacher/all").hasAuthority("teacher.list")
+                .pathMatchers(HttpMethod.GET,"/dev-api/edu/teacher/*").hasAuthority("teacher.get")
+                .pathMatchers(HttpMethod.DELETE,"/dev-api/edu/teacher/*").hasAuthority("teacher.delete")
                 .pathMatchers("/test1","/test2","/test3").permitAll()
                 .anyExchange().authenticated()
             .and()

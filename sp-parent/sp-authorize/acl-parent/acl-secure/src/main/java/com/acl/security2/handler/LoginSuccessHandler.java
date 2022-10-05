@@ -2,8 +2,8 @@ package com.acl.security2.handler;
 
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.json.JSONUtil;
-import com.gzzn.service.common.utils.JWTUtil;
-import com.gzzn.service.common.utils.Res;
+import cn.hutool.jwt.JWTUtil;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;

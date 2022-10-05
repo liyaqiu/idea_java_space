@@ -21,10 +21,7 @@ public class AclUserController {
     @Autowired
     private AclUserService aclUserService;
 
-    @GetMapping
-    public void test(){
-        log.info("{}","test");
-    }
+
 
 
 }

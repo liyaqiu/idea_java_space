@@ -2,7 +2,7 @@ package com.gzzn.service.gateway.security.filter;
 
 import cn.hutool.json.JSONUtil;
 import com.gzzn.service.gateway.utils.JWTUtil;
-import com.gzzn.service.gateway.utils.Res;
+import com.gzzn.service.utils.Res;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpHeaders;
@@ -39,7 +39,7 @@ public class JwtParseFilter implements WebFilter {
             //校验token合法性，并解析
             String userName = JWTUtil.parseToken(token);
             //把用户名设置进请求头
-            headers= HttpHeaders.writableHttpHeaders(headers);
+            headers = HttpHeaders.writableHttpHeaders(headers);
             headers.set("username",userName);
             //放行
             return chain.filter(exchange);

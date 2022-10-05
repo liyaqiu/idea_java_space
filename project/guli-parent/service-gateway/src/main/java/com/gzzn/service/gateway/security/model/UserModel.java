@@ -4,9 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author eric
@@ -15,20 +13,53 @@ import java.util.List;
 @Slf4j
 public class UserModel implements UserDetails {
 
-    private String userName;
+    private String id;
+    private String username;
     private String password;
-    private List<String> authorityList;
+    private Boolean locked; //true为锁定，false为不锁定
+    private List<String> permits;
 
 
-    public UserModel(String userName, List<String> authorityList) {
-        this.userName = userName;
-        this.authorityList = authorityList;
+    public UserModel() {
     }
 
-    public UserModel(String userName, String password, List<String> authorities) {
-        this.userName = userName;
+    public UserModel(String username, List<String> authorityList) {
+        this.username = username;
+        this.permits = authorityList;
+    }
+
+    public UserModel(String username, String password, List<String> authorities) {
+        this.username = username;
         this.password = password;
-        this.authorityList = authorities;
+        this.permits = authorities;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public Boolean getLocked() {
+        return locked;
+    }
+
+    public void setLocked(Boolean locked) {
+        this.locked = locked;
+    }
+
+    public List<String> getPermits() {
+        return permits;
+    }
+
+    public void setPermits(List<String> permits) {
+        this.permits = permits;
     }
 
     public void setPassword(String password) {
@@ -36,15 +67,15 @@ public class UserModel implements UserDetails {
     }
 
     public List<String> getAuthorityList() {
-        return authorityList;
+        return permits;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         //log.debug("getAuthorities");
         List<GrantedAuthority> ga = new ArrayList<>();
-        authorityList.stream().forEach((authority)-> {
-            ga.add(()-> authority);
+        permits.stream().forEach((permit)-> {
+            ga.add(()-> permit);
         });
 
         return ga;
@@ -59,7 +90,7 @@ public class UserModel implements UserDetails {
     @Override
     public String getUsername() {
         //log.debug("getUsername");
-        return userName;
+        return username;
     }
 
     @Override
@@ -70,8 +101,8 @@ public class UserModel implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        //log.debug("isAccountNonLocked");
-        return true;
+        log.debug("isAccountNonLocked");
+        return !locked;
     }
 
     @Override
@@ -89,9 +120,11 @@ public class UserModel implements UserDetails {
     @Override
     public String toString() {
         return "UserModel{" +
-                "userName='" + userName + '\'' +
+                "id='" + id + '\'' +
+                ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
-                ", authorityList=" + authorityList +
+                ", locked=" + locked +
+                ", permits=" + permits +
                 '}';
     }
 }

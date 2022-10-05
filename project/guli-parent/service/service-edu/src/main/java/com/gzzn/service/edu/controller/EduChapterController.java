@@ -1,18 +1,12 @@
 package com.gzzn.service.edu.controller;
 
 import com.gzzn.service.edu.converter.EduChapterConverter;
-import com.gzzn.service.edu.converter.EduCourseConverter;
-import com.gzzn.service.edu.converter.EduCourseDescriptionConverter;
 import com.gzzn.service.edu.entity.EduChapterEntity;
-import com.gzzn.service.edu.entity.EduCourseDescriptionEntity;
-import com.gzzn.service.edu.entity.EduCourseEntity;
 import com.gzzn.service.edu.service.EduChapterService;
 import com.gzzn.service.edu.vo.req.AddEduChapterVo;
-import com.gzzn.service.common.utils.Res;
 import com.gzzn.service.edu.vo.req.UpdateEduChapterVo;
-import com.gzzn.service.edu.vo.req.UpdateEduCourseVo;
 import com.gzzn.service.edu.vo.resp.QueryChapterVo;
-import com.gzzn.service.edu.vo.resp.QueryEduCourseVo;
+import com.gzzn.service.utils.Res;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -20,13 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.constraints.NotNull;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 

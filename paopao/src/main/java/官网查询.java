@@ -26,7 +26,7 @@ public class 官网查询 {
             CloseableHttpResponse response = httpClient.execute(request);
             HttpEntity entry = response.getEntity();
             String result = EntityUtils.toString(entry);
-            String search = "烈焰";
+            String search = "蓝";
             if(result.contains(search)){
                 //System.out.println(url);
                 int start = result.indexOf(search)-100;

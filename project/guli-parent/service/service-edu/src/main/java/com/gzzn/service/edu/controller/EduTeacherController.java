@@ -6,11 +6,11 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gzzn.service.edu.converter.EduTeacherConverter;
 import com.gzzn.service.edu.vo.req.AddEduTeacherVo;
-import com.gzzn.service.common.utils.Res;
 import com.gzzn.service.edu.vo.req.PageQueryEduTeacherVo;
 import com.gzzn.service.edu.vo.req.UpdateEduTeacherVo;
 import com.gzzn.service.edu.entity.EduTeacherEntity;
 import com.gzzn.service.edu.service.EduTeacherService;
+import com.gzzn.service.utils.Res;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -79,7 +79,7 @@ public class EduTeacherController {
     @ApiOperation("条件分页查询讲师")
     public Res PageQueryEduTeacher(@ApiParam(name = "currentPage",value = "当前页",required = true) @PathVariable("currentPage") long currentPage,
                                    @ApiParam(name = "pageSize",value = "每页大小",required = true) @PathVariable("pageSize") long pageSize,
-                                   @RequestParam(required = false) PageQueryEduTeacherVo vo){
+                                   PageQueryEduTeacherVo vo){
         log.debug("PageQueryEduTeacher {} {} {}",currentPage,pageSize,vo);
 
         QueryWrapper wrapper = new QueryWrapper();

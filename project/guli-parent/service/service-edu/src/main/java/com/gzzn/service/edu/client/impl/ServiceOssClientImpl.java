@@ -1,10 +1,8 @@
 package com.gzzn.service.edu.client.impl;
 
-import com.gzzn.service.common.utils.Res;
 import com.gzzn.service.edu.client.ServiceOssClient;
+import com.gzzn.service.utils.Res;
 import org.springframework.stereotype.Component;
-
-import java.lang.invoke.ConstantCallSite;
 
 /**
  * @author eric

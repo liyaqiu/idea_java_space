@@ -1,7 +1,7 @@
 package com.gzzn.service.oss.controller;
 
 import com.gzzn.service.oss.service.OssService;
-import com.gzzn.service.common.utils.Res;
+import com.gzzn.service.utils.Res;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**

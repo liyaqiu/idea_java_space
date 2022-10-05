@@ -1,9 +1,8 @@
 package com.gzzn.service.crm.controller.frontend;
 
-import com.baomidou.mybatisplus.extension.conditions.query.QueryChainWrapper;
-import com.gzzn.service.common.utils.Res;
 import com.gzzn.service.crm.entity.CrmBannerEntity;
 import com.gzzn.service.crm.service.CrmBannerService;
+import com.gzzn.service.utils.Res;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;

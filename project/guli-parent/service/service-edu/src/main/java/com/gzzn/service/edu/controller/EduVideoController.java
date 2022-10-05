@@ -1,19 +1,11 @@
 package com.gzzn.service.edu.controller;
 
-import com.gzzn.service.common.utils.Res;
-import com.gzzn.service.edu.converter.EduChapterConverter;
-import com.gzzn.service.edu.converter.EduCourseConverter;
-import com.gzzn.service.edu.converter.EduCourseDescriptionConverter;
 import com.gzzn.service.edu.converter.EduVideoConverter;
-import com.gzzn.service.edu.entity.EduChapterEntity;
-import com.gzzn.service.edu.entity.EduCourseDescriptionEntity;
-import com.gzzn.service.edu.entity.EduCourseEntity;
 import com.gzzn.service.edu.entity.EduVideoEntity;
 import com.gzzn.service.edu.service.EduVideoService;
-import com.gzzn.service.edu.vo.req.AddEduChapterVo;
 import com.gzzn.service.edu.vo.req.AddEduVideoVo;
-import com.gzzn.service.edu.vo.req.UpdateEduCourseVo;
 import com.gzzn.service.edu.vo.req.UpdateEduVideoVo;
+import com.gzzn.service.utils.Res;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;

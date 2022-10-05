@@ -3,19 +3,11 @@ package com.gzzn.service.edu.controller.frontend;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.gzzn.service.common.utils.Res;
-import com.gzzn.service.edu.converter.EduCourseConverter;
-import com.gzzn.service.edu.converter.EduCourseDescriptionConverter;
-import com.gzzn.service.edu.entity.EduCourseDescriptionEntity;
 import com.gzzn.service.edu.entity.EduCourseEntity;
 import com.gzzn.service.edu.service.EduCourseService;
-import com.gzzn.service.edu.vo.req.AddEduCourseVo;
 import com.gzzn.service.edu.vo.req.FrontendPageQueryEduCourseVo;
-import com.gzzn.service.edu.vo.req.PageQueryEduCourseVo;
-import com.gzzn.service.edu.vo.req.UpdateEduCourseVo;
 import com.gzzn.service.edu.vo.resp.ForntQueryEduCourseDetailVo;
-import com.gzzn.service.edu.vo.resp.QueryEduCourseDetailVo;
-import com.gzzn.service.edu.vo.resp.QueryEduCourseVo;
+import com.gzzn.service.utils.Res;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -25,7 +17,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 

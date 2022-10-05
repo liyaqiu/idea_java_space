@@ -1,21 +1,14 @@
 package com.gzzn.service.edu.controller.frontend;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.gzzn.service.common.utils.Res;
-import com.gzzn.service.edu.converter.EduChapterConverter;
-import com.gzzn.service.edu.entity.EduChapterEntity;
 import com.gzzn.service.edu.service.EduChapterService;
-import com.gzzn.service.edu.vo.req.AddEduChapterVo;
-import com.gzzn.service.edu.vo.req.UpdateEduChapterVo;
 import com.gzzn.service.edu.vo.resp.QueryChapterVo;
+import com.gzzn.service.utils.Res;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
 import java.util.List;
 
 /**

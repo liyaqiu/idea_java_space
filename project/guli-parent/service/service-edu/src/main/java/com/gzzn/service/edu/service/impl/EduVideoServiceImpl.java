@@ -1,12 +1,12 @@
 package com.gzzn.service.edu.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.gzzn.service.common.utils.Res;
 import com.gzzn.service.edu.client.ServiceOssClient;
 import com.gzzn.service.edu.entity.EduVideoEntity;
 import com.gzzn.service.edu.mapper.EduChapterMapper;
 import com.gzzn.service.edu.mapper.EduVideoMapper;
 import com.gzzn.service.edu.service.EduVideoService;
+import com.gzzn.service.utils.Res;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -1,7 +1,7 @@
 package com.gzzn.service.edu.client;
 
-import com.gzzn.service.common.utils.Res;
 import com.gzzn.service.edu.client.impl.ServiceOssClientImpl;
+import com.gzzn.service.utils.Res;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;

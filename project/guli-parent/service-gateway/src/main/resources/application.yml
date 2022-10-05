@@ -17,6 +17,20 @@ spring:
             - Path=/dev-api/**
           filters:
             - StripPrefix=1 #过滤掉前缀 /dev-api/
+feign:
+#  hystrix:
+#    enabled: true
+  client:
+    config:
+      default:
+        loggerLevel: BASIC
+#hystrix:
+#  command:
+#    default:
+#      execution:
+#        isolation:
+#          thread:
+#            timeoutInMilliseconds: 5000
 logging:
   #引入文件方式
   config: classpath:log4j2.xml

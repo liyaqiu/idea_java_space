@@ -1,7 +1,7 @@
 package com.gzzn.service.gateway.security.handler;
 
 import cn.hutool.json.JSONUtil;
-import com.gzzn.service.gateway.utils.Res;
+import com.gzzn.service.utils.Res;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpHeaders;

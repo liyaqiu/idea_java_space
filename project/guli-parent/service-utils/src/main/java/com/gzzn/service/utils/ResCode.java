@@ -1,4 +1,4 @@
-package com.gzzn.service.gateway.utils;
+package com.gzzn.service.utils;
 
 /**
  * @author eric

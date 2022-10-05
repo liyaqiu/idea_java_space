@@ -2,7 +2,7 @@ package com.gzzn.service.edu.controller;
 
 import com.gzzn.service.edu.entity.EduSubjectEntity;
 import com.gzzn.service.edu.service.EduSubjectService;
-import com.gzzn.service.common.utils.Res;
+import com.gzzn.service.utils.Res;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
