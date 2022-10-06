@@ -27,6 +27,7 @@ public class LogoutHandler implements ServerLogoutHandler {
         //如果传递token就会获得用户名，如果不传递则是匿名
         if(authentication.getPrincipal() instanceof UserModel){
             UserModel userModel = ((UserModel) authentication.getPrincipal());
+            //从redis中移除用户信息和权限信息
             redisTemplate.delete(userModel.getUsername());
         }
         return Mono.empty();

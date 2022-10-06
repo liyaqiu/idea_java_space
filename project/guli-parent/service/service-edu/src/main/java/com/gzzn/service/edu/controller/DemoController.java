@@ -7,8 +7,6 @@ package com.gzzn.service.edu.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -38,10 +36,11 @@ public class DemoController {
         response.setHeader("Location","https://www.baidu.com");
     }
 
+
+
     @PostMapping("/test3")
     public void test3(){
         System.out.println(path);
-
     }
 
     //http://localhost:8001/edu/chapter?ids=1,2,3

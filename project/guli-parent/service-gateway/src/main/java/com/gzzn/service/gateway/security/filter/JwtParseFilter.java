@@ -3,6 +3,7 @@ package com.gzzn.service.gateway.security.filter;
 import cn.hutool.json.JSONUtil;
 import com.gzzn.service.gateway.utils.JWTUtil;
 import com.gzzn.service.utils.Res;
+import com.gzzn.service.utils.ResCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpHeaders;
@@ -48,7 +49,7 @@ public class JwtParseFilter implements WebFilter {
             //如果token解析失败（有可能token非法或者过期），则返回
             ServerHttpResponse response = exchange.getResponse();
             response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
-            Res res = Res.fail().setMessage("token非法或者过期");
+            Res res = Res.fail().setCode(ResCode.TOKEN_EXPIRED).setMessage("token非法或者过期");
             DataBuffer buffer = response.bufferFactory().wrap(JSONUtil.toJsonStr(res).getBytes(StandardCharsets.UTF_8));
             return response.writeWith(Mono.just(buffer));
         }

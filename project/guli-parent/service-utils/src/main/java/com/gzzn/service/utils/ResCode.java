@@ -10,4 +10,11 @@ public interface ResCode {
     int BUSINESS_FAIL = 40001;
     int DATA_VALIDATION_FAIL = 40002;
     int FILE_UPLOAD_FAIL = 40003;
+
+    int UNAUTHORIZED = 50006;
+
+    int NO_LOGIN = 50005;
+    int ILLEGAL_TOKEN = 50008;
+    int OTHER_CLIENTS_LOGGED_IN = 50012;
+    int TOKEN_EXPIRED = 50014;
 }

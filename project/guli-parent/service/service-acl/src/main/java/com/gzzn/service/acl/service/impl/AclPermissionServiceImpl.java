@@ -37,10 +37,13 @@ public class AclPermissionServiceImpl extends ServiceImpl<AclPermissionMapper, A
             vo.setUsername(String.valueOf(objectMap.get("username")));
             vo.setPassword(String.valueOf(objectMap.get("password")));
             vo.setLocked(Boolean.valueOf(String.valueOf(objectMap.get("locked"))));
-            Set<String> permits = list.stream().map(map -> String.valueOf(map.get("permit"))).collect(Collectors.toSet());
-            vo.setPermits(permits);
-        }
 
+            for (Map<String, Object> map : list) {
+                if(map.get("permit")!=null){
+                    vo.getPermits().add(String.valueOf(map.get("permit")));
+                }
+            }
+        }
         return vo;
     }
 }

@@ -19,6 +19,11 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.CorsConfigurationSource;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 /**
  * https://blog.csdn.net/qq_43692950/article/details/122513687
@@ -36,6 +41,7 @@ public class SecurityConfig {
         UserDetails user = User.withUsername("admin").password(passwordEncoder().encode("1234")).authorities("admin").build();
         return new MapReactiveUserDetailsService(user);
     }*/
+    final String BASE_URL = "/dev-api";
 
     @Autowired
     LoginSuccessHandler loginSuccessHandler;
@@ -70,6 +76,18 @@ public class SecurityConfig {
         return new MD5PasswordEncoder();
     }
 
+    @Bean
+    CorsConfigurationSource corsConfigurationSource(){
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        corsConfiguration.setAllowedHeaders(Arrays.asList("*"));
+        corsConfiguration.setAllowedMethods(Arrays.asList("*"));
+        corsConfiguration.setAllowedOrigins(Arrays.asList("*"));
+        corsConfiguration.setMaxAge(3600L);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**",corsConfiguration);
+        return source;
+    }
+
     public static void main(String[] args) {
         System.out.println(new BCryptPasswordEncoder().encode("123456"));
         System.out.println(new BCryptPasswordEncoder().matches("123456", "$2a$10$2lOoC6KMp8RMHS85Ryu4I.wkw2mUYGi394eu0u48ZaqX.MKSIKsRq"));
@@ -77,25 +95,31 @@ public class SecurityConfig {
 
     @Bean
     SecurityWebFilterChain webFluxSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+
         http
             .authorizeExchange()
-                .pathMatchers(HttpMethod.GET,"/dev-api/edu/subject/all").hasAuthority("subject.list")
-                .pathMatchers(HttpMethod.GET,"/dev-api/edu/teacher/all").hasAuthority("teacher.list")
-                .pathMatchers(HttpMethod.GET,"/dev-api/edu/teacher/*").hasAuthority("teacher.get")
-                .pathMatchers(HttpMethod.DELETE,"/dev-api/edu/teacher/*").hasAuthority("teacher.delete")
-                .pathMatchers("/test1","/test2","/test3").permitAll()
+                //添加讲师
+                .pathMatchers(HttpMethod.POST,BASE_URL+"/edu/teacher").hasAuthority("teacher.add")
+                //删除讲师
+                .pathMatchers(HttpMethod.DELETE,BASE_URL+"/edu/teacher/*").hasAuthority("teacher.delete")
+                //修改讲师
+                .pathMatchers(HttpMethod.PUT,BASE_URL+"/edu/teacher").hasAuthority("teacher.update")
+                //条件分页查询讲师
+                .pathMatchers(HttpMethod.GET,BASE_URL+"/edu/teacher/*/*").hasAuthority("teacher.list")
+
+                //.pathMatchers("/test1","/test2","/test3").permitAll() 白名单，不需要认证和鉴权
                 .anyExchange().authenticated()
             .and()
                 //提供了仓库，覆盖默认的WebSessionServerSecurityContextRepository，默认仓库用的是session来做处理
                 //以及响应头的cookie里面也不会存在session信息了
                 .securityContextRepository(secureContextRepository)
                 .formLogin()
-                .loginPage("/mylogin")//post请求 默认不会拦截此接口
+                .loginPage("/dev-api/mylogin")//post请求 默认不会拦截此接口
                 .authenticationSuccessHandler(loginSuccessHandler) //登陆成功
                 .authenticationFailureHandler(loginFailureHandler) //登陆失败
             .and()//退出
                 .logout()
-                .logoutUrl("/mylogout") //post请求 默认不会拦截此接口
+                .logoutUrl("/dev-api/mylogout") //post请求 默认不会拦截此接口
                 .logoutHandler(logoutHandler)
                 .logoutSuccessHandler(logoutSuccessHandler)
             .and()
@@ -103,8 +127,10 @@ public class SecurityConfig {
                 .authenticationEntryPoint(noLoginHander) //没登录，配置这个就不会返回默认的登陆界面了
                 .accessDeniedHandler(noAuthorityHandler) //没权限
             .and()
-                .addFilterAt(jwtParseFilter,SecurityWebFiltersOrder.FIRST) //添加jwt解析器
-            .cors().disable().csrf().disable();
+                .addFilterAfter(jwtParseFilter,SecurityWebFiltersOrder.CORS) //添加jwt解析器
+                .cors().configurationSource(corsConfigurationSource())
+            .and()
+                .csrf().disable();
         return http.build();
     }
 }

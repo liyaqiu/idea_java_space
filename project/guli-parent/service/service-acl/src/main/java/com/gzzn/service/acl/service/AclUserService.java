@@ -10,4 +10,5 @@ import com.gzzn.service.acl.entity.AclUserEntity;
 
 public interface AclUserService extends IService<AclUserEntity> {
 
+    AclUserEntity getUserInfoByUsername(String username);
 }

@@ -2,6 +2,7 @@ package com.gzzn.service.gateway.security.handler;
 
 import cn.hutool.json.JSONUtil;
 import com.gzzn.service.utils.Res;
+import com.gzzn.service.utils.ResCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpHeaders;
@@ -40,12 +41,11 @@ public class NoAuthorityHandler implements ServerAccessDeniedHandler {
         log.debug("commence");
 
         ServerHttpResponse response = exchange.getResponse();
-        response.setStatusCode(HttpStatus.UNAUTHORIZED);
 
         HttpHeaders headers = response.getHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        Res res = Res.fail().setMessage("没权限访问");
+        Res res = Res.fail().setMessage("没权限访问").setCode(ResCode.UNAUTHORIZED);
 
         DataBuffer buffer = response.bufferFactory().wrap(JSONUtil.toJsonStr(res).getBytes(StandardCharsets.UTF_8));
         return response.writeWith(Mono.just(buffer));

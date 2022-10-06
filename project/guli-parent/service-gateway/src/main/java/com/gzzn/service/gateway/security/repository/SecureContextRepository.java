@@ -68,9 +68,8 @@ public class SecureContextRepository implements ServerSecurityContextRepository 
             log.debug("该用户已经退出登录了");
             return Mono.empty();
         }
-
         UserModel userModel = new Gson().fromJson(userInfo, UserModel.class);
-        log.debug("获取用户信息及权限信息 {}",userModel);
+        log.debug("从redis获得的用户信息 {}",userModel);
 
         SecurityContext securityContext = new SecurityContextImpl();
         securityContext.setAuthentication(new UsernamePasswordAuthenticationToken(userModel,null,userModel.getAuthorities()));

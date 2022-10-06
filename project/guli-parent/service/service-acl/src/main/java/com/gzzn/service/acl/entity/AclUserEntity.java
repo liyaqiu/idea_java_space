@@ -16,19 +16,11 @@ import java.util.Date;
 public class AclUserEntity {
    @TableId(type = IdType.ASSIGN_ID)
    private String id;
-   private String userName;
-   private String passwd;
-   private Integer sort;
+   private String username;
+   private String password;
+   private String nickName;
+   private String avatar;
+   private Boolean locked;
    private Date gmtCreate;
    private Date gmtModified;
-
-  /* id
-           username
-   password
-           nick_name
-   avatar
-           is_deleted
-   gmt_create
-           gmt_modified*/
-
 }
