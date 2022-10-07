@@ -42,7 +42,12 @@ public class UserDetailService implements ReactiveUserDetailsService {
 
         log.debug("findByUsername {}",username);
         Res res = serviceAclClient.queryAuthoritiesByUsername(username);
-        if(res!=null && res.isSuccess()){
+        System.out.println(new Gson().toJson(res));
+        /**
+         * res == null 熔断
+         * res.getData() == null 没查询到
+         * */
+        if(res!=null && res.getData()!=null){
             UserModel userModel = new Gson().fromJson(String.valueOf(res.getData()), UserModel.class);
             log.debug("从数据库获得的用户信息 {}",userModel);
             return Mono.just(userModel);

@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,9 +30,9 @@ public class AclPermissionServiceImpl extends ServiceImpl<AclPermissionMapper, A
     @Override
     public QueryAuthoritiesByUsernameVo queryAuthoritiesByUsername(String username) {
         List<Map<String,Object>> list = aclPermissionMapper.selectAuthoritiesByUsername(username);
-        QueryAuthoritiesByUsernameVo vo = new QueryAuthoritiesByUsernameVo();
 
         if(list.size()>0){
+            QueryAuthoritiesByUsernameVo vo = new QueryAuthoritiesByUsernameVo();
             Map<String, Object> objectMap = list.get(0);
             vo.setId(String.valueOf(objectMap.get("id")));
             vo.setUsername(String.valueOf(objectMap.get("username")));
@@ -43,7 +44,14 @@ public class AclPermissionServiceImpl extends ServiceImpl<AclPermissionMapper, A
                     vo.getPermits().add(String.valueOf(map.get("permit")));
                 }
             }
+            return vo;
         }
-        return vo;
+        return null;
+    }
+
+    @Override
+    public List<AclPermissionEntity> queryMenuByUsername(String username) {
+        List<AclPermissionEntity> menuList = aclPermissionMapper.selectMenuByUsername(username);
+        return menuList;
     }
 }

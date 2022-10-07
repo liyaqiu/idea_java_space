@@ -2,6 +2,7 @@ package com.gzzn.service.acl.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.gzzn.service.acl.entity.AclUserEntity;
+import com.gzzn.service.acl.vo.resp.UserInfoVo;
 
 /**
  * @author lyq
@@ -10,5 +11,5 @@ import com.gzzn.service.acl.entity.AclUserEntity;
 
 public interface AclUserService extends IService<AclUserEntity> {
 
-    AclUserEntity getUserInfoByUsername(String username);
+    UserInfoVo getUserInfoByUsername(String username);
 }

@@ -9,6 +9,8 @@ import com.gzzn.service.acl.service.impl.AclPermissionServiceImpl;
 import com.gzzn.service.acl.vo.resp.QueryAuthoritiesByUsernameVo;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+
 /**
  * @author lyq
  * @date 2021/12/6 12:39
@@ -17,4 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 public interface AclPermissionService extends IService<AclPermissionEntity> {
 
     QueryAuthoritiesByUsernameVo queryAuthoritiesByUsername(String username);
+
+    List<AclPermissionEntity> queryMenuByUsername(String username);
 }

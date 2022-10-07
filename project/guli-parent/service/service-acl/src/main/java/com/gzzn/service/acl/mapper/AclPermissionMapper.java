@@ -26,4 +26,15 @@ public interface AclPermissionMapper extends BaseMapper<AclPermissionEntity> {
             "\twhere u.username = #{username}\n" +
             "</script>")
     List<Map<String,Object>> selectAuthoritiesByUsername(String username);
+
+
+    @Select("<script>SELECT p.*\n" +
+            "\tFROM acl_user u \n" +
+            "\tLEFT JOIN acl_user_role ur ON u.id = ur.user_id \n" +
+            "\tLEFT JOIN acl_role r ON r.id = ur.role_id \n" +
+            "\tLEFT JOIN acl_role_permission rp ON rp.role_id = r.id \n" +
+            "\tLEFT JOIN acl_permission p ON p.id = rp.permission_id \n" +
+            "where u.username = #{username} and p.type = 0" +
+            "</script>")
+    List<AclPermissionEntity> selectMenuByUsername(String username);
 }
