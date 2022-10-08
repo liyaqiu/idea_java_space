@@ -21,4 +21,8 @@ public interface AclPermissionService extends IService<AclPermissionEntity> {
     QueryAuthoritiesByUsernameVo queryAuthoritiesByUsername(String username);
 
     List<AclPermissionEntity> queryMenuByUsername(String username);
+
+    List<String> queryFAuthoritiesByUsername(String username) ;
+
+    void queryAllPermission();
 }

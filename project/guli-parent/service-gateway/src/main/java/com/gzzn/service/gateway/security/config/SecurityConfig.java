@@ -107,6 +107,15 @@ public class SecurityConfig {
                 //条件分页查询讲师
                 .pathMatchers(HttpMethod.GET,BASE_URL+"/edu/teacher/*/*").hasAuthority("teacher.list")
 
+                //添加课程
+                .pathMatchers(HttpMethod.POST,BASE_URL+"/edu/course").hasAuthority("course.add")
+                //删除课程
+                .pathMatchers(HttpMethod.DELETE,BASE_URL+"/edu/course/*").hasAuthority("course.delete")
+                //修改课程
+                .pathMatchers(HttpMethod.PUT,BASE_URL+"/edu/course").hasAuthority("course.update")
+                //条件分页查询课程
+                .pathMatchers(HttpMethod.GET,BASE_URL+"/edu/course/*/*").hasAuthority("course.list")
+
                 //.pathMatchers("/test1","/test2","/test3").permitAll() 白名单，不需要认证和鉴权
                 .anyExchange().authenticated()
             .and()

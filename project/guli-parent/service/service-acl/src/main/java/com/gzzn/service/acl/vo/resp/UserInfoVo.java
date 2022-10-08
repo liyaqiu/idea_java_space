@@ -14,4 +14,5 @@ import java.util.List;
 public class UserInfoVo {
     AclUserEntity aclUser;
     List<AclPermissionEntity> menuTreeList;
+    List<String> authorities;
 }

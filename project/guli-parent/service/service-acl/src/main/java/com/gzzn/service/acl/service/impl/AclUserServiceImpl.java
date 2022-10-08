@@ -45,6 +45,9 @@ public class AclUserServiceImpl extends ServiceImpl<AclUserMapper, AclUserEntity
         List<AclPermissionEntity> menuTreeList = buildTree(menuList);
         vo.setMenuTreeList(menuTreeList);
 
+        List<String> authorities = aclPermissionService.queryFAuthoritiesByUsername(username);
+        vo.setAuthorities(authorities);
+
         return vo;
     }
 

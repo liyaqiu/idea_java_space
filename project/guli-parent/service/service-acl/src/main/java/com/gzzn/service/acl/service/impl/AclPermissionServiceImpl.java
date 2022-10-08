@@ -10,10 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -54,4 +51,28 @@ public class AclPermissionServiceImpl extends ServiceImpl<AclPermissionMapper, A
         List<AclPermissionEntity> menuList = aclPermissionMapper.selectMenuByUsername(username);
         return menuList;
     }
+
+    @Override
+    public List<String> queryFAuthoritiesByUsername(String username) {
+        List<String> authorities = aclPermissionMapper.selectFAuthoritiesByUsername(username);
+        return authorities;
+    }
+
+    @Override
+    public void queryAllPermission() {
+        List<AclPermissionEntity> permissionList = aclPermissionMapper.selectList(null);
+        List<AclPermissionEntity> parentList = buildTree(permissionList);
+        System.out.println(JSONObject.toJSON(parentList));
+    }
+
+    private List<AclPermissionEntity> buildTree(List<AclPermissionEntity> permissionList){
+        List<AclPermissionEntity> parentList = new ArrayList<>();
+        for (AclPermissionEntity aclPermission : permissionList) {
+            if (aclPermission.getParentId() == null) {
+                parentList.add(aclPermission);
+            }
+        }
+        return parentList;
+    }
+
 }

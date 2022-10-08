@@ -33,4 +33,11 @@ public class AclPermissionController {
     }
 
 
+    @GetMapping("/all")
+    public Res queryAllPermission(){
+        log.info("queryAllPermission");
+        aclPermissionService.queryAllPermission();
+        return Res.ok();
+    }
+
 }
