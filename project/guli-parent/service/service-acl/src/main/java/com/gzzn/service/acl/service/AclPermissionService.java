@@ -24,5 +24,9 @@ public interface AclPermissionService extends IService<AclPermissionEntity> {
 
     List<String> queryFAuthoritiesByUsername(String username) ;
 
-    void queryAllPermission();
+    List<AclPermissionEntity> queryAllPermission();
+
+    void saveEduTeacher(AclPermissionEntity aclPermission);
+
+    void removeAclPermissionById(String id);
 }

@@ -1,6 +1,7 @@
 package com.gzzn.service.acl.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gzzn.service.acl.entity.AclPermissionEntity;
 import com.gzzn.service.acl.mapper.AclPermissionMapper;
@@ -9,6 +10,7 @@ import com.gzzn.service.acl.vo.resp.QueryAuthoritiesByUsernameVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -59,15 +61,41 @@ public class AclPermissionServiceImpl extends ServiceImpl<AclPermissionMapper, A
     }
 
     @Override
-    public void queryAllPermission() {
-        List<AclPermissionEntity> permissionList = aclPermissionMapper.selectList(null);
+    public List<AclPermissionEntity> queryAllPermission() {
+        QueryWrapper wrapper = new QueryWrapper();
+        wrapper.orderByAsc("sort");
+        List<AclPermissionEntity> permissionList = aclPermissionMapper.selectList(wrapper);
         List<AclPermissionEntity> parentList = buildTree(permissionList);
-        System.out.println(JSONObject.toJSON(parentList));
+        return parentList;
+    }
+
+    @Override
+    public void saveEduTeacher(AclPermissionEntity aclPermission) {
+        if(aclPermissionMapper.insert(aclPermission)==0){
+            throw new RuntimeException("保存失败");
+        }
+    }
+
+    @Override
+    public void removeAclPermissionById(String id) {
+        QueryWrapper wrapper = new QueryWrapper();
+        wrapper.eq("parent_id", id);
+        if(aclPermissionMapper.selectList(wrapper).size()>0){
+            throw new RuntimeException("当前权限存在子级，不允许删除");
+        }
+        if (aclPermissionMapper.deleteById(id)!=1) {
+            throw new RuntimeException("删除失败");
+        }
     }
 
     private List<AclPermissionEntity> buildTree(List<AclPermissionEntity> permissionList){
         List<AclPermissionEntity> parentList = new ArrayList<>();
         for (AclPermissionEntity aclPermission : permissionList) {
+            for (AclPermissionEntity aclPer : permissionList) {
+                if(aclPermission.getId().equals(aclPer.getParentId())){
+                    aclPermission.getChildren().add(aclPer);
+                }
+            }
             if (aclPermission.getParentId() == null) {
                 parentList.add(aclPermission);
             }

@@ -1,9 +1,6 @@
 package com.gzzn.service.acl.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -19,16 +16,18 @@ import java.util.List;
 public class AclPermissionEntity {
     @TableId(type = IdType.ASSIGN_ID)
     private String id;
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String parentId;
     private String title;
-    private String type;
+    private Short type;
     private String permit;
     private String component;
     private String icon;
     private String path;
     private String name;
     private Boolean hidden;
-    private String status;
+    private Short status;
+    private Integer sort;
     private String isDeleted;
     private Date gmtCreate;
     private Date gmtModified;
