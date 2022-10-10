@@ -12,17 +12,14 @@ import java.util.Date;
  * @date 2022/9/2 22:54
  **/
 @Data
-@TableName("acl_user")
-public class AclUserEntity {
+@TableName("acl_role")
+public class AclRoleEntity {
    @TableId(type = IdType.ASSIGN_ID)
    private String id;
-   private String username;
-   private String password;
-   private String nickName;
-   private String avatar;
-   private String email;
-   private String phone;
-   private Boolean locked;
+   private String name;
+   private String code;
+   private String remark;
+   private Short status;
    private Date gmtCreate;
    private Date gmtModified;
 }

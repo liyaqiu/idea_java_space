@@ -3,8 +3,10 @@ package com.gzzn.service.acl.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 /**
@@ -12,17 +14,15 @@ import java.util.Date;
  * @date 2022/9/2 22:54
  **/
 @Data
-@TableName("acl_user")
-public class AclUserEntity {
+@TableName("acl_role_permission")
+public class AclRolePermissionEntity {
    @TableId(type = IdType.ASSIGN_ID)
    private String id;
-   private String username;
-   private String password;
-   private String nickName;
-   private String avatar;
-   private String email;
-   private String phone;
-   private Boolean locked;
+   private String roleId;
+   private String permissionId;
    private Date gmtCreate;
    private Date gmtModified;
+
+
+
 }
