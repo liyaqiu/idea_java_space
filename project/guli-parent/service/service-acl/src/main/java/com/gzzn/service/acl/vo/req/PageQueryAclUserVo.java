@@ -23,6 +23,6 @@ public class PageQueryAclUserVo {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date endTime;
 
-    @ApiModelProperty(value = "用户名称")
-    private String name;
+    @ApiModelProperty(value = "用户名")
+    private String username;
 }

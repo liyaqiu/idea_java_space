@@ -32,7 +32,7 @@ public class ValidDemo1 {
     @NotNull(message = "不能为Null")
     Integer age;
 
-    @Pattern(regexp = "填写正则表达式")
+    @Pattern(regexp = "^1[3-9]\\d{9}$")
     String phone;
 
     @Max(value = 20,message = "最大值为20")

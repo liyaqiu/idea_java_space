@@ -1,21 +1,25 @@
 package com.gzzn.service.acl.service.impl;
 
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.gzzn.service.acl.converter.AclUserConverter;
 import com.gzzn.service.acl.entity.AclPermissionEntity;
 import com.gzzn.service.acl.entity.AclUserEntity;
 import com.gzzn.service.acl.mapper.AclUserMapper;
+import com.gzzn.service.acl.mapper.AclUserRoleMapper;
 import com.gzzn.service.acl.service.AclPermissionService;
 import com.gzzn.service.acl.service.AclUserService;
+import com.gzzn.service.acl.vo.req.PageQueryAclUserVo;
+import com.gzzn.service.acl.vo.resp.AclUserVo;
 import com.gzzn.service.acl.vo.resp.UserInfoVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author lyq
@@ -25,7 +29,11 @@ import java.util.List;
 @Slf4j
 public class AclUserServiceImpl extends ServiceImpl<AclUserMapper, AclUserEntity> implements AclUserService {
 
-
+    @Autowired
+    AclUserMapper aclUserMapper;
+    @Autowired
+    AclUserRoleMapper aclUserRoleMapper;
+    
     @Autowired
     AclPermissionService aclPermissionService;
 
@@ -49,6 +57,38 @@ public class AclUserServiceImpl extends ServiceImpl<AclUserMapper, AclUserEntity
         vo.setAuthorities(authorities);
 
         return vo;
+    }
+
+    @Override
+    public Map<String, Object> pageQueryAclUser(long currentPage, long pageSize, PageQueryAclUserVo vo) {
+        QueryWrapper wrapper = new QueryWrapper();
+        if(vo.getBeginTime()!=null){
+            wrapper.ge("gmt_create", vo.getBeginTime());
+        }
+        if(vo.getEndTime()!=null){
+            wrapper.le("gmt_create", vo.getEndTime());
+        }
+        if(!StringUtils.isEmpty(vo.getUsername())){
+            wrapper.like("username", vo.getUsername());
+        }
+
+        wrapper.orderByDesc("gmt_create");
+
+        IPage<AclUserEntity> page = new Page<>(currentPage,pageSize);
+
+        aclUserMapper.selectPage(page, wrapper);
+
+        List<AclUserVo> aclUserVoList = AclUserConverter.INSTANCE.convert(page.getRecords());
+
+        for (AclUserVo aclUserVo : aclUserVoList) {
+            List<String> roleNames = aclUserRoleMapper.selectRoleNamesByUserId(aclUserVo.getId());
+            aclUserVo.setRoleNames(roleNames);
+        }
+
+        Map<String,Object> map = new HashMap<>();
+        map.put("total", page.getTotal());
+        map.put("records", aclUserVoList);
+        return map;
     }
 
 
