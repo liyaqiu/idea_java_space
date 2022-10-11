@@ -52,7 +52,7 @@ public class AclPermissionController {
 
     // TODO: 2022/10/9 需要做缓存的更新
     @PutMapping
-    @ApiOperation("修改讲师")
+    @ApiOperation("修改权限")
     public Res updateAclPermission(@RequestBody @Validated UpdateAclPermissionVo vo){
         log.debug("updateAclPermission {}",vo);
         AclPermissionEntity aclPermission = AclPermissionConverter.INSTANCE.convert(vo);
@@ -73,12 +73,11 @@ public class AclPermissionController {
 
 
     @GetMapping("/all")
+    @ApiOperation("查询所有权限信息")
     public Res queryAllPermission(){
         log.info("queryAllPermission");
         List<AclPermissionEntity> permissionList = aclPermissionService.queryAllPermission();
         return Res.ok().setData(permissionList);
     }
-
-
 
 }

@@ -9,10 +9,7 @@ import com.gzzn.service.acl.converter.AclUserConverter;
 import com.gzzn.service.acl.entity.AclRoleEntity;
 import com.gzzn.service.acl.entity.AclUserEntity;
 import com.gzzn.service.acl.service.AclUserService;
-import com.gzzn.service.acl.vo.req.AddAclRoleVo;
-import com.gzzn.service.acl.vo.req.AddAclUserVo;
-import com.gzzn.service.acl.vo.req.PageQueryAclRoleVo;
-import com.gzzn.service.acl.vo.req.PageQueryAclUserVo;
+import com.gzzn.service.acl.vo.req.*;
 import com.gzzn.service.acl.vo.resp.UserInfoVo;
 import com.gzzn.service.utils.Res;
 import io.swagger.annotations.Api;
@@ -41,8 +38,10 @@ public class AclUserController {
 
     @Autowired
     private AclUserService aclUserService;
+    private final String PASSWORD = "020daee8a4aaad1f8e147278687308ac";
 
     @GetMapping("/info")
+    @ApiOperation("获取用户信息")
     public Res getUserInfoByUsername(@RequestHeader("username") String username){
         UserInfoVo vo = aclUserService.getUserInfoByUsername(username);
         log.debug("返回用户信息 {}", JSONObject.toJSON(vo));
@@ -54,11 +53,45 @@ public class AclUserController {
     public Res addAclUser(@RequestBody @Validated AddAclUserVo vo){
         log.debug("addAclUser {}",vo);
         AclUserEntity aclUser = AclUserConverter.INSTANCE.convert(vo);
+        //设置初始密码为123456
+        aclUser.setPassword(PASSWORD);
         aclUser.setGmtCreate(new Date());
         aclUser.setGmtModified(new Date());
         if (!aclUserService.save(aclUser)) {
             throw new RuntimeException("添加用户失败");
         }
+        return Res.ok();
+    }
+
+    @PutMapping
+    @ApiOperation("修改用户")
+    public Res updateAclUser(@RequestBody @Validated UpdateAclUserVo vo){
+        log.debug("updateAclUser {}",vo);
+        AclUserEntity aclUser = AclUserConverter.INSTANCE.convert(vo);
+        aclUser.setGmtModified(new Date());
+        if (!aclUserService.updateById(aclUser)) {
+            throw new RuntimeException("修改用户失败");
+        }
+        return Res.ok();
+    }
+
+    // TODO: 2022/10/9 需要做缓存的更新
+    @DeleteMapping("/{id}")
+    @ApiOperation("删除用户")
+    public Res removeAclUser(@PathVariable("id") String id){
+        log.debug("removeAclUser {}",id);
+        aclUserService.removeAclUser(id);
+        return Res.ok();
+    }
+
+    @PutMapping("/reset/password/{id}")
+    @ApiOperation("重置用户密码")
+    public Res resetAclUserPassword(@PathVariable("id") String id){
+        log.debug("resetAclUserPassword {}",id);
+        AclUserEntity aclUser = new AclUserEntity();
+        aclUser.setId(id);
+        aclUser.setPassword(PASSWORD);
+        aclUserService.resetAclUserPassword(aclUser);
         return Res.ok();
     }
 

@@ -5,6 +5,7 @@ import com.gzzn.service.acl.entity.AclUserEntity;
 import com.gzzn.service.acl.vo.req.AddAclRoleVo;
 import com.gzzn.service.acl.vo.req.AddAclUserVo;
 import com.gzzn.service.acl.vo.req.UpdateAclRoleVo;
+import com.gzzn.service.acl.vo.req.UpdateAclUserVo;
 import com.gzzn.service.acl.vo.resp.AclUserVo;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
@@ -26,4 +27,6 @@ public interface AclUserConverter {
     List<AclUserVo> convert(List<AclUserEntity> aclUserList);
 
     AclUserEntity convert(AddAclUserVo vo);
+
+    AclUserEntity convert(UpdateAclUserVo vo);
 }

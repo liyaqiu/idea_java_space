@@ -14,7 +14,13 @@ public interface AclRoleService extends IService<AclRoleEntity> {
 
     void removeAclRole(String id);
 
-    List<String> queryPermissionIdsByRoleId(String id);
+    List<String> queryPermissionIdsByRoleId(String roleId);
 
-    void updatePermissionIdsByRoleId(String id,List<String> permitIds);
+    void updatePermissionIdsByRoleId(String roleId,List<String> permitIds);
+
+    List<AclRoleEntity> queryAllRole();
+
+    List<String> queryAllRoleIdsByUserId(String userId);
+
+    void updateRoleIdsByUserId(String userId, List<String> roleIds);
 }

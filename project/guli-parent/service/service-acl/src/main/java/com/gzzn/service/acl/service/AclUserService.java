@@ -17,4 +17,8 @@ public interface AclUserService extends IService<AclUserEntity> {
     UserInfoVo getUserInfoByUsername(String username);
 
     Map<String, Object> pageQueryAclUser(long currentPage, long pageSize, PageQueryAclUserVo vo);
+
+    void removeAclUser(String id);
+
+    void resetAclUserPassword(AclUserEntity aclUser);
 }

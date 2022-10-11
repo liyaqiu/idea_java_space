@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gzzn.service.acl.converter.AclRoleConverter;
+import com.gzzn.service.acl.entity.AclPermissionEntity;
 import com.gzzn.service.acl.entity.AclRoleEntity;
 import com.gzzn.service.acl.service.AclRoleService;
 import com.gzzn.service.acl.service.AclUserService;
@@ -77,6 +78,23 @@ public class AclRoleController {
         return Res.ok();
     }
 
+    @GetMapping("/all")
+    @ApiOperation("查询所有角色信息")
+    public Res queryAllRole(){
+        log.info("queryAllRole");
+        List<AclRoleEntity> aclRoleList = aclRoleService.queryAllRole();
+        return Res.ok().setData(aclRoleList);
+    }
+
+
+    @GetMapping("/{userId}/role/ids")
+    @ApiOperation("查询用户id所有角色信息")
+    public Res queryAllRoleIdsByUserId(@PathVariable("userId") String userId){
+        log.info("queryAllRoleIdsByUserId {}",userId);
+        List<String> roleIds = aclRoleService.queryAllRoleIdsByUserId(userId);
+        return Res.ok().setData(roleIds);
+    }
+
 
     @ApiImplicitParam
     @GetMapping("/{currentPage}/{pageSize}")
@@ -109,20 +127,29 @@ public class AclRoleController {
     }
 
 
-    @GetMapping("/{id}/permit/ids")
+    @GetMapping("/{roleId}/permit/ids")
     @ApiOperation("根据角色id查询权限ids")
-    public Res getPermissionIdsByRoleId(@PathVariable("id") String id){
-        log.debug("getPermissionIdsByRoleId {}",id);
-        List<String> permitIds = aclRoleService.queryPermissionIdsByRoleId(id);
+    public Res getPermissionIdsByRoleId(@PathVariable("roleId") String roleId){
+        log.debug("getPermissionIdsByRoleId {}",roleId);
+        List<String> permitIds = aclRoleService.queryPermissionIdsByRoleId(roleId);
         return Res.ok().setData(permitIds);
     }
 
     // TODO: 2022/10/10 修改更新缓存
-    @PutMapping("/{id}/permit/ids")
+    @PutMapping("/{roleId}/permit/ids")
     @ApiOperation("根据角色id修改权限ids")
-    public Res updatePermissionIdsByRoleId(@PathVariable("id") String id,@RequestBody List<String> permitIds){
-        log.debug("updatePermissionIdsByRoleId {}  {}",id,permitIds);
-        aclRoleService.updatePermissionIdsByRoleId(id,permitIds);
+    public Res updatePermissionIdsByRoleId(@PathVariable("roleId") String roleId,@RequestBody List<String> permitIds){
+        log.debug("updatePermissionIdsByRoleId {}  {}",roleId,permitIds);
+        aclRoleService.updatePermissionIdsByRoleId(roleId,permitIds);
+        return Res.ok();
+    }
+
+    // TODO: 2022/10/10 修改更新缓存
+    @PutMapping("/{userId}/role/ids")
+    @ApiOperation("根据用户id修改角色ids")
+    public Res updateRoleIdsByUserId(@PathVariable("userId") String userId,@RequestBody List<String> roleIds){
+        log.debug("updateRoleIdsByUserId {}  {}",userId,roleIds);
+        aclRoleService.updateRoleIdsByUserId(userId,roleIds);
         return Res.ok();
     }
 

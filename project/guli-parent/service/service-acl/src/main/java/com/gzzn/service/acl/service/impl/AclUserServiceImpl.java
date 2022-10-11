@@ -17,6 +17,7 @@ import com.gzzn.service.acl.vo.resp.UserInfoVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
@@ -33,7 +34,7 @@ public class AclUserServiceImpl extends ServiceImpl<AclUserMapper, AclUserEntity
     AclUserMapper aclUserMapper;
     @Autowired
     AclUserRoleMapper aclUserRoleMapper;
-    
+
     @Autowired
     AclPermissionService aclPermissionService;
 
@@ -89,6 +90,24 @@ public class AclUserServiceImpl extends ServiceImpl<AclUserMapper, AclUserEntity
         map.put("total", page.getTotal());
         map.put("records", aclUserVoList);
         return map;
+    }
+
+    @Override
+    @Transactional
+    public void removeAclUser(String id) {
+        if (aclUserMapper.deleteById(id)!=1) {
+            throw new RuntimeException("删除用户失败");
+        }
+        QueryWrapper wrapper = new QueryWrapper();
+        wrapper.eq("user_id", id);
+        aclUserRoleMapper.delete(wrapper);
+    }
+
+    @Override
+    public void resetAclUserPassword(AclUserEntity aclUser) {
+        if (aclUserMapper.updateById(aclUser)!=1) {
+            throw new RuntimeException("更新失败");
+        }
     }
 
 
