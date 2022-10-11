@@ -42,7 +42,7 @@ public class UserDetailService implements ReactiveUserDetailsService {
 
         log.debug("findByUsername {}",username);
         Res res = serviceAclClient.queryAuthoritiesByUsername(username);
-        System.out.println(new Gson().toJson(res));
+        log.debug(new Gson().toJson(res));
         /**
          * res == null 熔断
          * res.getData() == null 没查询到

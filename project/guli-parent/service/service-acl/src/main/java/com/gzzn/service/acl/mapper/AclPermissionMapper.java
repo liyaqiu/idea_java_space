@@ -28,7 +28,7 @@ public interface AclPermissionMapper extends BaseMapper<AclPermissionEntity> {
     List<Map<String,Object>> selectAuthoritiesByUsername(String username);
 
 
-    @Select("<script>SELECT p.*\n" +
+    @Select("<script>SELECT DISTINCT p.*\n" +
             "\tFROM acl_user u \n" +
             "\tLEFT JOIN acl_user_role ur ON u.id = ur.user_id \n" +
             "\tLEFT JOIN acl_role r ON r.id = ur.role_id \n" +
@@ -50,4 +50,10 @@ public interface AclPermissionMapper extends BaseMapper<AclPermissionEntity> {
     List<String> selectFAuthoritiesByUsername(String username);
 
 
+    @Select("<script>SELECT  DISTINCT u.username from acl_user u\n" +
+            "\tLEFT JOIN acl_user_role ur on ur.user_id = u.id\n" +
+            "\tLEFT JOIN acl_role_permission rp on rp.role_id = ur.role_id\n" +
+            "\tLEFT JOIN acl_permission p on p.id = rp.permission_id\n" +
+            "\tWHERE p.id = #{permissionId}</script>")
+    List<String> selectUsernamesByPermissionId(String permissionId);
 }

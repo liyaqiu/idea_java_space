@@ -17,5 +17,6 @@ public class QueryAuthoritiesByUsernameVo {
     private String username;
     private String password;
     private Boolean locked; //true为锁定，false为不锁定
+    //做权限的去重
     private Set<String> permits = new HashSet<>();
 }

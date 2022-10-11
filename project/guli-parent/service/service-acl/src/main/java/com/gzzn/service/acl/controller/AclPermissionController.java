@@ -65,6 +65,7 @@ public class AclPermissionController {
 
 
     @GetMapping("/{username}")
+    @ApiOperation("根据用户名查询所有权限信息，网关使用")
     public Res queryAuthoritiesByUsername(@PathVariable("username") String username){
         log.info("queryAuthoritiesByUsername {}",username);
         QueryAuthoritiesByUsernameVo vo = aclPermissionService.queryAuthoritiesByUsername(username);

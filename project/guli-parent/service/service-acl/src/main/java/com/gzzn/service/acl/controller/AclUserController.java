@@ -43,6 +43,7 @@ public class AclUserController {
     @GetMapping("/info")
     @ApiOperation("获取用户信息")
     public Res getUserInfoByUsername(@RequestHeader("username") String username){
+        log.debug("getUserInfoByUsername {}",username);
         UserInfoVo vo = aclUserService.getUserInfoByUsername(username);
         log.debug("返回用户信息 {}", JSONObject.toJSON(vo));
         return Res.ok().setData(vo);
