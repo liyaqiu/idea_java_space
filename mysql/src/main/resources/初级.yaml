@@ -1,0 +1,68 @@
+入门基础:
+  关系型数据库设计规则:
+    表的关联关系:
+      - 一对一关联
+      - 一对多关联
+      - 多对对关联
+      - 自我关联
+  版本(8.0.26)&安装:
+    - 社区版本（Mysql Community Server），开源免费
+    - 集群版本（Mysql Cluster），开源免费，用户架设集群服务器，可以将几个MySQL Server封装成一个Server，需要在社区版或者企业版基础上使用
+    - 企业版本 付费
+    - 高级集群版 付费
+  命令行:
+    - mysql -uroot -p123456 -P3306 -h192.168.88.1
+  查看字符集以及修改字符集:
+    - "
+      查看
+        SHOW VARIABLES like 'character_%';
+        SHOW VARIABLES like 'collation_%';
+      修改，在my.cnf，在5.7版本中需要修改，8.0默认为utf8mb4
+        [mysql]
+        default-character-set = utf8
+        [mysqld]
+        character_set_server=utf8
+        collation-server=utf8_general_ci
+    "
+  客户端工具:
+    - navicat
+    - dbeaver https://dbeaver.io/download/ ，需要依赖jre
+  sql文件的导入方式:
+    - source  /root/xxx.sql
+    - 图形化界面导入 xxx.sql
+
+SQL分类:
+  DML:
+    概念:
+      - 数据操作语言(Data Manipulation Language)
+      - 用于添加，删除，更新，和查询数据记录，并检查数据的完整性
+      - insert \ delete \ update \ select(DQL)
+    select使用:
+      基本使用:
+        - select 1+1 as "总和1",2+2 "总和2"
+        - select 1+1 from dual 伪表
+      去重（DISTINCT）:
+        - select DISTINCT type from permission 去重
+        - select DISTINCT type,parent_id from permission 等同于 select  type,parent_id from permission GROUP BY type,parent_id 没实际意义
+      null:
+        - null 不等于0，并且null参与运算结果为null，需要用到流程控制函数来配合使用
+        - 计算员工月薪，以及员工年薪 select salary,salary*(1+IFNULL(commission_pct,0)) as "月薪",salary * (1+IFNULL(commission_pct,0)) * 12 as "年薪" from employees
+      飘符号(``):
+        - select * from `order`
+      常量字段:
+        - 如果某一些业务系统需要这个字段，但是表里面还未存在此字段，可以使用常数来顶替
+        - SELECT '常量字段',s.* from employees s
+      查询表结构:
+        - DESCRIBE employees 或 DESC employees
+      算术运算符:
+        - + - * /(div) %(mod)
+        - select employee_id+1 from employees where employee_id = 100+1
+        - 查询员工id为基数的员工信息 SELECT * from employees where employee_id % 2 != 0
+  DDL:
+    - 数据定义语言(Data Definition Language)
+    - 定义了不同的数据库，表，视图，索引等数据库对象，还可以用来创建，删除，修改数据和数据库表的结构
+    - create \ alert \ drop \ rename \ truncate
+  DCL:
+    - 数据控制语言
+    - 用于对数据库，表，字段，用户的访问权限和安全级别
+    - commit \ rollback \ savepoint \ grant \ revoke
