@@ -5,5 +5,6 @@ public class Client {
         Adpater adpater = new AnimalAdpater();
         Doctor docker = adpater.getDocker(new Cat());
         docker.kanbing();
+
     }
 }

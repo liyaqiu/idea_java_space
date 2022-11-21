@@ -2,6 +2,7 @@ package com.gzzn.service.gateway.security.config;
 
 
 
+import cn.hutool.core.util.ArrayUtil;
 import com.gzzn.service.gateway.security.encoder.MD5PasswordEncoder;
 import com.gzzn.service.gateway.security.filter.JwtParseFilter;
 import com.gzzn.service.gateway.security.handler.*;
@@ -95,7 +96,7 @@ public class SecurityConfig {
 
     @Bean
     SecurityWebFilterChain webFluxSecurityFilterChain(ServerHttpSecurity http) throws Exception {
-
+        String[] whitelist = ArrayUtil.toArray(WhiteList.urls,String.class);
         http
             .authorizeExchange()
                 //添加讲师
@@ -116,7 +117,7 @@ public class SecurityConfig {
                 //条件分页查询课程
                 .pathMatchers(HttpMethod.GET,BASE_URL+"/edu/course/*/*").hasAuthority("course.list")
 
-                //.pathMatchers("/test1","/test2","/test3").permitAll() 白名单，不需要认证和鉴权
+                //.pathMatchers(whitelist).permitAll() //白名单，不需要认证和鉴权
                 .anyExchange().authenticated()
             .and()
                 //提供了仓库，覆盖默认的WebSessionServerSecurityContextRepository，默认仓库用的是session来做处理

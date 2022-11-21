@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author lyq
@@ -34,6 +35,7 @@ import java.util.Map;
 @RequestMapping("/edu/teacher")
 @Slf4j
 @Api(tags = {"讲师管理"})
+@CrossOrigin
 public class EduTeacherController {
 
     @Autowired

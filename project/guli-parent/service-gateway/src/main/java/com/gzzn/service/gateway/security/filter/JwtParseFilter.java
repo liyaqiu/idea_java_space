@@ -1,6 +1,7 @@
 package com.gzzn.service.gateway.security.filter;
 
 import cn.hutool.json.JSONUtil;
+import com.gzzn.service.gateway.security.config.WhiteList;
 import com.gzzn.service.gateway.utils.JWTUtil;
 import com.gzzn.service.utils.Res;
 import com.gzzn.service.utils.ResCode;
@@ -30,6 +31,14 @@ public class JwtParseFilter implements WebFilter {
         log.debug("filter");
         HttpHeaders headers = exchange.getRequest().getHeaders();
         String token = headers.getFirst("token");
+
+
+
+
+        //如果token不存在则放行，或者是在白名单也放行
+        /*if(token==null || WhiteList.urls.contains(exchange.getRequest().getPath())){
+            return chain.filter(exchange);
+        }*/
 
         //如果token不存在则放行
         if(token==null){
