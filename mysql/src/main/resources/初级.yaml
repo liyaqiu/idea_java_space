@@ -1,10 +1,4 @@
 入门基础:
-  关系型数据库设计规则:
-    表的关联关系:
-      - 一对一关联
-      - 一对多关联
-      - 多对对关联
-      - 自我关联
   版本(8.0.26)&安装:
     - 社区版本（Mysql Community Server），开源免费
     - 集群版本（Mysql Cluster），开源免费，用户架设集群服务器，可以将几个MySQL Server封装成一个Server，需要在社区版或者企业版基础上使用
@@ -30,7 +24,8 @@
   sql文件的导入方式:
     - source  /root/xxx.sql
     - 图形化界面导入 xxx.sql
-
+SQL优化:
+  - 满外连接(LEFT OUTER JOIN)的时候，尽量用UNION ALL(不需要去重)，少用UNION(需要去重)
 SQL分类:
   DML:
     概念:
@@ -38,9 +33,26 @@ SQL分类:
       - 用于添加，删除，更新，和查询数据记录，并检查数据的完整性
       - insert \ delete \ update \ select(DQL)
     select使用:
+      执行顺序: "
+        SELECT 3
+        	first_name fn,
+        	s.*
+        FROM 1
+        	employees s
+        WHERE 2
+        	salary > 5000
+        ORDER BY 4
+        	fn DESC
+
+        from employees s
+        WHERE salary > 5000
+        SELECT first_name fn, s.*
+        ORDER BY fn DESC
+      "
       基本使用:
         - select 1+1 as "总和1",2+2 "总和2"
         - select 1+1 from dual 伪表
+        - 以下的所有查询，都忽略字符串的大小写
       去重（DISTINCT）:
         - select DISTINCT type from permission 去重
         - select DISTINCT type,parent_id from permission 等同于 select  type,parent_id from permission GROUP BY type,parent_id 没实际意义
@@ -54,10 +66,495 @@ SQL分类:
         - SELECT '常量字段',s.* from employees s
       查询表结构:
         - DESCRIBE employees 或 DESC employees
-      算术运算符:
-        - + - * /(div) %(mod)
-        - select employee_id+1 from employees where employee_id = 100+1
-        - 查询员工id为基数的员工信息 SELECT * from employees where employee_id % 2 != 0
+      运算符:
+        算术运算符:
+          - + - * (/,div) (%,mod)
+          - select employee_id+1 from employees where employee_id = 100+1
+          - 查询员工id为基数的员工信息 SELECT * from employees where employee_id % 2 != 0
+        比较运算符:
+          概念:
+            - 比较运算，返回结果为 0或1或null，而sql处理只要1的结果
+          符号相关:
+            其他:
+              - =  (<>,!=) < <= > >=
+              - 如果两边类型不同则进行隐式转换，字符串隐式转换失败则为0 select 1=1, 0='0a'
+              - 如果任何一边比较有null参与，则结果为null，select null=1,null = null,null!=null
+            <=>，安全等于号为null而生:
+              - 安全等于号，功能跟=基本一样，只是<=>可以比较null，当两位为null则返回1，当一边为null则返回0
+              - 查询等于null的数据 select null<=>null
+              - 查询不等于null的数据 select NOT null <=> null，select * from employees where NOT commission_pct <=> NULL
+          关键字和函数相关:
+            比较null值关键字和函数:
+              - IS NULL，ISNULL，IS NOT NULL
+              - SELECT * from employees where commission_pct IS NULL
+              - SELECT * from employees where ISNULL(commission_pct)
+              - SELECT * from employees where commission_pct IS NOT NULL
+            比较最大值和最小值函数:
+              - LEAST，GREATEST
+              - 数值+字符串，字符串会被隐式转换后在比较
+              - 全为字符串，则按照字典排序进行比较
+              - SELECT LEAST(1,2,'5'),GREATEST('a1b','a1aaaaa')
+            范围查询:
+              - SELECT * from employees where  salary BETWEEN 6000 AND 8000
+              - SELECT employee_id NOT BETWEEN 100 AND 105 ,employee_id from employees where  salary NOT BETWEEN 6000 AND 8000
+              - SELECT * from employees where  salary BETWEEN 6000 AND 8000 OR salary BETWEEN 1000 AND 3000
+            选定值查询:
+              - SELECT * from employees where  salary IN(6000,8000)
+              - SELECT * from employees where  salary NOT IN(6000,8000)
+            模糊查询:
+              概念:
+                - %代表 0个或1个或多个 不确定字符
+                - _代表1个不确定字符
+              一般查询:
+                - SELECT * from employees WHERE first_name LIKE '%n%'  直要字符串中含有n即可
+                - SELECT * from employees WHERE first_name LIKE '%n' 字符串以n结尾
+                - SELECT * from employees WHERE first_name LIKE 'n%' 字符串以n开头
+                - SELECT * from employees WHERE first_name LIKE '%n%' AND  first_name LIKE 'n%' 包含n并且以n开头
+                - SELECT * from employees WHERE first_name LIKE '%n%' AND  first_name LIKE '%a%' 包含n并且包含a
+                - SELECT * from employees WHERE first_name LIKE '__a%' 查询第二个为a，后面可以任意
+                - SELECT * from employees WHERE first_name LIKE '___a%' 查询第三个为a，后面可以任意
+                - SELECT * from employees WHERE first_name LIKE '___a%__' 查询第三个为a，后面需要剩余2个字符
+              转义查询:
+                - SELECT * from employees WHERE last_name LIKE '_\_%'  第一个为占位，第二个位转义的_，意思就是，第一个和第二位必须满足，其他任意
+                - SELECT * from employees WHERE last_name LIKE '_#_%' ESCAPE '#' 第一个为占位，第二个位转义的_，意思就是，第一个和第二位必须满足，其他任意，自定义转义字符
+            正则表达式查询:
+              - SELECT * from employees WHERE last_name REGEXP '^k'
+              - SELECT * from employees WHERE last_name RLIKE '^k'
+              - SELECT * from employees WHERE last_name NOT REGEXP '^k'
+        逻辑运算:
+          - "
+            逻辑与&&(AND)
+            逻辑或||(OR)
+            逻辑非!(NOT)
+            逻辑异或XOR，需要0和1组合才为1
+            SELECT * from employees WHERE salary = 10000 XOR employee_id >100  只允许一个条件满足
+          "
+      排序:
+        概念:
+          - 如果没有使用排序操作，默认情况下，查询返回的数据是按照添加数据的顺序进行显示的
+        多列排序:
+          - 在多列进行排序时，首先排序第一列必须有相同的列值，才会对第二列进行排序。如果第一列数据中的所有值都是唯一的，将不再对第二列进行排序
+          - SELECT employee_id,first_name,salary from employees  ORDER BY salary DESC , employee_id DESC
+        使用列的别名进行排序:
+          - SELECT employee_id as abc from employees ORDER BY abc DESC
+          - SELECT employee_id as id,first_name,salary as s from employees  ORDER BY s DESC , id DESC
+      分页:
+        - LIMIT 第一个参数为偏移量，第二个参数为条数，也可以只填写1个参数，那么偏移量默认为0
+        - SELECT * FROM employees LIMIT 10  查询前10条数据
+        - SELECT * FROM employees LIMIT 21,2  查询第22和23的数据
+        - "
+          分页详解
+            (pageNum-1) * pageSize, pageSize
+            -- 查询第1页
+            SELECT * FROM employees LIMIT 0,10
+            -- 查询第2页
+            SELECT * FROM employees LIMIT 10,10
+            -- 查询第3页
+            SELECT * FROM employees LIMIT 20,10
+        "
+      多表查询:
+        为什么要有多表的操作:
+          - 多表的拆分，可以降低字段的冗余，从而减少磁盘IO，还可以满足高并发对不同表的读写
+        表与表的关联关系:
+          - 一对一关联
+          - 一对多关联
+          - 多对对关联
+          - 自我关联
+        笛卡尔积:
+          - 在N表查询中，至少需要N-1个连接条件成立才能消除笛卡尔积
+          - "
+            以下是笛卡尔积查询，并且利用连接条件消除了笛卡尔积
+
+            SELECT
+            	t1.first_name,
+            	t2.department_name
+            FROM
+            	employees t1 CROSS JOIN
+            	departments t2
+            WHERE
+            	t1.department_id = t2.department_id
+
+            SELECT
+            	t1.first_name,
+            	t2.department_name
+            FROM
+            	employees t1,
+            	departments t2
+            WHERE
+            	t1.department_id = t2.department_id
+          "
+        分类:
+          内连接:
+            - 只显示左边和右边满足条件的数据，其他不满足条件的则不显示
+            - "
+              如下是非等值连接（内连接）
+              SELECT t1.last_name,t1.salary,t2.grade_level,t2.lowest_sal,t2.highest_sal from employees t1,job_grades t2
+              where t1.salary >= t2.lowest_sal and t1.salary <= t2.highest_sal
+
+              SELECT t1.last_name,t1.salary,t2.grade_level,t2.lowest_sal,t2.highest_sal from employees t1,job_grades t2
+              where t1.salary BETWEEN t2.lowest_sal AND t2.highest_sal
+
+              如下是自连接（内连接）
+              select t1.first_name as self,t2.first_name as parent from employees t1,employees t2 where t1.employee_id = t2.manager_id
+            "
+            - SELECT * from a,b where a.id = b.id
+            - SELECT * from a JOIN b ON a.id = b.id
+            - SELECT * from a INNER JOIN b ON a.id = b.id
+          外连接:
+            左外连接:
+              - 内连接满足条件的结果+左表不满足条件的结果
+              - SELECT a.id,b.id from a LEFT JOIN b ON a.id = b.id
+              - SELECT a.id,b.id from a LEFT OUTER JOIN b ON a.id = b.id
+            右外连接:
+              - 内连接满足条件的结果+右表不满足条件的结果
+              - SELECT a.id,b.id from a RIGHT JOIN b ON a.id = b.id
+              - SELECT a.id,b.id from a RIGHT OUTER JOIN b ON a.id = b.id
+            满外连接:
+              - mysql不支持 FULL OUTER JOIN
+        7种常用的JOIN（重点）:
+          案例1:
+            - "
+              A和B交集
+              SELECT a.*,b.* FROM a JOIN b ON a.id = b.id
+            "
+          案例2:
+            - "
+              A和B交集+A左
+              SELECT a.*,b.* FROM a LEFT JOIN b ON a.id = b.id
+            "
+          案例3:
+            - "
+              A和B交集+B右
+              SELECT a.*,b.* FROM a RIGHT JOIN b ON a.id = b.id
+            "
+          案例4:
+            - "
+              A和B的差集
+              SELECT a.*,b.* FROM a LEFT JOIN b ON a.id = b.id WHERE b.id IS NULL
+            "
+          案例5:
+            - "
+              B和A的差集
+              SELECT a.*,b.* FROM a RIGHT JOIN b ON a.id = b.id WHERE a.id IS NULL
+            "
+          案例6:
+            - "
+              SELECT a.*,b.* FROM a LEFT JOIN b ON a.id = b.id
+                  UNION   可以做，但性能不好，需要去重
+              SELECT a.*,b.* FROM a RIGHT JOIN b ON a.id = b.id
+
+              注意点1 UNION ALL 不需要去重，性能比 UNION要好
+              注意点2 使用UNION ALL必须确保合并的表字段的列保持一致和列的类型保持一致
+
+              A和B并集 = A和B交集+A左 + B和A的差集
+                SELECT a.*,b.* FROM a LEFT JOIN b ON a.id = b.id
+                  UNION ALL
+                SELECT a.*,b.* FROM a RIGHT JOIN b ON a.id = b.id WHERE a.id IS NULL
+
+              A和B并集 = A和B交集+B右 + A和B的差集
+                SELECT a.*,b.* FROM a RIGHT JOIN b ON a.id = b.id
+                  UNION ALL
+                SELECT a.*,b.* FROM a LEFT JOIN b ON a.id = b.id WHERE b.id IS NULL
+            "
+          案例7:
+            - "
+              注意点1 UNION ALL 不需要去重，性能比 UNION要好
+              注意点2 使用UNION ALL必须确保合并的表字段的列保持一致和列的类型保持一致
+
+              A和B的差集 + B和A的差集
+                SELECT a.*,b.* FROM a LEFT JOIN b ON a.id = b.id WHERE b.id IS NULL
+                  UNION ALL
+                SELECT a.*,b.* FROM a RIGHT JOIN b ON a.id = b.id WHERE a.id IS NULL
+            "
+    函数分类:
+      单行函数:
+        数值函数:
+          ABS(x):
+            - "
+              返回永远是正数
+              SELECT ABS(1),ABS(12.3),ABS(-4.44)
+            "
+          SIGN(x):
+            - "
+              正数返回1，负数返回-1，0返回0
+              SELECT SIGN(1),SIGN(12.3),SIGN(-4.44),SIGN(-0)
+            "
+          PI():
+            - "
+              返回圆周率 3.141593
+              SELECT PI()
+            "
+          CEIL(x)&FLOOR(x):
+            - "
+              返回向上取整的数，不会进行四舍五入
+              SELECT CEIL(1),CEIL(1.1),CEIL(1.9),CEIL(-121.9554546)
+              SELECT CEILING(1),CEILING(1.1),CEILING(1.9),CEILING(-121.9554546)
+
+              返回向下取整的数，不会进行四舍五入
+              SELECT FLOOR(1),FLOOR(1.1),FLOOR(1.9),FLOOR(-121.9554546)
+            "
+          LEAST(x1,x2,x3,...)&GREATEST(x1,x2,x3,...):
+            - "
+              取最小的数
+                SELECT LEAST('0aaaa',1,2,3)
+              取最大的数
+                SELECT GREATEST('30aaaa',1,2,3)
+            "
+          MOD(x,y):
+            - "
+              求余
+              SELECT MOD(10,3)
+            "
+          RAND()&RAND(X):
+            - "
+              返回0-1随机数 和 返回0-10随机数
+              SELECT RAND(),RAND()*10
+              如果因子一样，则返回一个固定的随机数
+              SELECT RAND('a'),RAND('b'),RAND(0),RAND(10)
+            "
+          ROUND(x)&ROUND(x,y)&TRUNCATE(x,y):
+            - "
+              根据小数点第一位做四舍五入，并取整
+              SELECT ROUND(10.43213),ROUND(10.53213)
+              根据y设置的保留位数做四舍五入
+              SELECT ROUND(15.43213,0),ROUND(15.53213,1),ROUND(15.53213,-1)
+              根据y设置保留的位数，不做四舍五入
+              SELECT TRUNCATE(15.43213,0),TRUNCATE(15.53213,1),TRUNCATE(15.53213,-1)
+            "
+          SQRT(x):
+            - "
+              返回开方值3，当x为负数时返回Null
+              SELECT SQRT(9)
+            "
+        字符串函数:
+          ASCII(s):
+            - "
+              返回字符的ascii码十进制的值
+              SELECT ASCII('a'),ASCII('A')
+            "
+          SUBSTR(str,start,end):
+            - "
+              字符串截取，从第几位开始，截取多少位
+              SELECT SUBSTR('abc',1,2)
+            "
+          LENGTH(s)&CHAR_LENGTH(s):
+            - "
+              返回UTF8字符编码字节的长度
+              SELECT LENGTH('abc'),LENGTH('我们')
+              返回字符长度
+              SELECT CHAR_LENGTH('abc'),CHAR_LENGTH('我们')
+            "
+          CONCAT(s1,s2,...)&CONCAT(x,s1,s2,...):
+            - "
+              不带分隔符连接字符串
+              SELECT CONCAT('a','b','c')
+              带分隔符连接字符串
+              SELECT CONCAT_WS('-','a','b','c')
+            "
+          REPLACE(str,a,b)&INSERT(str,idx,len,replcace):
+            - "
+              替换字符串
+              SELECT REPLACE('hello tom','tom','eric')
+              指定位置替换字符串，从1开始
+              SELECT INSERT('hello tom lyq',7,3,'eric')
+            "
+          UPPER(s)&LOWER(s):
+            - "
+              将字符串转换为大写
+              SELECT UPPER('Eric'),UCASE('Eric')
+              将字符串转换为小写
+              SELECT LOWER('Eric'),LCASE('Eric')
+            "
+          LEFT(str,n)&RIGHT(str,n):
+            - "
+              返回左边的第几个字符
+              SELECT LEFT('Eric',1)
+              返回右边的第几个字符
+              SELECT RIGHT('Eric',1)
+            "
+          LPAD(str,len,pad)&RPAD(str,len,pad):
+            - "
+              指定字符串长度，如果字符串长度不够，则用指定符号补全
+              SELECT LPAD('Eric',20,'*')
+              SELECT RPAD('Eric',20,'*')
+            "
+          TRIM(s)&LTRIM(s)&RTRIM(s):
+            - "
+              去除左右空格
+              SELECT TRIM('   Eric   ')
+              指定需要去除字符串，左右去除
+              SELECT TRIM('-' FROM '---Eric---')
+              指定需要去除字符串，左去除
+              SELECT TRIM(LEADING '-' FROM '---Eric---')
+              指定需要去除字符串，右去除
+              SELECT TRIM(TRAILING '-' FROM '---Eric---')
+
+              去除左空格
+              SELECT LTRIM('   Eric   ')
+              去除右空格
+              SELECT RTRIM('   Eric   ')
+            "
+          REPEAT(str,n):
+            - "
+              对字符串重复打印几次
+              SELECT REPEAT('abc',2)
+            "
+          STRCMP(s1,s2):
+            - "
+              比较2个字符串的ascii值，一次进行顺序比较
+              s1>s2 = 1
+              s1<s2 = -1
+              s1=s2 = 0
+              SELECT STRCMP('c','bbb')
+              SELECT STRCMP('abc','abd')
+              SELECT STRCMP('abc','abc')
+            "
+          LOCATE(subStr,str):
+            - "
+              查询字符串b出现在哪个位置
+              SELECT LOCATE('b','abc')
+            "
+          ELT(i,s1,s2,s3,...):
+            - "
+              需要返回第几个字符串
+              SELECT ELT(1,'eric','tom','jerry')
+            "
+          FIELD(s,s1,s2,...)&FIND_IN_SET（s1,s2）:
+            - "
+              返回字符串出现的位置
+              SELECT FIELD('eric','eric','tom','jerry')
+              SELECT FIND_IN_SET('eric','eric,tom,jerry')
+            "
+          REVERSE(s):
+            - "
+              反转字符串
+              SELECT REVERSE('eric')
+            "
+          NULLIF(s1,s2):
+            - "
+              str1 = str2  返回 NULL
+              str1 != str2 返回 str1
+              SELECT NULLIF('a','bb')
+              SELECT NULLIF('bb','bb')
+            "
+        日期和时间函数:
+          日期和时间的获取:
+            - "
+              获取当前时间
+              SELECT CURDATE(),CURRENT_DATE(),CURTIME(),CURRENT_TIME(),NOW(),UTC_DATE(),UTC_TIME()
+              获取当前时间，并且转换为数值型
+              SELECT CURDATE()+0,CURRENT_DATE()+0,CURTIME()+0,CURRENT_TIME()+0,NOW()+0,UTC_DATE()+0,UTC_TIME()+0
+
+              获取当前时间
+              SELECT CURRENT_TIMESTAMP() 不带毫秒
+              SELECT CURRENT_TIMESTAMP(3) 带毫秒
+              获取时间戳
+              SELECT UNIX_TIMESTAMP()
+
+              指定一个时间，获取 年月日时分秒
+              SELECT YEAR(NOW()),MONTH(NOW()),DAY(NOW()),HOUR(NOW()),MINUTE(NOW()),SECOND(NOW())
+              指定一个时间，获取英文的月份
+              SELECT MONTHNAME(NOW())
+              指定一个时间，获取英文的星期几
+              SELECT DAYNAME(NOW())
+              指定一个时间，获取周几，星期1是0，星期二是1，星期3是2
+              SELECT WEEKDAY(NOW())
+              指定一个时间，获取季度，1-4
+              SELECT QUARTER(NOW())
+              指定一个时间，获取一年中的第几周
+              SELECT WEEK(NOW()),SELECT WEEKOFYEAR(NOW())
+              指定一个时间，获取一年中的第几天
+              SELECT DAYOFYEAR(NOW())
+              指定一个时间，获取一个月中的第几天
+              SELECT DAYOFMONTH(NOW())
+              指定一个时间，获取一周中的第几天，星期日是1 星期一是2 星期二是3
+              SELECT DAYOFWEEK(NOW())
+
+              指定一个时间，返回当前时间,毫秒
+              SELECT EXTRACT(MICROSECOND FROM CURRENT_TIMESTAMP(6))
+              指定一个时间，返回当前时间,年月日时分秒
+              SELECT EXTRACT(SECOND FROM NOW()),EXTRACT(MINUTE FROM NOW()),EXTRACT(HOUR FROM NOW()),EXTRACT(DAY FROM NOW()),EXTRACT(MONTH FROM NOW()),EXTRACT(YEAR FROM NOW())
+
+              指定一个时间，返回当前时间在当前年的第几周
+              SELECT EXTRACT(WEEK FROM NOW())
+              指定一个时间，返回当前时间在当前年的第几月
+              SELECT EXTRACT(MONTH FROM NOW())
+              指定一个时间，返回当前时间在当前年的第几和季度 1-4
+              SELECT EXTRACT(QUARTER FROM NOW())
+
+              指定一个时间，返回秒和毫秒
+              SELECT EXTRACT(SECOND_MICROSECOND FROM CURRENT_TIMESTAMP(6))
+              指定一个时间，返回分钟和毫秒
+              SELECT EXTRACT(MINUTE_MICROSECOND FROM CURRENT_TIMESTAMP(6))
+              指定一个时间，返回年和月
+              SELECT EXTRACT(YEAR_MONTH FROM CURRENT_TIMESTAMP(6))
+            "
+          日期和时间的转换:
+            - "
+              时间和时间戳的互转
+              SELECT UNIX_TIMESTAMP('2022-11-25 09:34:20'),FROM_UNIXTIME(1669368860)
+              时分秒和秒的互转
+              SELECT TIME_TO_SEC(CURRENT_TIME()),SEC_TO_TIME(52375)
+            "
+          日期和时间的计算:
+            - "
+              在当前时间上添加年月日时分秒，对应的有DATE_SUB和SUBDATE
+              SELECT ADDDATE('2022-1-1 1:1:1.1',INTERVAL 1000 MICROSECOND)
+              SELECT DATE_ADD('2022-1-1 1:1:1.1',INTERVAL 1 YEAR)
+              SELECT DATE_ADD('2022-1-1 1:1:1.1',INTERVAL 1 MONTH)
+              SELECT DATE_ADD('2022-1-1 1:1:1.1',INTERVAL 1 DAY)
+              SELECT DATE_ADD('2022-1-1 1:1:1.1',INTERVAL 1 HOUR)
+              SELECT DATE_ADD('2022-1-1 1:1:1.1',INTERVAL 1 MINUTE)
+              SELECT DATE_ADD('2022-1-1 1:1:1.1',INTERVAL 1 SECOND)
+
+              SELECT DATE_ADD('2022-1-1 1:1:1.1',INTERVAL '1_1' YEAR_MONTH)
+              SELECT DATE_ADD('2022-1-1 1:1:1.1',INTERVAL '1_1' DAY_HOUR)
+              SELECT DATE_ADD('2022-1-1 1:1:1.1',INTERVAL '1_1' DAY_MINUTE)
+              SELECT DATE_ADD('2022-1-1 1:1:1.1',INTERVAL '1_1' DAY_SECOND)
+              SELECT DATE_ADD('2022-1-1 1:1:1.1',INTERVAL '1_1' HOUR_MINUTE)
+              SELECT DATE_ADD('2022-1-1 1:1:1.1',INTERVAL '1_1' HOUR_SECOND)
+              SELECT DATE_ADD('2022-1-1 1:1:1.1',INTERVAL '1_1' MINUTE_SECOND)
+
+              添加和减少天数
+              SELECT ADDDATE('2022-1-1',1)
+              SELECT SUBDATE('2022-1-2',1)
+              添加和减少时分秒
+              SELECT ADDTIME(' 1:1:1',1)
+              SELECT ADDTIME(' 1:1:1','1:1:1')
+              SELECT SUBTIME(' 1:1:1',1)
+              SELECT SUBTIME(' 1:1:1','1:1:1')
+
+              date1-date2的时间间隔
+                SELECT TO_DAYS(NOW()) - TO_DAYS('2022-1-1 1:1:1.1')
+                SELECT DATEDIFF(NOW(),'2022-1-1 1:1:1')
+              time1-time2的时间间隔
+                SELECT TIMEDIFF('2022-1-1 2:2:2','2022-1-1 1:1:1')
+              返回日期date距离0000年1月1日的天数
+                SELECT TO_DAYS(NOW())
+            "
+          日期和时间的格式化:
+            - "
+              格式化
+              SELECT NOW(),DATE_FORMAT(NOW(),'%Y年%m月%e日 %H时%i分%s秒')
+              SELECT NOW(),TIME_FORMAT(NOW(),'%H时%i分%s秒')
+              反格式化
+              SELECT STR_TO_DATE('2022年11月25日 15时49分11秒','%Y年%m月%e日 %H时%i分%s秒')
+              获取某个国家的格式化格式
+              SELECT GET_FORMAT(DATETIME, 'USA'),GET_FORMAT(TIME, 'USA')
+              SELECT GET_FORMAT(DATETIME, 'ISO'),GET_FORMAT(TIME, 'ISO')
+            "
+        流程控制函数:
+        加密与解密函数:
+        获取MYSQL信息函数:
+        聚合函数:
+      多行函数:
+        数值函数:
+        字符串函数:
+        日期和时间函数:
+        流程控制函数:
+        加密与解密函数:
+        获取MYSQL信息函数:
+        聚合函数:
   DDL:
     - 数据定义语言(Data Definition Language)
     - 定义了不同的数据库，表，视图，索引等数据库对象，还可以用来创建，删除，修改数据和数据库表的结构
