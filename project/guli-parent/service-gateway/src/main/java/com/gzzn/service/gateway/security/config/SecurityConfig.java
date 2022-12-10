@@ -88,10 +88,46 @@ public class SecurityConfig {
 
     /*{
         //自定义ajax登陆，去掉配置.formLogin()即可，然后根据如下思路进行实现
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
-        AuthenticationContextHolder.setContext(authenticationToken);
-        // 该方法会去调用UserDetailsServiceImpl.loadUserByUsername
-        authentication = authenticationManager.authenticate(authenticationToken);
+        public String login(String username, String password, String code, String uuid)
+    {
+        boolean captchaEnabled = configService.selectCaptchaEnabled();
+        // 验证码开关
+        if (captchaEnabled)
+        {
+            validateCaptcha(username, code, uuid);
+        }
+        // 用户验证
+        Authentication authentication = null;
+        try
+        {
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
+            AuthenticationContextHolder.setContext(authenticationToken);
+            // 该方法会去调用UserDetailsServiceImpl.loadUserByUsername
+            authentication = authenticationManager.authenticate(authenticationToken);
+        }
+        catch (Exception e)
+        {
+            if (e instanceof BadCredentialsException)
+            {
+                AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_FAIL, MessageUtils.message("user.password.not.match")));
+                throw new UserPasswordNotMatchException();
+            }
+            else
+            {
+                AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_FAIL, e.getMessage()));
+                throw new ServiceException(e.getMessage());
+            }
+        }
+        finally
+        {
+            AuthenticationContextHolder.clearContext();
+        }
+        AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_SUCCESS, MessageUtils.message("user.login.success")));
+        LoginUser loginUser = (LoginUser) authentication.getPrincipal();
+        recordLoginInfo(loginUser.getUserId());
+        // 生成token
+        return tokenService.createToken(loginUser);
+    }
     }*/
     /*end*/
 
