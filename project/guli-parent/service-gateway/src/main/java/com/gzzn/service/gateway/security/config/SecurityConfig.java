@@ -14,15 +14,19 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
+import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 
@@ -71,6 +75,25 @@ public class SecurityConfig {
         return authenticationManager;
     }
 
+    /*start*/
+    /*@Autowired
+    ReactiveAuthenticationManager reactiveAuthenticationManager;
+    public void test(){
+        log.info("{}","controller 和 service实现思路");
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken("username", "password");
+        ReactiveSecurityContextHolder.withAuthentication(authenticationToken);
+        Mono<Authentication> authenticate = reactiveAuthenticationManager.authenticate(authenticationToken);
+        Object principal = authenticate.block().getPrincipal();
+    }*/
+
+    /*{
+        //自定义ajax登陆，去掉配置.formLogin()即可，然后根据如下思路进行实现
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
+        AuthenticationContextHolder.setContext(authenticationToken);
+        // 该方法会去调用UserDetailsServiceImpl.loadUserByUsername
+        authentication = authenticationManager.authenticate(authenticationToken);
+    }*/
+    /*end*/
 
     @Bean
     PasswordEncoder passwordEncoder() {

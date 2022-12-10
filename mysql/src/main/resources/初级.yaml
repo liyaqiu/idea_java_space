@@ -544,6 +544,7 @@ SQL分类:
               SELECT GET_FORMAT(DATETIME, 'ISO'),GET_FORMAT(TIME, 'ISO')
             "
         流程控制函数:
+          - https://www.bilibili.com/video/BV1iq4y1u7vj?p=36&spm_id_from=pageDriver&vd_source=cc17fab1d456bc3958dcb51e2fdd520b
         加密与解密函数:
         获取MYSQL信息函数:
         聚合函数:
