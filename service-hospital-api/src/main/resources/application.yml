@@ -1,8 +1,0 @@
-spring:
-  profiles:
-    active: dev
-  jackson:
-    date-format: yyyy-MM-dd HH:mm:ss #对json返回时间进行格式化
-    time-zone: GMT+8
-logging:
-  config: classpath:log4j2.xml
