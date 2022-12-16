@@ -70,6 +70,9 @@ public class UserModel implements UserDetails {
         return permits;
     }
 
+    /**
+     * 将关于这个用户的权限返回给spring security框架
+     * */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         //log.debug("getAuthorities");
