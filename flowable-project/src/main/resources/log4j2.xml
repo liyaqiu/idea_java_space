@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--日志级别以及优先级排序: OFF > FATAL > ERROR > WARN > INFO > DEBUG > TRACE > ALL -->
+<configuration status="WARN" monitorInterval="1800">
+    <Properties>
+        <property name="geshi" value="%d{HH:mm:ss.SSS} %pid [%-5level] [%thread] %c : %m%n"/>
+        <!--<property name="geshi" value="%d{HH:mm:ss.SSS} %pid [%-5level] [%-16thread] %c : %m%n"/>-->
+        <!--<property name="geshi" value="%d{HH:mm:ss.SSS} %pid [%-5level] [%-16.16thread] %40.40c : %m%n"/>-->
+    </Properties>
+
+    <appenders>
+        <Console name="kongzhitai" target="SYSTEM_OUT">
+            <PatternLayout pattern="${geshi}"/>
+        </Console>
+
+
+        <!--异步apepender 此方式性能提升不大，一般不用-->
+        <!--<Async name="yibuAppender">
+            <AppenderRef ref="kongzhitai"/>
+        </Async>-->
+    </appenders>
+
+
+
+    <loggers>
+        <root level="WARN">
+            <appender-ref ref="kongzhitai"/>
+        </root>
+
+        <logger name="org.flowable" level="INFO" additivity="false">
+            <appender-ref ref="kongzhitai"/>
+        </logger>
+        <logger name="com.test" level="INFO" additivity="false">
+            <appender-ref ref="kongzhitai"/>
+        </logger>
+
+        <!--<AsyncLogger name="com.service" level="DEBUG" includeLocation="false" additivity="false">
+            <appender-ref ref="kongzhitai"/>
+        </AsyncLogger>-->
+    </loggers>
+</configuration>

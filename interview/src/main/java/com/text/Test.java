@@ -6,8 +6,7 @@ package com.text;
  **/
 public class Test {
     public static void main(String[] args) {
-        ThreadLocal local = new ThreadLocal();
-        local.set("");
-        local.remove();
+        new ThreadLocal();
+
     }
 }

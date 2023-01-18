@@ -56,7 +56,6 @@ public class Test1 {
     public void test1(){
         log.info("testConfig {}",testConfig);
     }
-
 }
 
 

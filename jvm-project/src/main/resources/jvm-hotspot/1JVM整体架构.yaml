@@ -815,7 +815,7 @@ JVM的整体结构/JVM内存模型:
         设置逃逸分析:
           开启: -XX:+DoEscapeAnalysis
           关闭: -XX:-DoEscapeAnalysis
-      对象的实例化:
+      对象的实例化（对象创建）:
         创建对象方式:
           - new
           - 反射

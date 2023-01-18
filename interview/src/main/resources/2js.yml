@@ -1,0 +1,119 @@
+js相关:
+  JS六种数据类型:
+    基本(值)数据类型:
+      - String
+      - Boolean
+      - Number
+      - Undefined
+      - Null
+    对象(引用)数据类型:
+      - Object
+  js中的作用域:
+    全局作用域:
+    函数作用域:
+    块作用域: es6中有
+  作用域链:
+    - 当在函数作用域操作一个变量或者函数变量时，它会先在自身的作用域中寻找，如果有就直接使用，如果没有则往上一级函数作用域寻找，直到找到全局作用域位置，如果全局还没找到则报错。
+  var变量和函数的提升有没有了解过:
+  什么是原型:
+    - 函数实例对象的隐式原型等于函数对象的显式原型
+  原型链(隐式原型链):
+    - 实例对象会先从对象本身去访问方法或者属性，如果访问不到会去原型上去访问，直到访问到Object类的原型为止
+    - Vue中的Vue对象以及vueComponent原型关系
+  事件冒泡:
+    - 每个元素都会有默认事件函数，所以当对某个函数触发相应的事件时，都会有冒泡的产生。如果需要该元素不支持冒泡，可以使用event.cancelBubble = true; 停止冒泡
+  localStroage和sessionStroage有没有用过:
+    - sessionStroage浏览器窗口关闭就会清除
+    - localStroage除非用户清除，或者api清楚，否则永久残留
+  如何产生闭包:
+    - 函数的嵌套，并且函数使用了外部函数作用域的变量
+  你是如何理解js中的异步:
+    功能:
+      - js是单线程执行(回调代码也是在主线程执行)
+    代码分类:
+      - 初始化代码
+      - 回调代码
+  为什么会产生跨域: 违背了同源策略的请求，都属于跨域请求，必须保证(协议，域名，端口号)全部一致
+  箭头函数:
+    功能:
+      - 箭头函数没有this，使用任何方式都不能改变this指向
+      - 在箭头函数中使用this,这个this始终指向作用域链的this
+      - 不能使用new实例化
+      - 箭头函数没有arguments
+  函数中this对象你是怎么理解的:
+    - 解析器会为每个函数隐式传递一个this对象
+    - 根据函数的调用方式不同this指向不同
+    - "
+           以方法方式调用，this指向的是当前对象  obj.fun()
+           以new方式调用，this指向的是当前对象  new fun()
+           以函数方式调用，this指向window对象  fun()
+        "
+  如何改变this指向:
+    - 调用函数对象的call方法，this为传入的对象，testFun.call(obj,'arg1','arg2')
+    - 调用函数对象的apply方法，this为传入的对象 testFun.apply(obj,['arg1','arg2'])
+    - 还有一种利用bind方式，对函数进行拷贝，在执行const a2 = testFun.bind(myObj,'eric1','eric2')  a2()
+  js中的事件委派有没有了解过:
+    - "
+        onload = function (){
+            document.getElementById('box').onclick = function(even){
+                console.dir(even.target)
+                console.log(even.target.dataset)
+                if(even.target.attributes.need){
+                    console.log(even.target.innerHTML)
+                }else{
+                    console.log('不需要的元素')
+                }
+            }
+        }
+        <div class='box' id='box'>
+            <ul>
+                <li need data-hello='1'>1</li>
+                <li need data-hello='2'>2</li>
+                <li need data-hello='3'>3</li>
+                <li need data-hello='4'>4</li>
+                <li need data-hello='5'>5</li>
+            </ul>
+            <h1 class='h' need>6</h1>
+            <h2 class='h' need>7</h2>
+            <h3 class='h' need>8</h3>
+            <h4 class='h' need>9</h4>
+        </div>
+      "
+  宏队列于微队列:
+    功能:
+      - JS引擎首先必须先执行所有的初始化同步任务代码
+      - 每次准备取出第一个宏任务执行前，都要将所有的微任务一个一个取出来执行。
+    宏队列:
+      - 用来保存待执行的红任务(回调函数以及一些结果值)，例如，DOM回调，定时器回调，ajax回调
+    微队列:
+      - 用来保存待执行的微任务(回调函数以及一些结果值)，例如，Promise回调，MutationObserver回调
+  Axios拦截器有没有用过:
+    - 请求拦截器
+    - 响应拦截器
+  Promise:
+    3种状态:
+      - PENDING = 'pending'
+      - RESOLVED = 'resolved'
+      - REJECTED = 'rejected'
+    如何终止/挂起Promise链操作:
+      - new一个Promise，然后不调用resolved，rejected即可挂起
+  async和await讲一下:
+    async函数:
+      功能:
+        - 只要 return，都是返回成功的Promise对象
+        - 只要 throw， 都是返回失败的Promise对象
+        - 手动return返回Promise对象，根据自己调用的成功或者失败作为返回
+    await:
+      功能:
+        - await必须写在async函数中
+        - await右侧的表达式一般为promise对象
+        - await返回的是promise成功的值
+        - await的promise失败了，就会报出异常，需要通过try..catch捕获处理
+  模块化规范:
+    ES5模块化: 闭包
+    ES6模块化: import
+    CommonJS模块化: require
+    AMD模块化:
+    CMD模块化:
+  http协议基本组成部分:
+  OSI模型:

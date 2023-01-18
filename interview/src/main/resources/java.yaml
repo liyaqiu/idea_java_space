@@ -18,8 +18,9 @@ HashTable和HashMap的区别:
   - HashTable扩容方式和HashMap不同
   - HashTable和HashMap继承的父类不一样，但是接口都是实现好Map接口
 多线程有三大特性:
-  原子性: 可以通过synchronized关键字或者cas来确保
+  原子性: cas来确保
   可见性和有序性: 可以通过volatile关键字来确保，volatile可以防止jvm指令重排
+  synchronized: 可以确保 原子性，可见性，有序性
 SpringBoot自动配置:
   - 1继承spring-boot-starter
   - 2配置@Conditional注解

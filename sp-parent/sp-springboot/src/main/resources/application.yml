@@ -12,7 +12,7 @@ spring:
 #    password: ${mylogin.passwd}
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://192.168.88.10:3306/acl_db?useSSL=false
+    url: jdbc:mysql://127.0.0.1:3306/acl_db?useSSL=false
     username: root
     password: 123456
 

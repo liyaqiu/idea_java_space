@@ -17,6 +17,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @Configuration
 @EnableSwagger2
 //原生swagger2 http://localhost:8080/swagger-ui.html
+//原生swagger2 http://localhost:8080/swagger-ui/index.html
 //改版的 knife4j http://localhost:8080/doc.html
 public class SwaggerConfig {
 

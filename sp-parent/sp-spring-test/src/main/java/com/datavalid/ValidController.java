@@ -22,7 +22,6 @@ import javax.validation.constraints.NotNull;
 public class ValidController {
 
     @GetMapping("test1")
-
     public String test1(@Validated ValidDemo2 user3){
         log.info("test1   {}",user3);
         return "success";

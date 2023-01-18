@@ -11,7 +11,7 @@ import org.springframework.context.ConfigurableApplicationContext;
  * spring boot amdin 是对spring actuator的api做管理
  */
 @SpringBootApplication
-@EnableAdminServer //http://192.168.0.109:8080/applications
+@EnableAdminServer //http://192.168.88.1:9999/applications
 public class SpringLauncher {
 
     public static void main(String[] args) {

@@ -32,6 +32,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public Res doMethodArgumentNotValidException(MethodArgumentNotValidException e){
         log.error("",e);
+        //String msg = e.getBindingResult().getFieldError().getDefaultMessage()
         return Res.fail()
                 .setMessage(e.getBindingResult().getAllErrors().stream().findFirst().get().toString())
                 .setCode(ResCode.DATA_VALIDATION_FAIL);

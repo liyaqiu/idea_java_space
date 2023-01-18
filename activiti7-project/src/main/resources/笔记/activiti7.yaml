@@ -1,0 +1,45 @@
+BPMN(Business Process Model AndNotation):
+  概述:
+    - 业务流程剑魔和符号，是由BPMI开发的一套标准的业务流程建模符号，使用BPMN提供的符号可以创建业务流程
+  BPMN插件安装:
+    - https://www.pudn.com/news/62ad3ffbdfc5ee19687a718d.html
+    - https://plugins.jetbrains.com/plugin/7429-actibpm/versions
+    - actibpm.jar 改版本号即可
+
+Activiti7:
+  生命周期/使用步骤: 部署activiti引擎 -> 流程定义 -> 流程定义部署 -> 启动流程实例 -> 用户查询待办任务 -> 用户办理任务 -> 流程结束
+表结构（25张表）:
+  ACT_GE(General)(2):
+    概述: 保存通用数据
+    ACT_GE_BYTEARRAY: 通用的流程定义和流程资源
+    ACT_GE_PROPERTY: 系统相关属性
+  ACT_RE(Repository)(3):
+    概述: 保存流程定义和流程静态资源 （图片、规则等等）
+    ACT_RE_DEPLOYMENT: 部署单元信息
+    ACT_RE_PROCDEF: 已部署的流程定义
+    ACT_RE_MODEL: 模型信息
+  ACT_RU(Runtime)(10):
+    概述: 保存运行时数据（流程实例、任务、变量、异步任务等等）
+    ACT_RU_TASK: 运行时任务
+    ACT_RU_EXECUTION: 运行时流程执行实例
+    ACT_RU_IDENTITYLINK: 运行时用户关系信息，存储任务节点与参与者的相关信息
+    ACT_RU_JOB: 运行时作业
+    ACT_RU_EVENT_SUBSCR: 运行时事件
+    ACT_RU_VARIABLE: 运行时变量表
+    ACT_RU_TIMER_JOB:
+    ACT_RU_DEADLETTER_JOB:
+    ACT_RU_INTEGRATION:
+    ACT_RU_SUSPENDED_JOB:
+  ACT_HI(History)(8):
+    概述: 保存历史时数据（全流程：流程实例、任务、变量、异步任务等等）
+    ACT_HI_ACTINST: 历史的流程实例
+    ACT_HI_IDENTITYLINK: 历史的流程运行过程中用户关系
+    ACT_HI_PROCINST: 历史的流程实例
+    ACT_HI_TASKINST: 历史的任务实例
+    ACT_HI_ATTACHMENT: 历史的流程附件
+    ACT_HI_COMMENT: 历史的说明性信息
+    ACT_HI_DETAIL: 历史的流程运行中的细节信息
+    ACT_HI_VARINST: 历史的流程运行中的变量信息
+  其他:
+    ACT_EVT_LOG:
+    ACT_PROCDEF_INFO:
