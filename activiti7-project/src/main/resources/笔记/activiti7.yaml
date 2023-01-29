@@ -1,45 +1,140 @@
-BPMN(Business Process Model AndNotation):
-  概述:
-    - 业务流程剑魔和符号，是由BPMI开发的一套标准的业务流程建模符号，使用BPMN提供的符号可以创建业务流程
-  BPMN插件安装:
-    - https://www.pudn.com/news/62ad3ffbdfc5ee19687a718d.html
-    - https://plugins.jetbrains.com/plugin/7429-actibpm/versions
-    - actibpm.jar 改版本号即可
-
-Activiti7:
-  生命周期/使用步骤: 部署activiti引擎 -> 流程定义 -> 流程定义部署 -> 启动流程实例 -> 用户查询待办任务 -> 用户办理任务 -> 流程结束
-表结构（25张表）:
-  ACT_GE(General)(2):
-    概述: 保存通用数据
-    ACT_GE_BYTEARRAY: 通用的流程定义和流程资源
-    ACT_GE_PROPERTY: 系统相关属性
-  ACT_RE(Repository)(3):
-    概述: 保存流程定义和流程静态资源 （图片、规则等等）
-    ACT_RE_DEPLOYMENT: 部署单元信息
-    ACT_RE_PROCDEF: 已部署的流程定义
-    ACT_RE_MODEL: 模型信息
-  ACT_RU(Runtime)(10):
-    概述: 保存运行时数据（流程实例、任务、变量、异步任务等等）
-    ACT_RU_TASK: 运行时任务
-    ACT_RU_EXECUTION: 运行时流程执行实例
-    ACT_RU_IDENTITYLINK: 运行时用户关系信息，存储任务节点与参与者的相关信息
-    ACT_RU_JOB: 运行时作业
-    ACT_RU_EVENT_SUBSCR: 运行时事件
-    ACT_RU_VARIABLE: 运行时变量表
-    ACT_RU_TIMER_JOB:
-    ACT_RU_DEADLETTER_JOB:
-    ACT_RU_INTEGRATION:
-    ACT_RU_SUSPENDED_JOB:
-  ACT_HI(History)(8):
-    概述: 保存历史时数据（全流程：流程实例、任务、变量、异步任务等等）
-    ACT_HI_ACTINST: 历史的流程实例
-    ACT_HI_IDENTITYLINK: 历史的流程运行过程中用户关系
-    ACT_HI_PROCINST: 历史的流程实例
-    ACT_HI_TASKINST: 历史的任务实例
-    ACT_HI_ATTACHMENT: 历史的流程附件
-    ACT_HI_COMMENT: 历史的说明性信息
-    ACT_HI_DETAIL: 历史的流程运行中的细节信息
-    ACT_HI_VARINST: 历史的流程运行中的变量信息
-  其他:
-    ACT_EVT_LOG:
-    ACT_PROCDEF_INFO:
+初级:
+  BPMN(Business Process Model AndNotation):
+    概述:
+      - 业务流程剑魔和符号，是由BPMI开发的一套标准的业务流程建模符号，使用BPMN提供的符号可以创建业务流程
+    BPMN插件安装:
+      - https://www.pudn.com/news/62ad3ffbdfc5ee19687a718d.html
+      - https://plugins.jetbrains.com/plugin/7429-actibpm/versions
+      - actibpm.jar 改版本号即可
+    符号说明:
+      Event(事件):
+        - StartEvent(开始事件)
+        - IntermediateEvent(中间事件)
+        - EndEvent(结束事件)
+      Activity(活动):
+        - 活动是工作或任务的一个通用术语，一个活动可以是一个任务，还可以事一个当前流程的子处理流程，其次，可还可以为活动指定不同的类型。
+        - UserTask(用户任务)
+        - ServiceTask(服务任务)
+        - SubProcess(子流程)
+      Gateway(网关):
+        概述:
+          - 网关用来处理决策
+        排它网关(x):
+          - 只有一条路径会被选择，流程执行到该网关时，按照输出流的顺序逐个计算，当条件的计算结果为true时，继续执行当前网关的输出流
+          - 如果多条线路计算结果都是true，则会执行第一个值为true的线路，如果所有网关计算你的结果没有true，则引擎会抛出异常
+          - 排它网关需要和条件顺序流结合使用，default属性指定默认顺序流，当所有的条件不满足时会执行默认顺序流
+        并行网关(+):
+          - 所有路径会被同时选择
+          - 拆分，并行执行所有输出顺序流，为每一条顺序流创建一个并行执行路线
+          - 合并，所有从并行网关拆分执行完成路线均在次等候，直到所有的路线都执行完成才继续向下执行
+        包容网关(○):
+          - 可以同时执行多条路线，也可以在网关上设置条件
+          - 拆分，计算每条路线上的表达式，当表达式计算结果为true时，创建一个并行路线并继续执行
+          - 合并，所有从并行网关拆分并执行完成的路线均在此等候，指导所有的路线都执行完成才继续向下执行
+        事件网关(○+※):
+          - 专门为中间捕获时间设置的，允许设置多个输出流指向多个不同的中间捕获事件，当流程执行到事件网关后，流程处于等待状态，需要等待抛出事件才能将等待状态转换为活动状态
+        综合网关(※):
+      Flow(流向):
+        - SequenceFlow(顺序流)
+        - MessageFlow(消息流)
+        - Association(关联)
+        - DataAssociation(数据关联)
+    解决PNG图片生成问题:
+      - IDEA下找不到diagrams按钮选项的解决方案
+      - https://blog.csdn.net/qq_43592352/article/details/114579359?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-0-114579359-blog-122833017.pc_relevant_multi_platform_whitelistv4&spm=1001.2101.3001.4242.1&utm_relevant_index=3
+      - https://www.bilibili.com/video/BV1H54y167gf?p=18&vd_source=cc17fab1d456bc3958dcb51e2fdd520b
+    解决BPMN乱码问题:
+      - https://blog.csdn.net/LFP528136199/article/details/115583248
+  Activiti7:
+    生命周期/使用步骤: 部署activiti引擎 -> 流程定义 -> 流程定义部署 -> 启动流程实例 -> 用户查询待办任务 -> 用户办理任务 -> 流程结束
+  表结构（25张表）:
+    ACT_GE(General)(2):
+      概述: 保存通用数据
+      ACT_GE_BYTEARRAY: 通用的流程定义和流程资源
+      ACT_GE_PROPERTY: 系统相关属性
+    ACT_RE(Repository)(3):
+      概述: 保存流程定义和流程静态资源 （图片、规则等等）
+      ACT_RE_DEPLOYMENT: 部署单元信息
+      ACT_RE_PROCDEF: 已部署的流程定义
+      ACT_RE_MODEL: 模型信息
+    ACT_RU(Runtime)(10):
+      概述: 保存运行时数据（流程实例、任务、变量、异步任务等等）
+      ACT_RU_TASK: 运行时任务
+      ACT_RU_EXECUTION: 运行时流程执行实例(与业务关联的表BUSINESS_KEY_)
+      ACT_RU_IDENTITYLINK: 运行时用户关系信息，存储任务节点与参与者的相关信息
+      ACT_RU_JOB: 运行时作业
+      ACT_RU_EVENT_SUBSCR: 运行时事件
+      ACT_RU_VARIABLE: 运行时变量表
+      ACT_RU_TIMER_JOB:
+      ACT_RU_DEADLETTER_JOB:
+      ACT_RU_INTEGRATION:
+      ACT_RU_SUSPENDED_JOB:
+    ACT_HI(History)(8):
+      概述: 保存历史时数据（全流程：流程实例、任务、变量、异步任务等等）
+      ACT_HI_ACTINST: 历史的流程实例
+      ACT_HI_IDENTITYLINK: 历史的流程运行过程中用户关系
+      ACT_HI_PROCINST: 历史的流程实例
+      ACT_HI_TASKINST: 历史的任务实例
+      ACT_HI_ATTACHMENT: 历史的流程附件
+      ACT_HI_COMMENT: 历史的说明性信息
+      ACT_HI_DETAIL: 历史的流程运行中的细节信息
+      ACT_HI_VARINST: 历史的流程运行中的变量信息
+    其他:
+      ACT_EVT_LOG:
+      ACT_PROCDEF_INFO:
+  Service:
+    PepositoryService:
+      概述:
+        - 资源管理类
+        - 提供了管理和控制流程发布包和流程定义的操作，使用工作流建模工具设计的业务流程图需要使用此Service将流程定义文件的内容部署到计算机
+        - 除了以流程定义以外还可以查询引擎中的发布包和流程定义
+        - 暂停或激活发布包，对应全部和特定流程定义，暂停意味着他们不能在执行操作了，激活是对应的反向操作，获得多种资源，像是包含在发布包里的文件，或引擎自动生成的流程图
+        - 获得流程定义的POJO版本，可以用来通过Java解析流程，而不必通过XML
+    RuntimeServive:
+      概述:
+        - 流程运行管理类
+        - 可以从这个服务类中获取更多关于流程执行相关的信息
+    TaskService:
+      概述:
+        - 任务管理类
+        - 可以从这个类中获取任务的信息
+    HistoryService:
+      概述:
+        - 历史管理类
+        - 可以查询历史信息，执行流程时，引擎会保存很多数据(根据配置)，比如流程实例启动时间，任务的参与者，完成任务的时间，每个流程实例的执行路径，等等。这个服务主要通过查询功能来获得这些数据
+    ManagerServive:
+      概述:
+        - 引擎管理类
+        - 提供对流程引擎的管理和维护功能，这些功能不在工作流驱动的应用程序中使用，主要用于系统的日常维护
+  HelloWorld:
+    定义流程:
+      - 按照BPMN的规范，使用流程定义工具，用流程符号把整个流程描述出来
+    部署流程:
+      - 把话好的流程定义文件加载到数据库中，生成表的数据
+    启动流程:
+      - 使用Java代码来操作数数据库表中的数据
+高级:
+  流程定义与流程实例的关系:
+    - 一个流程定义(流程模版)可以有多个流程实例(流程申请)
+  挂起与激活:
+    流程实例挂起: 此流程实例不能操作
+    流程定义挂起: 此流程定义不允许在生成新的流程实例，并且该流程定义下的所有流程实例都不能操作
+  个人任务:
+    分配任务负责人:
+      固定分配: assignee=zhangsan
+      表达式分配:
+        UEL表达式:
+          概述: UEL是Java EE6规范的一部分，activiti支持两种UEL表达式
+        UEL-value定义:
+          - assignee=${user.userName}
+          - user是activiti的一个流程变量，user.userName表示通过user的getter方法获取值
+        UEL-method定义:
+          - assignee=${user.getUserName()}
+          - user是Spring容器中的一个bean，表示调用该bean的getUserName()方法
+        UEL-method&&UEL-value定义:
+          - assignee=${user.getUserName(emp)}
+          - user是Spring容器中的一个bean，表示调用该bean的getUserName()方法。emp是activiti的一个流程变量，emp作为参数传入到getUserName()方法中
+        其他:
+          - 表达式支持解析基础类型，bean，list，array和map，也可以作为条件判断
+          - assignee=${order.price > 100 && order.price < 200}
+      监听器分配:

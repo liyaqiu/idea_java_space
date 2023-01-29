@@ -26,7 +26,7 @@
             <appender-ref ref="kongzhitai"/>
         </root>
 
-        <logger name="org.activiti" level="INFO" additivity="false">
+        <logger name="org.activiti" level="DEBUG" additivity="false">
             <appender-ref ref="kongzhitai"/>
         </logger>
         <logger name="com.test" level="INFO" additivity="false">

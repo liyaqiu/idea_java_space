@@ -1,18 +1,22 @@
-package com.test;
+package com.test._1初级;
 
 import lombok.extern.slf4j.Slf4j;
 import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.ProcessEngineConfiguration;
+import org.activiti.engine.RepositoryService;
 import org.activiti.engine.impl.cfg.StandaloneProcessEngineConfiguration;
+import org.activiti.engine.repository.Deployment;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.zip.ZipInputStream;
+
 /**
  * @author eric
- * @date 2023/1/13 0:06
+ * @date 2023/1/28 16:09
  **/
 @Slf4j
-public class HelloWorld {
+public class _2zip部署方式 {
     ProcessEngine processEngine;
     @Before
     public void 创建数据库表(){
@@ -26,18 +30,14 @@ public class HelloWorld {
         processEngine = configuration.buildProcessEngine();
         log.info("创建成功{}",processEngine);
     }
-    @Test
-    public void 获取操作数据库的服务对象(){
-        log.info("{}",processEngine.getRepositoryService());
-        log.info("{}",processEngine.getTaskService());
-        log.info("{}",processEngine.getRuntimeService());
-        log.info("{}",processEngine.getManagementService());
-        log.info("{}",processEngine.getHistoryService());
 
-        log.info("{}",processEngine.getDynamicBpmnService());
-        log.info("{}",processEngine.getProcessEngineConfiguration());
+    @Test
+    public void 发布流程(){
+        RepositoryService repositoryService = processEngine.getRepositoryService();
+        ZipInputStream zipInputStream = new ZipInputStream(this.getClass().getClassLoader().getResourceAsStream("bpmn/demo1.zip"));
+        Deployment deployment = repositoryService.createDeployment().addZipInputStream(zipInputStream).deploy();
+        log.info("部署id:{}",deployment.getId());
+        log.info("部署name:{}",deployment.getName());
 
     }
-
-
 }
