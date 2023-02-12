@@ -97,9 +97,10 @@ public class _1HelloWorld {
             log.info("任务负责人 {}",task.getAssignee());
             log.info("任务名称 {}",task.getName());
             //完成个人任务
-            taskService.complete(task.getId());
+            //taskService.complete(task.getId());
         }
     }
+
     @Test
     public void 获取个人待执行任务方式2(){
         TaskService taskService = processEngine.getTaskService();
@@ -113,6 +114,7 @@ public class _1HelloWorld {
         log.info("任务名称 {}",task.getName());
         //完成个人任务
         taskService.complete(task.getId());
+
     }
 
 }
