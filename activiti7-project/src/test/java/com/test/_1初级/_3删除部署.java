@@ -63,6 +63,6 @@ public class _3删除部署 {
     @Test
     public void 仓库_级联删除部署(){
         RepositoryService repositoryService = processEngine.getRepositoryService();
-        repositoryService.deleteDeployment("37501",true);
+        repositoryService.deleteDeployment("140001",true);
     }
 }

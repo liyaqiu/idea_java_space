@@ -1,18 +1,13 @@
-package com.test._2中级;
+package com.test._2高级;
 
 import lombok.extern.slf4j.Slf4j;
 import org.activiti.engine.*;
 import org.activiti.engine.impl.cfg.StandaloneProcessEngineConfiguration;
-import org.activiti.engine.repository.Deployment;
-import org.activiti.engine.runtime.Execution;
-import org.activiti.engine.runtime.ExecutionQuery;
 import org.activiti.engine.runtime.ProcessInstance;
-import org.activiti.engine.task.Task;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**

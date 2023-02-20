@@ -5,6 +5,7 @@ import org.activiti.engine.*;
 import org.activiti.engine.impl.cfg.StandaloneProcessEngineConfiguration;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.repository.ProcessDefinitionQuery;
+import org.activiti.engine.runtime.ExecutionQuery;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -47,6 +48,7 @@ public class _0API获取方式 {
         RuntimeService runtimeService = processEngine.getRuntimeService();
         runtimeService.createExecutionQuery();
         runtimeService.createProcessInstanceQuery();
+
 
         log.info("流程引擎管理类 {}",processEngine.getManagementService());
         ManagementService managementService = processEngine.getManagementService();
