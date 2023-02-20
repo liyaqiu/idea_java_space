@@ -1,0 +1,414 @@
+-------------------------------------------------后端部署------------------------------------------------------
+1安装jenkins
+	下载安装
+		https://pkg.jenkins.io/redhat-stable/
+		wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
+		rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+		yum -y install fontconfig java-11-openjdk
+		yum -y install jenkins
+	jenkins家目录  
+		/var/lib/jenkins
+	配置jenkins
+		vi /lib/systemd/system/jenkins.service
+		修改1
+			User=root
+			Group=root
+		修改2
+			Environment="JENKINS_PORT=8899"
+	设置开机启动
+		systemctl enable jenkins
+	启动
+		systemctl daemon-reload 修改系统级别配置文件需要使用
+		systemctl stop jenkins
+		systemctl start jenkins
+		systemctl daemon-reload && systemctl restart jenkins
+	访问
+		112.74.179.44:8899
+	登录
+		查看密码
+			cat /var/lib/jenkins/secrets/initialAdminPassword
+	初始化管理员
+		账户 eric
+		密码 liyaqiu123456
+2.安装git
+	yum -y install git
+	生成ssh
+		https://blog.csdn.net/seanyang_/article/details/128506422
+		ssh-keygen -t rsa
+	设置jenkins凭证
+		Dashboard > Manage Jenkins > 凭据 > 系统 > 全局凭据 (unrestricted)
+		参数设置
+			Username root
+			Enter directly 设置私钥 .ssh/id_rsa
+	设置gitee公钥
+		https://gitee.com/profile/sshkeys
+	小坑
+		配置完成后需要到宿主机 git clone git@gitee.com:sieform/card-api.git 一下即可使用
+3.安装maven
+	解压即可 apache-maven-3.8.7-bin.tar.gz
+	创建目录
+		mkdir -p /root/apache-maven-3.8.7/repository
+	修改配置文件
+		vi apache-maven-3.8.7/conf/settings.xml
+		<localRepository>/root/apache-maven-3.8.7/repository</localRepository>
+4.安装jdk
+	解压即可 jdk-8u191-linux-x64.tar.gz
+5.创建piepline(流水线)项目
+    设置分支环境变量
+		General > This project is parameterized 
+			名称 BranchName
+			默认值 master
+			描述 分支名称
+		可以这样使用
+			${BranchName}
+	大功告成，构建即可
+6.Jenkinsfile脚本文件存放在项目根下
+	//jenkins拉取项目的目录
+	def jenkinsProjectPath = "/var/lib/jenkins/workspace/card-api"
+	//存放build jar的位置
+	def deployBasicPath = "/root/deploy_backend"
+	//build jar的名字
+	def javaJarName = "card-admin.jar"
+	//java的HOME目录
+	def JAVA_HOME = "/root/jdk1.8.0_191"
+	//maven的HOME目录
+	def MAVEN_HOME = "/root/apache-maven-3.8.7"
+
+	pipeline {
+		agent any
+		stages {
+			stage('构建项目') {
+				steps {
+					sh "${MAVEN_HOME}/bin/mvn -s '${MAVEN_HOME}/conf/settings.xml' clean package -Dmaven.test.skip=true"
+				}
+			}
+			stage('备份项目') {
+				steps {
+					script{
+						sh "mkdir -p ${deployBasicPath}"
+						sh "rm -rf ${deployBasicPath}/launch.sh && cp ${jenkinsProjectPath}/launch.sh ${deployBasicPath}/ && chmod 755 ${deployBasicPath}/launch.sh"
+					}
+					script{
+						out=sh(script:"ls ${deployBasicPath}/${javaJarName}",returnStatus:true)
+						if(out == 0){
+							// 文件存在
+							endDateStr = new Date().format('yyyy-MM-dd-HH-mm-ss')
+							sh "mv ${deployBasicPath}/${javaJarName} ${deployBasicPath}/${javaJarName}.${endDateStr}"
+							sh "cp ${jenkinsProjectPath}/card-admin/target/${javaJarName} ${deployBasicPath}/"
+						}else if(out == 2){
+							// 文件不存在
+							sh "cp ${jenkinsProjectPath}/card-admin/target/${javaJarName} ${deployBasicPath}/"
+						}else{
+							error("命令有误，请检查，一般状态码为127")
+						}
+					}
+				}
+			}
+			stage('启动项目') {
+				steps {
+					sh "JENKINS_NODE_COOKIE=dontKillMe nohup ${deployBasicPath}/launch.sh restart ${JAVA_HOME} ${deployBasicPath}/${javaJarName} &"
+				}
+			}
+		}
+	}
+7.launch.sh脚本文件存放在项目根下
+	#!/bin/sh
+	# ./launch.sh start 启动 stop 停止 restart 重启 status 状态
+	JAVA_HOME=$2
+	AppName=$3
+	# JVM参数
+	JVM_OPTS="-Dname=$AppName  -Duser.timezone=Asia/Shanghai -Xms512m -Xmx1024m -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError -XX:+PrintGCDateStamps  -XX:+PrintGCDetails -XX:NewRatio=1 -XX:SurvivorRatio=30 -XX:+UseParallelGC -XX:+UseParallelOldGC"
+	APP_HOME=`pwd`
+	LOG_PATH=$APP_HOME/logs/$AppName.log
+
+	if [ "$1" = "" ];
+	then
+		echo -e "\033[0;31m 未输入操作名 \033[0m  \033[0;34m {start|stop|restart|status} \033[0m"
+		exit 1
+	fi
+
+	if [ "$AppName" = "" ];
+	then
+		echo -e "\033[0;31m 未输入应用名 \033[0m"
+		exit 1
+	fi
+
+	function start()
+	{
+		PID=`ps -ef |grep java|grep $AppName|grep -v grep|awk '{print $2}'`
+
+		if [ x"$PID" != x"" ]; then
+			echo "$AppName is running..."
+		else
+			nohup $JAVA_HOME/bin/java $JVM_OPTS -jar $AppName > /dev/null 2>&1 &
+			echo "Start $AppName success..."
+		fi
+	}
+
+	function stop()
+	{
+		echo "Stop $AppName"
+
+		PID=""
+		query(){
+			PID=`ps -ef |grep java|grep $AppName|grep -v grep|awk '{print $2}'`
+		}
+
+		query
+		if [ x"$PID" != x"" ]; then
+			kill -TERM $PID
+			echo "$AppName (pid:$PID) exiting..."
+			while [ x"$PID" != x"" ]
+			do
+				sleep 1
+				query
+			done
+			echo "$AppName exited."
+		else
+			echo "$AppName already stopped."
+		fi
+	}
+
+	function restart()
+	{
+		stop
+		sleep 2
+		start
+	}
+
+	function status()
+	{
+		PID=`ps -ef |grep java|grep $AppName|grep -v grep|wc -l`
+		if [ $PID != 0 ];then
+			echo "$AppName is running..."
+		else
+			echo "$AppName is not running..."
+		fi
+	}
+
+	case $1 in
+		start)
+		start;;
+		stop)
+		stop;;
+		restart)
+		restart;;
+		status)
+		status;;
+		*)
+
+	esac
+
+-------------------------------------------------前端部署------------------------------------------------------
+
+1安装node环境
+	下载地址
+		https://nodejs.org/dist/
+		wget https://nodejs.org/dist/v16.16.0/node-v16.16.0-linux-x64.tar.gz
+	配置环境变量（方便自己用，不是配置给jenkins的）
+		export NODEJS_HOME=/root/node-v16.16.0-linux-x64
+		export PATH=$PATH:$NODEJS_HOME/bin
+	配置jenkins PATH全局环境变量
+		Dashboard > Manage Jenkins > Configure System > 全局属性 > Environment variables
+			键 PATH
+			值 /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/node-v16.16.0-linux-x64/bin
+		小坑，获取默认PATH的路径
+			可以在Jenkinsfile中写打印出来查看 echo "PATH路径 ${env.PATH}"
+	
+2.Jenkinsfile脚本文件存放在项目根下		
+	def jenkinsProjectPath = "/var/lib/jenkins/workspace/card-ui"
+	def deployBasicPath = "/root/deploy_frontend"
+	def nginxConfigPath = "/root/nginxConfig"
+	def nginxContainerName = "card-ui-nginx"
+
+	pipeline {
+		agent any
+		stages {
+			stage('构建项目') {
+				steps {
+					sh "npm install --registry=https://registry.npmmirror.com"
+					sh "npm run build:prod"
+				}
+			}
+			stage('备份项目') {
+				steps {
+					script{
+						sh "mkdir -p ${deployBasicPath}"
+						sh "rm -rf ${nginxConfigPath} && mkdir -p ${nginxConfigPath} && cp ${jenkinsProjectPath}/nginx.conf ${nginxConfigPath}/"
+						sh "docker rm -f ${nginxContainerName}"
+					}
+					script{
+						out=sh(script:"ls ${deployBasicPath}/dist",returnStatus:true)
+						if(out == 0){
+							// 文件存在
+							endDateStr = new Date().format('yyyy-MM-dd-HH-mm-ss')
+							sh "mv ${deployBasicPath}/dist ${deployBasicPath}/dist.${endDateStr}"
+							sh "cp -r ${jenkinsProjectPath}/dist ${deployBasicPath}/"
+						}else if(out == 2){
+							// 文件不存在
+							sh "cp -r ${jenkinsProjectPath}/dist ${deployBasicPath}/"
+						}else{
+							error("命令有误，请检查，一般状态码为127")
+						}
+					}
+				}
+			}
+			stage('启动项目') {
+				steps {
+					sh "docker run --name ${nginxContainerName} -v ${nginxConfigPath}/nginx.conf:/etc/nginx/nginx.conf:ro -v ${deployBasicPath}/dist:/dist:ro -p 80:80 -d nginx"
+				}
+			}
+		}
+	}
+	
+3.nginx.conf脚本文件存放在项目根下
+	user  root;
+	worker_processes  6;
+
+	#error_log  logs/error.log;
+	#error_log  logs/error.log  notice;
+	#error_log  logs/error.log  info;
+
+	#pid        logs/nginx.pid;
+
+
+	events {
+		worker_connections  1024;
+	}
+
+
+	http {
+		include       mime.types;
+		default_type  application/octet-stream;
+
+		#log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+		#                  '$status $body_bytes_sent "$http_referer" '
+		#                  '"$http_user_agent" "$http_x_forwarded_for"';
+
+		#access_log  logs/access.log  main;
+
+		sendfile        on;
+		#tcp_nopush     on;
+
+		#keepalive_timeout  0;
+		keepalive_timeout  65;
+
+		#gzip  on;
+
+		server {
+			listen       80;
+			server_name  localhost;
+
+			#charset koi8-r;
+
+			#access_log  logs/host.access.log  main;
+
+			location / {
+				root   /dist;
+				try_files $uri $uri/ /index.html;
+				index  index.html index.htm;
+			}
+			
+			location /prod-api/ {
+				proxy_set_header Host $http_host;
+				proxy_set_header X-Real-IP $remote_addr;
+				proxy_set_header REMOTE-HOST $remote_addr;
+				proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+				proxy_pass http://112.74.179.44:8080/;
+			}
+
+			#error_page  404              /404.html;
+
+			# redirect server error pages to the static page /50x.html
+			#
+			error_page   500 502 503 504  /50x.html;
+			location = /50x.html {
+				root   html;
+			}
+
+			# proxy the PHP scripts to Apache listening on 127.0.0.1:80
+			#
+			#location ~ \.php$ {
+			#    proxy_pass   http://127.0.0.1;
+			#}
+
+			# pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
+			#
+			#location ~ \.php$ {
+			#    root           html;
+			#    fastcgi_pass   127.0.0.1:9000;
+			#    fastcgi_index  index.php;
+			#    fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;
+			#    include        fastcgi_params;
+			#}
+
+			# deny access to .htaccess files, if Apache's document root
+			# concurs with nginx's one
+			#
+			#location ~ /\.ht {
+			#    deny  all;
+			#}
+		}
+
+
+		# another virtual host using mix of IP-, name-, and port-based configuration
+		#
+		#server {
+		#    listen       8000;
+		#    listen       somename:8080;
+		#    server_name  somename  alias  another.alias;
+
+		#    location / {
+		#        root   html;
+		#        index  index.html index.htm;
+		#    }
+		#}
+
+
+		# HTTPS server
+		#
+		#server {
+		#    listen       443 ssl;
+		#    server_name  localhost;
+
+		#    ssl_certificate      cert.pem;
+		#    ssl_certificate_key  cert.key;
+
+		#    ssl_session_cache    shared:SSL:1m;
+		#    ssl_session_timeout  5m;
+
+		#    ssl_ciphers  HIGH:!aNULL:!MD5;
+		#    ssl_prefer_server_ciphers  on;
+
+		#    location / {
+		#        root   html;
+		#        index  index.html index.htm;
+		#    }
+		#}
+
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
