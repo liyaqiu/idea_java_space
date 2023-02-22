@@ -5,7 +5,6 @@ import org.activiti.engine.*;
 import org.activiti.engine.impl.cfg.StandaloneProcessEngineConfiguration;
 import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.runtime.ProcessInstance;
-import org.activiti.engine.runtime.ProcessInstanceQuery;
 import org.activiti.engine.task.Task;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,14 +12,13 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author eric
  * @date 2023/2/12 16:18
  **/
 @Slf4j
-public class _4多分支流程走向控制_启动流程时设置Global变量 {
+public class _13包含网关 {
     ProcessEngine processEngine;
     @Before
     public void 创建数据库表(){
@@ -41,8 +39,8 @@ public class _4多分支流程走向控制_启动流程时设置Global变量 {
         RepositoryService repositoryService = processEngine.getRepositoryService();
         Deployment deployment = repositoryService.createDeployment()
                  .name("多分支流程走向控制")
-                .addClasspathResource("bpmn4/demo4.bpmn")
-                .addClasspathResource("bpmn4/demo4.png")
+                .addClasspathResource("bpmn8/demo8.bpmn")
+                .addClasspathResource("bpmn8/demo8.png")
                 .deploy();
         log.info("部署id{}",deployment.getId());
         log.info("部署name{}",deployment.getName());
@@ -54,15 +52,17 @@ public class _4多分支流程走向控制_启动流程时设置Global变量 {
     public void 启动流程(){
         RuntimeService runtimeService = processEngine.getRuntimeService();
         Map<String,Object> variables = new HashMap<>();
-        _4LeaveForm leaveForm = new _4LeaveForm();
+        _11LeaveForm leaveForm = new _11LeaveForm();
         leaveForm.setApplicant("eric");
         leaveForm.setNum(20);
         leaveForm.setDesc("我要请假，请同意");
         variables.put("leaveForm",leaveForm);
-        variables.put("user1", "zuzhang");
-        variables.put("user2", "zongjingli");
-        variables.put("user3", "laoban");
+        variables.put("user1", "zhangsan");
+        variables.put("user2", "lisi");
+        variables.put("user3", "wangwu");
+        variables.put("user4", "zhaoliu");
         ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("myProcess_1",variables);
+
         log.info("启动流程成功");
     }
 
@@ -72,17 +72,15 @@ public class _4多分支流程走向控制_启动流程时设置Global变量 {
         TaskService taskService = processEngine.getTaskService();
         List<Task> taskList = taskService.createTaskQuery()
                 .processDefinitionKey("myProcess_1")
-                .taskAssignee("zuzhang")
+                .taskAssignee("zhaoliu")
                 .list();
         for (Task task : taskList) {
-            //获取流程变量
-            //System.out.println("获取流程变量:"+taskService.getVariable(task.getId(), "user1"));
             log.info("流程实例ID {}",task.getProcessInstanceId());
             log.info("任务ID {}",task.getId());
             log.info("任务负责人 {}",task.getAssignee());
             log.info("任务名称 {}",task.getName());
             //完成个人任务
-            //taskService.complete(task.getId(),processVariables);
+            taskService.complete(task.getId());
         }
     }
 
@@ -93,6 +91,6 @@ public class _4多分支流程走向控制_启动流程时设置Global变量 {
     @Test
     public void 仓库_级联删除部署(){
         RepositoryService repositoryService = processEngine.getRepositoryService();
-        repositoryService.deleteDeployment("17501",true);
+        repositoryService.deleteDeployment("f44c2782-b005-11ed-9a88-107b44530a9d",true);
     }
 }

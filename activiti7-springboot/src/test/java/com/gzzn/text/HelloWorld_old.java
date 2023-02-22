@@ -1,26 +1,32 @@
-package com.test._1初级;
+package com.gzzn.text;
 
+import com.gzzn.test.Launcher;
 import lombok.extern.slf4j.Slf4j;
 import org.activiti.engine.*;
 import org.activiti.engine.impl.cfg.StandaloneProcessEngineConfiguration;
 import org.activiti.engine.repository.Deployment;
-import org.activiti.engine.repository.ProcessDefinition;
-import org.activiti.engine.repository.ProcessDefinitionQuery;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 
 /**
  * @author eric
  * @date 2023/1/13 0:06
+ * Activiti7强耦合了String Security，可以考虑整合Activiti6
+ * 旧版本API不会受到权限的影响
  **/
+@SpringBootTest(classes = Launcher.class)
 @Slf4j
-public class _1HelloWorld {
-    ProcessEngine processEngine;
-    @Before
+public class HelloWorld_old {
+
+    @Autowired
+    private ProcessEngine processEngine;
+    /*@Before
     public void 创建数据库表(){
         ProcessEngineConfiguration configuration = new StandaloneProcessEngineConfiguration();
         configuration.setJdbcDriver("com.mysql.cj.jdbc.Driver");
@@ -35,7 +41,7 @@ public class _1HelloWorld {
         configuration.setDatabaseSchemaUpdate(ProcessEngineConfiguration.DB_SCHEMA_UPDATE_TRUE);
         processEngine = configuration.buildProcessEngine();
         log.info("创建成功{}",processEngine);
-    }
+    }*/
 
     /*
     ACT_RE_DEPLOYMENT 流程部署表，每次部署都会增加一条记录
@@ -45,7 +51,7 @@ public class _1HelloWorld {
     */
     @Test
     public void 发布流程(){
-
+        System.out.println(processEngine);
         RepositoryService repositoryService = processEngine.getRepositoryService();
         Deployment deployment = repositoryService.createDeployment()
                                 //.name("请假流程")
@@ -54,17 +60,6 @@ public class _1HelloWorld {
                                 .deploy();
         log.info("部署id{}",deployment.getId());
         log.info("部署name{}",deployment.getName());
-    }
-
-    @Test
-    public void 查询流程定义(){
-        RepositoryService repositoryService = processEngine.getRepositoryService();
-
-        ProcessDefinitionQuery processDefinition = repositoryService.createProcessDefinitionQuery();
-        List<ProcessDefinition> processDefinitions = processDefinition.listPage(0, 100);
-        for (ProcessDefinition definition : processDefinitions) {
-            log.info("流程定义:id:{}，name:{}，key:{}",definition.getId(),definition.getName(),definition.getKey());
-        }
     }
 
     /**
@@ -82,19 +77,11 @@ public class _1HelloWorld {
         //ProcessInstance processInstance = runtimeService.startProcessInstanceById("myProcess_1:1:4");
         //当有key重复的时候使用最新版本的key
         ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("myProcess_1");
-
         log.info("流程定义ID {}",processInstance.getProcessDefinitionId());
         log.info("流程实例ID {}",processInstance.getId());
         log.info("流程实例ID {}",processInstance.getProcessInstanceId());
         log.info("当前活动ID {}",processInstance.getActivityId());
     }
-
-    @Test
-    public void 删除流程实例(){
-        processEngine.getRuntimeService().deleteProcessInstance("2501", "终止操作了");
-        log.info("{}");
-    }
-
     /*
         SELECT
             ACT_HI_TASKINST
@@ -122,7 +109,7 @@ public class _1HelloWorld {
             log.info("任务负责人 {}",task.getAssignee());
             log.info("任务名称 {}",task.getName());
             //完成个人任务
-            taskService.complete(task.getId());
+            //taskService.complete(task.getId());
         }
     }
 
@@ -140,16 +127,6 @@ public class _1HelloWorld {
         //完成个人任务
         taskService.complete(task.getId());
 
-    }
-
-    /*
-        级联删除(强制)
-        清理历史记录
-    * */
-    @Test
-    public void 仓库_级联删除部署(){
-        RepositoryService repositoryService = processEngine.getRepositoryService();
-        repositoryService.deleteDeployment("5001",true);
     }
 
 }

@@ -2,14 +2,23 @@ Flowable介绍:
   官方文档:
     - https://www.flowable.com/open-source/docs/oss-introduction
     - https://tkjohn.github.io/flowable-userguide/
-Flowable基础:
-  创建RpocessEngine:
-  部署流程定义:
-  启动流程实例:
-  查看任务:
-  完成任务:
-  流程删除:
-  查看历史信息:
+    - 具体笔记查看Activiti7.yml
+表结构:
+  - activiti7(25张) flowable(34张)
+  - ACT_ID_BYTEARRAY  二进制数据表
+  - ACT_ID_GROUP  用户组信息表
+  - ACT_ID_INFO 用户信息详情表
+  - ACT_ID_MEMBERSHIP 人与组关系表
+  - ACT_ID_PRIV 权限表
+  - ACT_ID_PRIV_MAPPING 用户或组权限关系表
+  - ACT_ID_PROPERTY 属性表
+  - ACT_ID_TOKEN  记录用户的TOKEN新校
+  - ACT_ID_USER 用户表
 Flowable流程设计器:
   EclipseDesigner:
+    - 下载2021-06版本 https://www.eclipse.org/downloads/packages/release/2021-06/r
+    - 安装教程 https://tkjohn.github.io/flowable-userguide/#flowableDesigner
+    - 打开properties面板 -> window -> show view -> orther
+    - 设置自动生成图片，window -> preferences -> flowable -> save actions -> 打勾即可create process
+    - 利用XML方式打开BPMN文件 右键BPMN文件 -> Open With -> XML editor
   FlowableUI应用:

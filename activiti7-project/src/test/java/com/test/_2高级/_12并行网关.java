@@ -38,7 +38,7 @@ public class _12并行网关 {
 
         RepositoryService repositoryService = processEngine.getRepositoryService();
         Deployment deployment = repositoryService.createDeployment()
-                 .name("多分支流程走向控制")
+                 //.name("多分支流程走向控制")
                 .addClasspathResource("bpmn7/demo7.bpmn")
                 .addClasspathResource("bpmn7/demo7.png")
                 .deploy();
@@ -66,7 +66,7 @@ public class _12并行网关 {
         TaskService taskService = processEngine.getTaskService();
         List<Task> taskList = taskService.createTaskQuery()
                 .processDefinitionKey("myProcess_1")
-                .taskAssignee("laoban")
+                .taskAssignee("zongjingli")
                 .list();
         for (Task task : taskList) {
             log.info("流程实例ID {}",task.getProcessInstanceId());
@@ -85,6 +85,6 @@ public class _12并行网关 {
     @Test
     public void 仓库_级联删除部署(){
         RepositoryService repositoryService = processEngine.getRepositoryService();
-        repositoryService.deleteDeployment("217501",true);
+        repositoryService.deleteDeployment("03f515e3-b002-11ed-8fa4-107b44530a9d",true);
     }
 }

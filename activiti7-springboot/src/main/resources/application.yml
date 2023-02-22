@@ -1,0 +1,27 @@
+server:
+  port: 8899
+logging:
+  config: classpath:log4j2.xml
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://192.168.88.10:3306/activitiproject?serverTimezone=UTC&nullCatalogMeansCurrent=true
+    username: root
+    password: 123456
+  activiti:
+    # false: 默认值，activiti在启动时，会对比数据表中保存的版本，如果没有表或者版本不匹配抛出异常。(生产环境常用)
+    # true: activiti会对数据中所有表进行更新操作，如果表不存在，则自动创建(开发常用)
+    # create_drop: 在activiti启动时创建表，在关闭时伤处表(必须手动关闭殷勤，才能删除表)(单元测试常用)
+    # drop_create: 在activiti启动时删除原来的旧表，然后在创建新表(不需要手动关闭引擎)
+    database-schema-update: true
+    # 检测历史表是否存在，activiti7默认没有开启数据库历史记录，启动数据库历史记录
+    db-history-used: true
+    # 记录历史等级，可配置的历史级别有none ,activity ,audit, full
+    # none: 不保存任何的历史数据，因此，在流程执行过程中，这是最高效率的
+    # activity: 级别高于none，保存流程实例与流程行为，其他数据不保存
+    # audit: 除activity级别会保存的数据外，还会保存全部的流程任务及其属性，audit为history的默认值
+    # full: 保存历史数据的最高级别，除了会保存audit级别的数据外，还会保存其他全部流程相关的细节数据，包括一些流程参数等
+    history-level: full
+    # 校验流程文件，默认校验resources下的processes文件夹里的流程文件
+    check-process-definitions: false
+
