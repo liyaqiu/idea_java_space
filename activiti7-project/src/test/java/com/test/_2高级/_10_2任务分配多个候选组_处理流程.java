@@ -16,7 +16,7 @@ import java.util.List;
  * @date 2023/2/12 20:34
  **/
 @Slf4j
-public class _10任务分配多个候选人_交接流程交接流程 {
+public class _10_2任务分配多个候选组_处理流程 {
 
     ProcessEngine processEngine;
     @Before
@@ -37,8 +37,8 @@ public class _10任务分配多个候选人_交接流程交接流程 {
         RepositoryService repositoryService = processEngine.getRepositoryService();
         Deployment deployment = repositoryService.createDeployment()
                 .name("组任务")
-                .addClasspathResource("bpmn5/demo5.bpmn")
-                .addClasspathResource("bpmn5/demo5.png")
+                .addClasspathResource("bpmn10/demo10.bpmn")
+                .addClasspathResource("bpmn10/demo10.png")
                 .deploy();
         log.info("部署id{}",deployment.getId());
         log.info("部署name{}",deployment.getName());
@@ -57,7 +57,7 @@ public class _10任务分配多个候选人_交接流程交接流程 {
     @Test
     public void 查询候选人任务(){
         TaskService taskService = processEngine.getTaskService();
-        List<Task> taskList = taskService.createTaskQuery().taskCandidateUser("lisi").list();
+        List<Task> taskList = taskService.createTaskQuery().taskCandidateGroup("group1").list();
         for (Task task : taskList) {
             log.info("流程实例ID {}", task.getProcessInstanceId());
             log.info("任务ID {}", task.getId());
@@ -65,7 +65,9 @@ public class _10任务分配多个候选人_交接流程交接流程 {
             log.info("任务名称 {}", task.getName());
             log.info("任务ExecutionID {}", task.getExecutionId());
             //候选人拾取任务
-            taskService.claim(task.getId(),"lisi");
+            taskService.claim(task.getId(),"eric");
+            //候选人归还任务
+            //taskService.unclaim(task.getId());
         }
     }
 
@@ -74,7 +76,7 @@ public class _10任务分配多个候选人_交接流程交接流程 {
         TaskService taskService = processEngine.getTaskService();
         List<Task> taskList = taskService.createTaskQuery()
                 .processDefinitionKey("myProcess_1")
-                .taskAssignee("lisi")
+                .taskAssignee("eric")
                 .list();
         for (Task task : taskList) {
             log.info("流程实例ID {}",task.getProcessInstanceId());
@@ -83,9 +85,7 @@ public class _10任务分配多个候选人_交接流程交接流程 {
             log.info("任务名称 {}",task.getName());
             log.info("任务ExecutionID {}",task.getExecutionId());
             //完成任务
-            //taskService.complete(task.getId());
-            //设置交接任务人，(可以设置候选人，或者设置任意人)
-            taskService.setAssignee(task.getId(), "zhangsan");
+            taskService.complete(task.getId());
         }
     }
 
@@ -96,7 +96,7 @@ public class _10任务分配多个候选人_交接流程交接流程 {
     @Test
     public void 仓库_级联删除部署(){
         RepositoryService repositoryService = processEngine.getRepositoryService();
-        repositoryService.deleteDeployment("202501",true);
+        repositoryService.deleteDeployment("75001",true);
     }
 
 }

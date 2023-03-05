@@ -39,7 +39,7 @@ http {
 
 
     gzip off;  #对静态资源压缩  因为 gzip是在用户态做压缩，所以会跟sendfile冲突，所以在使用压缩的情况下IO COPY次数会增加，可以选择 gzip_static
-    gzip_types application/javascript text/css;
+    gzip_types application/javascript test/css;
 	gzip_vary on;
 
     #gzip_static off; #需要手动压缩gzip文件，例如访问 http://192.168.0.203/service1/111.txt    需要资源目录存在111.txt.gzip文件
@@ -66,7 +66,7 @@ http {
             return 200 "<h1>hello-world</h1>";
         }
         location /test3 {
-            default_type text/html;
+            default_type test/html;
             return 404 "<h1>hello-world</h1>";
         }
         location /test4 {
@@ -88,7 +88,7 @@ http {
         }
 
         location /service {
-            default_type text/plain;
+            default_type test/plain;
             root   /root/html/aa; #root路径+location路径    /root/html/aa/service/test.html
         }
         location /service1 {
@@ -96,7 +96,7 @@ http {
                #return 403 'not allow access';
 			   return 302 https:www.baidu.com ;
             }
-            default_type text/plain;
+            default_type test/plain;
             alias   /root/html/aa/;  #alias路径替换location路径  /root/html/aa/test.html
         }
 
@@ -115,13 +115,13 @@ http {
                #return 403 'not allow access';
 			   return 302 https:www.baidu.com ;
             }
-            default_type text/plain;
+            default_type test/plain;
             alias   /root/html/aa/;  #alias路径替换location路径  /root/html/aa/test.html
         }
         location /rewrite-test {
             rewrite_log on;
             error_log  logs/rewrite.log  notice;
-            default_type text/plain;
+            default_type test/plain;
             root   /root/html/aa;
 
             #rewrite ^/rewrite-test/abc$ http://www.baidu.com ; #碰到http或者https直接重定向
@@ -140,11 +140,11 @@ http {
             #rewrite ^/rewrite-test/(demo2)$ https://www.baidu.com redirect;  #redirect 和 permanent 用法一样，	redirect 302临时重定向 	permanent 301永久重定向
         }
         location /demo1 {
-            default_type text/plain;
+            default_type test/plain;
             return 200 'access demo1';
         }
         location /demo2 {
-            default_type text/plain;
+            default_type test/plain;
             return 200 'access demo2';
         }
         #error_page  404  www.baidu.com;
@@ -159,11 +159,11 @@ http {
         listen       8081;
         server_name  www.abc.com;
         location / {
-            default_type text/plain;
+            default_type test/plain;
             return 200 'index';
         }
         location /hello {
-            default_type text/plain;
+            default_type test/plain;
             return 200 'hello-world';
         }
     }
@@ -193,7 +193,7 @@ http {
         server_name  192.168.0.203;
         access_log  logs/proxy.log  proxylog;
         location / {
-            default_type text/html;
+            default_type test/html;
             return 404 "<h1>hello-world</h1>";
         }
     }
@@ -219,7 +219,7 @@ http {
         server_name  192.168.0.203;
         access_log  logs/proxy.log  proxylog;
         location =/nihao {
-            default_type text/html;
+            default_type test/html;
             add_header custom_header1 nihao; #增加新response-header头信息
             return 200 "<h1>username:$http_username</h1>";
         }
@@ -238,7 +238,7 @@ http {
     server {
         listen 80 default_server;
         server_name _;
-        default_type text/html;
+        default_type test/html;
         return 404 "<h1>not found server</h1>";
     }
 

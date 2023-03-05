@@ -49,7 +49,7 @@ public class LoginInterceptor implements HandlerInterceptor {
         return true;
     }
 
-    //controller return modelAndView 执行之后 >（postHandle） > 转发到jsp之前
+    //test.controller return modelAndView 执行之后 >（postHandle） > 转发到jsp之前
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
         log.info("postHandle");

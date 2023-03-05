@@ -28,7 +28,7 @@ logging:
 #    console: "%d{HH:mm:ss.SSS} %pid [%-5level] [%-16.16thread] %40.40c : %m%n"
 #  #分组形式定义
 #  group:
-#    agroup: xxx.controller,xxx.entity,test.LogTest
+#    agroup: xxx.test.controller,xxx.entity,test.LogTest
 #    bgroup: xxx.service,xxx.dao
 #  level:
 #    root: info

@@ -1,0 +1,40 @@
+server:
+  port: 8899
+logging:
+  config: classpath:log4j2.xml
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://192.168.88.10:3306/flowableproject?characterEncoding=UTF-8
+    username: root
+    password: 123456
+flowable:
+  # false: 默认值，activiti在启动时，会对比数据表中保存的版本，如果没有表或者版本不匹配抛出异常。(生产环境常用)
+  # true: activiti会对数据中所有表进行更新操作，如果表不存在，则自动创建(开发常用)
+  # create_drop: 在activiti启动时创建表，在关闭时伤处表(必须手动关闭殷勤，才能删除表)(单元测试常用)
+  # drop_create: 在activiti启动时删除原来的旧表，然后在创建新表(不需要手动关闭引擎)
+  database-schema-update: true
+  # 检测历史表是否存在，activiti7默认没有开启数据库历史记录，启动数据库历史记录
+  db-history-used: true
+  # 记录历史等级，可配置的历史级别有none ,activity ,audit, full
+  # none: 不保存任何的历史数据，因此，在流程执行过程中，这是最高效率的
+  # activity: 级别高于none，保存流程实例与流程行为，其他数据不保存
+  # audit: 除activity级别会保存的数据外，还会保存全部的流程任务及其属性，audit为history的默认值
+  # full: 保存历史数据的最高级别，除了会保存audit级别的数据外，还会保存其他全部流程相关的细节数据，包括一些流程参数等
+  history-level: full
+  # 校验流程文件，默认校验resources下的processes文件夹里的流程文件
+  check-process-definitions: true
+
+# https://tkjohn.github.io/flowable-userguide/#springBootFlowableProperties
+# Core (Process) FlowableProperties
+# 核心（流程）
+#flowable.check-process-definitions=true # 是否需要自动部署流程定义。
+#flowable.custom-mybatis-mappers= # 需要添加至引擎的自定义Mybatis映射的FQN。
+#flowable.custom-mybatis-x-m-l-mappers= # 需要添加至引擎的自定义Mybatis XML映射的路径。
+#flowable.database-schema= # 如果数据库返回的元数据不正确，可以在这里设置schema用于检测/生成表。
+#flowable.database-schema-update=true # 数据库schema更新策略。
+#flowable.db-history-used=true # 是否要使用db历史。
+#flowable.deployment-name=SpringBootAutoDeployment # 自动部署的名称。
+#flowable.history-level= # 要使用的历史级别。
+#flowable.process-definition-location-prefix=classpath*:/processes/ # 自动部署时查找流程的目录。
+#flowable.process-definition-location-suffixes=**.bpmn20.xml,**.bpmn # 'processDefinitionLocationPrefix'路径下需要部署的文件的后缀（扩展名）。

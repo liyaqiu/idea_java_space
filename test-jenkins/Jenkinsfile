@@ -37,7 +37,7 @@ pipeline {
     post {
       always {
         //普通邮件
-        //mail bcc: '', mimeType: 'text/html;charset=UTF-8', body: '<a href="www.baidu.com">点击我</a>', cc: '', from: '361234567@qq.com', replyTo: '361234567@qq.com', subject: 'test-jenkins', to: '361234567@qq.com'
+        //mail bcc: '', mimeType: 'test/html;charset=UTF-8', body: '<a href="www.baidu.com">点击我</a>', cc: '', from: '361234567@qq.com', replyTo: '361234567@qq.com', subject: 'test-jenkins', to: '361234567@qq.com'
         emailext body: '${FILE,path="jenkinsmail.html"}', subject: 'test-jenkins', to: '361234567@qq.com'
       }
     }

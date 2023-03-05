@@ -20,7 +20,7 @@
             <appender-ref ref="kongzhitai"/>
         </root>
 
-        <logger name="com.acl.security1.controller" level="info" additivity="false">
+        <logger name="com.acl.security1.test.controller" level="info" additivity="false">
             <appender-ref ref="kongzhitai"/>
         </logger>
     </loggers>

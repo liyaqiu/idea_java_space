@@ -12,7 +12,7 @@ events {
 
 http {
     include       mime.types;
-    default_type  text/html;
+    default_type  test/html;
 
     log_format  myformat  '[1]$remote_addr - [2]$remote_user [$time_local] "[3]$request" '
                       '[4]$status $body_bytes_sent "$http_referer" '
@@ -42,7 +42,7 @@ http {
              alias  /;
 
              default_type  application/octet-stream;
-             #default_type  text/html; #可以直接查看，不会下载
+             #default_type  test/html; #可以直接查看，不会下载
 
              autoindex on;
              autoindex_exact_size on;

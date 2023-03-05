@@ -20,7 +20,7 @@
             <appender-ref ref="kongzhitai"/>
         </root>
 
-       <!-- <logger name="com.controller" level="debug" additivity="false">
+       <!-- <logger name="com.test.controller" level="debug" additivity="false">
             <appender-ref ref="kongzhitai"/>
             <appender-ref ref="gundongwenjian"/>
         </logger>-->

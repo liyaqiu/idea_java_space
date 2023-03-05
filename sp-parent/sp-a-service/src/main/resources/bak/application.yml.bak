@@ -2,7 +2,7 @@ server:
   port: 8080
 spring:
   application:
-    name: sp-controller
+    name: sp-test.controller
   cloud:
     nacos:
       server-addr: 192.168.109.1:8848

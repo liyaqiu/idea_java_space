@@ -43,7 +43,6 @@ public class _0API获取方式 {
         taskService.createTaskQuery();
         //taskService.createAttachment()
 
-
         log.info("运行时管理类{}",processEngine.getRuntimeService());
         RuntimeService runtimeService = processEngine.getRuntimeService();
         runtimeService.createExecutionQuery();

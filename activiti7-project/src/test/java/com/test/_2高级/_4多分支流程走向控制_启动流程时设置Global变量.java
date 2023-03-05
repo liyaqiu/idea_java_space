@@ -72,17 +72,32 @@ public class _4多分支流程走向控制_启动流程时设置Global变量 {
         TaskService taskService = processEngine.getTaskService();
         List<Task> taskList = taskService.createTaskQuery()
                 .processDefinitionKey("myProcess_1")
-                .taskAssignee("zuzhang")
+                .taskAssignee("laoban")
                 .list();
+
         for (Task task : taskList) {
-            //获取流程变量
-            //System.out.println("获取流程变量:"+taskService.getVariable(task.getId(), "user1"));
             log.info("流程实例ID {}",task.getProcessInstanceId());
             log.info("任务ID {}",task.getId());
             log.info("任务负责人 {}",task.getAssignee());
             log.info("任务名称 {}",task.getName());
+
             //完成个人任务
-            //taskService.complete(task.getId(),processVariables);
+            //taskService.complete(task.getId());
+            //获取流程变量
+            //System.out.println(taskService.getVariable(task.getId(), "user3"));
+
+
+
+           /*
+           局部变量是绑在在某个任务上，当任务执行完毕以后就会把局部变量销毁。
+           设置局部变量
+           Map<String,Object> variables = new HashMap<>();
+            variables.put("local_1", "local_11");
+            variables.put("local_2", "local_22");
+            taskService.setVariablesLocal(task.getId(),variables);
+            获取局部变量
+            System.out.println(taskService.getVariable(task.getId(), "local_2"));
+            */
         }
     }
 
@@ -93,6 +108,6 @@ public class _4多分支流程走向控制_启动流程时设置Global变量 {
     @Test
     public void 仓库_级联删除部署(){
         RepositoryService repositoryService = processEngine.getRepositoryService();
-        repositoryService.deleteDeployment("17501",true);
+        repositoryService.deleteDeployment("62501",true);
     }
 }

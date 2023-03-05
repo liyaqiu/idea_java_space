@@ -12,7 +12,7 @@ events {
 
 http {
     include       mime.types;
-    default_type  text/html;
+    default_type  test/html;
 
     log_format  myformat  '[1]$remote_addr - [2]$remote_user [$time_local] "[3]$request" '
                       '[4]$status $body_bytes_sent "$http_referer" '
@@ -57,7 +57,7 @@ http {
          server_name  localhost;
 
          location /testlua {
-            default_type 'text/plain';
+            default_type 'test/plain';
 
             content_by_lua_block {
                 local common = require "abc.common"

@@ -25,7 +25,7 @@ public class SwaggerConfig {
         return new Docket(DocumentationType.SWAGGER_2).apiInfo(apiInfo())
                 .enable(true) //true则显示文档
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.gzzn.service.edu.controller"))//要扫描接口的目录
+                .apis(RequestHandlerSelectors.basePackage("com.gzzn.service.edu.test.controller"))//要扫描接口的目录
                 //方式1，扫描所有有注解的api，用这种方式更灵活
                 //.apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
                 //方式2 扫描指定包中的swagger注解

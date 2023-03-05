@@ -36,7 +36,7 @@
             <appender-ref ref="kongzhitai"/>
         </root>
 
-        <AsyncLogger name="com.controller" level="debug" includeLocation="false" additivity="false">
+        <AsyncLogger name="com.test.controller" level="debug" includeLocation="false" additivity="false">
             <appender-ref ref="kongzhitai"/>
 <!--            <appender-ref ref="gundongwenjian"/>-->
         </AsyncLogger>

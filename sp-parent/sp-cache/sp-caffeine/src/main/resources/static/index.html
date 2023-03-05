@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-    <script type="text/javascript" src="./jquery-3.6.0.js"></script>
-    <script type="text/javascript">
+    <script type="test/javascript" src="./jquery-3.6.0.js"></script>
+    <script type="test/javascript">
         function getQueryVariable(variable){
            var query = window.location.search.substring(1);
            var vars = query.split("&");
@@ -17,7 +17,7 @@
 
         $(function(){
             $.get("/goods/"+getQueryVariable("id"),function(data){
-                $("#goods").text(JSON.stringify(data))
+                $("#goods").test(JSON.stringify(data))
             });
         })
 

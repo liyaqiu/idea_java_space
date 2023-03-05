@@ -79,7 +79,7 @@ public class SecurityConfig {
     /*@Autowired
     ReactiveAuthenticationManager reactiveAuthenticationManager;
     public void test(){
-        log.info("{}","controller 和 service实现思路");
+        log.info("{}","test.controller 和 service实现思路");
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken("username", "password");
         ReactiveSecurityContextHolder.withAuthentication(authenticationToken);
         Mono<Authentication> authenticate = reactiveAuthenticationManager.authenticate(authenticationToken);

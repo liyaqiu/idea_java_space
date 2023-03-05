@@ -12,7 +12,7 @@ events {
 
 http {
     include       mime.types;
-    default_type  text/html;
+    default_type  test/html;
 
     log_format  myformat  '[1]$remote_addr - [2]$remote_user [$time_local] "[3]$request" '
                       '[4]$status $body_bytes_sent "$http_referer" '
@@ -36,7 +36,7 @@ http {
          server_name  localhost;
          charset utf-8;
          location /shop {
-            default_type 'text/html';
+            default_type 'test/html';
             alias /root/static/;
             index index.html;
          }

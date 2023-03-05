@@ -109,7 +109,7 @@ nacos.addr=localhost:8848
 
 ### 5. 配置nacos数据源
 
-另外，还需要修改com.alibaba.csp.sentinel.dashboard.controller.v2包下的FlowControllerV2类：
+另外，还需要修改com.alibaba.csp.sentinel.dashboard.test.controller.v2包下的FlowControllerV2类：
 
 ![image-20210618202322301](assets/image-20210618202322301.png)
 

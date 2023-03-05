@@ -22,3 +22,5 @@ Flowable流程设计器:
     - 设置自动生成图片，window -> preferences -> flowable -> save actions -> 打勾即可create process
     - 利用XML方式打开BPMN文件 右键BPMN文件 -> Open With -> XML editor
   FlowableUI应用:
+整合SpringBoot:
+  - https://tkjohn.github.io/flowable-userguide/#springSpringBoot

@@ -130,10 +130,10 @@ rules:
       - configmaps
     resourceNames:
       # Defaults to "<election-id>-<ingress-class>"
-      # Here: "<ingress-controller-leader>-<nginx>"
+      # Here: "<ingress-test.controller-leader>-<nginx>"
       # This has to be adapted if you change either parameter
-      # when launching the nginx-ingress-controller.
-      - "ingress-controller-leader-nginx"
+      # when launching the nginx-ingress-test.controller.
+      - "ingress-test.controller-leader-nginx"
     verbs:
       - get
       - update
@@ -190,7 +190,7 @@ subjects:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx-ingress-controller
+  name: nginx-ingress-test.controller
   namespace: ingress-nginx
   labels:
     app.kubernetes.io/name: ingress-nginx
@@ -216,11 +216,11 @@ spec:
       nodeSelector:
         kubernetes.io/os: linux
       containers:
-        - name: nginx-ingress-controller
-          #image: quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.30.0
-          image: quay-mirror.qiniu.com/kubernetes-ingress-controller/nginx-ingress-controller:0.30.0
+        - name: nginx-ingress-test.controller
+          #image: quay.io/kubernetes-ingress-test.controller/nginx-ingress-test.controller:0.30.0
+          image: quay-mirror.qiniu.com/kubernetes-ingress-test.controller/nginx-ingress-test.controller:0.30.0
           args:
-            - /nginx-ingress-controller
+            - /nginx-ingress-test.controller
             - --configmap=$(POD_NAMESPACE)/nginx-configuration
             - --tcp-services-configmap=$(POD_NAMESPACE)/tcp-services
             - --udp-services-configmap=$(POD_NAMESPACE)/udp-services

@@ -21,19 +21,19 @@ public class UserController {
 
     @GetMapping("/test1")
     public void test1(){
-        log.info("controller test1 ");
+        log.info("test.controller test1 ");
         userService.test0();
     }
     @GetMapping("/test2")
     @Transactional//事物传播
     public void test2(){
-        log.info("controller test2");
+        log.info("test.controller test2");
         userService.test0();
     }
 
     @GetMapping("/test3")
     public void test3(){
-        log.info("controller test3 {}",userService.getClass());
+        log.info("test.controller test3 {}",userService.getClass());
         userService.test1();
     }
 

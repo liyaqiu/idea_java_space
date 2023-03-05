@@ -12,7 +12,7 @@ events {
 
 http {
     include       mime.types;
-    default_type  text/html;
+    default_type  test/html;
 
     log_format  myformat  '[1]$remote_addr - [2]$remote_user [$time_local] "[3]$request" '
                       '[4]$status $body_bytes_sent "$http_referer" '
@@ -40,7 +40,7 @@ http {
          # http://192.168.0.203:8080/test 加载mysql全部数据到redis
          # http://192.168.0.203:8080/test?id=1 更新某行数据到redis
          location /test {
-            default_type 'text/plain';
+            default_type 'test/plain';
             content_by_lua_block{
                 local id = ngx.req.get_uri_args()[id]
                 --创建mysql连接

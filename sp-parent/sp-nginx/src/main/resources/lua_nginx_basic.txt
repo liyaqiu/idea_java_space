@@ -12,7 +12,7 @@ events {
 
 http {
     include       mime.types;
-    default_type  text/html;
+    default_type  test/html;
 
     log_format  myformat  '[1]$remote_addr - [2]$remote_user [$time_local] "[3]$request" '
                       '[4]$status $body_bytes_sent "$http_referer" '
@@ -36,7 +36,7 @@ http {
          charset utf-8;
 
          location /test0 {
-            default_type 'text/plain';
+            default_type 'test/plain';
             #content_by_lua "ngx.say('hello-world')";
 
             content_by_lua_block {
@@ -46,13 +46,13 @@ http {
             #content_by_lua_file /root/luafile;
          }
          location /test1 {
-            default_type 'text/plain';
+            default_type 'test/plain';
             content_by_lua "ngx.say('hello-world')";
          }
 
          #lua参数设置 http://192.168.0.203:8080/test2?name=liyaqiu&age=21
          location /test2 {
-            default_type 'text/plain';
+            default_type 'test/plain';
             set $canshu  '没任何参数';
             #lua设置参数
             set_by_lua $canshu "
@@ -70,7 +70,7 @@ http {
 
          #连接redis，并且设置和获取key value
          location /test3 {
-            default_type 'text/plain';
+            default_type 'test/plain';
             content_by_lua_block{
                 local redis = require "resty.redis"
                 local redisObj = redis:new()
@@ -99,7 +99,7 @@ http {
          }
          #连接mysql
          location /test4 {
-            default_type 'text/plain';
+            default_type 'test/plain';
             content_by_lua_block{
                 local url_args = ngx.req.get_uri_args()
                 local mysql = require "resty.mysql"
