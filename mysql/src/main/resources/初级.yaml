@@ -26,6 +26,17 @@
     - 图形化界面导入 xxx.sql
 SQL优化:
   - 满外连接(LEFT OUTER JOIN)的时候，尽量用UNION ALL(不需要去重)，少用UNION(需要去重)
+SQL语句执行顺序: "
+  SELECT first_name fn,s.* 3
+  FROM employees s 1
+  WHERE salary > 5000 2
+  ORDER BY fn DESC 4
+
+  from employees s
+  WHERE salary > 5000
+  SELECT first_name fn, s.*
+  ORDER BY fn DESC
+"
 SQL分类:
   DML:
     概念:
@@ -33,22 +44,6 @@ SQL分类:
       - 用于添加，删除，更新，和查询数据记录，并检查数据的完整性
       - insert \ delete \ update \ select(DQL)
     select使用:
-      执行顺序: "
-        SELECT 3
-        	first_name fn,
-        	s.*
-        FROM 1
-        	employees s
-        WHERE 2
-        	salary > 5000
-        ORDER BY 4
-        	fn DESC
-
-        from employees s
-        WHERE salary > 5000
-        SELECT first_name fn, s.*
-        ORDER BY fn DESC
-      "
       基本使用:
         - select 1+1 as "总和1",2+2 "总和2"
         - select 1+1 from dual 伪表
@@ -326,6 +321,15 @@ SQL分类:
               返回开方值3，当x为负数时返回Null
               SELECT SQRT(9)
             "
+          FORMAT(X,D):
+            - "
+            格式一个数值，D表示保留小数点后几位
+            SELECT FORMAT('123.12',0)
+          "
+          CONV(N,from_base,to_base): "
+            进制转换，表示将10禁止转换为2进制
+            SELECT CONV(103,10,2)
+          "
         字符串函数:
           ASCII(s):
             - "
@@ -544,10 +548,104 @@ SQL分类:
               SELECT GET_FORMAT(DATETIME, 'ISO'),GET_FORMAT(TIME, 'ISO')
             "
         流程控制函数:
-          - https://www.bilibili.com/video/BV1iq4y1u7vj?p=36&spm_id_from=pageDriver&vd_source=cc17fab1d456bc3958dcb51e2fdd520b
-        加密与解密函数:
-        获取MYSQL信息函数:
-        聚合函数:
+          if函数:
+            概述:
+              - IF(expr1,expr2,expr3)，expr1为真，执行expr2，否则执行expr3
+            使用:
+              - "
+              SELECT
+              	CONCAT( e.first_name, e.last_name ) '名字',
+              IF
+              	( e.salary > 10000, IF(e.salary > 15000,'很有钱','有钱') , '穷' ) '金额'
+              FROM
+              	employees e
+            "
+          ifnull函数:
+            概述:
+              - IFNULL(expr1,expr2)，如果为空expr1为null则执行expr2
+            使用:
+              - "
+                SELECT
+                	CONCAT( e.first_name, e.last_name ) '名字',
+                	IFNULL( e.commission_pct, '0.00' ) '佣金'
+                FROM
+                	employees e
+              "
+          case函数:
+            方式1: "
+              类似于if elseif else语句
+              SELECT
+                  CONCAT( e.first_name, e.last_name ) '名字',
+              CASE
+                      WHEN e.salary > 15000 THEN'富人'
+                      WHEN e.salary > 10000 THEN '有钱人'
+                      ELSE '穷人'
+              END
+              FROM
+                  employees e
+            "
+            方式2: "
+              类似于if elseif 语句
+              SELECT
+                  CONCAT( e.first_name, e.last_name ) '名字',
+              CASE
+                      WHEN e.salary > 15000 THEN'富人'
+                      WHEN e.salary > 10000 THEN '有钱人'
+              END
+              FROM
+                  employees e
+            "
+            方式3: "
+              类似于switch语句case语句
+              SELECT
+                  CONCAT( e.first_name, e.last_name ) '名字',
+              CASE e.department_id / 10
+                  WHEN 3 THEN '部门为30'
+                  WHEN 5 THEN '部门为50'
+                  WHEN 8 THEN '部门为80'
+                  ELSE '没有部门'
+              END
+              FROM
+                  employees e
+
+            "
+        加密与解密函数: "
+            SELECT
+            	# 不可逆加密
+            	PASSWORD ( '123456' ),
+            	# 不可逆加密
+            	MD5( '123456' ),
+            	# 不可逆加密
+            	SHA( '123456' ),
+            	# 加密
+            	ENCODE( '123456','salt' ),
+            	# 解密
+            	DECODE( ENCODE( '123456','salt' ),'salt' )
+            FROM DUAL
+          "
+        运维相关函数: "
+          SELECT
+          	# 返回当前MYSQL版本号
+          	#VERSION()
+          	# 返回当前MYSQL服务器连接数
+          	#CONNECTION_ID()
+          	# 返回MYSQL命令行当前所在的数据库
+          	#DATABASE(), SCHEMA()
+          	# 返回当前连接MYSQL用户名，格式为主机名@用户名
+          	#USER(),CURRENT_USER(),SYSTEM_USER(),SESSION_USER()
+          	#用于查看当前数据库使用了什么字符串
+          	#CHARSET('查看字符串')
+          	#用于查看当前数据库使用了什么比较规则
+          	#COLLATION('查看比较规则')
+          	#测试函数执行N次
+          	BENCHMARK(10000000,MD5('123456'))
+          	#将ip转换为一个整数
+           	#INET_ATON('192.168.10.1'),
+           	#整数转换为一个ip
+           	#INET_NTOA(3232238081)
+           	#将字符串用于特定字符集进行编码
+           	CONVERT('123456' USING 'utf8')
+        "
       多行函数:
         数值函数:
         字符串函数:
