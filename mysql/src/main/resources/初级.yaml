@@ -26,17 +26,62 @@
     - 图形化界面导入 xxx.sql
 SQL优化:
   - 满外连接(LEFT OUTER JOIN)的时候，尽量用UNION ALL(不需要去重)，少用UNION(需要去重)
-SQL语句执行顺序: "
-  SELECT first_name fn,s.* 3
-  FROM employees s 1
-  WHERE salary > 5000 2
-  ORDER BY fn DESC 4
+重中之重:
+  SQL92语法&SQL99语法: "
+    SQL92
+      SELECT ...,...,...(存在聚合函数)
+      FROM ...,...,...
+      WHERE 多表的连接条件 AND 不包含聚合函数的过滤条件
+      GROUP BY ...,...
+      HAVING 包含聚合函数的过滤条件
+      ORDER BY ...,...(ASC/DESC)
+      LIMIT ...,...
+    SQL99
+      SELECT ...,...,...(存在聚合函数)
+      FROM ... (LEFT/RIGHT) JOIN ON 多表的连接条件
+      WHERE 不包含聚合函数的过滤条件
+      GROUP BY ...,...
+      HAVING 包含聚合函数的过滤条件
+      ORDER BY ...,...(ASC/DESC)
+      LIMIT ...,...
+  "
+  SQL执行过程: "
+    FROM ...
+          (LEFT/RIGHT) JOIN ON
+            WHERE 不包含聚合函数的过滤条件
+              SELECT ...,...,...(存在聚合函数)
+                GROUP BY ...,...
+                  HAVING 包含聚合函数的过滤条件
+                    ORDER BY ...,...(ASC/DESC)
+                      LIMIT ...,...
+    案例
+    SELECT
+      department_id DID,
+      job_id JID,
+      AVG( salary ) ,
+      SUM( salary ) SUM_
+    FROM
+      employees
+    WHERE department_id > 80
+    GROUP BY
+      DID, job_id
+    HAVING
+      SUM_ > 20000 AND AVG( salary ) > 5000
+    ORDER BY SUM_
+    LIMIT 2
+  "
+  子查询可以写的位置: "
+    除了【GROUP BY】和【LIMIT】不允许写子查询，其他地方都可以写
+    SQL99
+      SELECT ...,...,...(存在聚合函数)
+      FROM ... (LEFT/RIGHT) JOIN ON 多表的连接条件
+      WHERE 不包含聚合函数的过滤条件
+      GROUP BY ...,...
+      HAVING 包含聚合函数的过滤条件
+      ORDER BY ...,...(ASC/DESC)
+      LIMIT ...,...
+  "
 
-  from employees s
-  WHERE salary > 5000
-  SELECT first_name fn, s.*
-  ORDER BY fn DESC
-"
 SQL分类:
   DML:
     概念:
@@ -261,6 +306,10 @@ SQL分类:
                   UNION ALL
                 SELECT a.*,b.* FROM a RIGHT JOIN b ON a.id = b.id WHERE a.id IS NULL
             "
+    where的使用: "
+      SELECT * FROM employees  e WHERE (e.employee_id,e.first_name) = (100,'Steven')
+      SELECT * FROM employees  e WHERE e.employee_id = 100 AND e.first_name = 'Steven'
+    "
     函数分类:
       单行函数:
         数值函数:
@@ -405,7 +454,7 @@ SQL分类:
             "
           STRCMP(s1,s2):
             - "
-              比较2个字符串的ascii值，一次进行顺序比较
+              比较2个字符串的ascii值，依次进行顺序比较
               s1>s2 = 1
               s1<s2 = -1
               s1=s2 = 0
@@ -647,13 +696,163 @@ SQL分类:
            	CONVERT('123456' USING 'utf8')
         "
       多行函数:
-        数值函数:
-        字符串函数:
-        日期和时间函数:
-        流程控制函数:
-        加密与解密函数:
-        获取MYSQL信息函数:
         聚合函数:
+          基本使用: "
+            重点： 聚合函数对null是不作计算的
+            SELECT
+              使用于数值类型
+              AVG(e.salary),
+              SUM(e.salary),
+              适用于数值类型、字符串类型、日期类型、字段类型
+              MAX(e.salary),
+              MIN(e.salary),
+              支持如下写法, 不建议使用字段，从效率角度来考虑
+              使用存储引擎为MyISAM，COUNT(*) = COUNT(1) = COUNT( e.salary )
+              使用存储引擎为InnoDB，( COUNT(*) = COUNT(1) ) > COUNT( e.salary )
+              COUNT( e.salary )
+              COUNT( 1 ),
+              COUNT( 2 ),
+              COUNT( * )
+            FROM
+              employees e
+          "
+          GroupBy:
+            结论:
+              - 使用WITH ROLLUP关键字，不允许使用OrderBy进行排序了
+              - 使用GroupBy，列字段只能写GroupBy中存在的字段(聚合函数除外)
+            方式1: "
+               SELECT
+               	department_id DID,
+               	job_id JID,
+               	AVG( salary ) ,
+               	SUM( salary ) SUM_
+               FROM
+               	employees
+               GROUP BY
+               	DID, job_id
+            "
+            方式2: "
+              使用WITH ROLLUP关键字之后，在会在最后面做一次全量统计
+               SELECT
+               	department_id DID,
+               	job_id JID,
+               	AVG( salary ) ,
+               	SUM( salary ) SUM_
+               FROM
+               	employees
+               GROUP BY
+               	DID, job_id  WITH ROLLUP
+            "
+            方式3: "
+              SELECT
+              	department_id DID,
+              	job_id JID,
+              	AVG( salary ) ,
+              	SUM( salary ) SUM_
+              FROM
+              	employees
+              GROUP BY
+              	DID, job_id
+              ORDER BY DID
+            "
+          Having:
+            Having和Where对比:
+              - 效率角度来说，where > having
+              - 优势角度来说，having支持聚合函数，where不支持
+            合理的使用方式: 不使用聚合函数的时候用where来做筛选，反之则使用having来筛选
+            使用方式: "
+              不太理想的写法
+              SELECT
+              	department_id DID,
+              	job_id JID,
+              	AVG( salary ) ,
+              	SUM( salary ) SUM_
+              FROM
+              	employees
+              GROUP BY
+              	DID, job_id
+              HAVING DID > 80 AND SUM_ > 20000 AND AVG( salary ) > 8000
+
+              理想写法
+              SELECT
+              	department_id DID,
+              	job_id JID,
+              	AVG( salary ) ,
+              	SUM( salary ) SUM_
+              FROM
+              	employees
+              WHERE department_id > 80
+              GROUP BY
+              	DID, job_id
+              HAVING SUM_ > 20000 AND AVG( salary ) > 8000
+            "
+    子查询:
+      从内查询返回结果条目数角度:
+        单行子查询: "
+          单行子查询比较操作符
+          =
+          >
+          >=
+          <
+          <=
+          <>
+        "
+        多行子查询: "
+          多行子查询比较操作符
+            单独使用
+              IN 等于列表中任意一个值
+            结合单行子查询比较操作符使用
+              比较任意一个值
+              =  ANY/SOME
+              >  ANY/SOME
+              >= ANY/SOME
+              <  ANY/SOME
+              <= ANY/SOME
+              <> ANY/SOME
+              比较所有值
+              =  ALL
+              >  ALL
+              >= ALL
+              <  ALL
+              <= ALL
+              <> ALL
+        "
+      从内查询是否被执行多次角度:
+        相关子查询: "
+          内查询引用了主查询的字段，内查询会执行多次
+          SELECT
+          	ee.last_name,
+          	ee.salary,
+          	ee.department_id
+          FROM
+          	employees ee
+          WHERE
+          	ee.salary > ( SELECT AVG( e.salary ) FROM employees e WHERE e.department_id = ee.department_id )
+        "
+        不相关子查询: 内查询不引用了主查询的字段，内查询只会执行一次
+      EXISTS&NOT EXISTS: "
+        EXISTS存在则返回true停止查找，不存在返回false继续查找
+
+        SELECT
+        	e.employee_id,
+        	e.last_name,
+        	e.job_id
+        FROM
+        	employees e
+        WHERE
+        	EXISTS  ( SELECT 'X' FROM employees WHERE e.employee_id = manager_id )
+
+
+        NOT EXISTS 只是多加了一个非的符号而已
+        SELECT
+        	e.employee_id,
+        	e.last_name,
+        	e.job_id
+        FROM
+        	employees e
+        WHERE
+        	NOT EXISTS  ( SELECT 'X' FROM employees mr WHERE e.employee_id = mr.manager_id )
+      "
   DDL:
     - 数据定义语言(Data Definition Language)
     - 定义了不同的数据库，表，视图，索引等数据库对象，还可以用来创建，删除，修改数据和数据库表的结构
