@@ -81,9 +81,110 @@ SQL优化:
       ORDER BY ...,...(ASC/DESC)
       LIMIT ...,...
   "
-
 SQL分类:
-  DML:
+  DDL(数据定义语言):
+    概述:
+      - 数据定义语言(Data Definition Language)
+      - 定义了不同的数据库，表，视图，索引等数据库对象，还可以用来创建，删除，修改数据和数据库表的结构
+      - create \ alert \ drop \ rename \ truncate
+    操作数据库:
+      创建/修改/删除数据库: "
+        创建
+          坑：数据库名一旦创建不允许修改
+          CREATE DATABASE t1
+          CREATE DATABASE t1 CHARACTER SET 'utf8mb4'
+          CREATE DATABASE IF NOT EXISTS t1 CHARACTER SET 'utf8mb4' (推荐使用)
+        修改
+          ALTER DATABASE t2 CHARACTER SET 'utf8'
+        删除
+          DROP DATABASE t2
+          DROP DATABASE IF EXISTS t2 (推荐使用)
+    "
+      管理数据库: "
+        #查看当前连接都有哪些数据库
+          SHOW DATABASES
+        #查看数据库的创建信息
+          SHOW CREATE DATABASE t1
+        #切换数据库
+          USE t1
+        #查看正在使用的是哪个数据库
+          SELECT DATABASE()
+        #查看当前数据库都有哪些表
+          SHOW TABLES
+        #查看当前数据库都有哪些表
+          SHOW TABLES FROM t1
+      "
+    操作表:
+      创建表(CREATE TABLE): "
+        方式1
+        CREATE TABLE IF NOT EXISTS t1 (
+          id INT,
+          name VARCHAR(15)
+        )
+        方式2，利用AS来复制表(结构和数据)，注意主键和索引复制不了
+        CREATE TABLE IF NOT EXISTS t1 AS SELECT * FROM employees
+      "
+      修改表(ALTER TABLE):
+        添加字段: "
+          添加一个字段在最尾部
+            ALTER TABLE t1
+            ADD salary DOUBLE(10,2)
+          添加一个字段在最前面
+            ALTER TABLE t1
+            ADD salary DOUBLE(10,2) FIRST
+          添加一个字段在指定字段的后面
+            ALTER TABLE t1
+            ADD salary_copy DOUBLE(10,2) AFTER salary
+        "
+        修改字段: "
+          修改一个字段的类型
+            ALTER TABLE t1
+            MODIFY salary DOUBLE(20,2) DEFAULT 0.00
+          重命名一个字段+修改类型
+            ALTER TABLE t1
+            CHANGE salary new_salary DOUBLE(30,2) DEFAULT 0.00
+        "
+        删除字段: "
+          ALTER TABLE t1
+          DROP COLUMN salary
+        "
+        修改表名: "
+          方式1
+            ALTER TABLE t1
+            RENAME to t2
+          方式2
+            RENAME TABLE t2
+            TO t1
+        "
+      删除表(DROP TABLE): "
+        DROP TABLE t1
+        DROP TABLE IF EXISTS t1 (推荐)
+      "
+      管理表: "
+        查看当前数据库都有哪些表
+          SHOW TABLES
+        查看表结构
+          DESC t1
+        查看表的创建信息
+          SHOW CREATE TABLE t1
+        清空所有表数据
+          TRUNCATE TABLE  t1
+      "
+      数据库类型:
+        整数类型: TINYINT、SMALLINT、MEDIUMINT、INT、INTGER、BIGINT
+        浮点类型: FLOAT、DOUBLE
+        定点数类型: DECIMAL
+        位类型: BIT
+        日期时间类型: YEAR、TIME、DATE、DATETIME、TIMESTAMP
+        文本字符串类型: CHAR、VARCHAR、TINYTEXT、TEXT、MEDIUMTEXT、LONGTEXT
+        枚举类型: ENUM
+        集合类型: SET
+        二进制字符串类型: BINARY、VARBINARY、TINYBLOB、BLOB、MEDIUMBLOB、LONGBLOB
+        JSON类型: JSON对象、JSON数组
+        空间数据类型:
+          单值: GEOMETRY、POINT、LINESTRING、POLYGON
+          集合: MULTIPOINT、MULTILINESTRING、MULTIPOLYGON、GEOMETRYCOLLECTION
+  DML(数据操作语言):
     概念:
       - 数据操作语言(Data Manipulation Language)
       - 用于添加，删除，更新，和查询数据记录，并检查数据的完整性
@@ -143,7 +244,7 @@ SQL分类:
               - SELECT * from employees where  salary NOT IN(6000,8000)
             模糊查询:
               概念:
-                - %代表 0个或1个或多个 不确定字符
+                - %代表0个或多个不确定字符
                 - _代表1个不确定字符
               一般查询:
                 - SELECT * from employees WHERE first_name LIKE '%n%'  直要字符串中含有n即可
@@ -306,7 +407,7 @@ SQL分类:
                   UNION ALL
                 SELECT a.*,b.* FROM a RIGHT JOIN b ON a.id = b.id WHERE a.id IS NULL
             "
-    where的使用: "
+    where的组合使用: "
       SELECT * FROM employees  e WHERE (e.employee_id,e.first_name) = (100,'Steven')
       SELECT * FROM employees  e WHERE e.employee_id = 100 AND e.first_name = 'Steven'
     "
@@ -694,6 +795,8 @@ SQL分类:
            	#INET_NTOA(3232238081)
            	#将字符串用于特定字符集进行编码
            	CONVERT('123456' USING 'utf8')
+           	#查看正在使用的是哪个数据库
+           	DATABASE()
         "
       多行函数:
         聚合函数:
@@ -853,11 +956,6 @@ SQL分类:
         WHERE
         	NOT EXISTS  ( SELECT 'X' FROM employees mr WHERE e.employee_id = mr.manager_id )
       "
-  DDL:
-    - 数据定义语言(Data Definition Language)
-    - 定义了不同的数据库，表，视图，索引等数据库对象，还可以用来创建，删除，修改数据和数据库表的结构
-    - create \ alert \ drop \ rename \ truncate
-  DCL:
-    - 数据控制语言
+  DCL(数据控制语言):
     - 用于对数据库，表，字段，用户的访问权限和安全级别
     - commit \ rollback \ savepoint \ grant \ revoke
