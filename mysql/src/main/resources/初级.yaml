@@ -1,4 +1,4 @@
-入门基础:
+介绍:
   版本(8.0.26)&安装:
     - 社区版本（Mysql Community Server），开源免费
     - 集群版本（Mysql Cluster），开源免费，用户架设集群服务器，可以将几个MySQL Server封装成一个Server，需要在社区版或者企业版基础上使用
@@ -105,53 +105,81 @@ SQL分类:
         创建
           坑：数据库名一旦创建不允许修改
           CREATE DATABASE t1
-          CREATE DATABASE t1 CHARACTER SET 'utf8mb4'
-          CREATE DATABASE IF NOT EXISTS t1 CHARACTER SET 'utf8mb4' (推荐使用)
+          CREATE DATABASE t1 CHARACTER SET utf8mb4
+          CREATE DATABASE t1 CHARSET=utf8
+          CREATE DATABASE IF NOT EXISTS t1 CHARACTER SET utf8mb4 (推荐使用)
+          CREATE DATABASE IF NOT EXISTS t1 CHARSET=utf8 (推荐使用)
         修改
-          ALTER DATABASE t2 CHARACTER SET 'utf8'
+          ALTER DATABASE t2 CHARACTER SET utf8
         删除
           DROP DATABASE t2
           DROP DATABASE IF EXISTS t2 (推荐使用)
     "
     操作表:
-      创建表(CREATE TABLE): "
-        方式1
-        CREATE TABLE IF NOT EXISTS t1 (
-          id INT,
-          name VARCHAR(15)
-        )
-        方式2，利用AS来复制表(结构和数据)，注意主键和索引复制不了
-        CREATE TABLE IF NOT EXISTS t1 AS SELECT * FROM employees
-      "
+      创建表(CREATE TABLE):
+        方式1: "
+            CREATE TABLE IF NOT EXISTS t1 (
+
+              f2 INT, # 定义有符号int
+              f3 INT UNSIGNED, # 定义无符号int
+              f4 INT(255) UNSIGNED ZEROFILL, # 指定宽度，不会影响实际的容量，表示位数不足时用0填充做显示，mysql8.0已经不推荐使用
+
+              f5 DOUBLE, # 定义双精度浮点类型，使用实际容量
+              f6 DOUBLE(8,3), # 指定容量，表示一共可以存储8位，整数位最多为5位，小数位最多为3位，mysql8.0不推荐这样使用了
+
+              f8 DECIMAL(10,2), # 默认为decimal(10,0)，小数位会进行四舍五入
+
+              f9 BIT(2), #默认为1位
+
+              f10 DATETIME,
+
+              f11 CHAR(255) CHARACTER SET utf8mb4,
+              f12 VARCHAR(10000) CHARACTER SET utf8mb4, #指定字段字符集，不指定则使用表的字符集
+              f13 ENUM('男','女') CHARACTER SET gbk,
+              f14 SET('你好','hello','哈哈') CHARACTER SET gbk,
+
+              f15 BINARY(1),
+              f16 VARBINARY(3),
+
+              f17 JSON
+            )
+            #指定表的字符集
+            DEFAULT CHARACTER SET gbk;
+        "
+        方式2: "
+          利用select(结构和数据)，注意主键和索引复制不了
+            CREATE TABLE IF NOT EXISTS t1 SELECT * FROM employees
+            CREATE TABLE IF NOT EXISTS t1 AS SELECT * FROM employees
+        "
       修改表(ALTER TABLE):
         添加字段: "
           添加一个字段在最尾部
             ALTER TABLE t1
-            ADD salary DOUBLE(10,2)
+            ADD [COLUMN] salary DOUBLE(10,2)
           添加一个字段在最前面
             ALTER TABLE t1
-            ADD salary DOUBLE(10,2) FIRST
+            ADD [COLUMN] salary DOUBLE(10,2) FIRST
           添加一个字段在指定字段的后面
             ALTER TABLE t1
-            ADD salary_copy DOUBLE(10,2) AFTER salary
+            ADD [COLUMN] salary_copy DOUBLE(10,2) AFTER salary
         "
         修改字段: "
           修改一个字段的类型
             ALTER TABLE t1
-            MODIFY salary DOUBLE(20,2) DEFAULT 0.00
+            MODIFY [COLUMN] salary DOUBLE(20,2) DEFAULT 0.00
           修改一个字段的类型+移动到最前面
             ALTER TABLE t1
-            MODIFY salary DOUBLE(20,2) DEFAULT 0.00 FIRST
+            MODIFY [COLUMN] salary DOUBLE(20,2) DEFAULT 0.00 FIRST
           修改一个字段的类型+移动指定字段的后面
             ALTER TABLE t1
-            MODIFY salary DOUBLE(20,2) DEFAULT 0.00 AFTER salary
+            MODIFY [COLUMN] salary DOUBLE(20,2) DEFAULT 0.00 AFTER salary
           重命名一个字段+修改类型
             ALTER TABLE t1
-            CHANGE salary new_salary DOUBLE(30,2) DEFAULT 0.00
+            CHANGE [COLUMN] salary new_salary DOUBLE(30,2) DEFAULT 0.00
         "
         删除字段: "
           ALTER TABLE t1
-          DROP COLUMN salary
+          DROP [COLUMN] salary
         "
         修改表名: "
           方式1
@@ -165,20 +193,6 @@ SQL分类:
         DROP TABLE t1,t2
         DROP TABLE IF EXISTS t1,t2 (推荐)
       "
-      字段类型:
-        整数类型: TINYINT、SMALLINT、MEDIUMINT、INT、INTGER、BIGINT
-        浮点类型: FLOAT、DOUBLE
-        定点数类型: DECIMAL
-        位类型: BIT
-        日期时间类型: YEAR、TIME、DATE、DATETIME、TIMESTAMP
-        文本字符串类型: CHAR、VARCHAR、TINYTEXT、TEXT、MEDIUMTEXT、LONGTEXT
-        枚举类型: ENUM
-        集合类型: SET
-        二进制字符串类型: BINARY、VARBINARY、TINYBLOB、BLOB、MEDIUMBLOB、LONGBLOB
-        JSON类型: JSON对象、JSON数组
-        空间数据类型:
-          单值: GEOMETRY、POINT、LINESTRING、POLYGON
-          集合: MULTIPOINT、MULTILINESTRING、MULTIPOLYGON、GEOMETRYCOLLECTION
     其它操作: "
         查看当前连接都有哪些数据库
           SHOW DATABASES
@@ -200,6 +214,83 @@ SQL分类:
           TRUNCATE t1
           TRUNCATE TABLE t1
       "
+    字段类型:
+      数值类型:
+        整数类型:
+          TINYINT:    字节1 无符号0-255                  有符号(-128~127)
+          SMALLINT:   字节2 无符号0-65535                有符号(-32768~32767)
+          MEDIUMINT:  字节3 无符号0-16777215             有符号(-8388608~8388607)
+          INT/INTGER: 字节4 无符号0-4294967295           有符号(-2147483648~2147483647)
+          BIGINT:     字节8 无符号0-18446744073709551615 有符号(-9223372036854775808~9223372036854775807)
+        浮点类型&定点数类型:
+          概述:
+            - 浮点类型 FLOAT(4字节)、DOUBLE(8字节)，在算术运算时存在丢失精度问题，存在四舍五入，浮点数加了无符号(UNSIGNED)反而存储范围更小
+            - 定点数类型 DECIMAL(M,D)/DEC(M,D)/NUMERIC(M,D)，M范围最大65 占用(M+2)字节，存在四舍五入
+          区别:
+            - 浮点类型，优点字节数占用小，缺点丢失精度问题
+            - 定点数类型，优点不丢失精度，缺点字节数占用大
+        位类型: BIT(M)约为(M+7)/8个字节
+      日期时间类型:
+        YEAR:         字节1 格式YYYY/YY               范围1901~2155
+        TIME:         字节3 格式HH:MM:SS              范围-838:59:59~838:59:59
+        DATE:         字节3 格式YYYY-MM-DD            范围1000-01-01~9999-12-03
+        DATETIME:     字节8 格式YYYY-MM-DD HH:MM:SS   范围1000-01-01 00:00:00~9999-12-31 23:59:59
+        TIMESTAMP:    字节4 格式YYYY-MM-DD HH:MM:SS   范围1970-01-01 00:00:00 UTC~2038-01-19 03:14:07UTC (底层存储的时间戳，会根据数据库时区配置进行转换显示)
+      字符串类型:
+        文本字符串类型:
+          VARCHAR(M)&CHAR(M):
+            概述:
+              - CHAR(M) 最大可配置255字符  实际占用字节数看字符集编码，存储不足时会在尾部填充空格，检索时会去除尾部空格
+              - VARCHAR(M) 最大可配置=65535字符/字符集  实际占用字节数看字符集编码+1
+            区别:
+              - MyISAM存储引擎，最好使用CHAR代替VARCHAR，使得整个表静态化，从而数据检索更快，用空间换时间
+              - InnoDB存储引擎，使用VARCHAR比较好，因为内部的行存储格式并没有区分固定长度和可变长度列(所有数据行都使用指向数据列值的头指针)，而且主要影响性能的因素是数据行使用的存储总量
+          可变TEXT:
+            TINYTEXT:   不允许做主键 实际可存字符 = 范围0~255字节/字符编码，               总占用字节 = 实际可存字符+2
+            TEXT:       不允许做主键 实际可存字符 = 范围0~65535字节(=64KB)/字符编码，      总占用字节 = 实际可存字符+2
+            MEDIUMTEXT: 不允许做主键 实际可存字符 = 范围0~16777215字节(=16MB)/字符编码，   总占用字节 = 实际可存字符+3
+            LONGTEXT:   不允许做主键 实际可存字符 = 范围0~4294967295字节(=4GB)/字符编码，  总占用字节 = 实际可存字符+4
+          ENUM&SET:
+            - ENUM('男','女') 实际可存字符 = 容量65535/字符编码 占用字节 = 字符编码
+            - SET('你好','hello','哈哈')    占用字节 = 字符编码
+        二进制字符串类型:
+          BINARY(M)&VARBINARY(M):
+            - BINARY(M) 最大可配置255 占用字节M个字节
+            - VARBINARY(M) 最大可配置65535 占用字节M+1个字节
+          可变BLOB:
+            TINYBLOB:      范围0~255字节                 总占用字节 = 实际字节+1
+            BLOB:          范围0~65535字节(=64KB)        总占用字节 = 实际字节+2
+            MEDIUMBLOB:    范围0~16777215字节(=16MB)     总占用字节 = 实际字节+3
+            LONGBLOB:      范围0~4294967295字节(=4GB)    总占用字节 = 实际字节+4
+        JSON类型: "
+            INSERT INTO '(f17) VALUES ('{
+            	'name': 'eric',
+            	'age': 18,
+                                                             'hobbies': [
+              '吃饭', '睡觉', '打豆豆'
+              ]
+            }')
+            SELECT f17 -> '$.name' 名字 , f17 ->> '$.hobbies[2]' 爱好 FROM t1
+          "
+      空间数据类型:
+        单值: GEOMETRY、POINT、LINESTRING、POLYGON
+        集合: MULTIPOINT、MULTILINESTRING、MULTIPOLYGON、GEOMETRYCOLLECTION
+    约束:
+      概述:
+        - 约束是为了保证数据完整性，SQL规范以约束的方式对表数据进行额外的条件限制
+        - 查看一个表的所有约束 SELECT * FROM information_schema.TABLE_CONSTRAINTS WHERE table_name = 't1'
+        - 查看一个表的结构 desc t1
+      4个方面考虑完整性:
+        - 实体完整性，例如，同一个表中，不能存在两条完全相同的记录
+        - 域完整性，例如，年龄范围0-120，性别范围男/女
+        - 引用完整性，例如，员工所在部门，在部门表中要能找到这个部门
+        - 用户自定义完整性，例如，用户名唯一、密码不能为空等，本部门经理的工资不得高于本部门职工的平均工资的5倍
+      非空约束(not null):
+      默认值约束(default):
+      唯一约束(unique):
+      主键约束(primary key):
+      外键约束(foreign key):
+      检查约束(check):
   DML(数据操作语言):
     概念:
       - 数据操作语言(Data Manipulation Language)
@@ -273,8 +364,8 @@ SQL分类:
                   - SELECT * from employees WHERE first_name LIKE '___a%' 查询第三个为a，后面可以任意
                   - SELECT * from employees WHERE first_name LIKE '___a%__' 查询第三个为a，后面需要剩余2个字符
                 转义查询:
-                  - SELECT * from employees WHERE last_name LIKE '_\_%'  第一个为占位，第二个位转义的_，意思就是，第一个和第二位必须满足，其他任意
-                  - SELECT * from employees WHERE last_name LIKE '_#_%' ESCAPE '#' 第一个为占位，第二个位转义的_，意思就是，第一个和第二位必须满足，其他任意，自定义转义字符
+                  默认转义字符/: SELECT * from employees WHERE last_name LIKE '_\_%'  第一个为占位，第二个位转义的_，意思就是，第一个和第二位必须满足，其他任意
+                  ESCAPE自定义转义字符: SELECT * from employees WHERE last_name LIKE '_#_%' ESCAPE '#' 第一个为占位，第二个位转义的_，意思就是，第一个和第二位必须满足，其他任意
               正则表达式查询:
                 - SELECT * from employees WHERE last_name REGEXP '^k'
                 - SELECT * from employees WHERE last_name RLIKE '^k'
@@ -510,10 +601,10 @@ SQL分类:
               "
             LENGTH(s)&CHAR_LENGTH(s):
               - "
-                返回UTF8字符编码字节的长度
-                SELECT LENGTH('abc'),LENGTH('我们')
-                返回字符长度
+                返回字符长度，常用这个做计算
                 SELECT CHAR_LENGTH('abc'),CHAR_LENGTH('我们')
+                返回字符集编码字节的长度
+                SELECT LENGTH('abc'),LENGTH('我们')
               "
             CONCAT(s1,s2,...)&CONCAT(x,s1,s2,...):
               - "
@@ -607,6 +698,11 @@ SQL分类:
                 str1 != str2 返回 str1
                 SELECT NULLIF('a','bb')
                 SELECT NULLIF('bb','bb')
+              "
+            CONVERT:
+              - "
+                将字符串用于特定字符集进行编码
+                CONVERT('123456' USING 'utf8')
               "
           日期和时间函数:
             日期和时间的获取:
@@ -810,8 +906,6 @@ SQL分类:
               #INET_ATON('192.168.10.1'),
               #整数转换为一个ip
               #INET_NTOA(3232238081)
-              #将字符串用于特定字符集进行编码
-              CONVERT('123456' USING 'utf8')
               #查看正在使用的是哪个数据库
               DATABASE()
           "
@@ -852,6 +946,18 @@ SQL分类:
                   DID, job_id
               "
               方式2: "
+                  SELECT
+                    department_id DID,
+                    job_id JID,
+                    AVG( salary ) ,
+                    SUM( salary ) SUM_
+                  FROM
+                    employees
+                  GROUP BY
+                    DID, job_id
+                  ORDER BY DID
+              "
+              方式3(WITH ROLLUP): "
                 使用WITH ROLLUP关键字之后，在会在最后面做一次全量统计
                  SELECT
                   department_id DID,
@@ -863,18 +969,7 @@ SQL分类:
                  GROUP BY
                   DID, job_id  WITH ROLLUP
               "
-              方式3: "
-                SELECT
-                  department_id DID,
-                  job_id JID,
-                  AVG( salary ) ,
-                  SUM( salary ) SUM_
-                FROM
-                  employees
-                GROUP BY
-                  DID, job_id
-                ORDER BY DID
-              "
+
             Having:
               Having和Where对比:
                 - 效率角度来说，where > having
