@@ -208,7 +208,7 @@ SQL分类:
           USE t1
         查看正在使用的是哪个数据库
           SELECT DATABASE()
-        查看当前数据库都有哪些表
+        查看当前数据库都有哪些表、或视图
           SHOW TABLES
         查看某个数据库都有哪些表
           SHOW TABLES FROM dbname
@@ -219,6 +219,8 @@ SQL分类:
         清空所有表数据（所有的DDL操作会默认提交事务，并且不支持【手动】事务回滚）
           TRUNCATE t1
           TRUNCATE TABLE t1
+        查看表、视图的属性信息
+          SHOW TABLE STATUS LIKE 'table_name'
       "
     字段类型:
       数值类型:
@@ -545,7 +547,9 @@ SQL分类:
         "
       外键约束(foreign key):
         概述:
-          - 一个表可以有多个外键，但外键关联的主键必须是PRIMARY KEY或者是UNIQUE KEY
+          - 一个表可以有多个外键
+          - 外键关联的主键必须是PRIMARY KEY或者是UNIQUE KEY
+          - 外键关联的主键两者类型必须一致
           - "
             #主表
             DROP TABLE IF EXISTS masterT ;
@@ -1448,3 +1452,107 @@ SQL分类:
   DCL(数据控制语言):
     - 用于对数据库，表，字段，用户的访问权限和安全级别
     - commit \ rollback \ savepoint \ grant \ revoke
+常见的数据库对象:
+  表(TABLE): 表是存储数据的逻辑单元，以行和列的形式存在，列就是字段，行就是记录
+  数据字典: 就是系统表，存放数据库相关信息的表，系统表的数据通常由数据库系统维护，程序员通常不应该修改，只可查看
+  约束(CONSTRAINT): 执行数据校验的规则，用于保证数据完整性的规则
+  视图(VIEW):
+    概述:
+     - 一个或多个数据表里的数据的逻辑显示，视图并不存储数据
+     - 视图，可以看做是一个虚拟表，本身是不存储数据结构的，视图的本质，可以看做是存储起来的SELECT语句
+     - 视图中SELECT语句中涉及到的表成为基表
+     - 针对视图做DML操作，会影响到对应的基表中的数据。反之亦然
+     - 视图本身的删除，不会导致基本表数据的删除
+    语法: "
+      CREATE [OR REPLCAE]
+      [ALGORITHM] = {UNDEFINED | MERGE | TEMPTABLE}
+      VIEW 视图名称 [(字段列名)]
+      AS 查询语句
+      [WITH [CASCADED | LOCAL ] CHECK OPTION]
+    "
+    命令: "
+      查看数据库表对象、视图对象
+      SHOW TABLES
+      查看视图结构
+      DESC view_name
+      查看表、视图的属性信息
+      SHOW TABLE STATUS LIKE 'view_name'
+      查看视图的定义结构信息
+      SHOW CREATE VIEW view_name
+    "
+    使用: "
+      #创建或替换方式1
+      CREATE OR REPLACE VIEW  v1(f1,f2)
+      AS
+      SELECT e.employee_id,e.salary FROM employees e;
+      SHOW CREATE VIEW v1;
+
+
+      #创建或替换方式2
+      CREATE OR REPLACE VIEW
+      AS
+      SELECT e.employee_id f1,e.salary f2 FROM employees e;
+      SHOW CREATE VIEW v1;
+
+      #修改方式1
+      ALTER VIEW v1(f1,f2)
+      AS
+      SELECT e.employee_id f1,e.salary f2 FROM employees e;
+      SHOW CREATE VIEW v1;
+
+      #修改方式2
+      ALTER VIEW v1
+      AS
+      SELECT e.employee_id f1,e.salary f2 FROM employees e;
+      SHOW CREATE VIEW v1;
+
+
+      #删除
+      DROP VIEW v1,v2,v3;
+      DROP VIEW IF EXISTS v1,v2,v3;
+
+    "
+    不可【更新DML】的视图:
+      概述: "
+        要使视图可以更新，视图中的行和底层基表中的行之间必须存在一对一关系。
+        如下情况视图不支持更新操作
+          1.在定义视图的时候指定了ALGORITHM = TEMPTABLE，视图将不支持INSERT和DELETE操作
+          2.视图中不包含基表中所有被定义位非空又未指定默认值的列，视图将不支持INSERT操作
+          3.在定义视图的SELECT语句中使用了JOIN联合查询，视图将不支持INSERT和DELETE操作
+          4.在定义视图的SELECT语句后的字段列表中使用数据表达式或子查询，视图将不支持INSERT，也不支持UPDATE
+          5.在定义视图的SELECT语句后的字段列表中使用了DESTINCE、聚合函数、 GROUP BY、HAVING、UNION等，视图将不支持INSERT、UPDATE、DELETE
+          6.视图定义基于一个不可以更新视图
+          7.常量视图
+      "
+      结论: 虽然可以更新视图数据，但总的来说，视图作为`虚拟表`，主要用于`方便查询`，不建议过多更新视图的数据。
+    优缺点:
+      - 优点，简化查询，控制数据的访问
+      - 缺点，基本更改有可能导致视图的修改，大量的视图创建维护成本大
+  索引(INDEX): 用于提高查询性能，相当于书的目录
+  存储过程(STORED PROCEDURE):
+    概述:
+      - 用于完成一次完整的业务处理，没有返回值，但可通过传出参数将多个值传给调用环境
+    语法: "
+      CREATE PROCEDURE 存储过程名(IN|OUT|INOUT 参数名 参数类型,...)
+      [characteristics ...]
+      BEGIN
+        存储过程体
+      END
+    "
+    优缺点:
+      优点:
+        - 简化操作，提高了SQL语句的重用性，减少了开发程序员的压力
+        - 减少操作过程中的事务，提高效率
+        - 减少网络传输量（客户端不需要把所有的SQL语句通过网络发给服务器）
+        - 减少SQL语句暴露在网上的风险，也提高了数据查询的安全性
+      缺点:
+        - 可移植性差，存储过程不能跨数据库移植，比如在MYSQL、ORACLE和SQL SERVER里编写的存储过程，在换成其他数据库时都需要重新编写。
+        - 调试困难，只有少数DBMS支持存储过程的调试，对于复杂的存储过程来说，开发和维护都不容易。虽然也有一些第三方工具可以对存储过程进行调试，但是要收费。
+        - 存储过程的版本管理很困难，比如数据库表索引发生了变化，可能会导致存储过程失效。我们在开发软件的时候往往需要进行版本管理，但是存储过程本没有版本控制，版本迭代更新的时候很麻烦。
+        - 它不适合高并发场景，高并发的场景需要减少数据库的压力，有时候数据库会采用分库分表的方式，而且对可扩展性要求很高，在这种情况下，存储过程会变得难以维护，增加数据库的压力，显然就不适用了。
+      结论: 阿里开发规范强制禁止使用存储过程，存储过程难以调试和扩展，更没有移植性
+  存储函数(STORED FUNCTION): 用于完成一次特定的计算，具有一个返回值，一部分由系统提供，用户也可以自定义
+  触发器(TIGGER): 相当于一个事件监听器，当数据库发生特定事件后，触发器被触发，完成相应的处理
+
+
+
