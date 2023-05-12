@@ -1529,16 +1529,242 @@ SQL分类:
       - 优点，简化查询，控制数据的访问
       - 缺点，基本更改有可能导致视图的修改，大量的视图创建维护成本大
   索引(INDEX): 用于提高查询性能，相当于书的目录
-  存储过程(STORED PROCEDURE):
-    概述:
-      - 用于完成一次完整的业务处理，没有返回值，但可通过传出参数将多个值传给调用环境
-    语法: "
-      CREATE PROCEDURE 存储过程名(IN|OUT|INOUT 参数名 参数类型,...)
-      [characteristics ...]
-      BEGIN
-        存储过程体
-      END
+  存储过程(STORED PROCEDURE) vs 存储函数(STORED FUNCTION):
+    存储过程:
+      语法: "
+        CREATE PROCEDURE 存储过程名(IN|OUT|INOUT 参数名 参数类型,...)
+        [characteristics ...] #表示特征，具体查看下面的characteristics详情
+        BEGIN
+          存储过程体
+        END
+      "
+      使用: "
+        #没有指明IN|OUT|INOUT，则默认为IN
+        ######################没有参数(无参数无返回)############################
+        DROP PROCEDURE IF EXISTS test;
+
+        #定义结束符号
+        DELIMITER $
+
+        CREATE PROCEDURE test()
+        #LANGUAGE SQL
+        #NOT DETERMINISTIC(默认) | DETERMINISTIC
+        #CONTAINS SQL(默认) | NO SQL | READS SQL DATA | MODIFIES SQL DATA
+        #SQL SECURITY DEFINER(默认) | SQL SECURITY INVOKER
+        #COMMENT '描述信息'
+        BEGIN
+        	SELECT 1 AS '测试';
+        END $
+
+        #将结束符号改回去
+        DELIMITER ;
+
+        #调用存储过程
+        CALL test()
+
+
+        SHOW CREATE PROCEDURE test;
+
+        ######################带OUT类型(无参数无返回)############################
+
+        DROP PROCEDURE IF EXISTS test;
+
+        #定义结束符号
+        DELIMITER $
+
+        CREATE PROCEDURE test(OUT xx VARCHAR(4),OUT yy VARCHAR(4))
+        #LANGUAGE SQL
+        #NOT DETERMINISTIC(默认) | DETERMINISTIC
+        #CONTAINS SQL(默认) | NO SQL | READS SQL DATA | MODIFIES SQL DATA
+        #SQL SECURITY DEFINER(默认) | SQL SECURITY INVOKER
+        #COMMENT '描述信息'
+        BEGIN
+        	#利用INTO输出到变量上
+        	SELECT 'x' AS f1 ,'y' AS f2 INTO xx,yy  FROM DUAL;
+        END $
+
+        #将结束符号改回去
+        DELIMITER ;
+
+        #调用存储过程
+        CALL test(@xx,@yy);
+        SELECT @xx,@yy;
+
+
+        SHOW CREATE PROCEDURE test;
+
+        ######################带IN类型(有参数无返回)############################
+
+        DROP PROCEDURE IF EXISTS test;
+
+        #定义结束符号
+        DELIMITER $
+
+        CREATE PROCEDURE test(IN isSHOW INT)
+        #LANGUAGE SQL
+        #NOT DETERMINISTIC(默认) | DETERMINISTIC
+        #CONTAINS SQL(默认) | NO SQL | READS SQL DATA | MODIFIES SQL DATA
+        #SQL SECURITY DEFINER(默认) | SQL SECURITY INVOKER
+        #COMMENT '描述信息'
+        BEGIN
+        	SELECT '1','2','3' FROM DUAL WHERE isSHOW;
+        END $
+
+        #将结束符号改回去
+        DELIMITER ;
+
+        #调用存储过程
+        #方式1
+        #CALL test(1);
+
+        #方式2
+        #SET @is_show = 1;
+        #CALL test(@is_show);
+
+        #方式3
+        SET @is_show := 1;
+        CALL test(@is_show);
+
+
+        SHOW CREATE PROCEDURE test;
+
+
+
+        ######################带IN、OUT类型(有参数有返回)############################
+
+        DROP PROCEDURE IF EXISTS test;
+
+        #定义结束符号
+        DELIMITER $
+
+        CREATE PROCEDURE test(IN in_var INT,OUT out_var INT)
+        #LANGUAGE SQL
+        #NOT DETERMINISTIC(默认) | DETERMINISTIC
+        #CONTAINS SQL(默认) | NO SQL | READS SQL DATA | MODIFIES SQL DATA
+        #SQL SECURITY DEFINER(默认) | SQL SECURITY INVOKER
+        #COMMENT '描述信息'
+        BEGIN
+        	SELECT CASE
+        			WHEN 1 = in_var THEN f1
+        			WHEN 2 = in_var THEN f2
+        			WHEN 3 = in_var THEN f3
+        			END cc INTO out_var
+        	FROM(
+        			SELECT 100 f1,200 f2,300 f3 FROM DUAL
+        	) tt ;
+        END $
+
+        #将结束符号改回去
+        DELIMITER ;
+
+        #调用存储过程
+        SET @in_var := 3;
+        CALL test(@in_var,@out_var);
+        SELECT @out_var;
+
+
+        SHOW CREATE PROCEDURE test;
+
+
+        ######################带INOUT类型(有参数无返回)############################
+
+
+        DROP PROCEDURE IF EXISTS test;
+
+        #定义结束符号
+        DELIMITER $
+
+        CREATE PROCEDURE test(INOUT in_out_var INT)
+        #LANGUAGE SQL
+        #NOT DETERMINISTIC(默认) | DETERMINISTIC
+        #CONTAINS SQL(默认) | NO SQL | READS SQL DATA | MODIFIES SQL DATA
+        #SQL SECURITY DEFINER(默认) | SQL SECURITY INVOKER
+        #COMMENT '描述信息'
+        BEGIN
+        	SELECT CASE
+        			WHEN 1 = in_out_var THEN f1
+        			WHEN 2 = in_out_var THEN f2
+        			WHEN 3 = in_out_var THEN f3
+        			END cc INTO in_out_var
+        	FROM(
+        			SELECT 100 f1,200 f2,300 f3 FROM DUAL
+        	) tt ;
+        END $
+
+        #将结束符号改回去
+        DELIMITER ;
+
+        #调用存储过程
+        SET @in_out_var = 3;
+        CALL test(@in_out_var);
+        SELECT @in_out_var;
+
+
+        SHOW CREATE PROCEDURE test;
+      "
+    存储函数:
+      语法: "
+        CREATE FUNCTION 函数名(参数名 参数类型,...)
+        RETURNS 返回值类型
+        [characteristics ...] #表示特征，具体查看下面的characteristics详情
+        BEGIN
+          函数体 #函数体中肯定有RETURN语句
+        END
+      "
+      使用: "
+        #mysql8.0中如果不加characteristics声明，就会报错，可以使用 SET GLOBAL log_bin_trust_function_creators = 1;
+
+        DROP FUNCTION IF EXISTS test;
+
+        #定义结束符号
+        DELIMITER $
+
+        CREATE FUNCTION test(x INT)
+        RETURNS INT
+        #LANGUAGE SQL
+        #NOT DETERMINISTIC(默认) | DETERMINISTIC
+        #CONTAINS SQL(默认) | NO SQL | READS SQL DATA | MODIFIES SQL DATA
+        #SQL SECURITY DEFINER(默认) | SQL SECURITY INVOKER
+        #COMMENT '描述信息'
+        BEGIN
+        	RETURN (
+        			SELECT CASE x
+        					WHEN 1 THEN 1000
+        					WHEN 2 THEN 2000
+        			END f1 FROM DUAL
+        	);
+        END $
+
+        #将结束符号改回去
+        DELIMITER ;
+
+
+        SELECT test(1);
+
+        SHOW CREATE FUNCTION  test;
+
+      "
+    characteristics详情: "
+      #LANGUAGE SQL ，说明存储过程体是由sql语句组成的，当前系统支持的语言为SQL
+      #NOT DETERMINISTIC(默认) 表示结果是不确定的，相同的输入可能得到不同的输出 | DETERMINISTIC 表示是确定的，每次执行的存储过程时，相同的输入会得到相同的输出，
+      #CONTAINS SQL(默认) 表示包含SQL语句，但并不包含读写数据的SQL语句 | NO SQL表示不包含任何SQL语句 | READS SQL DATA表示包含读数据的SQL语句 | MODIFIES SQL DATA 表示包含写数据的SQL语句
+      #SQL SECURITY DEFINER(默认) 表示只有创建者可以执行 | SQL SECURITY INVOKER 表示拥有权限的用户可以执行
+      #COMMENT '描述信息'
     "
+    characteristics修改: "
+      存储过程和存储函数只能修改特征，不能修改存储过程体或者存储函数体
+
+      ALTER PROCEDURE | FUNCTION 存储过程名字或存储函数名字
+        #LANGUAGE SQL
+        #NOT DETERMINISTIC(默认) | DETERMINISTIC
+        #CONTAINS SQL(默认) | NO SQL | READS SQL DATA | MODIFIES SQL DATA
+        #SQL SECURITY DEFINER(默认) | SQL SECURITY INVOKER
+        #COMMENT '描述信息'
+    "
+    2者区别:
+      存储过程: 关键字(PROCEDURE) 调用语法(CALL)   返回值0或多个(OUT|INOUT) 应用场景(一般用于更新)
+      存储函数: 关键字(FUNCTION)  调用语法(SELECT) 返回值1个(RETURN)       应用场景(一般用于查询结果为一个值并返回)
+      总结: 存储函数可以放在查询语句中使用，存储过程不行。反之，存储过程功能更加强大，包括能够执行对表的操作(比如创建表，删除表)和事务操作，这些功能是存储函数不具备的
     优缺点:
       优点:
         - 简化操作，提高了SQL语句的重用性，减少了开发程序员的压力
@@ -1551,7 +1777,6 @@ SQL分类:
         - 存储过程的版本管理很困难，比如数据库表索引发生了变化，可能会导致存储过程失效。我们在开发软件的时候往往需要进行版本管理，但是存储过程本没有版本控制，版本迭代更新的时候很麻烦。
         - 它不适合高并发场景，高并发的场景需要减少数据库的压力，有时候数据库会采用分库分表的方式，而且对可扩展性要求很高，在这种情况下，存储过程会变得难以维护，增加数据库的压力，显然就不适用了。
       结论: 阿里开发规范强制禁止使用存储过程，存储过程难以调试和扩展，更没有移植性
-  存储函数(STORED FUNCTION): 用于完成一次特定的计算，具有一个返回值，一部分由系统提供，用户也可以自定义
   触发器(TIGGER): 相当于一个事件监听器，当数据库发生特定事件后，触发器被触发，完成相应的处理
 
 
