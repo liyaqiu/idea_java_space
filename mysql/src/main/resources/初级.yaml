@@ -1564,6 +1564,7 @@ SQL分类:
 
 
         SHOW CREATE PROCEDURE test;
+        # SHOW PROCEDURE STATUS  WHERE ...
 
         ######################带OUT类型(无参数无返回)############################
 
@@ -1592,6 +1593,7 @@ SQL分类:
 
 
         SHOW CREATE PROCEDURE test;
+        # SHOW PROCEDURE STATUS  WHERE ...
 
         ######################带IN类型(有参数无返回)############################
 
@@ -1627,7 +1629,7 @@ SQL分类:
 
 
         SHOW CREATE PROCEDURE test;
-
+        # SHOW PROCEDURE STATUS  WHERE ...
 
 
         ######################带IN、OUT类型(有参数有返回)############################
@@ -1664,7 +1666,7 @@ SQL分类:
 
 
         SHOW CREATE PROCEDURE test;
-
+        # SHOW PROCEDURE STATUS  WHERE ...
 
         ######################带INOUT类型(有参数无返回)############################
 
@@ -1701,6 +1703,7 @@ SQL分类:
 
 
         SHOW CREATE PROCEDURE test;
+        # SHOW PROCEDURE STATUS  WHERE ...
       "
     存储函数:
       语法: "
@@ -1742,6 +1745,7 @@ SQL分类:
         SELECT test(1);
 
         SHOW CREATE FUNCTION  test;
+        #SHOW FUNCTION STATUS WHERE ...
 
       "
     characteristics详情: "
@@ -1777,6 +1781,269 @@ SQL分类:
         - 存储过程的版本管理很困难，比如数据库表索引发生了变化，可能会导致存储过程失效。我们在开发软件的时候往往需要进行版本管理，但是存储过程本没有版本控制，版本迭代更新的时候很麻烦。
         - 它不适合高并发场景，高并发的场景需要减少数据库的压力，有时候数据库会采用分库分表的方式，而且对可扩展性要求很高，在这种情况下，存储过程会变得难以维护，增加数据库的压力，显然就不适用了。
       结论: 阿里开发规范强制禁止使用存储过程，存储过程难以调试和扩展，更没有移植性
+    变量:
+      系统变量(@@):
+        概述: 系统变量，只有通过my.ini文件进行修改，才可以永久生效
+        全局系统变量:
+          - 全局系统变量，当服务器重启，全局系统变量会重置
+          - "
+            #查看系统的global变量
+            SHOW GLOBAL VARIABLES
+            #SHOW GLOBAL VARIABLES WHERE ...
+            SHOW GLOBAL VARIABLES LIKE 'character%'
+            SELECT @@GLOBAL.max_connections
+
+            #先在系统session找，找不到在去系统global找
+            SELECT @@max_connections
+
+            #修改系统全局变量
+            SET @@GLOBAL.character_set_client = gbk
+            SET GLOBAL character_set_client = gbk
+
+          "
+        会话系统变量:
+          - 会话系统变量，当会话断开，会话系统变量会重置
+          - "
+            #查看系统的session变量
+            SHOW SESSION VARIABLES
+            #SHOW SESSION VARIABLES WHERE ...
+            SHOW VARIABLES
+            #SHOW VARIABLES WHERE ...
+            SHOW SESSION VARIABLES LIKE 'character%'
+            SELECT @@SESSION.autocommit
+
+            #先在系统session找，找不到在去系统global找
+            SELECT @@max_connections
+
+            #修改系统会话变量
+            SET @@SESSION.character_set_client = gbk
+            SET SESSION character_set_client = gbk
+          "
+      用户自定义变量:
+        会话用户变量(加@):
+          - 会话用户变量，作用域只有在连接会话有效
+          - "
+           #方式1，声明+赋值（推荐）
+           SET @v1 = 1;
+           SET @v2 := 2;
+           SET @v3 = @v1 + @v2;
+           SELECT @v3;
+
+
+           #方式2，声明+赋值（推荐）
+           SELECT 100 f1,200 f2 INTO @aa,@bb;
+           SELECT @aa,@bb;
+
+
+           #方式3，声明+赋值
+           SELECT @cc := 900 f1;
+           SELECT @cc;
+          "
+        局部用户变量(不加):
+          - 局部用户变量，只能用于存储函数和存储过程中，只在BEGIN和END语句块中有效
+          - "
+            #方式1，在存储过程中使用局部变量
+            DROP PROCEDURE IF EXISTS test;
+            DELIMITER $
+            CREATE PROCEDURE test()
+            BEGIN
+            	#声明局部变量，必须要在BEGIN后面声明，位置不能乱
+            	DECLARE v1,v2,v3,v4 INT DEFAULT 1; #默认值为null
+
+            	SET v1 = 100;
+            	SET v2 := 200;
+            	SELECT 300 f1,400 f2 INTO v3,v4;
+
+            	SELECT v1,v2,v3,v4;
+            END $
+            DELIMITER ;
+            CALL test();
+
+            #方式2，在存储函数中使用局部变量
+            DROP FUNCTION IF EXISTS test;
+            DELIMITER $
+            CREATE FUNCTION test()
+            RETURNS INT
+            BEGIN
+
+            	#声明局部变量，必须要在BEGIN后面声明，位置不能乱
+            	DECLARE v1,v2,v3 INT DEFAULT 1; #默认值为null
+
+            	SET v1 = 100;
+            	SET v2 := 200;
+
+            	RETURN (v1+v2);
+            	#RETURN (SELECT v1+v2);
+            END $
+            DELIMITER ;
+            SELECT test();
+          "
+        2者区别: 局部用户变量需要加类型，而会话用户不变量不需要加类型
+    异常处理: "
+      #在存储过程中使用异常处理
+      DROP PROCEDURE IF EXISTS test;
+      DELIMITER $
+      CREATE PROCEDURE test()
+      BEGIN
+
+      	#报错，ERROR 1054 (42S22): Unknown column 'v1' in 'field list'
+      	#1054表示错误码，42S22表示SQLSTATE
+
+      	#自定义异常的名字
+      	#DECLARE custom_name_err CONDITION FOR 1054 ;
+      	#DECLARE custom_name_err CONDITION FOR SQLSTATE '42S22' ;
+
+
+      	#声明mysql处理异常规则
+      	#公式 DECLARE [CONTINUE / EXIT] HANDLER FOR [1054 / SQLSTATE '42S22' / SQLWARNING / NOT FOUND / SQLEXCEPTION] SET [变量=值 / BEGIN...END];
+
+
+      	#方式1
+      	#DECLARE CONTINUE HANDLER FOR 1054 SET @err_msg = '遇到错误继续执行，状态码1054';
+      	#方式2
+      	#DECLARE CONTINUE HANDLER FOR SQLSTATE '42522' SET @err_msg = '遇到错误继续执行，SQLSTATE 42522';
+      	#方式3
+      	#DECLARE CONTINUE HANDLER FOR custom_name_err SET @err_msg = '遇到错误继续执行，custom_name_err';
+      	#方式4
+      	#DECLARE CONTINUE HANDLER FOR SQLWARNING SET @err_msg = '遇到错误继续执行，匹配所有01开头的SQLSTATE错误代码';
+      	#方式5
+      	#DECLARE CONTINUE HANDLER FOR NOT FOUND SET @err_msg = '遇到错误继续执行，匹配所有02开头的SQLSTATE错误代码';
+      	#方式6
+      	#DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET @err_msg = '遇到错误继续执行，匹配所有没有被SQLWARNING和NOT FOUND捕获的SQLSTATE错误代码';
+
+      	#方式1
+      	#DECLARE EXIT HANDLER FOR 1054 SET @err_msg = '遇到错误退出执行，状态码1054';
+      	#方式2
+      	#DECLARE EXIT HANDLER FOR SQLSTATE '42522' SET @err_msg = '遇到错误退出执行，SQLSTATE 42522';
+      	#方式3
+      	#DECLARE EXIT HANDLER FOR custom_name_err SET @err_msg = '遇到错误退出执行，custom_name_err';
+      	#方式4
+      	#DECLARE EXIT HANDLER FOR SQLWARNING SET @err_msg = '遇到错误退出执行，匹配所有01开头的SQLSTATE错误代码';
+      	#方式5
+      	#DECLARE EXIT HANDLER FOR NOT FOUND SET @err_msg = '遇到错误退出执行，匹配所有02开头的SQLSTATE错误代码';
+      	#方式6
+      	#DECLARE EXIT HANDLER FOR SQLEXCEPTION SET @err_msg = '遇到错误退出执行，匹配所有没有被SQLWARNING和NOT FOUND捕获的SQLSTATE错误代码';
+
+
+      	SET @result = 100;
+      	SELECT v1;
+      	SET @result = 200;
+      END $
+      DELIMITER ;
+      CALL test();
+      #输出的结果
+      SELECT @result,@err_msg;
+    "
+    流程控制:
+      概述: 注意，只能用于存储过程。
+      分支结构:
+        if语句:
+          结构: "
+            IF 表达式1 THEN 操作1
+            [ELSEIF 表达式2 THEN 操作2] ...
+            [ELSE 操作N]
+            END IF
+          "
+          使用: "
+            #注意，只能用于存储过程。
+            DROP PROCEDURE IF EXISTS test;
+            DELIMITER $
+            CREATE PROCEDURE test(IN num INT)
+            BEGIN
+                IF num > 300 THEN SELECT '大于100' ;
+                ELSEIF num > 200 THEN SELECT '大于200' ;
+                ELSE  SELECT '其他' ;
+                END IF;
+            END $
+            DELIMITER ;
+            CALL test(300);
+        "
+        case语句:
+          结构: "
+            跟select使用的case一样，只不过在存储函数中结尾不同，需要END CASE
+
+            方式1，类似于switch
+              CASE 表达式
+              WHEN 值1 THEN 结果1或者语句1(如果是语句，需要加分号)
+              WHEN 值2 THEN 结果2或者语句2(如果是语句，需要加分号)
+              ...
+              ELSE 结果n或者语句n(如果是语句，需要加分号)
+              END CASE
+
+            方式2，类似于多重if
+              CASE
+              WHEN 条件1 THEN 结果1或者语句1(如果是语句，需要加分号)
+              WHEN 条件2 THEN 结果2或者语句2(如果是语句，需要加分号)
+              ...
+              ELSE 结果n或者语句n(如果是语句，需要加分号)
+              END CASE
+          "
+      循环结构:
+        loop语句:
+          结构: "
+            [loop_label_name:]LOOP
+              循环体
+            END LOOP  [loop_label_name];
+          "
+          使用: "
+            DROP PROCEDURE IF EXISTS test;
+            DELIMITER $
+            CREATE PROCEDURE test(IN num INT,OUT result INT)
+            BEGIN
+
+
+            	loop_lable_xxx:LOOP
+            		SET num := num + 1;
+            		IF num >= 1000 THEN LEAVE loop_lable_xxx; #跳出循环
+            		END IF;
+
+            	END LOOP loop_lable_xxx;
+
+            	SET result := num;
+
+            END $
+
+            DELIMITER ;
+
+            CALL test(100,@result);
+            SELECT @result;
+          "
+        while语句:
+          结构: "
+            [label_name:]WHILE 循环条件 DO
+              循环体
+            END WHILE  [label_name];
+          "
+          使用: "
+            DROP PROCEDURE IF EXISTS test;
+            DELIMITER $
+            CREATE PROCEDURE test(IN num INT,OUT result INT)
+            BEGIN
+
+
+            	label_name:WHILE num < 1000 DO
+
+            		SET num := num + 1;
+            		IF num >= 500 THEN LEAVE label_name; #提前退出
+            		END IF;
+
+            	END WHILE label_name;
+
+            	SET result := num;
+
+            END $
+
+            DELIMITER ;
+
+            CALL test(100,@result);
+            SELECT @result;
+
+          "
+        repeat语句:
+      跳转结构:
+        leave语句:
+        iterate语句:
+    游标:
   触发器(TIGGER): 相当于一个事件监听器，当数据库发生特定事件后，触发器被触发，完成相应的处理
 
 
