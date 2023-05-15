@@ -47,13 +47,13 @@ SQL优化:
   "
   SQL执行过程: "
     FROM ...
-          (LEFT/RIGHT) JOIN ON
-            WHERE 不包含聚合函数的过滤条件
-              SELECT ...,...,...(存在聚合函数)
-                GROUP BY ...,...
-                  HAVING 包含聚合函数的过滤条件
-                    ORDER BY ...,...(ASC/DESC)
-                      LIMIT ...,...
+      (LEFT/RIGHT) JOIN ON
+        WHERE 不包含聚合函数的过滤条件
+          SELECT ...,...,...(存在聚合函数)
+            GROUP BY ...,...
+              HAVING 包含聚合函数的过滤条件
+                ORDER BY ...,...(ASC/DESC)
+                  LIMIT ...,...
     案例
     SELECT
       department_id DID,
@@ -613,7 +613,7 @@ SQL分类:
 
 
         	#f1 INT CONSTRAINT ck_name_1 CHECK (((f1 > 1000) and (f1 < 2000))),
-        	#f1 CHAR(1) CONSTRAINT ck_name_2 CHECK (f2 in('男','女'))
+        	#f1 CHAR(1) CONSTRAINT ck_name_2 CHECK (f1 in('男','女'))
 
         	f1 INT
 
@@ -1534,9 +1534,9 @@ SQL分类:
       语法: "
         CREATE PROCEDURE 存储过程名(IN|OUT|INOUT 参数名 参数类型,...)
         [characteristics ...] #表示特征，具体查看下面的characteristics详情
-        BEGIN
+        [label_name:]BEGIN
           存储过程体
-        END
+        END [label_name]
       "
       使用: "
         #没有指明IN|OUT|INOUT，则默认为IN
@@ -2040,11 +2040,96 @@ SQL分类:
 
           "
         repeat语句:
+          结构: "
+            [repeat_label:]REPEAT
+              循环体
+            UNTIL 条件表达式，为真则退出
+            END REPEAT [repeat_label]
+          "
+          使用: "
+            DROP PROCEDURE IF EXISTS test;
+            DELIMITER $
+            CREATE PROCEDURE test(IN num INT,OUT result INT)
+            BEGIN
+
+            	label_name:REPEAT
+
+            		SET num := num + 1;
+
+            		IF num >= 300 THEN LEAVE label_name; #提前退出
+            		END IF;
+
+            	UNTIL num >= 500 #条件成立则退出循环
+            	END REPEAT label_name;
+
+            	SET result := num;
+
+            END $
+
+            DELIMITER ;
+
+            CALL test(100,@result);
+            SELECT @result;
+          "
       跳转结构:
-        leave语句:
-        iterate语句:
+        leave语句(break和return):
+          概述:
+            - leave 标签名
+            - 类似于break和return，用于存储过程循环体则是break，用于存储过程体则是return
+          使用: "
+            #用于存储过程体则是return
+            DROP PROCEDURE IF EXISTS test;
+            DELIMITER $
+            CREATE PROCEDURE test(IN num INT,OUT result INT)
+            label_name:BEGIN
+             SET result = 100;
+
+             LEAVE label_name; #提前退出
+
+             SET result = 500;
+
+            END label_name $
+
+            DELIMITER ;
+
+            CALL test(100,@result);
+            SELECT @result;
+
+            #用于存储过程循环体则是break
+            DROP PROCEDURE IF EXISTS test;
+            DELIMITER $
+            CREATE PROCEDURE test(IN num INT,OUT result INT)
+            BEGIN
+
+
+                label_name:WHILE num < 1000 DO
+
+                    SET num := num + 1;
+                    IF num >= 500 THEN LEAVE label_name; #提前退出
+                    END IF;
+
+                END WHILE label_name;
+
+                SET result := num;
+
+            END $
+
+            DELIMITER ;
+
+            CALL test(100,@result);
+            SELECT @result;
+          "
+        iterate语句(continue):
+          概述:
+            - iterate 标签名
+            - 类似于continue，只能适用于循环体中
+          使用: "
+
+          "
     游标:
   触发器(TIGGER): 相当于一个事件监听器，当数据库发生特定事件后，触发器被触发，完成相应的处理
-
+  https://www:
+    bilibili:
+      com/video/BV1iq4y1u7vj?p=90&spm_id_from=pageDriver&vd_source=cc17fab1d456bc3958dcb51e2fdd520b:
 
 
