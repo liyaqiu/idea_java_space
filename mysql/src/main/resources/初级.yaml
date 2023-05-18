@@ -99,6 +99,37 @@ MYSQL8.0新特性:
   检查约束(check): "
     mysql5.7可以写检查约束，但实际不生效，但在mysql8.0则是生效的
   "
+  全局系统变量持久化: "
+    MYSQL8.0使用 SET PERSIST GLOBAL max_connections = 1000 / SET GLOBAL max_connections = 1000 可以把变量写到mysqld-auto.cnf文件中，实现持久化
+  "
+批量创建数据: "
+    CREATE TABLE IF NOT EXISTS empoyees(
+      id int,
+      salary DECIMAL(10,2),
+      last_name VARCHAR
+  )
+  
+  DROP PROCEDURE IF EXISTS batch_insert;
+  DELIMITER $
+  CREATE PROCEDURE batch_insert()
+  BEGIN	
+      DECLARE count INT DEFAULT 0;
+      loop_label:LOOP
+          
+          SELECT 1;
+          
+          IF count > 10 THEN LEAVE loop_label;
+          ELSE INSERT INTO empoyees(id,salary,last_name) VALUES(count,count*10,CONCAT('eric',count));
+          END IF;
+          SET count = count + 1;
+      
+      END LOOP loop_label;
+      
+  END $
+  
+  DELIMITER ;
+
+"
 SQL分类:
   DDL(数据定义语言):
     概述:
@@ -1345,6 +1376,67 @@ SQL分类:
                   DID, job_id
                 HAVING SUM_ > 20000 AND AVG( salary ) > 8000
               "
+        窗口函数:
+          概述:
+            - MYSQL8.0支持窗口函数
+            - 窗口函数的作用类似于在查询中对数据进行分组，不同的是，分组操作会把分组结果聚合成一条记录，而窗口函数是将结果置于每一条数据记录中。
+          静态窗口函数: 静态窗口函数的窗口大小是固定的，不会因为记录的不同而不同
+          动态窗口函数: 动态窗口函数的窗口大小会随着记录的不同而变化
+          语法: 窗口函数() OVER( [PARTITION BY 字段名] [ORDER BY 字段名 ASC|DESC] )
+          分类:
+            序号函数:
+              - ROW_NUMBER()、RANK()、DENSE_RANK()
+              - "
+                CREATE DATABASE db01;
+                USE db01;
+                
+                DROP TABLE IF EXISTS t1;
+                CREATE TABLE IF NOT EXISTS t1(
+                    f1 INT,
+                    f2 VARCHAR(100),
+                    f3 VARCHAR(100),
+                    f4 DECIMAL(10,2)
+                ) CHARACTER SET utf8mb4;
+                
+                INSERT INTO t1 
+                SELECT 1,'湛江','湖光岩',80.5 UNION
+                SELECT 2,'湛江','海冰公园',80.5 UNION
+                SELECT 3,'湛江','秦皇岛',88.6 UNION
+                SELECT 4,'廉江','何地水库',90.5 UNION
+                SELECT 5,'廉江','唐山领',90.5;
+                
+                SELECT * FROM t1;
+                
+                # ROW_NUMBER() 能够对数据中的序号进行顺序显示
+                #写法1
+                SELECT ROW_NUMBER()  OVER(PARTITION BY f2 ORDER BY f1 ASC) AS 'xxx',  f1,f2,f3,f4 FROM t1;
+                #写法2
+                SELECT ROW_NUMBER()  OVER W AS 'xxx',  f1,f2,f3,f4 FROM t1 WINDOW W AS (PARTITION BY f2 ORDER BY f1 ASC);
+
+                # RANK() 需要结合ORDER BY进行使用效果更佳，如果排序的字段相同，则序号相同，比如 1 1 3
+                #写法1
+                SELECT RANK()  OVER(PARTITION BY f2 ORDER BY f4 ASC ) AS 'xxx',  f1,f2,f3,f4 FROM t1;
+                #写法2
+                SELECT RANK()  OVER W AS 'xxx',  f1,f2,f3,f4 FROM t1 WINDOW W AS (PARTITION BY f2 ORDER BY f4 ASC );
+
+                # RANK() 需要结合ORDER BY进行使用效果更佳，如果排序的字段相同，则序号相同，比如 1 1 2
+                #写法1
+                SELECT DENSE_RANK()  OVER(PARTITION BY f2 ORDER BY f4 ASC ) AS 'xxx',  f1,f2,f3,f4 FROM t1;
+                #写法2
+                SELECT DENSE_RANK()  OVER W AS 'xxx',  f1,f2,f3,f4 FROM t1  WINDOW W AS (PARTITION BY f2 ORDER BY f4 ASC );
+            "
+            分布函数:
+              - PERCENT_RANK() 等级值百分比
+              - CUME_DIST() 累积分布值
+            前后函数:
+              - LAG(expr,n) 返回当前行的前n行的expr的值
+              - LEAD(expr,n) 返回当前行的后n行的expr的值
+            首尾函数:
+              - FIRST_VALUE(expr) 返回第一个expr的值
+              - LAST_VALUE(expr) 返回最后一个expr的值
+            其它函数:
+              - NTH_VALUE(expr,n) 返回第n个expr的值
+              - NTILE(n) 将分区中的有序数据分为n哥桶，记录桶编号
       子查询:
         从内查询返回结果条目数角度:
           单行子查询: "
@@ -1786,6 +1878,7 @@ SQL分类:
         概述: 系统变量，只有通过my.ini文件进行修改，才可以永久生效
         全局系统变量:
           - 全局系统变量，当服务器重启，全局系统变量会重置
+          - MYSQL8.0使用 SET PERSIST GLOBAL max_connections = 1000 / SET GLOBAL max_connections = 1000 可以把变量写到mysqld-auto.cnf文件中，实现持久化
           - "
             #查看系统的global变量
             SHOW GLOBAL VARIABLES
@@ -1879,70 +1972,85 @@ SQL分类:
             SELECT test();
           "
         2者区别: 局部用户变量需要加类型，而会话用户不变量不需要加类型
-    异常处理: "
-      #在存储过程中使用异常处理
-      DROP PROCEDURE IF EXISTS test;
-      DELIMITER $
-      CREATE PROCEDURE test()
-      BEGIN
-
-      	#报错，ERROR 1054 (42S22): Unknown column 'v1' in 'field list'
-      	#1054表示错误码，42S22表示SQLSTATE
-
-      	#自定义异常的名字
-      	#DECLARE custom_name_err CONDITION FOR 1054 ;
-      	#DECLARE custom_name_err CONDITION FOR SQLSTATE '42S22' ;
-
-
-      	#声明mysql处理异常规则
-      	#公式 DECLARE [CONTINUE / EXIT] HANDLER FOR [1054 / SQLSTATE '42S22' / SQLWARNING / NOT FOUND / SQLEXCEPTION] SET [变量=值 / BEGIN...END];
-
-
-      	#方式1
-      	#DECLARE CONTINUE HANDLER FOR 1054 SET @err_msg = '遇到错误继续执行，状态码1054';
-      	#方式2
-      	#DECLARE CONTINUE HANDLER FOR SQLSTATE '42522' SET @err_msg = '遇到错误继续执行，SQLSTATE 42522';
-      	#方式3
-      	#DECLARE CONTINUE HANDLER FOR custom_name_err SET @err_msg = '遇到错误继续执行，custom_name_err';
-      	#方式4
-      	#DECLARE CONTINUE HANDLER FOR SQLWARNING SET @err_msg = '遇到错误继续执行，匹配所有01开头的SQLSTATE错误代码';
-      	#方式5
-      	#DECLARE CONTINUE HANDLER FOR NOT FOUND SET @err_msg = '遇到错误继续执行，匹配所有02开头的SQLSTATE错误代码';
-      	#方式6
-      	#DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET @err_msg = '遇到错误继续执行，匹配所有没有被SQLWARNING和NOT FOUND捕获的SQLSTATE错误代码';
-
-      	#方式1
-      	#DECLARE EXIT HANDLER FOR 1054 SET @err_msg = '遇到错误退出执行，状态码1054';
-      	#方式2
-      	#DECLARE EXIT HANDLER FOR SQLSTATE '42522' SET @err_msg = '遇到错误退出执行，SQLSTATE 42522';
-      	#方式3
-      	#DECLARE EXIT HANDLER FOR custom_name_err SET @err_msg = '遇到错误退出执行，custom_name_err';
-      	#方式4
-      	#DECLARE EXIT HANDLER FOR SQLWARNING SET @err_msg = '遇到错误退出执行，匹配所有01开头的SQLSTATE错误代码';
-      	#方式5
-      	#DECLARE EXIT HANDLER FOR NOT FOUND SET @err_msg = '遇到错误退出执行，匹配所有02开头的SQLSTATE错误代码';
-      	#方式6
-      	#DECLARE EXIT HANDLER FOR SQLEXCEPTION SET @err_msg = '遇到错误退出执行，匹配所有没有被SQLWARNING和NOT FOUND捕获的SQLSTATE错误代码';
-
-
-      	SET @result = 100;
-      	SELECT v1;
-      	SET @result = 200;
-      END $
-      DELIMITER ;
-      CALL test();
-      #输出的结果
-      SELECT @result,@err_msg;
-    "
+    异常:
+      处理异常: "
+          #在存储过程中使用异常处理
+          DROP PROCEDURE IF EXISTS test;
+          DELIMITER $
+          CREATE PROCEDURE test()
+          BEGIN
+    
+            #报错，ERROR 1054 (42S22): Unknown column 'v1' in 'field list'
+            #1054表示错误码，42S22表示SQLSTATE
+    
+            #自定义异常的名字
+            #DECLARE custom_name_err CONDITION FOR 1054 ;
+            #DECLARE custom_name_err CONDITION FOR SQLSTATE '42S22' ;
+    
+    
+            #声明mysql处理异常规则
+            #公式 DECLARE [CONTINUE / EXIT] HANDLER FOR [1054 / SQLSTATE '42S22' / SQLWARNING / NOT FOUND / SQLEXCEPTION] SET [变量=值 / BEGIN...END];
+    
+    
+            #方式1
+            #DECLARE CONTINUE HANDLER FOR 1054 SET @err_msg = '遇到错误继续执行，状态码1054';
+            #方式2
+            #DECLARE CONTINUE HANDLER FOR SQLSTATE '42522' SET @err_msg = '遇到错误继续执行，SQLSTATE 42522';
+            #方式3
+            #DECLARE CONTINUE HANDLER FOR custom_name_err SET @err_msg = '遇到错误继续执行，custom_name_err';
+            #方式4
+            #DECLARE CONTINUE HANDLER FOR SQLWARNING SET @err_msg = '遇到错误继续执行，匹配所有01开头的SQLSTATE错误代码';
+            #方式5
+            #DECLARE CONTINUE HANDLER FOR NOT FOUND SET @err_msg = '遇到错误继续执行，匹配所有02开头的SQLSTATE错误代码';
+            #方式6
+            #DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET @err_msg = '遇到错误继续执行，匹配所有没有被SQLWARNING和NOT FOUND捕获的SQLSTATE错误代码';
+    
+            #方式1
+            #DECLARE EXIT HANDLER FOR 1054 SET @err_msg = '遇到错误退出执行，状态码1054';
+            #方式2
+            #DECLARE EXIT HANDLER FOR SQLSTATE '42522' SET @err_msg = '遇到错误退出执行，SQLSTATE 42522';
+            #方式3
+            #DECLARE EXIT HANDLER FOR custom_name_err SET @err_msg = '遇到错误退出执行，custom_name_err';
+            #方式4
+            #DECLARE EXIT HANDLER FOR SQLWARNING SET @err_msg = '遇到错误退出执行，匹配所有01开头的SQLSTATE错误代码';
+            #方式5
+            #DECLARE EXIT HANDLER FOR NOT FOUND SET @err_msg = '遇到错误退出执行，匹配所有02开头的SQLSTATE错误代码';
+            #方式6
+            #DECLARE EXIT HANDLER FOR SQLEXCEPTION SET @err_msg = '遇到错误退出执行，匹配所有没有被SQLWARNING和NOT FOUND捕获的SQLSTATE错误代码';
+    
+    
+            SET @result = 100;
+            SELECT v1;
+            SET @result = 200;
+          END $
+          DELIMITER ;
+          CALL test();
+          #输出的结果
+          SELECT @result,@err_msg;
+        "
+      手动抛异常: "
+        #在存储过程中手动抛出异常
+        DROP PROCEDURE IF EXISTS test;
+        DELIMITER $
+        CREATE PROCEDURE test()
+        BEGIN
+        
+          #报错，ERROR 1054 (42S22): Unknown column 'v1' in 'field list'
+            
+            SIGNAL SQLSTATE '42S22' SET MESSAGE_TEXT = '手动抛出异常';
+            
+        END $
+        DELIMITER ;
+        CALL test();
+      "
     流程控制:
-      概述: 注意，只能用于存储过程。
       分支结构:
         if语句:
           结构: "
-            IF 表达式1 THEN 操作1
-            [ELSEIF 表达式2 THEN 操作2] ...
-            [ELSE 操作N]
-            END IF
+            IF 表达式1 THEN 操作1;
+            [ELSEIF 表达式2 THEN 操作2] ...;
+            [ELSE 操作N];
+            END IF;
           "
           使用: "
             #注意，只能用于存储过程。
@@ -2127,9 +2235,197 @@ SQL分类:
 
           "
     游标:
-  触发器(TIGGER): 相当于一个事件监听器，当数据库发生特定事件后，触发器被触发，完成相应的处理
-  https://www:
-    bilibili:
-      com/video/BV1iq4y1u7vj?p=90&spm_id_from=pageDriver&vd_source=cc17fab1d456bc3958dcb51e2fdd520b:
+      概述:
+        - 游标可以使用在存储过程和存储函数中
+        - 游标用来存储结果集，实现对结果集每条数据进行读取
+      坏处:
+        - 使用游标会带来一些性能问题，比如在使用游标过程中，会对数据进行【加锁】
+      使用:
+      - "
+        DROP PROCEDURE IF EXISTS test;
+        DELIMITER $
+        CREATE PROCEDURE test()
+        BEGIN	
+        
+            #定义临时存储游标读出来的数据
+            DECLARE emp_id int;
+            DECLARE emp_salary DECIMAL(10,2);
+            DECLARE emp_last_name VARCHAR(10);
+        
+            #定义游标
+            DECLARE cousor_var CURSOR FOR SELECT id,salary,last_name from empoyees ORDER BY salary  DESC ;
+            
+            #打开游标
+            OPEN cousor_var;
+            
+            #使用游标，into到变量的数量必须保持一致
+            FETCH cousor_var INTO emp_id,emp_salary,emp_last_name;
+            
+            SELECT emp_id,emp_salary,emp_last_name;
+            
+            
+            #关闭游标
+            CLOSE cousor_var;
+            
+        END $
+        
+        DELIMITER ;
+        
+        CALL test();
+
+
+      "
+      - "
+        #在存储过程中使用游标
+        DROP PROCEDURE IF EXISTS test;
+        DELIMITER $
+        CREATE PROCEDURE test()
+        BEGIN	
+
+        	#定义临时存储游标读出来的数据
+        	DECLARE emp_id int;
+        	DECLARE emp_salary DECIMAL(10,2);
+        	DECLARE emp_last_name VARCHAR(10);
+
+        	#定义游标
+        	DECLARE cousor_var CURSOR FOR SELECT id,salary,last_name from empoyees ORDER BY salary  DESC ;
+
+        	#打开游标
+        	OPEN cousor_var;
+
+        	LOOP #游标遍历到最后也会结束
+        		#使用游标
+        		FETCH cousor_var INTO emp_id,emp_salary,emp_last_name;
+
+        		SELECT emp_id,emp_salary,emp_last_name;
+        	END LOOP;
+
+        	#关闭游标
+        	CLOSE cousor_var;
+
+        END $
+
+        DELIMITER ;
+
+        CALL test();
+      "
+      - "
+        #在存储函数中使用游标
+        DROP FUNCTION IF EXISTS test;
+        DELIMITER $
+        CREATE FUNCTION test(id_ INT)
+        RETURNS VARCHAR(10)
+        BEGIN	
+
+
+        #定义临时存储游标读出来的数据
+        	DECLARE emp_id int;
+        	DECLARE emp_salary DECIMAL(10,2);
+        	DECLARE emp_last_name VARCHAR(10);
+
+        	#定义游标
+        	DECLARE cousor_var CURSOR FOR SELECT id,last_name from empoyees;
+
+        	#打开游标
+        	OPEN cousor_var;
+
+
+        	label_name: LOOP
+        		FETCH cousor_var INTO emp_id,emp_last_name;
+        		IF emp_id = id_ THEN LEAVE label_name;
+        		END IF;
+        	END LOOP label_name;
+
+        	#关闭游标
+        	CLOSE cousor_var;
+
+        	IF emp_last_name IS NOT NULL THEN RETURN emp_last_name;
+        	ELSE RETURN '没数据';
+        	END IF;
+
+        END $
+
+        DELIMITER ;
+
+        SELECT test(11);
+      "
+  触发器(TIGGER):
+    概述:
+      - 相当于一个事件监听器，当数据库发生特定事件后(INSERT|UPDATE|DELETE)，触发器被触发，完成相应的处理
+      - 在触发器中也可以使用变量、游标、流程控制等
+    语法: "
+      CREATE TRIGGER 触发器名
+      {BEFORE|AFTER} {INSERT|UPDATE|DELETE} ON 表名
+      FOR EACH ROW
+      {执行语句|BEGIN END}
+    "
+    使用:
+      入门: "
+          #方式1
+          DROP TRIGGER IF EXISTS test;
+          DELIMITER $
+          CREATE TRIGGER  test
+          BEFORE DELETE ON empoyees
+          FOR EACH ROW
+          BEGIN
+              INSERT INTO t1(id) VALUES(1);
+          END $
+          DELIMITER ;
+          
+          SHOW CREATE TRIGGER  test;
+          SHOW TRIGGERS WHERE `trigger` = 'test';
+          
+          #方式2
+          DROP TRIGGER IF EXISTS test;
+          CREATE TRIGGER  test
+          BEFORE DELETE ON empoyees
+          FOR EACH ROW
+          INSERT INTO t1(id) VALUES(1);
+        "
+      获取新旧数据: "
+        #案例1
+        DROP TRIGGER IF EXISTS test;
+        DELIMITER $
+        CREATE TRIGGER  test
+        BEFORE INSERT ON t1
+        FOR EACH ROW
+        BEGIN
+            #如果新增加的数据ID大于10就抛异常
+            IF NEW.id > 10 THEN SIGNAL SQLSTATE '42S22' SET MESSAGE_TEXT = '手动抛出异常';
+            END IF;
+        END $
+        DELIMITER ;
+        
+        #案例2
+        DROP TRIGGER IF EXISTS test;
+        DELIMITER $
+        CREATE TRIGGER  test
+        BEFORE UPDATE ON t1
+        FOR EACH ROW
+        BEGIN
+            #如果更新的数据ID大于10就抛异常
+            IF NEW.id > 10 THEN SIGNAL SQLSTATE '42S22' SET MESSAGE_TEXT = '手动抛出异常';
+            END IF;
+        END $
+        DELIMITER ;
+        
+        
+        #案例3
+        DROP TRIGGER IF EXISTS test;
+        DELIMITER $
+        CREATE TRIGGER  test
+        BEFORE DELETE ON t1
+        FOR EACH ROW
+        BEGIN
+            #如果删除数据ID大于10就抛异常
+            IF OLD.id > 10 THEN SIGNAL SQLSTATE '42S22' SET MESSAGE_TEXT = '手动抛出异常';
+            END IF;
+        END $
+        DELIMITER ;
+
+      "
+    优点: 可以确保数据的完整性
+
+
 
 
