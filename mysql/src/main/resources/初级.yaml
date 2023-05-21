@@ -102,6 +102,78 @@ MYSQL8.0新特性:
   全局系统变量持久化: "
     MYSQL8.0使用 SET PERSIST GLOBAL max_connections = 1000 / SET GLOBAL max_connections = 1000 可以把变量写到mysqld-auto.cnf文件中，实现持久化
   "
+  窗口函数:
+    概述:
+      - MYSQL8.0支持窗口函数
+      - 窗口函数的作用类似于在查询中对数据进行分组，不同的是，分组操作会把分组结果聚合成一条记录，而窗口函数是将结果置于每一条数据记录中。
+    静态窗口函数: 静态窗口函数的窗口大小是固定的，不会因为记录的不同而不同
+    动态窗口函数: 动态窗口函数的窗口大小会随着记录的不同而变化
+    语法: 窗口函数() OVER( [PARTITION BY 字段名] [ORDER BY 字段名 ASC|DESC] )
+    分类:
+      序号函数:
+        - ROW_NUMBER()、RANK()、DENSE_RANK()
+        - "
+          CREATE DATABASE db01;
+          USE db01;
+
+          DROP TABLE IF EXISTS t1;
+          CREATE TABLE IF NOT EXISTS t1(
+              f1 INT,
+              f2 VARCHAR(100),
+              f3 VARCHAR(100),
+              f4 DECIMAL(10,2)
+          ) CHARACTER SET utf8mb4;
+
+          INSERT INTO t1 
+          SELECT 1,'湛江','湖光岩',80.5 UNION
+          SELECT 2,'湛江','海冰公园',80.5 UNION
+          SELECT 3,'湛江','秦皇岛',88.6 UNION
+          SELECT 4,'廉江','何地水库',90.5 UNION
+          SELECT 5,'廉江','唐山领',90.5;
+
+          SELECT * FROM t1;
+
+          # ROW_NUMBER() 能够对数据中的序号进行顺序显示
+          #写法1
+          SELECT ROW_NUMBER()  OVER(PARTITION BY f2 ORDER BY f1 ASC) AS 'xxx',  f1,f2,f3,f4 FROM t1;
+          #写法2
+          SELECT ROW_NUMBER()  OVER W AS 'xxx',  f1,f2,f3,f4 FROM t1 WINDOW W AS (PARTITION BY f2 ORDER BY f1 ASC);
+
+          # RANK() 需要结合ORDER BY进行使用效果更佳，如果排序的字段相同，则序号相同，比如 1 1 3
+          #写法1
+          SELECT RANK()  OVER(PARTITION BY f2 ORDER BY f4 ASC ) AS 'xxx',  f1,f2,f3,f4 FROM t1;
+          #写法2
+          SELECT RANK()  OVER W AS 'xxx',  f1,f2,f3,f4 FROM t1 WINDOW W AS (PARTITION BY f2 ORDER BY f4 ASC );
+
+          # RANK() 需要结合ORDER BY进行使用效果更佳，如果排序的字段相同，则序号相同，比如 1 1 2
+          #写法1
+          SELECT DENSE_RANK()  OVER(PARTITION BY f2 ORDER BY f4 ASC ) AS 'xxx',  f1,f2,f3,f4 FROM t1;
+          #写法2
+          SELECT DENSE_RANK()  OVER W AS 'xxx',  f1,f2,f3,f4 FROM t1  WINDOW W AS (PARTITION BY f2 ORDER BY f4 ASC );
+      "
+      分布函数:
+        - PERCENT_RANK() 等级值百分比
+        - CUME_DIST() 累积分布值
+      前后函数:
+        - LAG(expr,n) 返回当前行的前n行的expr的值
+        - LEAD(expr,n) 返回当前行的后n行的expr的值
+      首尾函数:
+        - FIRST_VALUE(expr) 返回第一个expr的值
+        - LAST_VALUE(expr) 返回最后一个expr的值
+      其它函数:
+        - NTH_VALUE(expr,n) 返回第n个expr的值
+        - NTILE(n) 将分区中的有序数据分为n哥桶，记录桶编号
+  公用表表达式:
+    普通公用表表达式: "
+      WITH 名称
+      AS (子查询)
+      SELECT语句 | DELETE语句 | UPDATE语句
+    "
+    递归公用表表达式: "
+      WITH RECURSIVE 名称
+      AS (子查询)
+      SELECT语句 | DELETE语句 | UPDATE语句
+    "
 批量创建数据: "
     CREATE TABLE IF NOT EXISTS empoyees(
       id int,
@@ -1376,67 +1448,6 @@ SQL分类:
                   DID, job_id
                 HAVING SUM_ > 20000 AND AVG( salary ) > 8000
               "
-        窗口函数:
-          概述:
-            - MYSQL8.0支持窗口函数
-            - 窗口函数的作用类似于在查询中对数据进行分组，不同的是，分组操作会把分组结果聚合成一条记录，而窗口函数是将结果置于每一条数据记录中。
-          静态窗口函数: 静态窗口函数的窗口大小是固定的，不会因为记录的不同而不同
-          动态窗口函数: 动态窗口函数的窗口大小会随着记录的不同而变化
-          语法: 窗口函数() OVER( [PARTITION BY 字段名] [ORDER BY 字段名 ASC|DESC] )
-          分类:
-            序号函数:
-              - ROW_NUMBER()、RANK()、DENSE_RANK()
-              - "
-                CREATE DATABASE db01;
-                USE db01;
-                
-                DROP TABLE IF EXISTS t1;
-                CREATE TABLE IF NOT EXISTS t1(
-                    f1 INT,
-                    f2 VARCHAR(100),
-                    f3 VARCHAR(100),
-                    f4 DECIMAL(10,2)
-                ) CHARACTER SET utf8mb4;
-                
-                INSERT INTO t1 
-                SELECT 1,'湛江','湖光岩',80.5 UNION
-                SELECT 2,'湛江','海冰公园',80.5 UNION
-                SELECT 3,'湛江','秦皇岛',88.6 UNION
-                SELECT 4,'廉江','何地水库',90.5 UNION
-                SELECT 5,'廉江','唐山领',90.5;
-                
-                SELECT * FROM t1;
-                
-                # ROW_NUMBER() 能够对数据中的序号进行顺序显示
-                #写法1
-                SELECT ROW_NUMBER()  OVER(PARTITION BY f2 ORDER BY f1 ASC) AS 'xxx',  f1,f2,f3,f4 FROM t1;
-                #写法2
-                SELECT ROW_NUMBER()  OVER W AS 'xxx',  f1,f2,f3,f4 FROM t1 WINDOW W AS (PARTITION BY f2 ORDER BY f1 ASC);
-
-                # RANK() 需要结合ORDER BY进行使用效果更佳，如果排序的字段相同，则序号相同，比如 1 1 3
-                #写法1
-                SELECT RANK()  OVER(PARTITION BY f2 ORDER BY f4 ASC ) AS 'xxx',  f1,f2,f3,f4 FROM t1;
-                #写法2
-                SELECT RANK()  OVER W AS 'xxx',  f1,f2,f3,f4 FROM t1 WINDOW W AS (PARTITION BY f2 ORDER BY f4 ASC );
-
-                # RANK() 需要结合ORDER BY进行使用效果更佳，如果排序的字段相同，则序号相同，比如 1 1 2
-                #写法1
-                SELECT DENSE_RANK()  OVER(PARTITION BY f2 ORDER BY f4 ASC ) AS 'xxx',  f1,f2,f3,f4 FROM t1;
-                #写法2
-                SELECT DENSE_RANK()  OVER W AS 'xxx',  f1,f2,f3,f4 FROM t1  WINDOW W AS (PARTITION BY f2 ORDER BY f4 ASC );
-            "
-            分布函数:
-              - PERCENT_RANK() 等级值百分比
-              - CUME_DIST() 累积分布值
-            前后函数:
-              - LAG(expr,n) 返回当前行的前n行的expr的值
-              - LEAD(expr,n) 返回当前行的后n行的expr的值
-            首尾函数:
-              - FIRST_VALUE(expr) 返回第一个expr的值
-              - LAST_VALUE(expr) 返回最后一个expr的值
-            其它函数:
-              - NTH_VALUE(expr,n) 返回第n个expr的值
-              - NTILE(n) 将分区中的有序数据分为n哥桶，记录桶编号
       子查询:
         从内查询返回结果条目数角度:
           单行子查询: "
