@@ -6,26 +6,21 @@
     - 高级集群版 付费
   命令行:
     - mysql -uroot -p123456 -P3306 -h192.168.88.1
-  查看字符集以及修改字符集:
-    - "
-      查看
-        SHOW VARIABLES like 'character_%';
-        SHOW VARIABLES like 'collation_%';
-      修改，在my.cnf，在5.7版本中需要修改，8.0默认为utf8mb4
-        [mysql]
-        default-character-set = utf8
-        [mysqld]
-        character_set_server=utf8
-        collation-server=utf8_general_ci
-    "
   客户端工具:
     - navicat
     - dbeaver https://dbeaver.io/download/ ，需要依赖jre
   sql文件的导入方式:
     - source  /root/xxx.sql
     - 图形化界面导入 xxx.sql
-SQL优化:
-  - 满外连接(LEFT OUTER JOIN)的时候，尽量用UNION ALL(不需要去重)，少用UNION(需要去重)
+  安装与卸载: "
+    查看
+      rpm -qa  | grep -i mysql
+    删除安装
+      yum remove mysql-xxx
+    删除文件
+      find / -name mysql
+      rm -rf mysqlxxx
+  "
 重中之重:
   SQL92语法&SQL99语法: "
     SQL92
@@ -202,6 +197,17 @@ MYSQL8.0新特性:
   DELIMITER ;
 
 "
+修改服务器级别配置(my.cnf): "
+  [client]
+  default-character-set = utf8
+    character_set_client	    utf8    服务器解码请求时用的字符集(必须和客户端编码一直，需要做解码)
+    character_set_connection	utf8    放服务器处理请求时会把请求字符串从character_set_client转为character_set_connection(必须和表的编码一直，需要做转码，因为涉及到查表)
+    character_set_results	    utf8    服务器向客户端返回数据时使用的字符集(必须和客户端编码一直，需要做编码)
+  [mysqld]
+  character_set_server=utf8
+    character_set_server	    utf8    服务器级别的字符集(修改这里直接影响character_set_database)
+    character_set_database	    utf8    当前数据库的字符集
+"
 SQL分类:
   DDL(数据定义语言):
     概述:
@@ -216,44 +222,51 @@ SQL分类:
           CREATE DATABASE t1
           CREATE DATABASE t1 CHARACTER SET utf8mb4
           CREATE DATABASE t1 CHARSET=utf8
-          CREATE DATABASE IF NOT EXISTS t1 CHARACTER SET utf8mb4 (推荐使用)
-          CREATE DATABASE IF NOT EXISTS t1 CHARSET=utf8 (推荐使用)
+          CREATE DATABASE IF NOT EXISTS t1 CHARACTER SET utf8mb4 COLLATE utf8mb4_hungarian_ci (推荐使用)
+          CREATE DATABASE IF NOT EXISTS t1 CHARSET=utf8mb4 COLLATE utf8mb4_hungarian_ci (推荐使用)
         修改
-          ALTER DATABASE t2 CHARACTER SET utf8
+          ALTER DATABASE t1 CHARACTER SET utf8mb4 COLLATE utf8mb4_hungarian_ci
         删除
           DROP DATABASE t2
           DROP DATABASE IF EXISTS t2 (推荐使用)
     "
     操作表:
       创建表(CREATE TABLE):
+        语法: "
+          CREATE TABLE 表名 (列信息)
+          [[DEFAULT] CHARACTER SET utf8]
+          [COLLATE 比较规则]
+        "
         方式1: "
+            DROP TABLE IF EXISTS t1;
             CREATE TABLE IF NOT EXISTS t1 (
 
-              f2 INT, # 定义有符号int
-              f3 INT UNSIGNED, # 定义无符号int
-              f4 INT(255) UNSIGNED ZEROFILL, # 指定宽度，不会影响实际的容量，表示位数不足时用0填充做显示，mysql8.0已经不推荐使用
+            	f2 INT, # 定义有符号int
+            	f3 INT UNSIGNED, # 定义无符号int
+            	f4 INT(255) UNSIGNED ZEROFILL, # 指定宽度，不会影响实际的容量，表示位数不足时用0填充做显示，mysql8.0已经不推荐使用
 
-              f5 DOUBLE, # 定义双精度浮点类型，使用实际容量
-              f6 DOUBLE(8,3), # 指定容量，表示一共可以存储8位，整数位最多为5位，小数位最多为3位，mysql8.0不推荐这样使用了
+            	f5 DOUBLE, # 定义双精度浮点类型，使用实际容量
+            	f6 DOUBLE(8,3), # 指定容量，表示一共可以存储8位，整数位最多为5位，小数位最多为3位，mysql8.0不推荐这样使用了
 
-              f8 DECIMAL(10,2), # 默认为decimal(10,0)，小数位会进行四舍五入
+            	f8 DECIMAL(10,2), # 默认为decimal(10,0)，小数位会进行四舍五入
 
-              f9 BIT(2), #默认为1位
+            	f9 BIT(2), #默认为1位
 
-              f10 DATETIME,
+            	f10 DATETIME,
 
-              f11 CHAR(255) CHARACTER SET utf8mb4,
-              f12 VARCHAR(10000) CHARACTER SET utf8mb4, #指定字段字符集，不指定则使用表的字符集
-              f13 ENUM('男','女') CHARACTER SET gbk,
-              f14 SET('你好','hello','哈哈') CHARACTER SET gbk,
+            	f11 CHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_hungarian_ci,
+            	f12 VARCHAR(10000) CHARACTER SET utf8mb4, #指定字段字符集，不指定则使用表的字符集
+            	f13 ENUM('男','女') CHARACTER SET gbk,
+            	f14 SET('你好','hello','哈哈') CHARACTER SET gbk,
 
-              f15 BINARY(1),
-              f16 VARBINARY(3),
+            	f15 BINARY(1),
+            	f16 VARBINARY(3),
 
-              f17 JSON
+            	f17 JSON
             )
             #指定表的字符集
-            DEFAULT CHARACTER SET gbk;
+            DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_hungarian_ci;
+            SHOW CREATE TABLE t1;
         "
         方式2: "
           利用select(结构和数据)，注意主键和索引复制不了
@@ -271,6 +284,8 @@ SQL分类:
           添加一个字段在指定字段的后面
             ALTER TABLE t1
             ADD [COLUMN] salary_copy DOUBLE(10,2) AFTER salary
+          ALTER TABLE t1
+            ADD [COLUMN] id CHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_hungarian_ci FIRST
         "
         修改字段: "
           修改一个字段的类型
@@ -282,6 +297,12 @@ SQL分类:
           修改一个字段的类型+移动指定字段的后面
             ALTER TABLE t1
             MODIFY [COLUMN] salary DOUBLE(20,2) DEFAULT 0.00 AFTER salary
+          修改一个字段的字符集
+            ALTER TABLE t1
+            MODIFY [COLUMN] id VARCHAR(15)  CHARACTER SET utf8mb4 COLLATE utf8mb4_hungarian_ci  DEFAULT 'xxx' FIRST
+          修改表的字符集和比较规则
+            ALTER TABLE t1
+            [CONVERT TO] [DEFAULT] CHARACTER SET utf8mb4 COLLATE=utf8mb4_hungarian_ci
           重命名一个字段+修改类型
             ALTER TABLE t1
             CHANGE [COLUMN] salary new_salary DOUBLE(30,2) DEFAULT 0.00
@@ -303,28 +324,36 @@ SQL分类:
         DROP TABLE IF EXISTS t1,t2 (推荐)
       "
     其它操作: "
-        查看当前连接都有哪些数据库
-          SHOW DATABASES
-        查看数据库的创建信息
-          SHOW CREATE DATABASE t1
-        切换数据库
-          USE t1
-        查看正在使用的是哪个数据库
-          SELECT DATABASE()
-        查看当前数据库都有哪些表、或视图
-          SHOW TABLES
-        查看某个数据库都有哪些表
-          SHOW TABLES FROM dbname
-        查看表结构
-          DESC t1
-        查看表的创建信息
-          SHOW CREATE TABLE t1
-        清空所有表数据（所有的DDL操作会默认提交事务，并且不支持【手动】事务回滚）
-          TRUNCATE t1
-          TRUNCATE TABLE t1
-        查看表、视图的属性信息
-          SHOW TABLE STATUS LIKE 'table_name'
-      "
+      查看当前连接都有哪些数据库
+        SHOW DATABASES
+        SHOW DATABASES LIKE 'a%'
+      查看数据库的创建信息
+        SHOW CREATE DATABASE t1
+      切换数据库
+        USE t1
+      查看正在使用的是哪个数据库
+        SELECT DATABASE()
+      查看【当前数据库】都有哪些[表/视图]
+        SHOW TABLES
+        SHOW TABLES LIKE 't%'
+        SHOW TABLES FROM dbname
+        SHOW TABLES FROM atguigudb LIKE 't%'
+      查看【当前数据库】的表状态
+        SHOW TABLE STATUS
+        SHOW TABLE STATUS LIKE 't%'
+        SHOW TABLE STATUS WHERE `Name` =  't1'
+      查看【某个数据库】的[表/视图]状态
+        SHOW TABLE STATUS FROM dbname
+        SHOW TABLE STATUS FROM dbname LIKE '%emp'
+        SHOW TABLE STATUS FROM dbname WHERE `Name` =  'emp'
+      查看表结构
+        DESC t1
+      查看表的创建信息
+        SHOW CREATE TABLE t1
+      清空所有表数据（所有的DDL操作会默认提交事务，并且不支持【手动】事务回滚）
+        TRUNCATE t1
+        TRUNCATE TABLE t1
+    "
     字段类型:
       数值类型:
         整数类型:
@@ -737,6 +766,56 @@ SQL分类:
         #删除f1检查约束
         ALTER TABLE t1
         DROP CONSTRAINT ck_name
+      "
+    字符集&比较规则操作:
+      概述: "
+        与创建数据库有关
+        character_set_server	    utf8    服务器级别的字符集(修改这里直接影响character_set_database)
+        character_set_database	    utf8    当前数据库的字符集
+        与客服端和服务器之间传输有关
+        character_set_client	    utf8    服务器解码请求时用的字符集(必须和客户端编码一直，需要做解码)
+        character_set_connection	utf8    放服务器处理请求时会把请求字符串从character_set_client转为character_set_connection(必须和表的编码一直，需要做转码，因为涉及到查表)
+        character_set_results	    utf8    服务器向客户端返回数据时使用的字符集(必须和客户端编码一直，需要做编码)
+
+        character_set_filesystem	binary
+        character_set_system	    utf8
+        character_sets_dir	        /usr/share/mysql/charsets/
+      "
+      查看系统全部字符集: "
+        查看数据库支持的所有字符集
+          SHOW CHARACTER SET
+          SHOW CHARSET
+          SHOW CHARACTER SET LIKE 'utf8%'
+          SHOW CHARACTER SET WHERE Charset = 'utf8'
+        查看当前使用的字符集
+          SHOW GLOBAL VARIABLES LIKE 'character%';
+          SHOW SESSION VARIABLES LIKE 'character%';
+      "
+      临时修改修改字符集: "
+        全局系统变量
+        SHOW GLOBAL VARIABLES LIKE 'char%'
+
+        SET @@global.character_set_client = utf8mb4;
+        SET @@global.character_set_connection = utf8mb4;
+        SET @@global.character_set_results = utf8mb4;
+
+        会话系统变量
+        SHOW SESSION VARIABLES LIKE 'char%'
+        #方式1
+        SET @@session.character_set_client = utf8mb4;
+        SET @@session.character_set_connection = utf8mb4;
+        SET @@session.character_set_results = utf8mb4;
+        #方式2
+        SET NAMES utf8mb4;
+        #方式3
+        SET character_set_client = utf8;
+        SET character_set_connection = utf8;
+        SET character_set_results = utf8;
+      "
+      查看比较规则: "
+        SHOW COLLATION
+        SHOW COLLATION LIKE 'utf8%'
+        SHOW COLLATION WHERE Collation = 'utf8_general_ci'
       "
   DML(数据操作语言):
     概念:
@@ -1899,6 +1978,7 @@ SQL分类:
 
             #先在系统session找，找不到在去系统global找
             SELECT @@max_connections
+            SET @@character_set_database=utf8
 
             #修改系统全局变量
             SET @@GLOBAL.character_set_client = gbk
@@ -1918,6 +1998,7 @@ SQL分类:
 
             #先在系统session找，找不到在去系统global找
             SELECT @@max_connections
+            SET @@character_set_database=utf8
 
             #修改系统会话变量
             SET @@SESSION.character_set_client = gbk
