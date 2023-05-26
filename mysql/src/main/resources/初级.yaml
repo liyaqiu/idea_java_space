@@ -175,38 +175,26 @@ MYSQL8.0新特性:
       salary DECIMAL(10,2),
       last_name VARCHAR
   )
-  
+
   DROP PROCEDURE IF EXISTS batch_insert;
   DELIMITER $
   CREATE PROCEDURE batch_insert()
-  BEGIN	
+  BEGIN
       DECLARE count INT DEFAULT 0;
       loop_label:LOOP
-          
+
           SELECT 1;
-          
+
           IF count > 10 THEN LEAVE loop_label;
           ELSE INSERT INTO empoyees(id,salary,last_name) VALUES(count,count*10,CONCAT('eric',count));
           END IF;
           SET count = count + 1;
-      
-      END LOOP loop_label;
-      
-  END $
-  
-  DELIMITER ;
 
-"
-修改服务器级别配置(my.cnf): "
-  [client]
-  default-character-set = utf8
-    character_set_client	    utf8    服务器解码请求时用的字符集(必须和客户端编码一直，需要做解码)
-    character_set_connection	utf8    放服务器处理请求时会把请求字符串从character_set_client转为character_set_connection(必须和表的编码一直，需要做转码，因为涉及到查表)
-    character_set_results	    utf8    服务器向客户端返回数据时使用的字符集(必须和客户端编码一直，需要做编码)
-  [mysqld]
-  character_set_server=utf8
-    character_set_server	    utf8    服务器级别的字符集(修改这里直接影响character_set_database)
-    character_set_database	    utf8    当前数据库的字符集
+      END LOOP loop_label;
+
+  END $
+
+  DELIMITER ;
 "
 SQL分类:
   DDL(数据定义语言):
@@ -241,7 +229,7 @@ SQL分类:
             DROP TABLE IF EXISTS t1;
             CREATE TABLE IF NOT EXISTS t1 (
 
-            	f2 INT, # 定义有符号int
+            	f2 INT COMMENT '备注信息', # 定义有符号int
             	f3 INT UNSIGNED, # 定义无符号int
             	f4 INT(255) UNSIGNED ZEROFILL, # 指定宽度，不会影响实际的容量，表示位数不足时用0填充做显示，mysql8.0已经不推荐使用
 
@@ -265,7 +253,7 @@ SQL分类:
             	f17 JSON
             )
             #指定表的字符集
-            DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_hungarian_ci;
+            DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_hungarian_ci COMMENT = '备注信息';
             SHOW CREATE TABLE t1;
         "
         方式2: "
@@ -300,9 +288,9 @@ SQL分类:
           修改一个字段的字符集
             ALTER TABLE t1
             MODIFY [COLUMN] id VARCHAR(15)  CHARACTER SET utf8mb4 COLLATE utf8mb4_hungarian_ci  DEFAULT 'xxx' FIRST
-          修改表的字符集和比较规则
+          修改表的存储引擎、字符集、比较规则、自增列的默认值、备注信息
             ALTER TABLE t1
-            [CONVERT TO] [DEFAULT] CHARACTER SET utf8mb4 COLLATE=utf8mb4_hungarian_ci
+            ENGINE=MyISAM [DEFAULT] CHARACTER SET utf8mb4 COLLATE=utf8mb4_hungarian_ci AUTO_INCREMENT = 9999 COMMENT = '备注信息'
           重命名一个字段+修改类型
             ALTER TABLE t1
             CHANGE [COLUMN] salary new_salary DOUBLE(30,2) DEFAULT 0.00
@@ -648,7 +636,7 @@ SQL分类:
           	f1 INT,
           	f2 INT PRIMARY KEY
 
-          ) DEFAULT CHARACTER SET utf8mb4;
+          ) DEFAULT CHARACTER SET utf8mb4 AUTO_INCREMENT = 9999; #设置默认的自增值从多少开始，默认为0开始
 
           SHOW CREATE TABLE t1;
 
@@ -766,56 +754,6 @@ SQL分类:
         #删除f1检查约束
         ALTER TABLE t1
         DROP CONSTRAINT ck_name
-      "
-    字符集&比较规则操作:
-      概述: "
-        与创建数据库有关
-        character_set_server	    utf8    服务器级别的字符集(修改这里直接影响character_set_database)
-        character_set_database	    utf8    当前数据库的字符集
-        与客服端和服务器之间传输有关
-        character_set_client	    utf8    服务器解码请求时用的字符集(必须和客户端编码一直，需要做解码)
-        character_set_connection	utf8    放服务器处理请求时会把请求字符串从character_set_client转为character_set_connection(必须和表的编码一直，需要做转码，因为涉及到查表)
-        character_set_results	    utf8    服务器向客户端返回数据时使用的字符集(必须和客户端编码一直，需要做编码)
-
-        character_set_filesystem	binary
-        character_set_system	    utf8
-        character_sets_dir	        /usr/share/mysql/charsets/
-      "
-      查看系统全部字符集: "
-        查看数据库支持的所有字符集
-          SHOW CHARACTER SET
-          SHOW CHARSET
-          SHOW CHARACTER SET LIKE 'utf8%'
-          SHOW CHARACTER SET WHERE Charset = 'utf8'
-        查看当前使用的字符集
-          SHOW GLOBAL VARIABLES LIKE 'character%';
-          SHOW SESSION VARIABLES LIKE 'character%';
-      "
-      临时修改修改字符集: "
-        全局系统变量
-        SHOW GLOBAL VARIABLES LIKE 'char%'
-
-        SET @@global.character_set_client = utf8mb4;
-        SET @@global.character_set_connection = utf8mb4;
-        SET @@global.character_set_results = utf8mb4;
-
-        会话系统变量
-        SHOW SESSION VARIABLES LIKE 'char%'
-        #方式1
-        SET @@session.character_set_client = utf8mb4;
-        SET @@session.character_set_connection = utf8mb4;
-        SET @@session.character_set_results = utf8mb4;
-        #方式2
-        SET NAMES utf8mb4;
-        #方式3
-        SET character_set_client = utf8;
-        SET character_set_connection = utf8;
-        SET character_set_results = utf8;
-      "
-      查看比较规则: "
-        SHOW COLLATION
-        SHOW COLLATION LIKE 'utf8%'
-        SHOW COLLATION WHERE Collation = 'utf8_general_ci'
       "
   DML(数据操作语言):
     概念:
@@ -1632,8 +1570,127 @@ SQL分类:
 
     "
   DCL(数据控制语言):
-    - 用于对数据库，表，字段，用户的访问权限和安全级别
-    - commit \ rollback \ savepoint \ grant \ revoke
+    概述:
+      - 用于对数据库，表，字段，用户的访问权限和安全级别
+      - commit \ rollback \ savepoint \ grant \ revoke
+      - mysql -uroot -p123456 -h localhost -P 3306  -e 'show databases'
+      - mysql -uroot -p123456 -h localhost -P 3306  dbName -e 'show tables'
+    用户管理: "
+      #重点，用户名是host,user组合的，如果单单写user，那么host则默认为%
+
+      #删除一个或多个用户
+      	#方式1
+      		DROP USER IF EXISTS test@'%'
+      		DROP USER IF EXISTS test@'%',test@'localhost'
+      	#方式2，不推荐，可能有权限残留
+      		DELETE FROM mysql.`user` WHERE user = 'test' AND HOST = '%'
+      		#直接操作表需要刷新缓存
+      		FLUSH PRIVILEGES;
+
+
+      #创建用户的密码/密码策略/是否锁定
+      	CREATE USER IF NOT EXISTS test@'%' IDENTIFIED BY '123456' [PASSWORD EXPIRE/EXPIRE NEVER/DEFAULT/EXPIRE INTERVAL 90 DAY] [ACCOUNT LOCK/ACCOUNT UNLOCK];
+
+      #修改一个用户的主机名
+      	UPDATE mysql.`user` SET host = '192.168.88.1' WHERE user = 'test' AND host = '%';
+      	#直接操作表需要刷新缓存
+      	FLUSH PRIVILEGES;
+
+      #修改一个用户的用户名
+      	UPDATE mysql.`user` SET user = 'new_test' WHERE user = 'test' AND host = '%';
+      	#直接操作表需要刷新缓存
+      	FLUSH PRIVILEGES;
+
+      #修改当前用户密码
+      	#查询当前用户
+      	SELECT USER();
+      	#方式1
+      	ALTER USER USER() IDENTIFIED BY '123456';
+      	#方式2
+      	SET PASSWORD = '123456'
+
+      #修改其他用户的密码
+      	#方式1
+      	ALTER USER IF EXISTS test@'%' IDENTIFIED BY '123456'
+      	#方式2
+      	SET PASSWORD FOR test@'%' = '123456'
+
+      #修改用户的密码/密码策略/是否锁定
+      	ALTER USER IF EXISTS test@'%' IDENTIFIED BY '123456' [PASSWORD EXPIRE/PASSWORD EXPIRE NEVER/PASSWORD EXPIRE DEFAULT/PASSWORD EXPIRE INTERVAL 90 DAY] [ACCOUNT LOCK/ACCOUNT UNLOCK];
+
+      #查询一个用户
+      	SELECT host,user FROM mysql.`user` WHERE `User` = 'test'
+      #查询一个用户的创建结构
+      	SHOW CREATE USER test@'%'
+    "
+    权限管理:
+      概述:
+        - 权限的授予以及回收需要用户重新登陆才生效
+        - 查看系统可授予的所有权限信息 SHOW PRIVILEGES
+      格式:
+        - 授予权限 GRANT 权限1,权限2,...权限n ON 数据库名称.表名称 TO 用户名@'主机' [IDENTIFIED BY '修改新的密码']
+        - 回收权限 GRANT 权限1,权限2,...权限n ON 数据库名称.表名称 FROM 用户名@'主机'
+      使用: "
+        #查看当前用户
+        SELECT USER();
+
+        #查看系统可授予的所有权限信息
+        SHOW PRIVILEGES	;
+
+        #查看当前用户具备的权限
+        	#方式1
+        	SHOW GRANTS ;
+        	#方式2
+        	SHOW GRANTS FOR CURRENT_USER;
+        	#方式3
+        	SHOW GRANTS FOR CURRENT_USER();
+        #查看别的用户权限
+        	SHOW GRANTS FOR test@'%';
+        	SHOW GRANTS FOR test@'localhost';
+
+        #授予某个用户权限
+        	#查看用户信息
+        	SELECT user,host FROM mysql.`user`
+
+        	#授予最高权限
+        	GRANT ALL PRIVILEGES ON *.* TO 'test'@'%'
+        	#授予最高权限，并且它也可以把自己的权限授予别人
+        	GRANT ALL PRIVILEGES ON *.* TO 'test'@'%' WITH GRANT OPTION
+
+        	#授予具体某一个库的权限,相同权限会重叠
+        	GRANT DELETE ON dbName.* TO 'test'@'%' WITH GRANT OPTION
+        	GRANT UPDATE ON dbName.* TO 'test'@'%'
+
+        	#授予权限，并且修改密码
+        	GRANT UPDATE ON dbName.* TO 'test'@'%' IDENTIFIED BY '123456'
+
+        	#授予列权限
+        	GRANT UPDATE(列名) ON dbName.dbTable TO 'test'@'%'
+
+        	#授予存储过程权限
+        	GRANT EXECUTE  ON *.* TO 'test'@'%'
+
+        #回收某个用户权限
+        	#查看用户信息
+        	SELECT user,host FROM mysql.`user`
+
+        	#回收权限
+        	REVOKE ALL PRIVILEGES  ON *.*  FROM 'test'@'%';
+        	REVOKE DELETE,UPDATE,GRANT OPTION   ON dbName.*  FROM 'test'@'%';
+        	REVOKE GRANT OPTION   ON dbName.*  FROM 'test'@'%';
+        	#回收列权限
+        	REVOKE UPDATE (列名)  ON dbName.dbTable  FROM 'test'@'%';
+        	#回收存储过程权限
+        	REVOKE EXECUTE  ON *.* FROM 'test'@'%'
+      "
+    权限的元数据管理表:
+      - 在mysql数据库中分别有user、db、tables_priv、columns_priv、procs_priv、proxies_priv等表
+      - user表存储的是*.*能操作的权限
+      - db表存储的是dbName.*能操作的权限
+      - tables_priv表存储的是dbName.tableName能操作的权限
+      - columns_priv表存储的是dbName.tableName，某一个列能操作的权限
+      - procs_priv表存储的是存储过程能操作的权限
+      - proxies_priv表存储的是代理能操作的权限
 常见的数据库对象:
   表(TABLE): 表是存储数据的逻辑单元，以行和列的形式存在，列就是字段，行就是记录
   数据字典: 就是系统表，存放数据库相关信息的表，系统表的数据通常由数据库系统维护，程序员通常不应该修改，只可查看

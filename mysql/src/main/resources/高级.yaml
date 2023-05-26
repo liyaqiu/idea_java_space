@@ -1,4 +1,141 @@
+批量创建数据: "
+    CREATE TABLE IF NOT EXISTS empoyees(
+      id int,
+      salary DECIMAL(10,2),
+      last_name VARCHAR
+  )
+
+  DROP PROCEDURE IF EXISTS batch_insert;
+  DELIMITER $
+  CREATE PROCEDURE batch_insert()
+  BEGIN
+      DECLARE count INT DEFAULT 0;
+      loop_label:LOOP
+
+          SELECT 1;
+
+          IF count > 10 THEN LEAVE loop_label;
+          ELSE INSERT INTO empoyees(id,salary,last_name) VALUES(count,count*10,CONCAT('eric',count));
+          END IF;
+          SET count = count + 1;
+
+      END LOOP loop_label;
+
+  END $
+
+  DELIMITER ;
+"
 架构篇:
+  字符集&比较规则操作:
+    概述: "
+          与创建数据库有关
+          character_set_server	    utf8    服务器级别的字符集(修改这里直接影响character_set_database)
+          character_set_database	utf8    当前数据库的字符集
+          与客服端和服务器之间传输有关
+          character_set_client	    utf8    服务器解码请求时用的字符集(必须和客户端编码一直，需要做解码)
+          character_set_connection	utf8    放服务器处理请求时会把请求字符串从character_set_client转为character_set_connection(必须和表的编码一直，需要做转码，因为涉及到查表)
+          character_set_results	    utf8    服务器向客户端返回数据时使用的字符集(必须和客户端编码一直，需要做编码)
+
+          character_set_filesystem	binary
+          character_set_system	    utf8
+          character_sets_dir	    /usr/share/mysql/charsets/
+        "
+    查看系统全部字符集: "
+      查看数据库支持的所有字符集
+        SHOW CHARACTER SET
+        SHOW CHARSET
+        SHOW CHARACTER SET LIKE 'utf8%'
+        SHOW CHARACTER SET WHERE Charset = 'utf8'
+      查看当前使用的字符集
+        SHOW GLOBAL VARIABLES LIKE 'character%';
+        SHOW SESSION VARIABLES LIKE 'character%';
+    "
+    临时修改修改字符集: "
+      全局系统变量
+      SHOW GLOBAL VARIABLES LIKE 'char%'
+
+      SET @@global.character_set_client = utf8mb4;
+      SET @@global.character_set_connection = utf8mb4;
+      SET @@global.character_set_results = utf8mb4;
+
+      会话系统变量
+      SHOW SESSION VARIABLES LIKE 'char%'
+      #方式1
+      SET @@session.character_set_client = utf8mb4;
+      SET @@session.character_set_connection = utf8mb4;
+      SET @@session.character_set_results = utf8mb4;
+      #方式2
+      SET NAMES utf8mb4;
+      #方式3
+      SET character_set_client = utf8;
+      SET character_set_connection = utf8;
+      SET character_set_results = utf8;
+    "
+    查看比较规则: "
+      SHOW COLLATION
+      SHOW COLLATION LIKE 'utf8%'
+      SHOW COLLATION WHERE Collation = 'utf8_general_ci'
+    "
+    修改字符集(my.cnf): "
+      [client]
+      default-character-set=utf8
+        character_set_client	    utf8    服务器解码请求时用的字符集(必须和客户端编码一直，需要做解码)
+        character_set_connection	utf8    放服务器处理请求时会把请求字符串从character_set_client转为character_set_connection(必须和表的编码一直，需要做转码，因为涉及到查表)
+        character_set_results	    utf8    服务器向客户端返回数据时使用的字符集(必须和客户端编码一直，需要做编码)
+      [mysqld]
+      character_set_server=utf8
+        character_set_server	    utf8    服务器级别的字符集(修改这里直接影响character_set_database)
+        character_set_database	    utf8    当前数据库的字符集
+    "
+  SQL大小写敏感问题:
+    概述:
+      - SHOW VARIABLES LIKE '%lower_case_table_names%'
+      - 设置0大小写敏感(Linux)，数据库、表名、表的别名、变量名是严格区分大小写，其他则不区分。
+      - 设置1大小写不敏感(Window)，创建的表、数据库都是以小写形式存放在磁盘上，对于SQL语句都是转换为小写对表和数据库进行查找
+    修改:
+      MYSQL5.7: 在my.cnf文件中的[mysqld]中加入 lower_case_table_names = 1 然后重启数据库
+      MYSQL8.0: "
+        1.停止Mysql服务
+        2.删除数据库目录 /var/lib/mysql（禁止删除，严重）
+        3.在my.cnf文件中的[mysqld]中加入 lower_case_table_names = 1
+        4.启动Mysql服务
+      "
+    SQL编写规则: 关键字和函数名称全部大写，其他则为小写
+  严格模式vs轻松模式(sql_mode):
+    概述:
+      - 查看 SHOW SESSION VARIABLES LIKE '%sql_mode%' / SHOW GLOBAL VARIABLES LIKE '%sql_mode%'
+      - 临时修改 SET SESSION sql_mode = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'
+      - 永久修改 在my.cnf文件[mysqlId]中添加 sql_mode = ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
+    模式介绍:
+      默认:
+        ONLY_FULL_GROUP_BY: 对于GROUP BY聚合操作，如果在SELECT中的列，没有在GROUP BY中出现，那么这个SQL是不和方法的，因为列不在GROUP BY语句中
+        STRICT_TRANS_TABLES: 在该模式下，如果一个值不能插入到一个事务表中，则中断当前的操作，对非事务表不做限制。
+        NO_ZERO_IN_DATE: 不允许日期和月份为零
+        NO_ZERO_DATE: MYSQL数据库不允许插入零日期，插入零日期会抛出错误而不是警告
+        ERROR_FOR_DIVISION_BY_ZERO: 在INSERT或UPDATE过程中，如果数据被零除，则产生错误而非警告。如果未给出该模式，那么数据被零除时MYSQL返回NULL
+        NO_ENGINE_SUBSTITUTION: 如果需要的存储引擎被禁用或未编译，那么抛出错误，不设置此值时，用默认的存储引擎替代，并抛出一个异常
+      非默认:
+        NO_AUTO_VALUE_ON_ZERO: 该值影响自增长列的插入。默认设置下，插入0或者NULL代表生成下一个自增长值。如果用户希望插入的值为0，而该列又是自增长的，那么这个选项就有用了。
+        NO_AUTO_CREATE_USER: 禁止GTANT创建密码为空的用户
+        PIPES_AS_CONCAT: 将 '||' 视为字符串的连接操作符而非运算符，这和ORACLE数据库是一样的，也和字符串的拼接函数CONCAT相类似
+        ANSI_QUOTES: 不能用双引号来引用字符串，因为它被编译为识别符
+  数据目录:
+    概述:
+      - 查看数据目录(/var/lib/mysql/)存放位置 SHOW VARIABLES LIKE '%datadir%'
+    核心数据库介绍:
+      mysql: 它存储了MYSQL的用户账户和权限信息，一些存储过程、事件的定义信息，一些运行过程中产生的日志信息，一些帮助信息以及时区信息等。
+      information_schema: 它存储了MYSQL服务器维护的所有其他数据库的信息，比如有哪些表，哪些视图，哪些触发器，哪些列，哪些索引。这些信息并不是真实的用户数据，而是一些描述信息，有时候也称为元数据。有一部分以innodb_sys开头的表，用于表示内部系统表
+      performance_schema: 它存储了MYSQL服务器运行过程的一些状态信息，可以用来监控MYSQL服务的各类性能指标。包括统计最近执行了哪些语句，在执行过程的每个阶段花费了多长时间，内存的使用情况等信息。
+      sys: 这个数据库主要是通过视图的形式把information_schema和performance_schema结合起来，帮助系统管理员和开发人员监控MYSQL的性能
+    系统表空间(ibdata1)vs独立表空间(.ibd):
+      Innodb存储引擎下:
+        概述:
+          - 查看 SHOW GLOBAL VARIABLES LIKE '%innodb_file_per_table%'
+          - (默认)值为1代表使用独立表空间(../数据目录/xxx数据库/.ibd文件中)
+          - 值为0代表使用系统表空间(../数据目录/ibdata1文件中)
+        永久修改: 在my.cnf文件的[server]中 innodb_file_per_table = 1
+      MyISAM存储引擎下:
+        - 结构则不同，更多细节查看，https://www.bilibili.com/video/BV1iq4y1u7vj?p=104&spm_id_from=pageDriver&vd_source=cc17fab1d456bc3958dcb51e2fdd520b
 事务篇:
 日志与备份篇:
 索引与调优篇:
