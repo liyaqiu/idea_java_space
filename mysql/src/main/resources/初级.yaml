@@ -1683,6 +1683,69 @@ SQL分类:
         	#回收存储过程权限
         	REVOKE EXECUTE  ON *.* FROM 'test'@'%'
       "
+      角色:
+        概述: MYSQL8.0新特性
+        结构: CREATE ROLE roleName@'host',[roleName2@'host2'],.....
+        使用: "
+
+          ####################################角色操作#################################################
+          #查看系统提供的所有权限
+          SHOW PRIVILEGES;
+
+          #创建角色
+          CREATE ROLE IF NOT EXISTS dba_role@'%',dba_role@'192.168.88.1';
+
+          #删除角色
+          DROP ROLE IF EXISTS dba_role@'%',dba_role@'192.168.88.1';
+
+          #给角色授予权限
+          GRANT ALL PRIVILEGES ON *.* TO dba_role@'%' WITH GRANT OPTION;
+          GRANT SELECT,DELETE ON dbName.* TO dba_role@'%' WITH GRANT OPTION;
+
+
+          #查看角色
+          SHOW GRANTS FOR dba_role@'%';
+          SHOW GRANTS FOR dba_role@'192.168.88.1';
+
+
+          #回收角色授予权限
+          REVOKE ALL PRIVILEGES ON *.* FROM dba_role@'%';
+          REVOKE GRANT OPTION ON `activitiproject`.*  FROM dba_role@'%';
+
+
+
+          ####################################用户和角色操作#################################################
+
+          #创建用户
+          CREATE USER IF NOT EXISTS test@'%' IDENTIFIED BY '123456';
+          ALTER USER test@'%' IDENTIFIED BY '123456'
+
+          #给用户授予角色
+          GRANT dba_role@'%' TO test@'%'
+          #回收用户角色
+          REVOKE  dba_role@'%' FROM test@'%'
+
+          #查看当前用户的权限/角色
+          SHOW GRANTS
+          #查看某个用户权限/角色
+          SHOW GRANTS FOR test@'%';
+
+          #激活用户拥有的角色
+          SET DEFAULT ROLE dba_role@'%' TO test@'%'
+          	#可以设置默认激活
+          	SHOW GLOBAL VARIABLES LIKE '%activate_all_roles_on_login%'
+          	SET GLOBAL activate_all_roles_on_login = 'ON'
+          #禁用激活可以利用回收角色处理
+          REVOKE  dba_role@'%' FROM test@'%'
+
+          #查看当前用户都有哪些角色被激活
+          SELECT CURRENT_ROLE();
+        "
+        设置强制角色:
+          - 强制角色无法被 REVOKE和DROP
+          - 在my.cnf文件[mysqld]中添加 mandatory_roles = 'role1@%,role2@192.168.*'
+          - SET PERSIST mandatory_roles = 'role1@%,role2@192.168.*' 系统重启不失效
+          - SET GLOBAL mandatory_roles = 'role1@%,role2@192.168.*' 系统重启失效
     权限的元数据管理表:
       - 在mysql数据库中分别有user、db、tables_priv、columns_priv、procs_priv、proxies_priv等表
       - user表存储的是*.*能操作的权限
@@ -2033,10 +2096,6 @@ SQL分类:
             SHOW GLOBAL VARIABLES LIKE 'character%'
             SELECT @@GLOBAL.max_connections
 
-            #先在系统session找，找不到在去系统global找
-            SELECT @@max_connections
-            SET @@character_set_database=utf8
-
             #修改系统全局变量
             SET @@GLOBAL.character_set_client = gbk
             SET GLOBAL character_set_client = gbk
@@ -2045,6 +2104,8 @@ SQL分类:
         会话系统变量:
           - 会话系统变量，当会话断开，会话系统变量会重置
           - "
+            #先在SESSION中查找，如果找不到则去GLOBAL中查找
+
             #查看系统的session变量
             SHOW SESSION VARIABLES
             #SHOW SESSION VARIABLES WHERE ...
@@ -2053,11 +2114,9 @@ SQL分类:
             SHOW SESSION VARIABLES LIKE 'character%'
             SELECT @@SESSION.autocommit
 
-            #先在系统session找，找不到在去系统global找
-            SELECT @@max_connections
-            SET @@character_set_database=utf8
 
             #修改系统会话变量
+            SET @@character_set_client = gbk
             SET @@SESSION.character_set_client = gbk
             SET SESSION character_set_client = gbk
           "

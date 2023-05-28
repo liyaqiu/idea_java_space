@@ -136,6 +136,88 @@
         永久修改: 在my.cnf文件的[server]中 innodb_file_per_table = 1
       MyISAM存储引擎下:
         - 结构则不同，更多细节查看，https://www.bilibili.com/video/BV1iq4y1u7vj?p=104&spm_id_from=pageDriver&vd_source=cc17fab1d456bc3958dcb51e2fdd520b
+  配置文件的使用(my.cnf): "
+    配置文件有如下常用组
+      [server]
+      [mysqld]
+      [mysqld_safe]
+      [mysql.server]
+      [mysql]
+      [client]
+      [mysqladmin]
+      [mysqldump]
+    启动命令加载到的组
+      mysqld         启动服务器  [server] [mysqld]
+      mysqld_safe    启动服务器  [server] [mysqld]    [mysqld_safe]
+      mysql.server   启动服务器  [server] [mysqld]    [mysql.server]
+      mysql          启动客户端  [client] [mysql]
+      mysqladmin     启动客户端  [client] [mysqladmin]
+      mysqldump      启动客户端  [client] [mysqldump]
+  "
+  MYSQL逻辑架构:
+    概述:
+      - MYSQL语句底层执行流程(SQL语句 -> 解析器(语法分析、语义分析，得到语法分析树) -> 优化器(逻辑优化、物理优化、得到查询计划) -> 执行器 -> 查询结果并返回)
+    连接层: 连接池
+    服务层:
+      概述:
+        - 查询缓存、SQL接口、解析器、优化器
+      MYSQL5.7查询缓存:
+        概述:
+          - 在mysql5.7有查询缓存，在mysql8.0已经移除
+          - 查询缓存非常鸡肋，命中率极低(同样的sql多一个空格都不会被命中)
+        使用: "
+          #在my.cnf文件中的[mysqld]中设置query_cache_type = 1，默认为关闭，可以开启查询缓存0代表关闭OFF，1代表开启ON，2代表按需使用DEMAND(select SQL_CACHE * from mysql.db,select SQL_NO_CACHE * from mysql.db)
+          #查看查询缓存是否开启
+          SHOW VARIABLES LIKE '%query_cache_type%'
+
+          SELECT * from mysql.db
+          SELECT user from mysql.db
+
+          #查看所有执行过的sql记录
+          SHOW PROFILES
+
+          #查询最近一次执行sql的情况
+          SHOW PROFILE
+          SHOW PROFILE CPU,BLOCK IO
+          #查询指定某一次执行sql的情况
+          SHOW PROFILE FOR QUERY 2
+          SHOW PROFILE CPU,BLOCK IO FOR QUERY 58
+        "
+    引擎层:
+      概述:
+        - 可插拔存储引擎 Innodb、MyISAM
+      数据库缓冲池:
+        概述: 缓冲池装载着磁盘中的数据，避免每次加载磁盘数据过慢，会把热数据加载到缓冲池中
+        设置: "
+          #缓冲池大小
+            #innodb存储引擎默认为128mb，MYISAM存储引擎为key_buffer_size
+            SHOW GLOBAL VARIABLES LIKE '%innodb_buffer_pool_size%'
+
+            #临时设置
+            #SET @@GLOBAL.innodb_buffer_pool_size = 134217728
+
+            #永久设置
+            #在my.cnf文件中的[SERVER]中设置innodb_buffer_pool_size = 134217728
+
+
+          #缓冲实例个数
+            #在并发场景下，多线程访问缓冲池时都需要加锁处理，单一的缓冲池请求的处理速度会慢，所以在缓冲池特别大的时候，我们可以把他们拆分成若干戈小的缓冲池，每个缓冲池都称为一个实例
+            #他们都是独立的，独立的去申请内存空间，独立的管理各种链表，在并发访问并不会相互影响，从而提高并发处理能力
+            #每个缓冲池大小 = 总大小innodb_buffer_pool_size/实例数innodb_buffer_pool_instances
+            #Innodb规定，当innodb_buffer_pool_size小于1GB的时候设置多个缓冲池实例是无效的，Innodb会把实例个数改为1
+
+            #缓存池数量，默认为1个
+            SHOW GLOBAL VARIABLES LIKE '%innodb_buffer_pool_instances%'
+
+            #临时设置
+            #SET @@GLOBAL.innodb_buffer_pool_instances = 2
+            #永久设置
+            #在my.cnf文件中的[SERVER]中设置innodb_buffer_pool_instances = 2
+        "
+      存储引擎:
+        概述:
+          - 存储引擎就是指标的类型，其实存储引擎以前叫表处理器，后面改名为存储引擎。
+          - 存储引擎的功能就是接收上层传下来的指令，然后对表中的数据进行提取或写入操作。
 事务篇:
 日志与备份篇:
 索引与调优篇:
