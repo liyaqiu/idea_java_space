@@ -223,7 +223,7 @@ SQL分类:
         语法: "
           CREATE TABLE 表名 (列信息)
           [[DEFAULT] CHARACTER SET utf8]
-          [COLLATE 比较规则]
+          [COLLATE 比较规则] [ROW_FORMAT=行格式]
         "
         方式1: "
             DROP TABLE IF EXISTS t1;
@@ -253,7 +253,7 @@ SQL分类:
             	f17 JSON
             )
             #指定表的字符集
-            DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_hungarian_ci COMMENT = '备注信息';
+            DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_hungarian_ci COMMENT = '备注信息' ROW_FORMAT=COMPACT;
             SHOW CREATE TABLE t1;
         "
         方式2: "
@@ -288,9 +288,9 @@ SQL分类:
           修改一个字段的字符集
             ALTER TABLE t1
             MODIFY [COLUMN] id VARCHAR(15)  CHARACTER SET utf8mb4 COLLATE utf8mb4_hungarian_ci  DEFAULT 'xxx' FIRST
-          修改表的存储引擎、字符集、比较规则、自增列的默认值、备注信息
+          修改表的存储引擎、字符集、比较规则、自增列的默认值、备注信息、行格式
             ALTER TABLE t1
-            ENGINE=MyISAM [DEFAULT] CHARACTER SET utf8mb4 COLLATE=utf8mb4_hungarian_ci AUTO_INCREMENT = 9999 COMMENT = '备注信息'
+            ENGINE=MyISAM [DEFAULT] CHARACTER SET utf8mb4 COLLATE=utf8mb4_hungarian_ci AUTO_INCREMENT = 9999 COMMENT = '备注信息' ROW_FORMAT=Compressed
           重命名一个字段+修改类型
             ALTER TABLE t1
             CHANGE [COLUMN] salary new_salary DOUBLE(30,2) DEFAULT 0.00
