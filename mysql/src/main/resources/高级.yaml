@@ -397,12 +397,6 @@
           回表操作:
             - select * from dept where f2 = 4 ，需要回表操作，先在非聚集索引中查找，拿到主键列的值，在去聚集索引中接着查找
             - select f2 from dept where f2 = 4 ，不需要回表操作
-          联合索引:
-            概述:
-              - 参考图img_7非聚集索引(联合索引).png
-              - 数据页与数据页之间用双向链表，并且有序
-              - 数据与数据之间用单向链表，并且有序
-              - 最底部叶子节点存储(联合列f1+联合列f2+主键列)
       b+tree是如何进行记录检索:
         - 如果通过b+tree的索引查询行记录，首先是从b+tree的根页开始，将数据页加载到内存中，页目录中的槽采用二分查找的方式先找到一个粗略的记录分组，然后在分组中通过链表遍历的方式查找到记录，逐层检索，直到找到叶子节点，也就是找到对应的数据为止。
       普通索引和唯一索引在查询效率上的不同:
@@ -662,6 +656,159 @@
       - InnoDB的非聚集索引data域存储相应的记录主键的值，而MYISAM索引记录的是地址。
       - 在非聚集索引中，MYISAM的回表操作十分快速的，因为是拿着地址偏移量直接到文件中取数据，InnoDB是通过获得主键之后在到聚集索引中查找记录，虽然说也不慢，但还是比不上直接用地址去访问
       - InnoDB要求表必须有主键(MYISAM可以没有)，在InnoDB中如果没有显示指定，则会自动选择一个非空+唯一约束的列作为主键，如果这样的列也不存在，则InnoDB表会自动生成一个隐藏列作为主键，这个列的长度为6个字节，类型为长整形
+    索引(大篇章):
+      索引介绍:
+        概述: MYSQL索引主要有，普通索引、唯一索引、主键索引、全文索引、空间索引
+        普通索引(NORMAL): "
+          在创建普通索引时，不附加任何限制条件，只是用于提高查询效率。这类索引可以创建在任何数据类型中，其值是否需要做约束(非空和唯一)，要由字段本身的
+          完整性约束条件决定。建立普通索引后，可以通过索引进行查询，一张表可以有多个普通索引
+        "
+        唯一索引(UNIQUE): "
+          使用UNIQUE参数可以设置成唯一索引，唯一索引会限制改列的值必须唯一，但是允许改列为Null值，一张表可以有多个唯一索引
+        "
+        全文索引(FULLTEXT): "
+          全文索引只支持字符串类型的是列。
+          全文索引是一种搜索引擎使用的关键技术，它能够利用分词技术等多种算法只能分析出文本文字中关键词的频率和重要性，
+          然后按照一定的算法规则智能的筛选出我们想要的结果，全文索引适合大型数据集，对于小的数据集，它的用处比较小。
+          使用FULL TEXT可以设置全文索引。目前全文检索在关系型数据库并不流行，可以考虑solr和ElasticSearch等框架。
+        "
+        空间索引(SPATIAL): "
+          使用参数SPATIAL可以创建空间索引。空间索引只能建立在空间数据类型(GEOMETRY、POINT、LINESTRING、POLYGON)上。
+          目前只有MYISAM存储引擎支持空间索引，并且索引列不能为空值
+        "
+        主键索引(PRIMARY): "
+          主键索引就是一种特殊的唯一索引，在创建唯一索引的时候，会自动帮该列增加Not Null约束，并且改列具有唯一约束，一张表只能有一个唯一索引(聚集索引)，这是由主键索引的物理实现方式
+          决定的，因为数据存储在文件中只能按照一种顺序进行存储。
+        "
+      引擎支持的索引方式:
+        InnoDB:  支持(B-TREE)
+        MYISAM:  支持(B-TREE)
+        Memory:  支持(B-TREE、HASH)
+        NDB:     支持(HASH)
+        Archive: 都不支持
+      创表创建索引: "
+        #创建主键索引
+        	#方式1
+        	DROP TABLE IF EXISTS t1;
+        	CREATE TABLE t1 (
+        		 f1 INT PRIMARY KEY
+        	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        	SHOW CREATE TABLE t1;
+        	#方式2
+        	DROP TABLE IF EXISTS t1;
+        	CREATE TABLE t1 (
+        		 f1 INT,
+        		 PRIMARY KEY (f1)
+        	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        	SHOW CREATE TABLE t1;
+        	#方式3
+        	DROP TABLE IF EXISTS t1;
+        	CREATE TABLE t1 (
+        		 f1 INT KEY
+        	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        	SHOW CREATE TABLE t1;
+        	#方式4，限制索引的长度，只有字符串类型支持
+        	DROP TABLE IF EXISTS t1;
+        	CREATE TABLE t1 (
+        		 f1 VARCHAR(100),
+        		 PRIMARY KEY (f1(50))
+        	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        	SHOW CREATE TABLE t1;
+
+        #创建唯一索引
+        	#方式1
+        	DROP TABLE IF EXISTS t1;
+        	CREATE TABLE t1 (
+        		 f1 INT UNIQUE KEY
+        	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        	SHOW CREATE TABLE t1;
+        	#方式2
+        	DROP TABLE IF EXISTS t1;
+        	CREATE TABLE t1 (
+        		 f1 INT,
+        		 UNIQUE KEY f1_name (f1)
+        	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        	SHOW CREATE TABLE t1;
+
+
+        #创建普通索引
+        	#方式1
+        	DROP TABLE IF EXISTS t1;
+        	CREATE TABLE t1 (
+        		 f1 INT,
+        		 KEY f1_name (f1)
+        	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        	SHOW CREATE TABLE t1;
+
+        #创建全文索引，全文索引只支持字符串类型的列(char、varvhar、text)
+        	#方式1
+        	DROP TABLE IF EXISTS t1;
+        	CREATE TABLE t1 (
+        		 f1 VARCHAR(10),
+        		 FULLTEXT KEY f1_name (f1)
+        	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        	SHOW CREATE TABLE t1;
+
+        #创建空间索引，空间索引只支持空间类型的列(GEOMETRY、POINT、LINESTRING、POLYGON)
+        	#方式1
+        	DROP TABLE IF EXISTS t1;
+        	CREATE TABLE t1 (
+        		 f1 POINT NOT NULL,
+        		 SPATIAL KEY f1_name (f1)
+        	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        	SHOW CREATE TABLE t1;
+      "
+      额外创建索引: "
+        DROP TABLE IF EXISTS t1;
+        CREATE TABLE t1 (
+        	 f1 INT
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        SHOW CREATE TABLE t1;
+
+        #添加主键索引
+        	#方式1
+        	ALTER TABLE t1
+        	ADD CONSTRAINT PRIMARY KEY (f1)
+        	#方式2
+        	ALTER TABLE t1
+        	ADD PRIMARY KEY (f1)
+
+        #添加唯一索引
+        	#方式1
+        	ALTER TABLE t1
+        	ADD CONSTRAINT f1_name UNIQUE KEY (f1)
+        	#方式2
+        	ALTER TABLE t1
+        	ADD UNIQUE KEY f1_name (f1)
+        	#方式3
+        	ALTER TABLE t1
+        	ADD UNIQUE KEY (f1)
+        	#方式4
+        	CREATE UNIQUE INDEX f1_name ON t1(f1)
+
+
+        #添加普通索引
+        	#方式1
+        	ALTER TABLE t1
+        	ADD KEY f1_name (f1)
+        	#方式2
+        	ALTER TABLE t1
+        	ADD KEY (f1)
+        	#方式3
+        	CREATE INDEX f1_name ON t1(f1)
+
+        #删除普通索引和唯一索引
+        	#方式1
+        	ALTER TABLE t1
+        	DROP KEY f1_name
+        	#方式2
+        	ALTER TABLE t1
+        	DROP INDEX f1_name
+
+        #删除主键索引
+        ALTER TABLE t1
+        DROP PRIMARY KEY
+      "
 调优篇:
   - 满外连接(LEFT OUTER JOIN)的时候，尽量用UNION ALL(不需要去重)，少用UNION(需要去重)
 事务篇:

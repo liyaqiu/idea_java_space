@@ -480,6 +480,7 @@ SQL分类:
       "
       唯一约束(unique):
         - 允许null值，每列数据不能重复
+        - 添加唯一约束的时候，会隐式创建唯一索引
         - "
         DROP TABLE IF EXISTS t1 ;
         CREATE TABLE if NOT EXISTS t1(
@@ -513,17 +514,17 @@ SQL分类:
 
 
 
-        #为f5添加唯一索引
+        #为f5添加唯一约束
         ALTER TABLE t1
         ADD UNIQUE (f5)
         #MODIFY f5  VARCHAR(5) UNIQUE
 
-        #删除f5的唯一索引
+        #删除f5的唯一约束
         ALTER TABLE t1
         DROP INDEX f5
 
 
-        #为f6添加唯一索引并且取名为uni_f6
+        #为f6添加唯一约束并且取名为uni_f6
         ALTER TABLE t1
         ADD UNIQUE uni_f6 (f6)
         #ADD UNIQUE KEY uni_f6 (f6)
@@ -535,7 +536,7 @@ SQL分类:
         DROP INDEX uni_f6
 
 
-        #为f5,f6添加唯一索引
+        #为f5,f6添加唯一约束
         ALTER TABLE t1
         ADD UNIQUE (f5,f6)
 
@@ -543,7 +544,7 @@ SQL分类:
         ALTER TABLE t1
         DROP INDEX f5
 
-        #为f5和f6添加唯一索引并且取名为uni_f5_f6
+        #为f5和f6添加唯一约束并且取名为uni_f5_f6
         ALTER TABLE t1
         #ADD UNIQUE uni_f5_f6 (f5,f6)
         #ADD UNIQUE KEY uni_f5_f6 (f5,f6)
@@ -670,6 +671,7 @@ SQL分类:
           - 一个表可以有多个外键
           - 外键关联的主键必须是PRIMARY KEY或者是UNIQUE KEY
           - 外键关联的主键两者类型必须一致
+          - 创建外键约束时候，如果该列不存在索引(唯一索引、普通索引)，则该列会被隐式创建为普通索引
           - "
             #主表
             DROP TABLE IF EXISTS masterT ;
