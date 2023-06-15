@@ -687,6 +687,7 @@
         NDB:     支持(HASH)
         Archive: 都不支持
       创表创建索引: "
+        #SHOW INDEX FROM t1
         #创建主键索引
         	#方式1
         	DROP TABLE IF EXISTS t1;
@@ -764,51 +765,185 @@
         	 f1 INT
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         SHOW CREATE TABLE t1;
+        #SHOW INDEX FROM t1
 
         #添加主键索引
-        	#方式1
-        	ALTER TABLE t1
-        	ADD CONSTRAINT PRIMARY KEY (f1)
-        	#方式2
-        	ALTER TABLE t1
-        	ADD PRIMARY KEY (f1)
+          #方式1
+          ALTER TABLE t1
+          ADD CONSTRAINT PRIMARY KEY (f1)
+          #方式2
+          ALTER TABLE t1
+          ADD PRIMARY KEY (f1)
 
         #添加唯一索引
-        	#方式1
-        	ALTER TABLE t1
-        	ADD CONSTRAINT f1_name UNIQUE KEY (f1)
-        	#方式2
-        	ALTER TABLE t1
-        	ADD UNIQUE KEY f1_name (f1)
-        	#方式3
-        	ALTER TABLE t1
-        	ADD UNIQUE KEY (f1)
-        	#方式4
-        	CREATE UNIQUE INDEX f1_name ON t1(f1)
+          #方式1
+          ALTER TABLE t1
+          ADD CONSTRAINT f1_name UNIQUE KEY (f1)
+          #方式2
+          ALTER TABLE t1
+          ADD UNIQUE KEY f1_name (f1)
+          #方式3
+          ALTER TABLE t1
+          ADD UNIQUE KEY (f1)
+          #方式4
+          CREATE UNIQUE INDEX f1_name ON t1(f1)
 
 
         #添加普通索引
-        	#方式1
-        	ALTER TABLE t1
-        	ADD KEY f1_name (f1)
-        	#方式2
-        	ALTER TABLE t1
-        	ADD KEY (f1)
-        	#方式3
-        	CREATE INDEX f1_name ON t1(f1)
+          #方式1
+          ALTER TABLE t1
+          ADD KEY f1_name (f1)
+          #方式2
+          ALTER TABLE t1
+          ADD KEY (f1)
+          #方式3
+          CREATE INDEX f1_name ON t1(f1)
 
         #删除普通索引和唯一索引
-        	#方式1
-        	ALTER TABLE t1
-        	DROP KEY f1_name
-        	#方式2
-        	ALTER TABLE t1
-        	DROP INDEX f1_name
+          #方式1
+          ALTER TABLE t1
+          DROP KEY f1_name
+          #方式2
+          ALTER TABLE t1
+          DROP INDEX f1_name
+          #方式3
+          DROP INDEX f1_name ON t1
 
         #删除主键索引
-        ALTER TABLE t1
-        DROP PRIMARY KEY
+          ALTER TABLE t1
+          DROP PRIMARY KEY
       "
+      MYSQL8.0降序索引:
+        使用: "
+          DROP TABLE IF EXISTS t1;
+          CREATE TABLE t1 (
+          	 f1 VARCHAR(20),
+          	 f2 VARCHAR(20)
+          	 #KEY f1_name (f1(10) DESC)
+          ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+          SHOW CREATE TABLE t1;
+          #SHOW INDEX FROM t1
+
+          #添加一个主键索引，降序+长度
+          ALTER TABLE t1
+          ADD PRIMARY KEY (f1(10) DESC,f2(5) ASC)
+
+
+          #添加一个唯一索引，降序+长度
+          ALTER TABLE t1
+          ADD UNIQUE KEY (f1(10) DESC,f2(5) ASC)
+
+          #添加一个普通索引，降序+长度
+          ALTER TABLE t1
+          ADD KEY (f1(10) DESC,f2(5) ASC)
+        "
+        性能案例: "
+          DROP TABLE IF EXISTS t1;
+          CREATE TABLE t1 (
+          	 f1 VARCHAR(20),
+          	 f2 VARCHAR(20)
+          	 #KEY f1_name (f1(10) DESC)
+          ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+          SHOW CREATE TABLE t1;
+
+
+          #添加f1降序，f2升序
+          ALTER TABLE t1
+          ADD KEY (f1 DESC,f2 ASC);
+
+
+          DROP PROCEDURE IF EXISTS batch_insert;
+          DELIMITER $
+          CREATE PROCEDURE batch_insert()
+          BEGIN
+          		DECLARE count INT DEFAULT 0;
+          		loop_label:LOOP
+
+          				SELECT 1;
+
+          				IF count >= 800 THEN LEAVE loop_label;
+          				ELSE INSERT INTO t1(f1,f2) VALUES(count,count*10);
+          				END IF;
+          				SET count = count + 1;
+
+          		END LOOP loop_label;
+
+          END $
+          DELIMITER ;
+
+
+          CALL batch_insert();
+          SELECT COUNT(1) FROM t1;
+
+          #不遵守降序索引的方式查询效率高，Using index
+          EXPLAIN SELECT * FROM t1 ORDER BY f1 DESC,f2 ASC LIMIT 5;
+          #不遵守降序索引的方式查询效率低，Backward index scan; Using index
+          EXPLAIN SELECT * FROM t1 ORDER BY f1 ASC,f2 DESC LIMIT 5;
+        "
+      MYSQL8.0隐藏索引:
+        概述:
+          - mysql8.0支持将索引隐藏起来，不起作用。可以用于测试索引是否带来性能提高
+          - 主键索引不能设置为隐藏索引。
+          - 可以通过SHOW INDEX FROM t1 的VISIBLE字段查看索引是否隐藏
+          - 当索引被隐藏时，它的内容仍然和正常索引一样被实时更新，如果一个被长期隐藏了，那么可以将其删除，因为索引的存在会影响插入、更新和删除的性能
+          - 优化器默认是不可以见隐藏索引(SELECT @@optimizer_switch)，里面有一个值为use_invisible_indexes=off，可以通过更改参数让优化器可见，SET SESSION optimizer_switch = 'use_invisible_indexes=on'，一般不设置
+        使用: "
+          DROP TABLE IF EXISTS t1;
+          CREATE TABLE t1 (
+          	 f1 INT
+          	 #KEY f1_name (f1) INVISIBLE
+          ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+          SHOW CREATE TABLE t1;
+          #SHOW INDEX FROM t1
+
+
+
+          #添加一个唯一索引，并且隐藏
+          ALTER TABLE t1
+          ADD UNIQUE KEY f1_name (f1) INVISIBLE
+
+          #添加一个普通索引，并且隐藏
+          	#方式1
+          	ALTER TABLE t1
+          	ADD KEY f1_name (f1) INVISIBLE
+          	#方式2
+          	CREATE INDEX f1_name ON t1(f1) INVISIBLE
+
+
+
+          #修改索引更改为显示索引
+          ALTER TABLE t1
+          ALTER INDEX f1_name VISIBLE
+
+          #修改索引更改为隐藏索引
+          ALTER TABLE t1
+          ALTER INDEX f1_name invisible
+        "
+      索引设计原则:
+        概述:
+          - 增加索引好处，提高检索速度，避免全表扫描
+        单表最好不超过6个索引:
+          - 每个索引都需要占用磁盘空间，索引越多，需要的磁盘空间就越大
+          - 索引会影响INSERT、DELETE、UPDATE等语句的性能，因为表中的数据的更变，需要对每一个b-tree的维护
+          - 优化器在选择如何优化查询时，会根据统一信息，对每一个可以用到的索引进行评估，以生成出一个最好的执行计划，如何同时有很多个索引都可以用于查询，会增加MYSQL优化器生成执行计划时间，降低查询性能
+        适合创建索引场景:
+          - 具有唯一性的单列或多列必须增加索引(阿里巴巴规范)
+          - 频繁作为WHERE查询条件的字段，可以考虑创建【普通索引】
+          - 经常GROUP BY的列，可以建立单列普通索引或者联合普通索引(因为b-tree本身是有序，并且数据与数据之间挨着)
+          - 经常ORDER BY的列，可以建立单列普通索引或者联合普通索引(因为b-tree本身是有序，并且数据与数据之间挨着)
+          - 经常GROUP BY + ORDER BY的列，可以建立联合普通索引，索引顺序先GROUP BY后ORDER BY，MYSQL8.0可以考虑降序的索引(因为b-tree本身是有序，并且数据与数据之间挨着)
+          - 对UPDATE和DELETE的WHERE过滤的列，可以考虑增加普通索引，如果UPDATE更新的是非索引列，提升的性能更加明显，因为不需要维护b-tree
+          - 经常DISTINCT的列，可以考虑增加普通索引(因为b-tree本身是有序，并且数据与数据之间挨着)
+          - JOIN表时，尽量不要超过3张表，可以考虑多ON的连接字段(连接字段类型必须保持一致，触发类型的隐式转换，可能造成索引失效)进行普通索引的创建，WHERE的字段也可以考虑创建普通索引
+          - 列尽量考虑小的类型，如果可以用TINYINT就不用INT，非聚集索引或者聚集索引在创建的时候页的行数据能够存放更多，从而使得整颗b-tree更加扁平，减少IO次数，进而提升性能
+          - "
+            使用字符串前缀创建索引(对字符串的列进行索引的创建，必须制定索引的长度，阿里巴巴规范)，使用区分度公式[SELECT COUNT(DISTINCT LEFT(f1,20)) / COUNT(*) FROM t1]去推倒，越接近1的值越好。
+            字符串前缀创建索引，存在一个隐患，SELECT * FROM t1 ORDER BY f1 ASC LIMIT 10 ，加入有20条数据的前10个都是一模一样，有可能查询出来的并非是升序的那10条
+          "
+          - 区分度高的列适合创建索引(比如，ID字段，没有一个重复)，区分度公式[SELECT COUNT(DISTINCT LEFT(f1,20)) / COUNT(*) FROM t1]去推倒，越接近1的值越好[一般超过33%的就算是区分度比较高了]
+          - 创建联合索引时，尽量遵守最左前缀原则，比如 SELECT * FROM t1 WHERE f1 = 10 AND f2 = 20  那么创建联合索引的时候，索引顺序是先f1在f2。
+          - 在多个列都要创建索引的情况下，优先考虑联合索引。
+        不适合创建索引场景:
 调优篇:
   - 满外连接(LEFT OUTER JOIN)的时候，尽量用UNION ALL(不需要去重)，少用UNION(需要去重)
 事务篇:
