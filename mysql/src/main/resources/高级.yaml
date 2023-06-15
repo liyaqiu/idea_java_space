@@ -922,6 +922,7 @@
       索引设计原则:
         概述:
           - 增加索引好处，提高检索速度，避免全表扫描
+          - 索引是一把双刃剑，可以提高查询效率，同时也会降低插入和更新的速度，并且占用磁盘空间
         单表最好不超过6个索引:
           - 每个索引都需要占用磁盘空间，索引越多，需要的磁盘空间就越大
           - 索引会影响INSERT、DELETE、UPDATE等语句的性能，因为表中的数据的更变，需要对每一个b-tree的维护
@@ -944,6 +945,69 @@
           - 创建联合索引时，尽量遵守最左前缀原则，比如 SELECT * FROM t1 WHERE f1 = 10 AND f2 = 20  那么创建联合索引的时候，索引顺序是先f1在f2。
           - 在多个列都要创建索引的情况下，优先考虑联合索引。
         不适合创建索引场景:
+          - 没有在WEHRE、GROUP BY、ORDER BY出现的列不考虑索引
+          - 数据量小于1000条的表最好不建立普通索引(主键索引还是需要的)，因为非聚集索引需要回表操作，有可能性能非但不提升，反而更慢，二来就是索引还会占用磁盘空间
+          - "
+            对区分度低的列不需要加索引
+              比如10000条数据男女列各占50%，那么不需要增加索引
+              比如10000条数据男女列，男占3%，那么刚好需要查询出男生人数，这种情况下可以考虑加
+            在区分度为低于0.1的时候，也不需要增加索引，区分度公式[SELECT COUNT(DISTINCT LEFT(f1,20)) / COUNT(*) FROM t1]去推倒，越接近1，区分度大
+          "
+          - 避免对经常更新的列创建索引，因为索引类需要进行维护
+          - 不建议使用无序的值作为索引(UUID MD5 HASH 无序字符串)，因为在插入数据的时候有可能造成页分裂
+          - 删除不经常使用的索引，因为索引列在INSERT、DELETE、UPDATE的时候需要进行维护
+          - "
+            不要定义冗余的索引
+
+            场景1
+            DROP TABLE IF EXISTS t1;
+            CREATE TABLE t1 (
+            	 f1 INT,
+            	 KEY f1_name1 (f1),
+            	 UNIQUE KEY f1_name2 (f1)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            SHOW CREATE TABLE t1;
+            #SHOW INDEX FROM t1
+
+            场景2
+            DROP TABLE IF EXISTS t1;
+            CREATE TABLE t1 (
+            	 f1 INT,
+            	 f2 INT,
+            	 KEY f1_f2_name (f1,f2),
+            	 KEY f1_name (f1)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            SHOW CREATE TABLE t1;
+            #SHOW INDEX FROM t1
+
+          "
+      性能参数:
+        语法: SHOW [GLOBAL | SESSION] STATUS LIKE '%innodb_rows%'
+        常用参数:
+          - connections，连接MYSQL服务器的次数
+          - uptime，MYSQL服务器一共运行了多久
+          - slow_queries，慢查询SQL出现的次数
+          - innodb_row_read，从innodb存储引擎读取了多少条记录
+          - innodb_row_inserted，从innodb存储引擎插入了多少条记录
+          - innodb_row_updated，从innodb存储引擎更新了多少条记录
+          - innodb_row_deleted，从innodb存储引擎删除了多少条记录
+          - com_select，查询操作的次数
+          - com_insert，插入操作的次数(批量操作也只算一次)
+          - com_update，更新操作的次数
+          - com_delete，删除操作的次数
+      查询成本参数:
+        概述:
+          - SHOW SESSION STATUS LIKE '%last_query_cost%'，用于对比sql执行的开销成本是很有帮助的
+          - last_query_cost，查看最好一次sql查询的成本(从多少页中才能拿到所有查询结果，值为页的数量)
+        结论: "
+          sql查询是一个动态过程，从页加载的角度来看，得到如下2个结论
+            1.位置决定效率，如果页就在数据库缓存池中，那么效率是最好的，否则还需要从内存或者磁盘中进行读取，
+              当然针对单个页的读取来说，如果页存在于内存中，会比在磁盘中读取效率高很多
+            2.批量决定效率，如果我们从磁盘中对单一页进行随机读取，那么效率是很低的(差不多10ms)，而采用顺序
+              读取的方式，批量对页进行读取，平均每一页的读取效率就会提升很多，甚至要快于单个页面在内存中的随机读取。
+          所以说，遇到I/O并不担心，方式找对了，效率还是很高的，我们首先要考虑数据存放的位置，如果是经常使用的数据就要尽量放到缓存池中，
+          其次我们可以充分利用磁盘的吞吐能力，一次性批量读取数据，这样单个页的读取效率也就得到了提升。
+        "
 调优篇:
   - 满外连接(LEFT OUTER JOIN)的时候，尽量用UNION ALL(不需要去重)，少用UNION(需要去重)
 事务篇:
