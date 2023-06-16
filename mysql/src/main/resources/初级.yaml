@@ -170,31 +170,33 @@ MYSQL8.0新特性:
       SELECT语句 | DELETE语句 | UPDATE语句
     "
 批量创建数据: "
-    CREATE TABLE IF NOT EXISTS empoyees(
-      id int,
-      salary DECIMAL(10,2),
-      last_name VARCHAR
-  )
+   DROP TABLE IF EXISTS t1;
+   CREATE TABLE IF NOT EXISTS t1(
+   		id int,
+   		salary DECIMAL(10,2),
+   		last_name VARCHAR(255)
+   );
 
-  DROP PROCEDURE IF EXISTS batch_insert;
-  DELIMITER $
-  CREATE PROCEDURE batch_insert()
-  BEGIN
-      DECLARE count INT DEFAULT 0;
-      loop_label:LOOP
 
-          SELECT 1;
+   DROP PROCEDURE IF EXISTS batch_insert;
+   DELIMITER $
+   CREATE PROCEDURE batch_insert()
+   BEGIN
+   		DECLARE count INT DEFAULT 0;
+   		loop_label:LOOP
 
-          IF count > 10 THEN LEAVE loop_label;
-          ELSE INSERT INTO empoyees(id,salary,last_name) VALUES(count,count*10,CONCAT('eric',count));
-          END IF;
-          SET count = count + 1;
+   				IF count > 10000 THEN LEAVE loop_label;
+   				ELSE INSERT INTO t1(id,salary,last_name) VALUES(count,count*10,CONCAT('eric',count));
+   				END IF;
+   				SET count = count + 1;
 
-      END LOOP loop_label;
+   		END LOOP loop_label;
 
-  END $
+   END $
 
-  DELIMITER ;
+   DELIMITER ;
+
+   CALL  batch_insert();
 "
 SQL分类:
   DDL(数据定义语言):

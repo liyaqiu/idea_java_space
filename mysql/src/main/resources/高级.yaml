@@ -1,29 +1,31 @@
 批量创建数据: "
-    CREATE TABLE IF NOT EXISTS empoyees(
-      id int,
-      salary DECIMAL(10,2),
-      last_name VARCHAR
-  )
+   DROP TABLE IF EXISTS t1;
+   CREATE TABLE IF NOT EXISTS t1(
+   		id int,
+   		salary DECIMAL(10,2),
+   		last_name VARCHAR(255)
+   );
 
-  DROP PROCEDURE IF EXISTS batch_insert;
-  DELIMITER $
-  CREATE PROCEDURE batch_insert()
-  BEGIN
-      DECLARE count INT DEFAULT 0;
-      loop_label:LOOP
 
-          SELECT 1;
+   DROP PROCEDURE IF EXISTS batch_insert;
+   DELIMITER $
+   CREATE PROCEDURE batch_insert()
+   BEGIN
+   		DECLARE count INT DEFAULT 0;
+   		loop_label:LOOP
 
-          IF count > 10 THEN LEAVE loop_label;
-          ELSE INSERT INTO empoyees(id,salary,last_name) VALUES(count,count*10,CONCAT('eric',count));
-          END IF;
-          SET count = count + 1;
+   				IF count > 10000 THEN LEAVE loop_label;
+   				ELSE INSERT INTO t1(id,salary,last_name) VALUES(count,count*10,CONCAT('eric',count));
+   				END IF;
+   				SET count = count + 1;
 
-      END LOOP loop_label;
+   		END LOOP loop_label;
 
-  END $
+   END $
 
-  DELIMITER ;
+   DELIMITER ;
+
+   CALL  batch_insert();
 "
 架构篇:
   字符集&比较规则操作:
@@ -759,7 +761,7 @@
         	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         	SHOW CREATE TABLE t1;
       "
-      额外创建索引: "
+      表后创建索引: "
         DROP TABLE IF EXISTS t1;
         CREATE TABLE t1 (
         	 f1 INT
@@ -996,9 +998,91 @@
           - com_update，更新操作的次数
           - com_delete，删除操作的次数
       查询成本参数:
-        概述:
-          - SHOW SESSION STATUS LIKE '%last_query_cost%'，用于对比sql执行的开销成本是很有帮助的
-          - last_query_cost，查看最好一次sql查询的成本(从多少页中才能拿到所有查询结果，值为页的数量)
+        last_query_cost: "
+          SHOW SESSION STATUS LIKE '%last_query_cost%'，用于对比sql执行的开销成本是很有帮助的
+          last_query_cost，查看当前会话最后一次sql查询的成本(从多少页中才能拿到所有查询结果，值为页的数量)
+        "
+        profiling:
+          概述:
+            - Show Profile是MYSQL提供的可以用于分析当前会话中SQL执行消耗资源情况的工具，可以用于SQL调优测量，默认情况下处于关闭状态，并保存最近15次的运行结果
+          参数:
+            ALL: 显示所有开销信息
+            BLOCK IO: 显示块IO开销
+            CONTEXT SWITCHES: 上下文切换开销
+            CPU: CPU开销
+            IPC: 显示发送和接收开销
+            MEMORY: 显示内存开销
+            PAGE FAULTS: 显示页面错误开销信息
+            SOURCE: 显示source_function、source_file、source_line相关开销
+            SWAPS: 显示交换次数开销
+          使用: "
+            #查看是否开启
+            SHOW VARIABLES LIKE 'profiling'
+
+            #查看所有执行过的sql记录
+            SHOW PROFILES
+
+            #查询最近一次执行sql的情况
+            SHOW PROFILE
+            SHOW PROFILE CPU,BLOCK IO
+            #查询指定某一次执行sql的情况
+            SHOW PROFILE FOR QUERY 2
+            SHOW PROFILE CPU,BLOCK IO FOR QUERY 58
+          "
+          经验分享: "
+            如果在使用Show Profile诊断结果中出现了如下结果的任何一条，则SQL语句需要优化
+              1.converting HEAP to MyISAM，查询结构太大，内存不够，数据往磁盘上搬了
+              2.Creating tmp table，创建临时表，先拷贝数据到临时表，用完后在删除临时表
+              3.Copying to tmp table on disk，把内存中临时表复制到磁盘上，警惕。
+              4.locked
+          "
+        explain:
+          概述:
+            - explain可以查看sql执行计划，并且真实执行SQL。
+            - MYSQL中有专门负责优化SELECT语句的优化器模块，主要通过计算分析系统中手机到的统计信息，为客户端请求的Query提供它认为最有的执行计划(数据认为最优的检索方式，不代表DBA认为最优)
+            - 通过explain，可以查看表的读取顺序，数据读取操作的操作类型，哪些索引可以使用，哪些索引被实际使用，表之间的引用，每张表有多少行被优化器查询
+          语法: [EXPLAIN | DESCRIBE | DESC] [FORMAT = [JSON | TREE] ] [SELECT | DELETE | UPDATE | INSERT | REPLACE]
+          参数介绍:
+            id:
+              - 在一个查询语句中每个SELECT关键字对应一个唯一的ID
+              - id如果相同，可以认为是一组，从上往下顺序执行
+              - 在每组id中，id值越大，执行的优先级越高
+              - 每个id号代表一次独立的查询，id号越少代表查询次数越少，性能更优
+            select_type:
+              - MYSQL为每个SELECT关键代表的小查询都定义了一个select_type的属性，意思是我们只要知道了某个小查询的select_type属性，就知道了这个小查询在整个大查询中扮演了一个什么角色
+            table:
+              - 在查询语句中，只要是一个表，就会出现一个表明
+            partitions:
+              - 代表分区表中的命中情况，非分区表，该项为NULL，一般情况下我们创建表都不划分区，所以执行计划的partitions值一般都是Null
+            type(重点):
+              - https://www.bilibili.com/video/BV1iq4y1u7vj/?p=137&spm_id_from=pageDriver&vd_source=cc17fab1d456bc3958dcb51e2fdd520b
+              - 执行计划的每行记录代表着MYSQL对某个表的执行查询时候的访问方式，又称为访问类型，其中的type属性就表明了这个访问方式是什么，是比较重要的一个指标。例如type为ref，那么就代表mysql即将使用ref访问方式来执行查询
+              - 访问方式 system > const > eq_ref > ref > fulltext > ref_or_null > index_merge > unique_subquery > index_subquery > range > index > ALL
+              - 阿里巴巴规范要求SQL性能优化目标，最差的为range级别，最好的是const级别
+            possible_key: 可能用到的索引
+            key: 实际用到的索引，没使用到则为Null值
+            key_len(重点):
+              - 对于联合索引，这个选项比较有参考价值，值越大，证明越充分利用到了联合索引
+              - 实际使用到的索引长度
+              - "
+                长度的计算
+                  可以为空则+1字节，可变长类型则+2字节
+                  如果是整形int，不允许为空，那么就是4个字节
+                  如果是整形int，允许为空，那么就是4+1=5个字节
+                  如果是整形varchar(10)，字符集utf8mb4，不允许为空，那么就是10*4+2=40个字节
+                  如果是整形varchar(10)，字符集utf8mb4，允许为空，那么就是10*4+2+1=43个字节
+              "
+            ref: 当使用索引字段进行等值查询时，与索引列进行等值匹配的对象信息
+            rows(重点):
+              - 预估需要读取的记录条数
+            filtered:
+              - 剩余可用记录的百分比(结合rows筛选出来的记录，然后被过滤了多少条)
+              - "
+                对于单表查询来说，这个字段的值没什么意义，我们更关注的是在连接查询中，驱动表对应的执行计划记录的filtered值，它决定了被驱动表要执行的次数，即(rows * filtered)
+                EXPLAIN SELECT * FROM t1 JOIN t2 ON t1.f1 = t2.f1 WHERE t1.fx = 'xxx'
+              "
+            Extra(重点): 该列是用来说明一些额外的信息，我们通过这些额外信息，能够更准确的知道MYSQL如何执行查询语句。
+          SHOW WARNINGS: 可以在执行了explain语句后在执行，SHOW WARNINGS，可以看到执行计划优化过的sql语句(只能在命令行上执行才可以看到)
         结论: "
           sql查询是一个动态过程，从页加载的角度来看，得到如下2个结论
             1.位置决定效率，如果页就在数据库缓存池中，那么效率是最好的，否则还需要从内存或者磁盘中进行读取，
@@ -1007,6 +1091,46 @@
               读取的方式，批量对页进行读取，平均每一页的读取效率就会提升很多，甚至要快于单个页面在内存中的随机读取。
           所以说，遇到I/O并不担心，方式找对了，效率还是很高的，我们首先要考虑数据存放的位置，如果是经常使用的数据就要尽量放到缓存池中，
           其次我们可以充分利用磁盘的吞吐能力，一次性批量读取数据，这样单个页的读取效率也就得到了提升。
+        "
+      慢查询日志:
+        概述:
+          - 默认情况下MYSQL关闭慢查询日志，如果不调优的情况下，建议关闭，因为开启慢查询日志会带来一定的性能影响
+          - 慢查询 = long_query_time 和 min_examined_row_limit 2个变量确定，min_examined_row_limit默认为0，代表需要扫描多少条记录
+        使用: "
+          #临时设置
+          	#查看慢查询日志是否开启，默认为关闭
+          	SHOW GLOBAL VARIABLES LIKE '%slow_query_log%'
+          	#开启慢查询日志
+          	SET @@GLOBAL.slow_query_log = on
+
+          	#查看慢查询日志存储在什么位置
+          	SHOW GLOBAL VARIABLES LIKE '%slow_query_log_file%'
+          	#删除慢查询日志文件直接rm -f /var/lib/mysql/a54e855addcf-slow.log
+          		#重新生成慢查询日志文件
+          		#方式1 利用SET @@GLOBAL.slow_query_log = on 重新关闭在打开就可以生成文件
+          		#方式2 mysqladmin -uroot -p123456 flush-logs slow
+
+          	#查看慢查询日志的时间，默认为10秒
+          	SHOW SESSION VARIABLES LIKE '%long_query_time%'
+          	#修改慢查询日志时间
+          	SET SESSION long_query_time = 0.1
+
+          	#查看出现过慢查询的次数
+          	SHOW STATUS LIKE '%slow_queries%'
+
+          #永久设置
+          	#在my.ini文件中的[mysqld]配置项配置
+          	#slow_query_log = on
+          	#long_query_time = 3
+          	#log_output = FILE
+          	#slow_query_log_file = /root/slow.log
+
+
+          # 查看慢查询日志
+          #用参数代替变量
+          # mysqldumpslow  -s t -t 5 /var/lib/mysql/a54e855addcf-slow.log
+          #不用参数代替变量
+          # mysqldumpslow -a -s t -t 5 /var/lib/mysql/a54e855addcf-slow.log
         "
 调优篇:
   - 满外连接(LEFT OUTER JOIN)的时候，尽量用UNION ALL(不需要去重)，少用UNION(需要去重)
