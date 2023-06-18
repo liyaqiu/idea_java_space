@@ -658,7 +658,7 @@
       - InnoDB的非聚集索引data域存储相应的记录主键的值，而MYISAM索引记录的是地址。
       - 在非聚集索引中，MYISAM的回表操作十分快速的，因为是拿着地址偏移量直接到文件中取数据，InnoDB是通过获得主键之后在到聚集索引中查找记录，虽然说也不慢，但还是比不上直接用地址去访问
       - InnoDB要求表必须有主键(MYISAM可以没有)，在InnoDB中如果没有显示指定，则会自动选择一个非空+唯一约束的列作为主键，如果这样的列也不存在，则InnoDB表会自动生成一个隐藏列作为主键，这个列的长度为6个字节，类型为长整形
-    索引(大篇章):
+    索引(☆):
       索引介绍:
         概述: MYSQL索引主要有，普通索引、唯一索引、主键索引、全文索引、空间索引
         普通索引(NORMAL): "
@@ -1005,6 +1005,7 @@
         profiling:
           概述:
             - Show Profile是MYSQL提供的可以用于分析当前会话中SQL执行消耗资源情况的工具，可以用于SQL调优测量，默认情况下处于关闭状态，并保存最近15次的运行结果
+            - SHOW PROFILES最好在命令行中查看，效率最佳
           参数:
             ALL: 显示所有开销信息
             BLOCK IO: 显示块IO开销
@@ -1018,6 +1019,13 @@
           使用: "
             #查看是否开启
             SHOW VARIABLES LIKE 'profiling'
+
+            #开启
+            SET GLOBAL profiling = ON;
+            SET SESSION profiling = ON;
+            #关闭
+            SET GLOBAL profiling = OFF;
+            SET SESSION profiling = OFF;
 
             #查看所有执行过的sql记录
             SHOW PROFILES
@@ -1148,7 +1156,7 @@
             - EXPLAIN SELECT  * FROM t1 WHERE f1+1 = 10，运算有可能导致索引失效
             - EXPLAIN SELECT  * FROM t1 WHERE f1 = 10，隐式类型转换有可能导致索引失效，本身f1就是字符串类型，但是值是整形，存在隐式转换
           范围条件-部分索引失效:
-            - 范围条件也是真对联合索引来说
+            - 范围条件也是针对联合索引来说
             - "
               假设联合索引(f1,f2,f3)
               导致f3失效
@@ -1158,15 +1166,27 @@
           (!=、<>)-索引失效:
             - EXPLAIN SELECT  * FROM t1 WHERE f1 != '10'
             - EXPLAIN SELECT  * FROM t1 WHERE f1 <> '10'
+            - "
+              假设f1为索引列
+              EXPLAIN SELECT  f1,id FROM t1 WHERE f1 <> '10'，此种情况下用到了覆盖索引，索引不失效
+            "
           IS NOT NULL-索引失效:
             - 最好在设计的时候就将该字段设置为NOT NULL约束，如果改列就需要空值，可以考虑使用整形的0或者空字符串进行填充
             - EXPLAIN SELECT  * FROM t1 WHERE f1 IS NOT NULL
           NOT LIKE-索引失效:
             - EXPLAIN SELECT  * FROM t1 WHERE f1 NOT 'xxx'
+          NOT IN-索引失效:
+            - EXPLAIN SELECT  * FROM t1 WHERE  f1 NOT IN ('1','2')
+          NOT EXIST-索引失效:
+            - EXPLAIN SELECT  * FROM t1 WHERE f1 = '1' AND NOT EXISTS (SELECT 1)，会导致f1的列的索引失效
           LIKE以(_、%)开头-索引失效:
             - 阿里规范，页面搜索严禁左模糊或者全模糊查询，如果有需要请走搜索引擎解决
             - EXPLAIN SELECT  * FROM t1 WHERE f1 LIKE '%xxx'
             - EXPLAIN SELECT  * FROM t1 WHERE f1 LIKE '_xxx'
+            - "
+              假设f1为索引列
+              EXPLAIN SELECT f1 FROM t1 WHERE f1 LIKE '%xxx'，此种情况下用到了覆盖索引，索引不失效
+            "
           OR前后存在非索引列-索引失效:
             - "
               假设，f1为索引列，f2为非索引列
@@ -1177,7 +1197,7 @@
           数据库和表的字符集不统一-索引失效:
           - 数据库、表、列字符集最好统一，避免由于字符集的转换，进行比较的有可能会造成索引失效
       查询优化:
-        关联查询优化:
+        连接查询优化:
           外连接:
             - 在做关联查询时，尽量考虑为被驱动表的字段加上索引，性能上所有提升
             - SELECT * FROM t1 LEFT JOIN t2 ON t1.f1 = t2.f1，此时最好为 t2.f1加上索引
@@ -1236,7 +1256,150 @@
               - 在表很大的情况下，并不能完全放入内存，这时优化器会将它分割成若干不同的分区，不能放入内存的部分就把该部分写入磁盘的临时段，此时要求有交大的临时段从而尽量提高I/O的性能
               - 它能够很好的工作于没有索引的大表和并行查询的环境中，并提供最好的性能。大多数人都说他是JOIN的重型升降机。HASH JOIN只能应用于等值连接(如WHERE t1.f1=t2.f1)，这是由HASH的特点决定的。
         子查询优化:
-        排序优化:
+          概述:
+            - 执行子查询时，MYSQL需要为内层查询语句的查询结果建立一个临时表，然后外层查询语句从临时表中查询记录。查询完成后，在撤销临时表，这样会消耗过多的CPU和IO资源，产生大量的慢查询。
+            - 子查询的结果集存储的临时表，不论是内存临时表还是磁盘临时表都不会存在索引，所以查询性能会受到一定的影响。
+            - 对于返回结果集比较大的子查询，其查询性能的影响也就越大
+          总结:
+            - 可以使用连接查询(INNER JOIN OR LEFT JOIN)来代表子查询，连接查询不需要建立临时表，其速度比子查询要快，如果查询中使用索引的话，性能就会更佳。
+            - 尽量不要使用NOT IN或者NOT EXISTS，用LEFT JOIN xx ON xx WHERE xx IS NULL代替
+        ORDER BY优化:
+          概述:
+            - 在MYSQL中支持两种排序方式，分别是FileSort和Index排序，尽量使用Index排序，避免使用FileSort排序。
+            - Index排序，索引可以保证数据的有序性，不需要再进行排序，效率高
+            - FileSort排序则一般在内存中进行排序，占用CPU较多，如果待排序结果集较大，会产生临时文件IO到磁盘进行排序的情况，效率较低。
+          索引失效案例: "
+            假设联合索引(f1,f2)
+            ORDER BY f1 ASC,f2 ASC，不失效
+            ORDER BY f1 DESC,f2 DESC，不失效
+            ORDER BY f1 ASC,f2 DESC，失效
+          "
+          FileSort排序算法:
+            概述:
+              - 当ORDER BY的字段是非索引列，则会用到FileSort排序
+            双路排序(性能慢):
+              - 双路排序会使用两次扫描磁盘(消耗多次IO)，最终得到数据，读取行指针和ORDER BY列，对它们进行排序，然后扫描已经排序好的列表，按照列表中的值重新从列表中读取对应的数据输出
+              - 从磁盘取排序字段，在Buffer进行排序，在从磁盘读取其它字段。
+              - 二次IO读取数据时用了随机IO，因为排序好的数据都是在不同页里面了
+            单路排序(性能快):
+              概述:
+                - 从磁盘读取查询需要的所有列，按照ORDER BY列在Buffer中进行排序，然后扫描排序后的列表进行输出，它的效率更快一些，避免了二次读取数据。
+                - 单路排序会占用更多内存，因为一次把数据全部加载到Buffer中。
+                - 单路排序使用了顺序IO，因为一次加载，页之间大部分都是相连的
+              存在问题: "
+                因为单路排序是把所有字段都取出，所以有可取出的数据总大小超出了sort_buffer的容量，
+                导致每次只能取sort_buffer容量大小的数据进行排序(创建tmp文件，多路合并)，进而产
+                生多次IO(单路本来想节省1次IO操作，反而导致了多次IO)。
+              "
+            优化策略: "
+              SHOW VARIABLES LIKE '%innodb_sort_buffer_size%'
+                不管使用哪种算法，提高这个参数都会提高效率，要根据系统的能力去提高，因为这个参数是针对每个进行(connection)的1M-8M之间调整。MYSQL5.7在InnoDB存储引擎默认为1MB
+
+              SHOW VARIABLES LIKE '%max_length_for_sort_data%'
+                提高这个参数，会增加用单路排序算法的概率，但是如果设的太高，数据容量超出了innodb_sort_buffer_size的概率就增大，明显症状是高的磁盘IO活动合底的处理器使用率。
+                如果需要返回的列的总长度大于max_length_for_sort_data，使用双路排序，否则使用单路排序,1024-8192字节之间调整
+
+              在进行OREDER BY时，SELECT * 是一个大忌，最好只选择必要的字段，原因如下
+                当SELECT的字段大小总和小于max_length_for_sort_data，而排序字段不是TEXT、BLOB类型时没会用单路排序，否则用多路排序
+                两种算法的数据都有可能超出innodb_sort_buffer_size的容量，超出之后，会创建temp文件进行合并排序，导致出现多次IO，但是
+                用单路排序算法的风险会更大一些，所以要提高innodb_sort_buffer_size
+            "
+          优化建议:
+            - SQL中，可以在WHERE子句和ORDER BY子句中使用索引，在WHERE子句中使用索引避免了全表扫描，在ORDER BY子句中使用索引避免FileSort排序。(某些场景全表扫描或者FileSort排序不一定比索引慢)
+            - 尽量使用Index完成ORDER BY排序，如果WHERE和ORDER BY后面是相同的列就使用单列索引，如果是不同的列就使用联合索引。
+            - 在某些场景无法使用Index排序时，可以考虑对FileSort方式进行调优
+        GROUP BY优化:
+          - GROUP BY使用索引的规则几乎跟ORDER BY一致，GROUP BY即使在HAVING过滤条件没有用到索引，也可以直接使用索引
+          - GROUP BY遵守索引创建的最佳左前缀法则
+          - 当无法使用索引列时，增大max_length_for_sort_data和innodb_sort_buffer_size参数的设置
+          - WHERE效率高于HAVING，能写WHERE就不要写HAVING(聚合函数例外)
+          - 减少使用GROUP BY、ORDER BY、DISTINCT，这些语句比较消耗CPU
+          - 如果使用了GROUP BY、ORDER BY、DISTINCT，尽量用WHERE条件进行过滤，过滤出的数据最好保持在1000行以内，否则SQL会很慢
+      覆盖索引:
+        概述: "
+          覆盖索引在非聚集索引的情况下出现，并且它是一个联合索引，假设联合索引为(f1,f2)，主键为id，如下案例都用到覆盖索引
+          SELECT f1 FROM t1 WHERE f1 = xxx
+          SELECT f1,f2 FROM t1 WHERE f1 = xxx
+          SELECT f1,f2,id FROM t1 WHERE f1 = xxx
+        "
+        好处:
+          - 避免InnoDB表进行索引的二次查询(回表操作)
+          - 减少了IO操作，并且还减少了随机IO操作(回表操作是一次随机IO操作，因为非聚集索引的b+tree和聚聚索引的b+tree存储数据是不一致的)
+        坏处:
+          - 索引字段的维护需要成本，不要盲目的为了覆盖索引而去建立索引(看业务具体情况而定)
+      索引条件下推:
+        概述:
+          - Index Condition Pushdown(ICP)，是一种在存储引擎层使用索引过滤数据的优化方式，能够使用到索引条件下推性能提升很大
+          - 通过EXPLAIN的Extra字段可以看到 Using Index condition提示信息
+          - 索引下推原理就是，尽量在该非聚集索引下把所有的过滤都完成，然后在做回表操作，可以减少回表次数(回表会产生随机IO，变向减少随机IO)
+        场景: "
+          假设主键列id，和单列索引f1，这中情况出现索引条件下推
+            SELECT * FROM t1 WHERE f1 > xx AND f1 LIKE '%xx%'
+
+          假设主键列id，和联合索引f1，f2,这中情况出现索引条件下推
+            SELECT * FROM t1 WHERE f1 > xx AND f2 LIKE '%xx%'
+        "
+        开启和关闭: "
+          #查看优化器参数
+          SHOW GLOBAL VARIABLES LIKE '%optimizer_switch%'
+          SHOW SESSION VARIABLES LIKE '%optimizer_switch%'
+
+          #开启，默认为开启状态
+          SET GLOBAL optimizer_switch = 'index_condition_pushdown=on'
+          SET SESSION optimizer_switch = 'index_condition_pushdown=on'
+
+          #关闭
+          SET GLOBAL optimizer_switch = 'index_condition_pushdown=off'
+          SET SESSION optimizer_switch = 'index_condition_pushdown=on'
+        "
+        ICP的使用条件:
+          - 如果表访问的类型为range、ref、eq_ref、ref_or_null可以使用ICP
+          - ICP可以用于InnoDB和MYISAM表，包括分区InnoDB表和分区MYISAM表
+          - 对于InnoDB表，ICP仅用于非聚集索引，ICP的目标是回表的产生的随机IO次数
+          - 当SQL使用覆盖索引时，不支持ICP，因为这种情况下使用ICP不会减少IO(覆盖索引不产生回表操作)。
+          - 相关子查询的条件不能使用ICP
+      其他优化案例:
+        EXISTS和IN: "
+          什么时候适合使用EXISTS和IN，可以利用小表驱动大表方式。
+            当t1为小表，t2为大表，在IN中最好使用较小的表
+            SELECT * FROM t2 WHERE t2.f1 IN (SELECT t1.f1 FROM t1)
+
+            当t1为小表，t2为大表，在EXISTS中最好使用较大的表
+            SELECT * FROM t1 WHERE EXISTS (SELECT xx FROM t2 WHERE t2.f1 = t1.f1)
+        "
+        COUNT(*)和COUNT(1)和COUNT(字段)效率: "
+          前提是COUNT(字段)，如果改字段有Null值是不会统计的，现在是默认都为非Null的值。
+
+            1.COUNT(*)和COUNT(1)都是对所有结果进行统计，COUNT(*)和COUNT(1)本质上并没有区别，二者执行是可以可能略有区别。
+              如果有WHERE子句，则是对所有符合筛选条件的部分数据进行统计，如果没有WHERE子句，则是对整张表进行统计
+
+            2.如果是MYISAM存储引擎，统计数据表的行数为O(1)时间复杂度，因为每张MYISAM的数据表都有一个meta信息存储了row_count值，而一致性则由表级锁来保证。
+              如果是InnoDB存储引擎，因为InnoDB支持事务，采用行级锁和MVCC机制，所以无法像MYISAM一样维护一个row_count变量，因此需要采用全表扫描，所以时间
+              复杂度为O(n)，进行循环+计数的方式来完成统计。
+
+            3.在InnoDB存储引擎中，如果采用COUNT(字段)，尽量采用非聚集索引，因为主键采用的是聚集索引，而聚集索引包含的数据比较多，对于COUNT(*)和COUNT(1)来说，
+              他们不需要查找具体的行，只是统计行数，系统会自动采用占用空间更小的非聚集索引来进行统计。如果有多个二级索引，会使用key_len小的二级索引进行扫描，当没
+              有二级索引的时候，彩会财通聚集索引进行行统计
+
+            结论，最好使用COUNT(1)，其次是COUNT(*),最后COUNT(字段)，如果你很清楚哪个索引较小，可以考虑使用COUNT(字段)，因为减少了系统找出最小索引
+        "
+        关于SELECT(*): "
+          在表查询中，建议明确字段，不要使用*作为查询的字段列表，原因如下
+            1.在MYSQL解析的过程，会通过查询数据字段将*按表转换成所有列名，这样会大大的消耗资源和时间。
+            2.无法使用覆盖索引
+        "
+        LIMIT 1对优化的影响: "
+          1.针对全表扫描的SQL语句，如果你可以确定结果集只有1条数据，那么加上LIMIT 1的时候，当找到一条数据的时候就不会继续扫描了，这样会加快查询速度
+          2.如果数据已经对该字段建立了唯一索引，那么课题通过索引进行查询，就不需要加上LIMIT 1了(因为唯一索引当找到1条数据的时候就立即停止扫描)
+        "
+        多使用COMMIT: "
+          只要有可能，在程序中尽量多使用COMMIT，这样程序的性能得到提高，需求也会因为COMMIT所释放的资源而减少。
+          COMMIT会释放如下资源
+            1.回滚段上用于恢复数据的信息
+            2.被程序语句获得的锁
+            3.redo log buffer 和 undo log buffer 中的空间
+            4.管理上述3种资源中的内部花费
+        "
 调优篇:
   - 满外连接(LEFT OUTER JOIN)的时候，尽量用UNION ALL(不需要去重)，少用UNION(需要去重)
 事务篇:
