@@ -1460,7 +1460,6 @@
       - E-R建模，简称实体关系模型
       - ER模型3中元素，实体(矩形)，属性(椭圆形)，关系(菱形)
       - 关系表示，1对1(1:1)，1对多(1:N)，多对多(N:M)
-事务篇:
 调优篇:
   概述:
     - 调优目的是达到，低延迟高吞吐
@@ -1550,6 +1549,316 @@
       interactive_timeout: "
         表示服务器在关闭连接前等待行动的秒数
       "
+  分析表:
+    概述:
+      - ANALYZE [LOCAL | NO_WRITE_TO_BINLOG] TABLE t1,t2,...(加上LOCAL或者NO_WRITE_TO_BINLOG，代表不写入binlog日志)
+      - ANALYZE TABLE在执行过程中会给表加上只读锁(意味着在执行过程中不允许DML操作)
+      - ANALYZE TABLE适用于InnoDB和MYISAM
+    案例: "
+      DROP TABLE IF EXISTS t1;
+      CREATE TABLE IF NOT EXISTS t1(
+      	id int,
+      	salary DECIMAL(10,2),
+      	last_name VARCHAR(255),
+      	KEY (last_name)
+      ) ENGINE INNODB;
+
+
+      DROP PROCEDURE IF EXISTS batch_insert;
+      DELIMITER $
+      CREATE PROCEDURE batch_insert()
+      BEGIN
+      	DECLARE count INT DEFAULT 0;
+      	loop_label:LOOP
+
+      			IF count > 1000 THEN LEAVE loop_label;
+      			ELSE INSERT INTO t1(id,salary,last_name) VALUES(count,count*10,'eric');
+      			END IF;
+      			SET count = count + 1;
+
+      	END LOOP loop_label;
+
+      END $
+
+      DELIMITER ;
+
+      CALL  batch_insert();
+
+      SELECT * FROM t1;
+
+      SELECT COUNT(1) FROM t1;
+
+      #查看区分度的字段Cardinality，这个值越接近总记录数，证明区分度越高，此时的索引越有价值。
+      SHOW INDEX FROM t1;
+
+      #总记录数为10001，但是Cardinality的值只有1，做一次更行
+      UPDATE t1 SET last_name = 'eric2' WHERE id = 2;
+
+      #此时如果执行了，那么就会立即更行Cardinality的字段值。
+      ANALYZE TABLE t1;
+      #重新查看了以后Cardinality的值发生了改变
+      SHOW INDEX FROM t1;
+    "
+  优化表:
+    概述:
+      - OPTIMIZE [LOCAL | NO_WRITE_TO_BINLOG] TABLE t1,t2,...(加上LOCAL或者NO_WRITE_TO_BINLOG，代表不写入binlog日志)
+      - OPTIMIZE TABLE在执行过程中会给表加上只读锁(意味着在执行过程中不允许DML操作)
+      - OPTIMIZE TABLE适用于InnoDB和MYISAM
+      - 如果经常多删除和更新操作，产生了大量的空间碎片。使用 OPTIMIZE TABLE t1来重新利用未使用的空间，并整理数据文件的碎片(可以对VARCHAR、BLOB、TEXT类型的字段进行优化)
+    案例:
+      - "
+        DROP TABLE IF EXISTS t1;
+        CREATE TABLE IF NOT EXISTS t1(
+          id int,
+          salary DECIMAL(10,2),
+          last_name VARCHAR(255)
+        );
+
+
+        DROP PROCEDURE IF EXISTS batch_insert;
+        DELIMITER $
+        CREATE PROCEDURE batch_insert()
+        BEGIN
+          DECLARE count INT DEFAULT 0;
+          loop_label:LOOP
+
+                  IF count > 100000 THEN LEAVE loop_label;
+                  ELSE INSERT INTO t1(id,salary,last_name) VALUES(count,count*10,CONCAT('eric',count));
+                  END IF;
+                  SET count = count + 1;
+
+          END LOOP loop_label;
+
+        END $
+
+        DELIMITER ;
+
+        CALL  batch_insert();
+
+        SELECT COUNT(1) FROM t1;
+
+        DELETE FROM t1 WHERE id > 20000 AND id < 40000;
+
+        OPTIMIZE TABLE t1;
+      "
+      - "
+        可以使用命令行方式进行优化表-o代表optimize
+          方式1，优化某一个表
+            mysqlcheck -o 数据库 表名 -uroot -p123456
+          方式2，优化全部表，因为要加读锁，谨慎执行
+            mysqlcheck -o --all-databases -uroot -p123456
+      "
+事务篇:
+  概述:
+    - 事务是数据库区别于文件系统的重要特性之一，当我们有了事务就会让数据库始终保持一致性。
+    - 我们还能通过事务的机制恢复到某个时间点，这样可以保证已提交到数据库的修改不会因为系统崩溃而丢失。
+    - 事务是一组逻辑操作单元，使数据从一种状态变换到另一种状态。
+    - 目前只有InnoDB存储引擎支持事务(SHOW ENGINES)
+  事务ACID特性:
+    概述:
+      - ACID是事务的四大特性，原子性是基础，隔离性是手段，一致性是约束条件，持久性是目的。
+    原子性(atomic): "
+      原子性是指事务是一个不可分割的工作单位，要么全部提交(commit)，要么全部失败(rollback)
+
+      案例
+        A账户向B账户转账，要么转账成功，要么转账失败，是不存在中间状态。
+    "
+    一致性(consistency): "
+      一致性是指事务执行前后，数据从一个合法性状态变换到另一个合法性状态。这种状态是语义上的，而不是语法上的，跟具体的业务有关。
+      什么是合法性状态？满足预定约束的状态就叫合法状态。通俗一点，这个状态是由你自己来定义的。满足这个状态，数据就是一致性的，不
+      满足这个状态，数据就是不一致性的。如果事务中的某个操作失败了，系统就会自动撤销当前执行的事务，返回到事务操作之前的状态。
+
+      案例1：
+        A账户有200块，转账300块出去，此时A账户余额为-100块。此时这个数据就不是一致性的，因为你定义了一个状态余额必须>=0
+      案例2：
+        A账户有200块，转账50块给B账户，A扣钱了，B因为意外，余额并没有增加。此时这个数据就是不一致性的，因为你定义了一个状态，要求A+B的总余额必须跟原来一样。
+      案例3：
+        在数据表中我们将f1字段设置了唯一约束，当事务进行提交或回滚的时候，如果数据表中的f1产生了相同的数据，此时这个数据就是不一致性的，因为你定义了一个状态f1字段必须唯一。
+    "
+    隔离性(isolation): "
+      隔离性是指一个事务的执行不能被其他事务干扰。即一个事务内部的操作及使用的数据对并发的其他事务是隔离的，并发执行的各个事务之间互不干扰。
+    "
+    持久性(duration): "
+      持久性是指一个事务一旦被提交，它对数据库中数据的改变是永久性的。接下来的其他操作和数据库故障不应该对其有任何影响。
+      持久性是通过事务日志来保证的。日志包括了redo(重做日志)和undo(回滚日志)。当我们通过事务对数据进行修改的时候，首
+      先会将数据库的变化信息记录到重做日志中，然后在对数据库中对应的行进行修改。这样做的好处是，即使数据系统崩溃，数据库
+      重启后也能找到没有更新到数据库系统中的重做日志，进行重新执行，从而使事务具有持久性。
+    "
+  事务状态:
+    活动状态(active): 事务对应的数据库操作正在执行过程中
+    部分提交状态(partially committed): 当事务中一个或N个操作执行完成时，并没有刷新到磁盘(操作都在内存中执行)
+    失败状态(failed): 当事务处于活动状态或者部分提交状态时，遇到某些错误(数据库自身错误、操作系统错误、断电、宕机、人为中止)导致失败
+    中止状态(aborted): 当事务处于失败状态时，就需要做回滚操作，此时事务处于中止状态
+    提交状态(committed): 当事务将修改过的数据都同步到磁盘上时，此时事务处于提交状态
+  事务使用案例: "
+    DROP TABLE IF EXISTS t1;
+    CREATE TABLE IF NOT EXISTS t1(
+    	id int,
+    	salary DECIMAL(10,2),
+    	last_name VARCHAR(255),
+    	KEY (last_name)
+    ) ENGINE INNODB;
+
+
+    DROP PROCEDURE IF EXISTS batch_insert;
+    DELIMITER $
+    CREATE PROCEDURE batch_insert()
+    BEGIN
+      DECLARE count INT DEFAULT 0;
+      loop_label:LOOP
+        IF count > 10 THEN LEAVE loop_label;
+        ELSE INSERT INTO t1(id,salary,last_name) VALUES(count,count*10,'eric');
+        END IF;
+        SET count = count + 1;
+      END LOOP loop_label;
+    END $
+    DELIMITER ;
+    CALL  batch_insert();
+    SELECT * FROM t1;
+
+    #------------------------------------------------------------------------------
+    #设置隔离级别
+    #MYSQL5.7.20，transaction_isolation替换了tx_isolation
+    	#方式1
+    	  #SET [SESSION | GLOBAL] TRANSACTION ISOLATION LEVEL [READ UNCOMMITTED | READ COMMITTED | REPEATABLE READ | SERIALIZABLE]
+    	#方式2，在my.cnf中的mysqld中配置
+    	  #transaction_isolation = SERIALIZABLE
+    	#方式3
+          SET SESSION transaction_isolation = 'READ-UNCOMMITTED'
+          SET SESSION transaction_isolation = 'READ-COMMITTED'
+          SET SESSION transaction_isolation = 'REPEATABLE-READ'
+          SET SESSION transaction_isolation = 'SERIALIZABLE'
+
+    #查看隔离级别
+    	SHOW SESSION VARIABLES LIKE '%transaction_isolation%'
+
+    #开启事务，
+    #针对DML操作有效，针对DDL操作无效
+      #显式事务
+        #重复的开启事务会导致上一次事务被提交
+        #方式1
+        #BEGIN;
+        #方式2(默认)，开启一个读写事务
+        START TRANSACTION; #START TRANSACTION READ WRITE;
+        #方式3，开启一个只读事务，不允许写操作
+        #START TRANSACTION READ ONLY;
+        #方式4，开启一个只读事务和一致性读，不允许写操作
+        #START TRANSACTION READ ONLY,WITH CONSISTENT SNAPSHOT;
+        #方式5，开启一个读写事务和一致性读
+        #START TRANSACTION READ WRITE,WITH CONSISTENT SNAPSHOT;
+      #隐式事务
+        #默认事务为自动提交
+        #SHOW SESSION VARIABLES LIKE '%autocommit%';
+        #设置关闭自动提交事务，当OFF切换到ON时，会自动提交上一次事务
+        #SET SESSION autocommit = OFF;
+
+    SELECT * FROM t1;
+    DELETE FROM t1 WHERE id = 1;
+
+
+    #设置保存点
+    SAVEPOINT s1;
+    #删除保存点
+    RELEASE SAVEPOINT s1;
+
+    #回滚到某个保存点
+    ROLLBACK TO s1;
+
+    #回滚事务,回滚到最初，如果有保存点则会删除所有保存点
+    ROLLBACK;
+
+    #提交事务
+    COMMIT;
+  "
+  不当操作导致事务隐式提交:
+    情况1: 重复的开启事务会导致上一次事务被提交，START TRANSACTION、BEGIN....
+    情况2: SET SESSION autocommit = OFF，当OFF切换到ON时，会自动提交上一次事务
+    情况3: LOCK TABLES、UNLOCK TABLES
+    情况4: 使用加载数据语句，LOAD DATA语句来批量往数据库中导入数据时
+    情况5: 使用复制语句，START SLAVE、STOP SLAVE、RESET SLAVE、CHANGE MASTER TO
+    情况6: 其他语句，ANALYZE TABLE、CACHE INDEX、CHECK TABLE、FLUSH、LOAD INDEX INTO CACHE、OPTIMIZE TABLE、REPAIR TABLE、RESET
+  事务分类(了解):
+    概述: "
+      SHOW SESSION VARIABLES LIKE '%completion_type%';
+        SET SESSION completion_type = 0; #NO_CHAIN(默认)
+          每次COMMIT后，都需要从新开启事务(START TRANSACTION或BEGIN)
+        SET SESSION completion_type = 1; #CHAIN
+          每次COMMIT后，相当于执行了COMMIT AND CHAIN，也就是自动会开启下一个相同事务(相同隔离级别的事务)
+        SET SESSION completion_type = 2; #RELEASE
+          每次COMMIT后，相当于执行了COMMIT AND RELEASE，也就是自动与服务器断开连接
+    "
+    扁平事务: "
+      扁平事务是事务中最简单的一种，但是在实际生产环境中，使用最多的事务。在扁平事务中，所有操作都处于同一层次，其由BEGIN WORK开始，
+      由COMMIT WORK或ROLLBACK WORK结束，期间的操作是原子的，要么都执行，要么都回滚，因此，扁平事务是应用程序成为原子操作的基本
+      组成模块，常见数据库都会支持扁平事务。
+
+      扁平事务主要限制是不能提交或回滚某一部分事务，或者分几个步骤提交。
+
+      扁平事务一般有3种不同的结果
+        1.事务成功完成，在平常应用中约占所有事务的96%
+        2.应用程序要求停止事务，比如应用程序在捕获到异常时会回滚事务，约占事务的3%
+        3.外界因素强制终止事务，如果连接超时或连接断开，约占所有事务的1%
+    "
+    带有保存点的扁平事务: "
+      除了支持扁平事务支持的操作外，还允许在事务执行过程中回滚到同一事务中较早的一个状态。
+      这是因为某些事务可能在执行过程中出现的错误并不会导致所有操作都无效，放弃整个事务不理，开销太大。
+    "
+    保存点: "
+      用来通知事务系统应该记住事务当前的状态，以便当之后发生错误时，事务能回到保存当时的状态。对于扁平事务来说，
+      隐式的设置了一个保存点，然而在整个事务中，只有这个保存点，因此回滚只能回滚到事务开始时的状态。
+    "
+    链式事务: "
+      链式事务是指一个事务由多个子事务链式组成，它可以被视为保存点模式的一个变种。带有保存点的扁平事务，
+      当发生系统崩溃时，所有的保存点都将消失，这意味着当进行恢复时，事务需要从开始处重新执行，而不能从
+      最近的一个保存点继续执行。链式事务的思想是，在提交一个事务时，释放不需要的数据对象，将必要的处理上下
+      文隐式的传递给下一个要开始的事务，前一个子事务的提交操作和下一个事务的开始操作合并成一个原子操作，这
+      意味着下一个事务将看到上一个事务的结果，就好像在事务中进行一样。这样在提交子事务时就可以释放不需要的
+      数据对象，而不必等到整个事务完成后才释放。
+
+      链式事务与带有保存点的扁平事务不同之处
+        1.带有保存点的扁平事务能回滚到任意正确的保存点，而链式事务中的回滚仅限于当前事务 ，即只能恢复到最近的一个保存点。
+        2.对于锁的处理，两者也不同，链式事务在执行COMMIT后即释放了当前所持有的锁，而带有保存点的扁平事务不影响至今为止所持有的锁。
+    "
+    嵌套事务: "
+      嵌套事务是一个层次结构的框架，由一个顶层事务控制着各个层次的事务，顶层事务之下嵌套的事务被称为子事务，
+      其控制着每一个局部的变换，子事务本身也可以是嵌套事务，因此，嵌套事务的层次结构可以看成是一颗树。
+    "
+    分布式事务: "
+      分布式事务通常实在一个分布式环境下运行的扁平事务，因此需要根据数据所在的位置访问网络中不同节点的数据库资源。
+      例如，一个银行用户从招商银行向工商银行转账1000元，这里需要用到分布式事务，因为不能仅调用某一家银行的数据库
+      就完成任务。
+    "
+  事务隔离级别:
+    概述: 数据库是C/S结构，每一次连接都是一个长连接，称为会话(session)，每一个会话都可以拥有自己的事务
+    数据并发访问产生的问题:
+      脏写: A事务修改了B事务未提交的数据
+      脏读: A事务读取了B事务未提交的数据
+      不可重复读: A事务每次读取【数据的值不一样或者行数变少】(B事务修改数据值或者删除了删除并且提交了)
+      幻读: A事务每次读取【数据行数】变多(B事务增加数据并且提交了)，值得注意的是，对于事务B删除并提交的数据不算幻读，可以归纳到不可重复读。
+    SQL标准的四种隔离级别:
+      概述:
+        - 这个是SQL标准中的隔离级别，并非是MYSQL的最终结果
+        - 隔离级别越高，性能越差，但是存在的并发问题越少，脏写 > 脏读 > 不可重复度 > 幻读
+      参考表: "
+        ORACLE支持：读已提交(READ COMMITTED)、串行化读(SERIALIZABLE默认)
+        MYSQL支持: 4种，可重复读(REPEATABLE READ默认)
+
+        读未提交(READ UNCOMMITTED)
+        读已提交(READ COMMITTED)
+        可重复读(REPEATABLE READ)
+        串行化读(SERIALIZABLE)，禁止其他事务对该表执行插入、更新、删除操作。所有并发问题都可以避免，但性能非常低。
+
+
+        隔离级别    脏读  不可重复读 幻读 锁
+        ------------------------------
+        读未提交    yes  yes      yes no
+        读已提交    no   yes      yes no
+        可重复读    no   no       yes no
+        串行化读    no   no       no  yes
+      "
+  MYSQL事务隔离级别的设置: "
+
+  "
 日志与备份篇:
 
 
