@@ -1952,7 +1952,7 @@
       - 数据也是一种供许多用户共享的资源，为了保证数据一致性，需要对并发访问进行控制，因此产生了锁。
       - 锁机制也为实现MYSQL的各个隔离级别提供了保证。
       - 锁冲突也是影响数据库并发访问性能的一个重要因素。
-      - 使用SELECT .... FOR UPDATE语句执行过程中所有扫描的行都会被锁上，因此在MYSQL中用悲观锁必须要保证有索引(避免全表扫描，从而所有数据被上锁)
+      - 在出现锁的情况下(显式锁|隐式锁)，被扫描过的数据都会被锁上。(select * from t1 where id = 2 for share，id为varchar类型，此时锁的不单单是id为2的数据)
       - "
         因为锁会占用内存空间，因此锁空间的大小是有限制的(每个层级的锁数量是有限的)。当某个层级的锁数量超过了这个层级的阈值时，
         就会进行锁升级。锁升级就是用更大粒度的锁代替多个更小粒度的锁。比如在InnoDB中记录锁升级为表锁，这样做的好处是占用锁
@@ -1983,16 +1983,36 @@
           - 各个数据库厂商对SQL标准的支持可能不一样，本来可重复读会存在幻读问题，但是在MYSQL的可重复隔离级别下已经解决了幻读的问题。
         并发事务访问相同记录(同一条、同一个区域)的解决方案:
           方案1(读操作利用MVCC，写操作加锁):
-            - "
-              所谓的MVCC，就是生成一个ReadView，通过ReadView找到复合条件的记录版本(历史版本由UNDO LOG构建)。
-              查询语句只能读到在生成ReadView之前已经提交事务所做的更改，在生成ReadView之前未提交的事务或者之后
-              才开启的事务所在的更改是看不到的。而写操作肯定针的是最新版本的记录，读记录的历史版本和改动记录的最新
-              版本本身并不冲突，也就是采用MVCC时，读写操作并不冲突。
+            概述:
+              - "
+                所谓的MVCC，就是生成一个ReadView，通过ReadView找到复合条件的记录版本(历史版本由UNDO LOG构建)。
+                查询语句只能读到在生成ReadView之前已经提交事务所做的更改，在生成ReadView之前未提交的事务或者之后
+                才开启的事务所在的更改是看不到的。而写操作肯定针的是最新版本的记录，读记录的历史版本和改动记录的最新
+                版本本身并不冲突，也就是采用MVCC时，读写操作并不冲突。
 
-              普通的SELECT语句在读已提交(READ COMMITTED)和可重复读(REPEATABLE READ)隔离级别下会利用MVCC读取记录
-                在读已提交(READ COMMITTED)隔离级别下，一个事务在执行过程中【每次都执行SELECT】操作时会生成一个ReadView，ReadView的存在本身就保证了事务不可以读取到未提交的数据，也就是避免了脏读现象。
-                在可重复读(REPEATABLE READ)隔离级别下，一个事务在执行过程中只有【第一次SELECT】操作时会生成一个ReadView，之后的SELECT操作都会复用这个ReadView，这样也就避免了不可重复读和幻读的问题。
-            "
+                普通的SELECT语句在读已提交(READ COMMITTED)和可重复读(REPEATABLE READ)隔离级别下会利用MVCC读取记录
+                  在读已提交(READ COMMITTED)隔离级别下，一个事务在执行过程中【每次都执行SELECT】操作时会生成一个ReadView，ReadView的存在本身就保证了事务不可以读取到未提交的数据，也就是避免了脏读现象。
+                  在可重复读(REPEATABLE READ)隔离级别下，一个事务在执行过程中只有【第一次SELECT】操作时会生成一个ReadView，之后的SELECT操作都会复用这个ReadView，这样也就避免了不可重复读和幻读的问题。
+              "
+            MVCC:
+              概述:
+                - Multiversion Concurrency Control，简称MVCC，多版本并发控制
+                - "
+                  MVCC是通过数据行的多个版本(UNDO LOG)管理(ReadView)来实现数据库的并发控制，这项技术使得在InnoDB的事务隔离级别下执行一致性读操作有了保证。
+                  换言之，如果有事务在修改并且提交了，使用MVCC可以获取到历史值，这样在做查询的时候就不用等待另一个事务释放锁。
+                "
+                - MVCC没有正式的标准，在不同的DBMS中MVCC的实现方式可能不同，MYSQL只有InnoDB中支持MVCC，其他存储引擎并不支持。
+                - MVCC在MYSQL InnoDB中的实现主要是为了提高数据库并发性能，用更好的方式去处理读写冲突，即使有读写冲突，也能做到不加锁。
+              MVCC实现原理:
+                - MVCC是基于【读已提交、可重复读】隔离级别诞生的
+                - MVCC实现依赖于 UNDO LOG、ReadView、隐藏字段。
+              快照读:
+                - 快照读又叫一致性读，读取的是快照数据。快照读的实现是基于MVCC，避免了加锁操作，降低了开销。
+                - 既然是基于多版本，那么快照读可能读到的并不是最新版本数据，有可能是之前的历史版本数据。
+                - SELECT * FROM t1
+              当前读:
+                - SELECT * FROM t1 FOR SHARE
+                - SELECT * FROM t1 FOR UPDATE
           方案2(读加锁，写加锁):
         总结:
           - 采用读MVCC，写加锁的话，性能更高(可能历史数据的读取)
@@ -2162,6 +2182,8 @@
                 #意向锁(IX锁)
                 SELECT * FROM t1 WHERE id = 2  FOR UPDATE;
 
+                #经过测试，写操作也会产生意向锁
+
                 COMMIT;
             "
           元数据锁(MDL锁)(自动加锁):
@@ -2262,6 +2284,8 @@
 
                 SELECT * FROM t1 where id = 100 LOCK IN SHARE MODE ; 间隙锁范围在 91到正无穷
 
+                #经过测试，写操作也会存在间隙锁
+
                 总结
                   1.只要对不存在的记录上了锁，就出现间隙锁，间隙锁就会落在数据区间，或者是无穷大区间。
                   2.因为是不存在的记录，所以不分X锁或者是S锁，这两种间隙锁是等价的。
@@ -2279,7 +2303,7 @@
                   1.临建锁是记录锁(行锁)和间隙锁的【合体】。
 
               插入意向锁场景:
-                假如一个事务A加了间隙锁，事务B插入的记录刚好落在事务A间隙锁的区间，那么就会出现了【插入意向锁】，锁名为Insert Intention Lock。
+                假如一个事务A加了间隙锁，事务B插入的记录刚好落在事务A间隙锁的区间，那么就会出现了【插入意向锁】，锁名为Insert Intention Lock。(在间隙锁或者临建锁中插入数据，会出现插入意向锁)
                 插入意向锁是行级锁，并非是表级别的意向锁，两者是不同的区别。
                 插入意向锁也是一种特殊的间隙锁。
             "
@@ -2311,11 +2335,85 @@
           - 乐观锁适合读操作多的场景，可能造成CPU开销大(因为每次改不成功还得继续改)
           - 悲观锁适合写操作多的场景，并发性低(容易造成多事务之间阻塞现象)
       加锁方式:
-        隐式锁:
-        显示锁:
+        概述: "
+          MYSQL8.0可以通过如下语句查看锁
+            #查看所有阻塞的锁
+            SELECT * FROM performance_schema.data_lock_waits
+            #查看所有锁
+            SELECT * FROM performance_schema.data_locks
+        "
+        隐式锁: "
+          非人为指定而产生的锁称为隐式锁
+
+          INSERT t1
+          DELETE t1
+          UPDATE t1
+          ALTER TABLE
+        "
+        显示锁: "
+          手动为SQL语句指定锁称为显示锁
+
+          #查看锁阻塞的超时时间，默认为50秒
+          SHOW SESSION VARIABLES LIKE '%innodb_lock_wait_timeout%'
+
+          BEGIN;
+
+          #加共享锁(S锁)
+            #MYSQL5.7及之前版本
+            SELECT * FROM t1 LOCK IN SHARE MODE ;
+            #MYSQL8.0支持
+            SELECT * FROM t1 FOR SHARE ;
+            SELECT * FROM t1 FOR SHARE NOWAIT;
+            SELECT * FROM t1 FOR SHARE SKIP LOCKED;
+          #加排它锁(X锁)
+            #MYSQL5.7及之前版本
+            SELECT * FROM t1 FOR UPDATE;
+            #MYSQL8.0支持
+            SELECT * FROM t1 FOR UPDATE NOWAIT;
+            SELECT * FROM t1 FOR UPDATE SKIP LOCKED;
+
+          COMMIT;
+        "
       其它:
-        全局锁:
-        死锁:
+        全局锁: "
+          加上全局锁以后，所有表变为只读，一般用于备份
+          flush tables with read lock;
+
+          释放全局锁(表锁的释放指令一样)
+          unlock tables;
+        "
+        死锁: "
+          #查看锁阻塞的超时时间，默认为50秒
+          SHOW SESSION VARIABLES LIKE '%innodb_lock_wait_timeout%'
+
+          如果事务与事务之间出现死锁，当innodb_lock_wait_timeout超时，则会选择成本最低的那个事务进行回滚。InnoDB存储引擎会通过wait-for-graph算法(innodb_deadlock_detect = ON)来主动检测死锁问题
+
+        "
+    锁监控: "
+      SHOW  STATUS LIKE '%innodb_row_lock%'
+        #服务器启动到现在为止的统计，重启服务器则所有参数归0
+        #Innodb_row_lock_current_waits 正在等待的锁数量
+        #Innodb_row_lock_time 锁等待的总时长
+        #Innodb_row_lock_time_avg 锁等待的平均时长
+        #Innodb_row_lock_time_max 锁等待的最大时间
+        #Innodb_row_lock_waits 锁等待的总次数
+
+      MYSQL5.7及之前可以通过如下语句查看锁
+        #事务相关信息
+          SELECT * FROM information_schema.INNODB_TRX
+        #查看所有阻塞的锁
+          SELECT * FROM information_schema.INNODB_LOCK_WAITS
+        #查看所有锁(只能看阻塞，非阻塞看不到)
+          SELECT * FROM information_schema.INNODB_LOCKS
+
+      MYSQL8.0可以通过如下语句查看锁
+        #事务相关信息
+          SELECT * FROM information_schema.INNODB_TRX
+        #查看所有阻塞的锁
+          SELECT * FROM performance_schema.data_lock_waits
+        #查看所有锁(可以看到阻塞和非阻塞，比5.7要强)
+          SELECT * FROM performance_schema.data_locks
+    "
 日志与备份篇:
 
 
