@@ -2004,15 +2004,59 @@
                 - MVCC没有正式的标准，在不同的DBMS中MVCC的实现方式可能不同，MYSQL只有InnoDB中支持MVCC，其他存储引擎并不支持。
                 - MVCC在MYSQL InnoDB中的实现主要是为了提高数据库并发性能，用更好的方式去处理读写冲突，即使有读写冲突，也能做到不加锁。
               MVCC实现原理:
-                - MVCC是基于【读已提交、可重复读】隔离级别诞生的
+                - MVCC是基于【读已提交、可重复读】隔离级别实现的
                 - MVCC实现依赖于 UNDO LOG、ReadView、隐藏字段。
+              什么是ReadView: "
+                在MVCC机制中，多个事务对同一行记录进行操作会产生多个历史快照，这些历史快照保存在Undo Log里。
+                如果一个事务想要查询这行记录，需要读取哪个版本的行记录呢？这里就需要用到ReadView了，它帮我们
+                解决了行的可见性问题。
+
+                ReadView就是一个事务在使用MVCC机制进行快照读操作时产生的读视图(一个事务对应一个ReadView)。当事务启动时，
+                会生成数据库系统当前的一个快照ReadView(数组结构)，用来记录并维护系统当前活跃事务的ID(活跃事务就是指未提交的事务)
+              "
+              ReadView结构:
+                - creator_trx_id，创建ReadView的事务ID(只有执行INSERT、DELETE、UPDATE操作才会有事务ID，否则事务ID值默认为0)
+                - trx_ids，在生成ReadView这一刻，有多少活跃的事务(有多少正在执行中的事务，并且未commit的事务)
+                - up_limit_id，在活跃事务(trx_ids)中最小的事务ID
+                - low_limit_id，记录数据库系统在下一次分配事务ID时的最大ID(整个数据库最大的事务ID)
+              ReadView获取数据规则: "
+                利用ReadView获取数据规则，从而知道UNDO LOG日志链中哪些数据是可以被这个事务访问，哪些数据室不可以被这个事务访问
+
+                trx_id(Undo Log日志链中某一条记录)  = creator_trx_id，这个记录可以被此事务访问。
+                trx_id(Undo Log日志链中某一条记录)  < up_limit_id，这个记录可以被此事务访问。
+                trx_id(Undo Log日志链中某一条记录)  > low_limit_id，这个记录不可以被此事务访问。
+                trx_id(Undo Log日志链中某一条记录) between (up_limit_id low_limit_id)
+                  判断trx_id值是否在trx_ids列表
+                    如果在，说明创建ReadView时生成该版本的事务还是活跃的，不可以访问
+                    如果不在，说明创建ReadView时生成该版本的事务已经提交，可以访问
+              "
+              MVCC整体操作流程: "
+                1.首先获取事务ID
+                2.根据当前这个事务生成一个读视图(ReadView)
+                3.将查询得到的数据，与ReadView中的事务ID进行比较
+                4.如果不符合ReadView规则，就需要从Undo Log中获取历史快照数据
+                5.最后返回符合规则的数据
+
+                总结:
+                  在InnoDB中，MVCC是通过Undo Log + Read View进行数据读取，Undo Log保存了历史快照，而Read View规则帮我们判断当前版本的数据是否可见。
+              "
               快照读:
-                - 快照读又叫一致性读，读取的是快照数据。快照读的实现是基于MVCC，避免了加锁操作，降低了开销。
-                - 既然是基于多版本，那么快照读可能读到的并不是最新版本数据，有可能是之前的历史版本数据。
-                - SELECT * FROM t1
+                概述:
+                  - 快照读又叫一致性读，读取的是快照数据。快照读的实现是基于MVCC，避免了加锁操作，降低了开销。
+                  - 既然是基于多版本，那么快照读可能读到的并不是最新版本数据，有可能是之前的历史版本数据。
+                  - SELECT * FROM t1
+                读已提交:
+                  - 在事务执行过程中，在相同的SELECT语句中，每次SELECT都会创建一个新的读视图(ReadView)
+                  - 就是因为每次都创建，恰好可以做到幻读问题。
+                可重复读:
+                  - 在事务执行过程中，在相同的SELECT语句中，第一次SELECT才会创建读视图(ReadView)
+                  - 就是因为只创建一次，恰好解决了幻读的问题。
               当前读:
                 - SELECT * FROM t1 FOR SHARE
                 - SELECT * FROM t1 FOR UPDATE
+              MVCC优点:
+                - 读写之间阻塞问题，通过MVCC可以让读写操作相互不阻塞，即读不阻塞写，写不阻塞读，这样就可以提升事务的并发处理能力。
+                - 降低了死锁的概率，这是因为MVCC采用了乐观锁的方式，读取数据时并不需要加锁，对于写操作也只是锁定必要的行。
           方案2(读加锁，写加锁):
         总结:
           - 采用读MVCC，写加锁的话，性能更高(可能历史数据的读取)
@@ -2021,6 +2065,31 @@
       概述:
         - 对于InnoDB存储引擎，支持行级锁和表级锁
         - 对于MYISAM存储引擎，只支持表级锁
+      锁监控: "
+        SHOW  STATUS LIKE '%innodb_row_lock%'
+          #服务器启动到现在为止的统计，重启服务器则所有参数归0
+          #Innodb_row_lock_current_waits 正在等待的锁数量
+          #Innodb_row_lock_time 锁等待的总时长
+          #Innodb_row_lock_time_avg 锁等待的平均时长
+          #Innodb_row_lock_time_max 锁等待的最大时间
+          #Innodb_row_lock_waits 锁等待的总次数
+
+        MYSQL5.7及之前可以通过如下语句查看锁
+          #事务相关信息
+            SELECT * FROM information_schema.INNODB_TRX
+          #查看所有阻塞的锁
+            SELECT * FROM information_schema.INNODB_LOCK_WAITS
+          #查看所有锁(只能看阻塞，非阻塞看不到)
+            SELECT * FROM information_schema.INNODB_LOCKS
+
+        MYSQL8.0可以通过如下语句查看锁
+          #事务相关信息
+            SELECT * FROM information_schema.INNODB_TRX
+          #查看所有阻塞的锁
+            SELECT * FROM performance_schema.data_lock_waits
+          #查看所有锁(可以看到阻塞和非阻塞，比5.7要强)
+            SELECT * FROM performance_schema.data_locks
+      "
       对数据操作类型划分:
         排它锁(X锁):
           - 排它锁(X锁)与排它锁(X锁)互斥，排它锁(X锁)与共享锁(S锁)互斥
@@ -2374,7 +2443,7 @@
 
           COMMIT;
         "
-      其它:
+      其它锁:
         全局锁: "
           加上全局锁以后，所有表变为只读，一般用于备份
           flush tables with read lock;
@@ -2386,34 +2455,10 @@
           #查看锁阻塞的超时时间，默认为50秒
           SHOW SESSION VARIABLES LIKE '%innodb_lock_wait_timeout%'
 
-          如果事务与事务之间出现死锁，当innodb_lock_wait_timeout超时，则会选择成本最低的那个事务进行回滚。InnoDB存储引擎会通过wait-for-graph算法(innodb_deadlock_detect = ON)来主动检测死锁问题
+          如果事务与事务之间出现死锁，当innodb_lock_wait_timeout超时，则会选择成本最低的那个事务进行回滚(不死锁的情况下超时整个事务是不会全部回滚的，只有超时SQL语句中断)，
+          InnoDB存储引擎会通过wait-for-graph算法(innodb_deadlock_detect = ON)来主动检测死锁问题。
 
         "
-    锁监控: "
-      SHOW  STATUS LIKE '%innodb_row_lock%'
-        #服务器启动到现在为止的统计，重启服务器则所有参数归0
-        #Innodb_row_lock_current_waits 正在等待的锁数量
-        #Innodb_row_lock_time 锁等待的总时长
-        #Innodb_row_lock_time_avg 锁等待的平均时长
-        #Innodb_row_lock_time_max 锁等待的最大时间
-        #Innodb_row_lock_waits 锁等待的总次数
-
-      MYSQL5.7及之前可以通过如下语句查看锁
-        #事务相关信息
-          SELECT * FROM information_schema.INNODB_TRX
-        #查看所有阻塞的锁
-          SELECT * FROM information_schema.INNODB_LOCK_WAITS
-        #查看所有锁(只能看阻塞，非阻塞看不到)
-          SELECT * FROM information_schema.INNODB_LOCKS
-
-      MYSQL8.0可以通过如下语句查看锁
-        #事务相关信息
-          SELECT * FROM information_schema.INNODB_TRX
-        #查看所有阻塞的锁
-          SELECT * FROM performance_schema.data_lock_waits
-        #查看所有锁(可以看到阻塞和非阻塞，比5.7要强)
-          SELECT * FROM performance_schema.data_locks
-    "
 日志与备份篇:
 
 
