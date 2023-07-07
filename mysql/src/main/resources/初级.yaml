@@ -1580,16 +1580,20 @@ SQL分类:
       - mysql -uroot -p123456 -h localhost -P 3306  -e 'show databases'
       - mysql -uroot -p123456 -h localhost -P 3306  dbName -e 'show tables'
     用户管理: "
-      #重点，用户名是host,user组合的，如果单单写user，那么host则默认为%
+      #重点
+        1.用户名是host,user组合的，如果单单写user，那么host则默认为%
+        2.先会判断主机部分是否能访问，如果匹配上那么这个主机就可以访问
+        3.其次才会判断某个库，某个表，是否拥有权限，如果有就可以访问
+
 
       #删除一个或多个用户
       	#方式1
-      		DROP USER IF EXISTS test@'%'
-      		DROP USER IF EXISTS test@'%',test@'localhost'
+      	  DROP USER IF EXISTS test@'%'
+      	  DROP USER IF EXISTS test@'%',test@'localhost'
       	#方式2，不推荐，可能有权限残留
-      		DELETE FROM mysql.`user` WHERE user = 'test' AND HOST = '%'
-      		#直接操作表需要刷新缓存
-      		FLUSH PRIVILEGES;
+      	  DELETE FROM mysql.`user` WHERE user = 'test' AND HOST = '%'
+      	  #直接操作表需要刷新缓存
+      	  FLUSH PRIVILEGES;
 
 
       #创建用户的密码/密码策略/是否锁定
@@ -1665,7 +1669,7 @@ SQL分类:
         	GRANT DELETE ON dbName.* TO 'test'@'%' WITH GRANT OPTION
         	GRANT UPDATE ON dbName.* TO 'test'@'%'
 
-        	#授予权限，并且修改密码
+        	#授予权限，并且修改密码(如果用户不存在，则会创建用户，并且设置密码)
         	GRANT UPDATE ON dbName.* TO 'test'@'%' IDENTIFIED BY '123456'
 
         	#授予列权限
