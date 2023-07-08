@@ -2446,10 +2446,10 @@
       其它锁:
         全局锁: "
           加上全局锁以后，所有表变为只读，一般用于备份
-          flush tables with read lock;
+          FLUSH TABLES WITH READ LOCK;
 
           释放全局锁(表锁的释放指令一样)
-          unlock tables;
+          UNLOCK TABLES;
         "
         死锁: "
           #查看锁阻塞的超时时间，默认为50秒
@@ -2701,87 +2701,147 @@
   "
   缺点: 主从复制的最大的问题就是【同步延迟】
 备份与恢复篇:
-  逻辑备份与逻辑恢复: "
-    #逻辑备份
+  概述:
+    - 在做恢复时，需要保证数据的主版本号一样(比如，mysql5.7.1可以对应5.7.1、5.7.2、5.7.3、5.7.4)
+    - 逻辑备份与逻辑恢复适合InnoDB表
+    - 物理备份与物理恢复适合MYISAM表
+  逻辑备份与逻辑恢复:
+    概述: 适用于各种场景
+    使用: "
+        #逻辑备份
 
-    	#备份一个数据库包括，存储过程和存储函数[--routines | -R]以及事件[--events | -E]
-    		mysqldump -uroot -p123456 -R -E db1 > ./test.sql
+            #备份一个数据库包括，存储过程和存储函数[--routines | -R]以及事件[--events | -E]
+                mysqldump -uroot -p123456 -R -E db1 > ./test.sql
 
-    	#备份一个数据库
-    		mysqldump -uroot -p123456 db1 > ./test.sql
-
-
-    	#备份全部数据库
-    		#方式1
-    			mysqldump -uroot -p123456 -A > ./test.sql
-    		#方式2
-    			mysqldump -uroot -p123456 --all-databases > ./test.sql
-
-    	#备份部分数据库
-    		#方式1
-    			mysqldump -uroot -p123456 -B db1 db2 db3 > ./test.sql
-    		#方式2
-    			mysqldump -uroot -p123456 --databases db1 db2 db3 > ./test.sql
+            #备份一个数据库
+                mysqldump -uroot -p123456 db1 > ./test.sql
 
 
+            #备份全部数据库
+                #方式1
+                    mysqldump -uroot -p123456 -A > ./test.sql
+                #方式2
+                    mysqldump -uroot -p123456 --all-databases > ./test.sql
 
-
-    	#备份一个数据库中的部分表
-    		 mysqldump -uroot -p123456 db1 t1 t2 > ./test.sql
-
-
-    	#被一个表中的部分数据，注意where=''这里不能有空格
-    		mysqldump -uroot -p123456 db1 t1 --where=' id = 1 ' > ./test.sql
-
-
-    	#排除数据库的部分表
-    		mysqldump -uroot -p123456 db1 --ignore-table=db1.t1 --ignore-table=db1.t2 > ./test.sql
-
-
-    	#只备份表结构，不要数据
-    		#方式1
-    			mysqldump -uroot -p123456 db1 -d > ./test.sql
-    		#方式2
-    			mysqldump -uroot -p123456 db1 --no-data > ./test.sql
-
-    	#只备份数据，不要表结构
-    		#方式1
-    			mysqldump -uroot -p123456 db1 -t > ./test.sql
-    		#方式2
-    			mysqldump -uroot -p123456 db1 --no-create-info > ./test.sql
-
-
-    #逻辑恢复
-
-    	#备份恢复
-    		#方式1
-    			mysql -uroot -p123456 < ./test.sql
-    		#方式2
-    			mysql -uroot -p123456 db1 < ./test.sql
-    		#方式3(需要登录mysql才能执行的命令)
-    			source /root/test.sql
-
-
-    	#从全量备份中提取单库做恢复（全量备份里面会包含创建数据库语句，以及use db1语句，所以这里不需要指定数据库）
-    		#提起某一个数据库
-    			sed -n '/^-- Current Database: `db1`/,/^-- Current Database: `/p' ./test.sql > ./extract-test.sql
-    		#恢复
-    		    mysql -uroot -p123456 < ./extract-test.sql
-
-    	#从单库备份中恢复部分表（单库备份里面不会包含创建数据库语句，以及use db1语句，所以这里不需要指定数据库）
-    		#提取表结构
-    			cat ./test.sql | sed -e '/./{H;$!d;}' -e 'x;/CREATE TABLE `t1`/!d;q' > /root/structure-test.sql
-    		#提取数据
-    			cat ./test.sql | grep --ignore-case 'insert into `class`' > /root/data-test.sql
-    		#恢复
-    			source /root/structure-test.sql
-    			source /root/data-test.sql
-
-  "
+            #备份部分数据库
+                #方式1
+                    mysqldump -uroot -p123456 -B db1 db2 db3 > ./test.sql
+                #方式2
+                    mysqldump -uroot -p123456 --databases db1 db2 db3 > ./test.sql
 
 
 
 
+            #备份一个数据库中的部分表
+                 mysqldump -uroot -p123456 db1 t1 t2 > ./test.sql
+
+
+            #被一个表中的部分数据，注意where=''这里不能有空格
+                mysqldump -uroot -p123456 db1 t1 --where=' id = 1 ' > ./test.sql
+
+
+            #排除数据库的部分表
+                mysqldump -uroot -p123456 db1 --ignore-table=db1.t1 --ignore-table=db1.t2 > ./test.sql
+
+
+            #只备份表结构，不要数据
+                #方式1
+                    mysqldump -uroot -p123456 db1 -d > ./test.sql
+                #方式2
+                    mysqldump -uroot -p123456 db1 --no-data > ./test.sql
+
+            #只备份数据，不要表结构
+                #方式1
+                    mysqldump -uroot -p123456 db1 -t > ./test.sql
+                #方式2
+                    mysqldump -uroot -p123456 db1 --no-create-info > ./test.sql
+
+
+        #逻辑恢复
+
+            #备份恢复
+                #方式1
+                    mysql -uroot -p123456 < ./test.sql
+                #方式2
+                    mysql -uroot -p123456 db1 < ./test.sql
+                #方式3(需要登录mysql才能执行的命令)
+                    source /root/test.sql
+
+
+            #从全量备份中提取单库做恢复（全量备份里面会包含创建数据库语句，以及use db1语句，所以这里不需要指定数据库）
+                #提起某一个数据库
+                    sed -n '/^-- Current Database: `db1`/,/^-- Current Database: `/p' ./test.sql > ./extract-test.sql
+                #恢复
+                    mysql -uroot -p123456 < ./extract-test.sql
+
+            #从单库备份中恢复部分表（单库备份里面不会包含创建数据库语句，以及use db1语句，所以这里不需要指定数据库）
+                #提取表结构
+                    cat ./test.sql | sed -e '/./{H;$!d;}' -e 'x;/CREATE TABLE `t1`/!d;q' > /root/structure-test.sql
+                #提取数据
+                    cat ./test.sql | grep --ignore-case 'insert into `class`' > /root/data-test.sql
+                #恢复
+                    source /root/structure-test.sql
+                    source /root/data-test.sql
+
+      "
+    优点: 兼容性高、灵活方便、可跨版本
+    缺点: 备份恢复时间长
+  物理备份与物理恢复:
+    概述: 大数量下的整体备份、恢复、迁移
+    使用: "
+      #物理备份
+          #1.先加全局锁，防止数据不一致
+              FLUSH TABLES WITH READ LOCK;
+          #2.拷贝某个数据到一个备份目录
+              cp -R ./mysql/data/db1 ./backup/
+          #3.解开全局锁
+              UNLOCK TABLES;
+
+      #物理恢复
+          #1.拷贝备份的文件到数据库目录下
+              cp -R ./backup/db1	./mysql/data/
+          #2.修改权限为mysql用户
+              chown -R mysql:mysql ./mysql/data/db1
+          #3.重启mysql服务器
+              docker restart a54e855addcf
+    "
+    优点: 迁移速度快
+    缺点: 需要停机，不灵活，可能有位置错误
+  表的导入与导出:
+    导出:
+      方式1: "
+        SHOW GLOBAL VARIABLES LIKE '%secure_file_priv%'
+
+        #在my.cnf文件mysqld中修改
+          secure_file_priv = empty #表示不限制文件生成的位置，这是不安全的设置
+          secure_file_priv = '/var/lib/mysql-files/' #限制指定的位置输出
+          secure_file_priv = NULL #禁止使用SELECT ... INTO OUTFILE方式
+
+        #方式1
+          SELECT * FROM t1 WHERE id = 1 INTO OUTFILE '/var/lib/mysql-files/test.txt'  #导出
+          LOAD DATA INFILE '/var/lib/mysql-files/test.txt ' INTO TABLE t1  #导入
+
+          SELECT * FROM t1 WHERE id = 1 INTO OUTFILE '/var/lib/mysql-files/test.txt' FIELDS TERMINATED BY ',' ENCLOSED BY '\"' #导出
+          LOAD DATA INFILE '/var/lib/mysql-files/test.txt ' INTO TABLE t1 FIELDS TERMINATED BY ',' ENCLOSED BY '\"' #导入
+
+        #方式2
+          mysqldump -uroot -p123456 -T '/var/lib/mysql-files/' db1 t1 #导出
+          mysqlimport -uroot -p123456 db1 '/var/lib/mysql-files/t1.txt' #导入，此方式需要根据文件名来找到对应的表名
+
+          mysqldump -uroot -p123456 -T '/var/lib/mysql-files/' db1 t1 --fields-terminated-by=',' --fields-optionally-enclosed-by='\"'
+          mysqlimport -uroot -p123456 db1 '/var/lib/mysql-files/t1.txt' --fields-terminated-by=',' --fields-optionally-enclosed-by='\"' #导入，此方式需要根据文件名来找到对应的表名
+      "
+      方式2: "
+        #普通文本
+        mysql -uroot -p123456 --execute='SELECT * FROM t1 WHERE id = 1' db1 > '/text.txt'
+        mysql -uroot -p123456 --vertical --execute='SELECT * FROM t1 WHERE id = 1' db1 > '/text.txt'
+
+        #xml格式
+        mysql -uroot -p123456 --xml  --execute='SELECT * FROM t1 WHERE id = 1' aa > '/text1.xml'
+
+        #html格式
+        mysql -uroot -p123456 --html  --execute='SELECT * FROM t1 WHERE id = 1' aa > '/text1.html'
+      "
 
 
 
