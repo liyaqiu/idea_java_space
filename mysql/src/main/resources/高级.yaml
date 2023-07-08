@@ -2701,6 +2701,83 @@
   "
   缺点: 主从复制的最大的问题就是【同步延迟】
 备份与恢复篇:
+  逻辑备份与逻辑恢复: "
+    #逻辑备份
+
+    	#备份一个数据库包括，存储过程和存储函数[--routines | -R]以及事件[--events | -E]
+    		mysqldump -uroot -p123456 -R -E db1 > ./test.sql
+
+    	#备份一个数据库
+    		mysqldump -uroot -p123456 db1 > ./test.sql
+
+
+    	#备份全部数据库
+    		#方式1
+    			mysqldump -uroot -p123456 -A > ./test.sql
+    		#方式2
+    			mysqldump -uroot -p123456 --all-databases > ./test.sql
+
+    	#备份部分数据库
+    		#方式1
+    			mysqldump -uroot -p123456 -B db1 db2 db3 > ./test.sql
+    		#方式2
+    			mysqldump -uroot -p123456 --databases db1 db2 db3 > ./test.sql
+
+
+
+
+    	#备份一个数据库中的部分表
+    		 mysqldump -uroot -p123456 db1 t1 t2 > ./test.sql
+
+
+    	#被一个表中的部分数据，注意where=''这里不能有空格
+    		mysqldump -uroot -p123456 db1 t1 --where=' id = 1 ' > ./test.sql
+
+
+    	#排除数据库的部分表
+    		mysqldump -uroot -p123456 db1 --ignore-table=db1.t1 --ignore-table=db1.t2 > ./test.sql
+
+
+    	#只备份表结构，不要数据
+    		#方式1
+    			mysqldump -uroot -p123456 db1 -d > ./test.sql
+    		#方式2
+    			mysqldump -uroot -p123456 db1 --no-data > ./test.sql
+
+    	#只备份数据，不要表结构
+    		#方式1
+    			mysqldump -uroot -p123456 db1 -t > ./test.sql
+    		#方式2
+    			mysqldump -uroot -p123456 db1 --no-create-info > ./test.sql
+
+
+    #逻辑恢复
+
+    	#备份恢复
+    		#方式1
+    			mysql -uroot -p123456 < ./test.sql
+    		#方式2
+    			mysql -uroot -p123456 db1 < ./test.sql
+    		#方式3(需要登录mysql才能执行的命令)
+    			source /root/test.sql
+
+
+    	#从全量备份中提取单库做恢复（全量备份里面会包含创建数据库语句，以及use db1语句，所以这里不需要指定数据库）
+    		#提起某一个数据库
+    			sed -n '/^-- Current Database: `db1`/,/^-- Current Database: `/p' ./test.sql > ./extract-test.sql
+    		#恢复
+    		    mysql -uroot -p123456 < ./extract-test.sql
+
+    	#从单库备份中恢复部分表（单库备份里面不会包含创建数据库语句，以及use db1语句，所以这里不需要指定数据库）
+    		#提取表结构
+    			cat ./test.sql | sed -e '/./{H;$!d;}' -e 'x;/CREATE TABLE `t1`/!d;q' > /root/structure-test.sql
+    		#提取数据
+    			cat ./test.sql | grep --ignore-case 'insert into `class`' > /root/data-test.sql
+    		#恢复
+    			source /root/structure-test.sql
+    			source /root/data-test.sql
+
+  "
 
 
 
