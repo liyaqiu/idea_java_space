@@ -1173,7 +1173,7 @@
             - 最好在设计的时候就将该字段设置为NOT NULL约束，如果改列就需要空值，可以考虑使用整形的0或者空字符串进行填充
             - EXPLAIN SELECT  * FROM t1 WHERE f1 IS NOT NULL
           NOT LIKE-索引失效:
-            - EXPLAIN SELECT  * FROM t1 WHERE f1 NOT 'xxx'
+            - EXPLAIN SELECT  * FROM t1 WHERE f1 NOT LIKE 'xxx'
           NOT IN-索引失效:
             - EXPLAIN SELECT  * FROM t1 WHERE  f1 NOT IN ('1','2')
           NOT EXIST-索引失效:
@@ -1326,7 +1326,7 @@
           - 减少了IO操作，并且还减少了随机IO操作(回表操作是一次随机IO操作，因为非聚集索引的b+tree和聚聚索引的b+tree存储数据是不一致的)
         坏处:
           - 索引字段的维护需要成本，不要盲目的为了覆盖索引而去建立索引(看业务具体情况而定)
-      索引条件下推:
+      索引条件下推(索引下推):
         概述:
           - Index Condition Pushdown(ICP)，是一种在存储引擎层使用索引过滤数据的优化方式，能够使用到索引条件下推性能提升很大
           - 通过EXPLAIN的Extra字段可以看到 Using Index condition提示信息
@@ -1431,7 +1431,7 @@
       级别:
         第一范式(1NF): 确保每个字段保持原子性
         第二范式(2NF): 确保每个字段都和主键完全依赖
-        第三范式(3NF): 确保没个字段都和主键直接相关(非主属性列之间不能相互依赖)
+        第三范式(3NF): 确保每个字段都和主键直接相关(非主属性列之间不能相互依赖)
         巴斯-科德范式(BCNF):
         第四范式(4NF):
         第五范式(5NF):
@@ -2857,22 +2857,5 @@
         4.剔除误删除数据的语句外，其它语句全部应用到临时库
         5.测试完毕之后，可以恢复到主库
     "
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
