@@ -12,9 +12,7 @@
     <artifactId>acl-parent</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>acl-gateway</module>
         <module>acl-secure</module>
-        <module>acl-api-service</module>
         <module>acl-common</module>
     </modules>
 

@@ -14,8 +14,6 @@
 
     <modules>
         <module>sp-spring-security</module>
-        <module>sp-servlet-session</module>
-        <module>sp-oauth2</module>
         <module>acl-parent</module>
     </modules>
 
