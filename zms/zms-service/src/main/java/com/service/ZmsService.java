@@ -7,7 +7,6 @@ package com.service;
 public class ZmsService {
     public void test01(){
         System.out.println("nihao");
-
     }
     public void test02(){
         System.out.println("hello");

@@ -1,4 +1,4 @@
-package test.ack;
+package com.test.ack;
 
 import com.SenderApplication;
 import com.entity.UserEntity;

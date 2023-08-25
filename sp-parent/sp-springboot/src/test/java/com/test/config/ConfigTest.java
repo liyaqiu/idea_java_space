@@ -1,4 +1,4 @@
-package test.config;
+package com.test.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;

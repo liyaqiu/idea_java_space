@@ -1,4 +1,4 @@
-package test;
+package com.test;
 
 import com.Launcher;
 import lombok.extern.slf4j.Slf4j;
@@ -7,10 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
-import org.springframework.stereotype.Component;
-import test.config.ConfigTest;
+import com.test.config.ConfigTest;
 
 /**
  * @author lyq

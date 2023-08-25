@@ -1,4 +1,4 @@
-package test;
+package com.test;
 
 import com.test.Launcher;
 import lombok.extern.slf4j.Slf4j;

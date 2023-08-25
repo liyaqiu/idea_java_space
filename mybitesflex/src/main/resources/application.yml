@@ -1,0 +1,10 @@
+server:
+  port: 8899
+logging:
+  config: classpath:log4j2.xml
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://192.168.88.11:3306/test?characterEncoding=UTF-8
+    username: root
+    password: 123456

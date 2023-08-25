@@ -1,12 +1,18 @@
 package sp.web.controller;
 
 import com.google.gson.Gson;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import sp.web.entity.UserEntity;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author lyq
@@ -16,6 +22,27 @@ import javax.servlet.http.HttpServletResponse;
 @Slf4j
 public class UserController {
 
+    @Data
+    @AllArgsConstructor
+    private static class Person{
+        private String id;
+        private String name;
+        private int age;
+
+    }
+
+    @GetMapping("/yidatest")
+    public String yidatest(){
+        log.info("yidatest");
+
+        List<Person> personList = new ArrayList<>();
+        personList.add(new Person("1","eric",18));
+        personList.add(new Person("2","lyq",19));
+
+        Map<String,Object> result = new HashMap<>();
+        result.put("data",personList);
+        return new Gson().toJson(result);
+    }
 
     @PostMapping("/test")
     public void test2(String token ,HttpServletResponse response){
