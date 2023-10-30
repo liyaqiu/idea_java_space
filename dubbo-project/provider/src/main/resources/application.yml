@@ -1,0 +1,18 @@
+server:
+  port: 8888
+spring:
+  application:
+    name: provider-service  #nacos data-id = name+active+file-extension sp-a-service-dev.yaml
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      server-addr: 192.168.88.11:8848
+      discovery:
+        namespace: fb55a73d-610f-48ab-ac76-ac9984ca2dec
+        group: test-group
+        cluster-name: lianjiang
+        ephemeral: true #默认为true 临时实例，靠客户端去做心跳，false为永久实例，nacos发心跳到客户端
+      config:
+        file-extension: yaml
+        #namespace:

@@ -1397,6 +1397,15 @@ SQL分类:
                 COUNT( * )
               FROM
                 employees e
+                
+              array_agg函数是通过使用GROUP BY语句结合GROUP_CONCAT函数来实现的
+              SELECT
+                  age,
+                  GROUP_CONCAT( `name` ) names
+              FROM
+                  t1 
+              GROUP BY
+                  age
             "
             GroupBy:
               结论:
@@ -1437,7 +1446,6 @@ SQL分类:
                  GROUP BY
                   DID, job_id  WITH ROLLUP
               "
-
             Having:
               Having和Where对比:
                 - 效率角度来说，where > having
@@ -1622,6 +1630,8 @@ SQL分类:
       	ALTER USER IF EXISTS test@'%' IDENTIFIED BY '123456'
       	#方式2
       	SET PASSWORD FOR test@'%' = '123456'
+        #方式3 mysql8.0修改密码方式
+        ALTER USER 'username'@'%' IDENTIFIED WITH mysql_native_password BY '123456'
 
       #修改用户的密码/密码策略/是否锁定
       	ALTER USER IF EXISTS test@'%' IDENTIFIED BY '123456' [PASSWORD EXPIRE/PASSWORD EXPIRE NEVER/PASSWORD EXPIRE DEFAULT/PASSWORD EXPIRE INTERVAL 90 DAY] [ACCOUNT LOCK/ACCOUNT UNLOCK];

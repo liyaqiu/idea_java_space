@@ -16,8 +16,9 @@ import org.springframework.stereotype.Component;
 public class MySpringTask {
 
 
-    //在线生成corn表达式 https://cron.qqe2.com/
-    //@Scheduled(cron = "0/3 * * * * ?")
+    //在线生成corn表达式 https://tool.lu/crontab/
+    //@Scheduled(cron = "0/3 * * * * ?")//每3秒执行一次
+    //@Scheduled(cron = "0 0 */3 * * ?")//每3小时执行一次
     //@Scheduled(cron = "0/${MyTaskConfig.time2:1} * * * * ?")//獲取yaml文件的值
     @Scheduled(cron = "0/#{HelloTaskTime.time} * * * * ?")//根据容器bean name获取值
     public void testTask(){

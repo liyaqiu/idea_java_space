@@ -1,5 +1,6 @@
 package sp.web.controller;
 
+import cn.hutool.core.collection.ConcurrentHashSet;
 import com.google.gson.Gson;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,10 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import sp.web.entity.UserEntity;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author lyq
@@ -30,18 +28,49 @@ public class UserController {
         private int age;
 
     }
+    Set<Person> personSet = new ConcurrentHashSet<>();
 
     @GetMapping("/yidatest")
-    public String yidatest(){
-        log.info("yidatest");
+    public String get(){
+        log.info("yidatest get");
+        if(personSet.size()==0){
+            personSet.add(new Person("1","tom",18));
+            personSet.add(new Person("2","jerry",19));
+        }
+        Map<String,Object> result = new HashMap<>();
+        result.put("data", personSet);
+        result.put("currentPage",1);
+        result.put("totalCount", personSet.size());
+        return new Gson().toJson(result);
+    }
 
-        List<Person> personList = new ArrayList<>();
-        personList.add(new Person("1","eric",18));
-        personList.add(new Person("2","lyq",19));
+    @DeleteMapping("/yidatest/{id}")
+    public String delete(@PathVariable String id){
+        log.info("yidatest delete");
 
         Map<String,Object> result = new HashMap<>();
-        result.put("data",personList);
+        for (Person person : personSet) {
+            if(person.getId().equals(id)){
+                personSet.remove(person);
+            }
+        }
+        result.put("data", personSet);
+        result.put("currentPage",1);
+        result.put("totalCount", personSet.size());
         return new Gson().toJson(result);
+    }
+
+    @Data
+    public static class People{
+        private String id;
+        private String name;
+        private Integer age;
+    }
+    @PostMapping("/yidatest")
+    public String post(@RequestBody People people){
+        String s = new Gson().toJson(people);
+        log.info("yidatest post {}",s);
+        return s;
     }
 
     @PostMapping("/test")
@@ -94,10 +123,6 @@ public class UserController {
         return "hanshu1('hello-world')";
     }
 
-
-    public static void main(String[] args) {
-        System.out.println(new Gson().toJson(new UserEntity("eric","31")));
-    }
 }
 
 

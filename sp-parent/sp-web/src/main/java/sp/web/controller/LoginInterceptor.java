@@ -13,7 +13,7 @@ import java.util.Enumeration;
  * @author lyq
  * @date 2022/3/1 2:56
  */
-@Component
+//@Component
 @Slf4j
 public class LoginInterceptor implements HandlerInterceptor {
 
@@ -21,13 +21,13 @@ public class LoginInterceptor implements HandlerInterceptor {
     //controller执行之前
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        log.info("preHandle {}",request.getRequestURL());
-        Enumeration<String> headerNames = request.getHeaderNames();
-        while (headerNames.hasMoreElements()){
-            String s = headerNames.nextElement();
-            log.info("{} : {}",s,request.getHeader(s));
-        }
-        log.info("查询字符串 {}",request.getQueryString());
+//        log.info("preHandle {}",request.getRequestURL());
+//        Enumeration<String> headerNames = request.getHeaderNames();
+//        while (headerNames.hasMoreElements()){
+//            String s = headerNames.nextElement();
+//            log.info("{} : {}",s,request.getHeader(s));
+//        }
+//        log.info("查询字符串 {}",request.getQueryString());
 
         //浏览器每次请求会提交 cookie token
         /*for (Cookie cookie : request.getCookies()) {

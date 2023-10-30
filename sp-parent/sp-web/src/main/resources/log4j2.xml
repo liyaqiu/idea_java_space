@@ -11,22 +11,22 @@
         </Console>
 
         <!--可以使用.txt .zip .tar进行滚动压缩 RollingFile 或者 RollingRandomAccessFile-->
-        <RollingRandomAccessFile name="gundongwenjian" fileName="springbootlogs\all.log"
-                                 filePattern="springbootlogs\%d{yyyy-MM}/info-%d{yyyy-MM-dd}-%i.txt">
-            <PatternLayout pattern="${geshi}"/>
-            <Policies>
-                <!--启动时触发规则产生一个新的日志文件-->
-                <OnStartupTriggeringPolicy/>
-                <!--每个文件大小-->
-                <SizeBasedTriggeringPolicy size="100mb"/>
-                <!-- interval 默认为1 -->
-                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
-                <!--                <CronTriggeringPolicy schedule="0/5 * * * * ?" />-->
-            </Policies>
-            <!-- 每10秒内允许有10个文件，每个文件大小为1mb，多余的会进行覆盖 -->
-            <!-- 每1天内允许有10个文件，每个文件大小为100mb，多余的会进行覆盖 也就是说1天之内，可以有10*100MB=1000MB-->
-            <DefaultRolloverStrategy max="10" />
-        </RollingRandomAccessFile>
+<!--        <RollingRandomAccessFile name="gundongwenjian" fileName="springbootlogs\all.log"-->
+<!--                                 filePattern="springbootlogs\%d{yyyy-MM}/info-%d{yyyy-MM-dd}-%i.txt">-->
+<!--            <PatternLayout pattern="${geshi}"/>-->
+<!--            <Policies>-->
+<!--                &lt;!&ndash;启动时触发规则产生一个新的日志文件&ndash;&gt;-->
+<!--                <OnStartupTriggeringPolicy/>-->
+<!--                &lt;!&ndash;每个文件大小&ndash;&gt;-->
+<!--                <SizeBasedTriggeringPolicy size="100mb"/>-->
+<!--                &lt;!&ndash; interval 默认为1 &ndash;&gt;-->
+<!--                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>-->
+<!--                &lt;!&ndash;                <CronTriggeringPolicy schedule="0/5 * * * * ?" />&ndash;&gt;-->
+<!--            </Policies>-->
+<!--            &lt;!&ndash; 每10秒内允许有10个文件，每个文件大小为1mb，多余的会进行覆盖 &ndash;&gt;-->
+<!--            &lt;!&ndash; 每1天内允许有10个文件，每个文件大小为100mb，多余的会进行覆盖 也就是说1天之内，可以有10*100MB=1000MB&ndash;&gt;-->
+<!--            <DefaultRolloverStrategy max="10" />-->
+<!--        </RollingRandomAccessFile>-->
     </appenders>
 
 

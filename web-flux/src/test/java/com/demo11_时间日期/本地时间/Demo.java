@@ -18,6 +18,7 @@ public class Demo {
 
         //创建一个本地时间
         LocalTime localTime2 = LocalTime.now();
+
         System.out.println(localTime2.toString());
 
         //比较2个时间的间隔
