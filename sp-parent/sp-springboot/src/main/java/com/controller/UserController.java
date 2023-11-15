@@ -24,6 +24,20 @@ public class UserController  {
     @Autowired
     ApplicationContext applicationContext;
 
+
+    @GetMapping("/test")
+    public void test_1(){}
+
+    @PostMapping("/test")
+    public void test_2(){}
+
+    @PutMapping("/test")
+    public void test_3(){}
+
+    @DeleteMapping("/test")
+    public void test_4(){}
+
+
     @GetMapping("/test")
     public Result test1(HttpServletResponse response,JSRequestLineInfo requestLineInfo){
         log.debug("get requestLineInfo:{}",requestLineInfo);
