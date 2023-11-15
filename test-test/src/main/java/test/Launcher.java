@@ -1,10 +1,9 @@
-package sp.frontend;
+package test;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import test.controller.MySpringApplication;
 
 /**
  * @author lyq
@@ -13,10 +12,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @SpringBootApplication
 public class Launcher {
 
-
     public static void main(String[] args) {
-        ConfigurableApplicationContext context = SpringApplication.run(Launcher.class, args);
+        //ConfigurableApplicationContext context = SpringApplication.run(Launcher.class, args);
+        ConfigurableApplicationContext context = MySpringApplication.run(Launcher.class, args);
     }
-
-
 }
+
