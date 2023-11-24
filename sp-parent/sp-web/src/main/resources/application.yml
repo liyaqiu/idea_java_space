@@ -7,6 +7,5 @@ server:
     key-alias: myhttps
     # 密钥口令
     key-store-password: 123456
-
 logging:
   config: classpath:log4j2.xml
