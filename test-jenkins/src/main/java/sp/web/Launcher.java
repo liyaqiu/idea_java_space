@@ -14,9 +14,7 @@ public class Launcher {
 
 
     public static void main(String[] args) {
-
         ConfigurableApplicationContext context = SpringApplication.run(Launcher.class, args);
+
     }
-
-
 }

@@ -30,7 +30,11 @@ public class UserController {
     }
     Set<Person> personSet = new ConcurrentHashSet<>();
 
-
+    @GetMapping("/stalin_/article/details/129194445")
+    public String get11111(){
+        log.info("/Staba/article/details/127999161");
+        return "123";
+    }
     @GetMapping("/yidatest")
     public String get(){
         log.info("yidatest get");

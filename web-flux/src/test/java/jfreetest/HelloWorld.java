@@ -2,6 +2,7 @@ package jfreetest;
 
 import lombok.extern.java.Log;
 import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartFrame;
 import org.jfree.chart.ChartUtils;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
@@ -213,7 +214,7 @@ public class HelloWorld {
     }
 
     @Test
-    public void 单线折线图案例() throws IOException {
+    public void 单线折线图案例() throws IOException, InterruptedException {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         //String[] xAxis = new String[]{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
         String[] xAxis = new String[]{"2023-12-08 00:00:01", "2023-12-08 00:00:02", "2023-12-08 00:00:03", "2023-12-08 00:00:04", "2023-12-08 00:00:05", "2023-12-08 00:00:06", "2023-12-08 00:00:07"};
@@ -247,8 +248,12 @@ public class HelloWorld {
         //配置CategoryPlot
         CategoryPlotOption(ucl,lcl,seriesData, labelPositions, markLineValues, markLineNames, triggerIndex, chart);
         //保存配置
-        ChartUtils.saveChartAsPNG(new File("C:\\Users\\admin\\Desktop\\image\\1.png"), chart, 1200, 600);
-        //ChartUtils.s
+        ChartUtils.saveChartAsPNG(new File("C:\\Users\\admin\\Desktop\\xuexi\\1.png"), chart, 1200, 600);
+
+//        ChartFrame chartFrame = new ChartFrame("Test", chart);
+//        chartFrame.pack();
+//        chartFrame.setVisible(true);
+//        Thread.sleep(Integer.MAX_VALUE);
     }
 
     private static void CategoryPlotOption(Double ucl,Double lcl, Double[] seriesData, MarkLineDto.LabelPosition[] labelPositions, Double[] markLineValues, String[] markLineNames, int triggerIndex, JFreeChart chart) {
