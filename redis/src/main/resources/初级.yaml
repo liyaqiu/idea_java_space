@@ -5,26 +5,136 @@
   - Redis支持数据的备份，即Master-Slave模式的数据备份
 安装:
   下载:
-    - https://redis.io/download/#redis-downloads
-    - https://download.redis.io/releases/ 下载第二位为偶数版本的
-    - http://www.redis.cn/
-    - https://redis.com.cn/documentation.html
-  练习:
-    - https://try.redis.io/
-    - http://doc.redisfans.com/
+    概述:
+      - https://redis.io/download/#redis-downloads
+      - https://download.redis.io/releases/ 下载第二位为偶数版本的
+      - http://www.redis.cn/
+      - https://redis.com.cn/documentation.html
+    练习:
+      - https://try.redis.io/ (命令在线练习)
+      - http://doc.redisfans.com/ (命令网址)
+      - http://www.redis.cn/commands.html (命令网址)
   安装: "
-    1
+    1编译(需要安装gcc)
       cd redis-7.0.14
       make && make install
-    2
-      daemonize yes 后台启动
-      protected-mode no 取消保护模式
-      bind 0.0.0.0 绑定ip
-      requirepass 123456 设置密码
-    3
-      redis-cli -a 123456 -p 6479
+      默认安装的路径为  /usr/local/bin/
+        redis-benchmark 性能测试工具
+        redis-check-aof 修复有问题的(RDB或AOF)文件
+        redis-check-rdb 修复有问题的dump.rdb文件
+        redis-sentinel 集群工具
+        redis-cli 客户端连接工具
+        redis-server 服务端启动
+    2修改配置文件
+      mkdir redis7 && cp redis-7.0.14/redis.conf redis7/
+        daemonize yes 后台启动
+        protected-mode no 取消保护模式
+        bind 0.0.0.0 绑定ip
+        requirepass 123456 设置密码
+    3启动redis
+      启动服务
+        redis-server /root/redis7/redis.conf
+      关闭服务
+        redis-cli -h 192.168.88.11  -a 123456 -p 6379 shutdown
+      连接服务
+        redis-cli -h 192.168.88.11  -a 123456 -p 6379
   "
-10大数据类型:
+10大数据类型(针对value类型):
+  命令网址:
+    - https://try.redis.io/
+    - http://doc.redisfans.com/
+    - http://www.redis.cn/commands.html
+    - https://redis.io/commands/
+  查看数据类型命令: "
+    帮助文档 help [@string | @list | @hash | @Set | Sorted-Set]
+    查询所有key keys *
+    查看key数据类型 type k1
+  "
+  String字符串:
+    概述:
+      - 最大可以是512M
+      - "
+        增 set k1 eric
+        查 get k1
+        改 set k1 eric
+        删 del k1
+      "
+  List列表:
+    概述:
+      - 你可以从头部或者尾部添加(底层是双向链表)
+      - 最多可以包含40亿个
+      - "
+        增 RPUSH k1 1 2 3 4 5
+        查 LRANGE k1 0 -1
+        插入 LINSERT k1 BEFORE 1 newElement
+        删 del k1
+        删除 LREM k1 count element
+        弹出 RPOP k1 count
+        查询数量 LLEN k1
+      "
+  Hash哈希表:
+    概述:
+      - hash如同map，适合存储对象类型数据
+      - 最多可以包含40亿个
+      - "
+        增 HSET k1 f1 f1v f2 f2v
+        查 HGET k1 f1
+        查所有key HKEYS k1
+        差所有value HVALS k1
+        改 HSET k1 f1 f1vv
+        删 del k1
+      "
+  Set无序无重复集合:
+    概述:
+      - 最多可以包含40亿个
+      - "
+        增 SADD k1 1 2 3 4 5
+        查所有 SMEMBERS k1
+        查某一个是否存在 SISMEMBER k1 member
+        删 del k1
+        删除某个 SREM k1 member
+        随机弹出，弹出元素会被删除 SPOP k1 [count]
+        随机弹出，弹出元素不会被删除 SRANDMEMBER k1 [count]
+        查询数量 SCARD k1
+        差集 SDIFF k1 k2
+        并集 SUNION k1 k2
+        交集 SINTER k1 k2
+      "
+  Sorted-Set(ZSet)有序无重复集合:
+    概述:
+      - 最多可以包含40亿个
+      - "
+        增 ZADD k1 1 v1 2 v2 3 v3
+        根据分数升序查 ZRANGE k1 0 -1
+        根据分数倒叙查 ZREVRANGE k1 0 -1
+        查询包含分数0.2和2 ZRANGEBYSCORE k1 0.2 2 WITHSCORES
+        查询不包含分数0.2和2 ZRANGEBYSCORE k1 (0.2 (2 WITHSCORES
+        修改某个值的分数 ZINCRBY k1 100 v1
+        删 del k1
+        删除某个 ZREM k1 v1
+        查询数量 ZCARD k1
+        弹出最大分数 ZPOPMAX k1 [count]
+        弹出最小分数 ZPOPMAX k1 [count]
+      "
+  Stream流:
+    概述:
+      - redis5.0版本新增的数据结构
+      - Stream主要用于消息队列，Redis本身是有一个发布订阅来实现消息队列的功能，但它有个缺陷就是消息无法持久化，如果出现网络断开，宕机等，消息就会被丢弃
+      - Stream提供了消息的持久化和主备复制功能，可以让任何客户端访问任何时刻的数据，并且能记住每一个客户端的访问位置，还能保证消息不丢失
+  GEO地理空间:
+    概述:
+      - 用于存储地理位置信息，并对存储的信息进行操作
+      - 包括添加地理位置坐标，获取地理位置坐标，计算两个地理位置之间的距离，根据用户给定的经纬度坐标来获取指定范围内的地理位置集合
+  HyperLogLog基数统计:
+    概述:
+      - 在输入元素数量或者体积非常大，计算基数所需空间总是固定且很小
+      - 每个HyperLogLog键只需要花费12KB内存，就可以计算接近2^64个不同元素的基数
+  Bitmap位图:
+    概述:
+      -
+  Bitfield位域:
+    概述:
+      - 可以一次性操作多个比特位域(连续的多个比特位)，它会执行一系列操作并返回一个响应数组，这个数组中的元素对应参数列表中的响应操作的执行结果
 持久化:
 事务:
 管道:
@@ -33,3 +143,34 @@
 哨兵(sentinel):
 集群(cluster):
 springboot集成:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

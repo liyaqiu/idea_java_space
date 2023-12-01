@@ -147,7 +147,7 @@
                             <!--包含哪些-->
                         </includes>
                         <excludes>
-                            <!--排序哪些-->
+                            <!--排斥哪些-->
                             <exclude>**/Test1.java</exclude>
                         </excludes>
                     </configuration>

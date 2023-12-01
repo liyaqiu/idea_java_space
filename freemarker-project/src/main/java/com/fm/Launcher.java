@@ -1,9 +1,8 @@
-package test;
+package com.fm.controller;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
-import test.controller.MySpringApplication;
 
 /**
  * @author lyq
@@ -12,9 +11,10 @@ import test.controller.MySpringApplication;
 @SpringBootApplication
 public class Launcher {
 
-    public static void main(String[] args) {
-        //ConfigurableApplicationContext context = SpringApplication.run(Launcher.class, args);
-        ConfigurableApplicationContext context = MySpringApplication.run(Launcher.class, args);
-    }
-}
 
+    public static void main(String[] args) {
+        ConfigurableApplicationContext context = SpringApplication.run(Launcher.class, args);
+    }
+
+
+}
