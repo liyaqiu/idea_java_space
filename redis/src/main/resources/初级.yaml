@@ -14,7 +14,7 @@
       - https://try.redis.io/ (命令在线练习)
       - http://doc.redisfans.com/ (命令网址)
       - http://www.redis.cn/commands.html (命令网址)
-  安装: "
+  安装&启动: "
     1编译(需要安装gcc)
       cd redis-7.0.14
       make && make install
@@ -38,6 +38,9 @@
         redis-cli -h 192.168.88.11  -a 123456 -p 6379 shutdown
       连接服务
         redis-cli -h 192.168.88.11  -a 123456 -p 6379
+        redis-cli -h 192.168.88.11  -a 123456 -p 6379 --raw  解决中文乱码
+      查看redis版本
+        redis-server --version
   "
 10大数据类型(针对value类型):
   命令网址:
@@ -46,9 +49,14 @@
     - http://www.redis.cn/commands.html
     - https://redis.io/commands/
   查看数据类型命令: "
-    帮助文档 help [@string | @list | @hash | @Set | Sorted-Set]
-    查询所有key keys *
-    查看key数据类型 type k1
+    帮助文档 
+      help [@string | @list | @hash | @Set | Sorted-Set]
+    查询所有
+      key keys *
+    查看key数据类型 
+      type k1
+    根据参数名查看配置
+      CONFIG GET [dir|dbfilename|参数名]
   "
   String字符串:
     概述:
@@ -121,22 +129,265 @@
       - redis5.0版本新增的数据结构
       - Stream主要用于消息队列，Redis本身是有一个发布订阅来实现消息队列的功能，但它有个缺陷就是消息无法持久化，如果出现网络断开，宕机等，消息就会被丢弃
       - Stream提供了消息的持久化和主备复制功能，可以让任何客户端访问任何时刻的数据，并且能记住每一个客户端的访问位置，还能保证消息不丢失
+      - "
+        队列操作命令
+          查询队列数量
+            XLEN k1
+          从小到大查询
+            XRANGE  k1  - + COUNT 3  
+          指定ID删除
+            XDEL k1 1701461441742-
+          比次ID小的删除
+            XTRIM  k1 MINID 1701461441742-0
+          $以当前最新ID为界限，往后读取2条
+            XREAD COUNT  2 STREAMS k1 $
+          0/00/0-0/0000代表从最小的开始读，读取2条
+            XREAD COUNT  2 STREAMS k1 0
+          阻塞读取
+            XREAD BLOCK 0 STREAMS k1 $
+          查看队列的信息
+            XINFO STREAM  k1
+            XINFO STREAM  k1 FULL 查看详细
+        生产者操作命令
+          XADD k1 * id 11 name eric age 17 自动ID生成
+          XADD k1 1701461441742-1 id 11 name eric age 17 手动指定ID
+        消费者操作命令
+          创建消费组
+            XGROUP CREATE k1 g1 0 从最老的数据开始
+            XGROUP CREATE k1 g1 $ 从最新的数据开始
+          创建消费者
+            XREADGROUP GROUP g1 consumer1 COUNT 1 STREAMS k1 > 从未读取过的记录开始
+            XREADGROUP GROUP g1 consumer1 BLOCK 0  STREAMS k1 > 阻塞消费
+          查看PENDING状态数据(读取，但未ACK的记录)
+            XPENDING k1 g1 查看某一个消费组的消费情况
+            XPENDING k1 g1 - + 100  consumer1 查看某一个消费组的消费者消费情况
+          提交ACK确认
+            XACK k1 g1  1701463286742-0 
+      "
   GEO地理空间:
     概述:
       - 用于存储地理位置信息，并对存储的信息进行操作
       - 包括添加地理位置坐标，获取地理位置坐标，计算两个地理位置之间的距离，根据用户给定的经纬度坐标来获取指定范围内的地理位置集合
+      - "
+        添加 GEOADD k1 116.403963 39.915115 天安门 116.403414 39.924091 故宫
+        查看 GEOPOS k1 天安门
+        计算2个坐标之间的距离 GEODIST k1 天安门 故宫 M
+        查找某个位置10公里内的 GEORADIUS k1 116.418017 39.914402 10 km WITHDIST WITHHASH WITHCOORD COUNT 10 DESC
+        根据名字查找10公里内的 GEORADIUSBYMEMBER k1 天安门 10 km WITHDIST WITHHASH WITHCOORD COUNT 10 ASC
+      "
   HyperLogLog基数统计:
     概述:
       - 在输入元素数量或者体积非常大，计算基数所需空间总是固定且很小
       - 每个HyperLogLog键只需要花费12KB内存，就可以计算接近2^64个不同元素的基数
+      - HyperLogLog做基数去重统计，但是集合不返回具体元素
+      - "
+        增 PFADD K1 1 2 3 4 4 5
+        统计个数 PFCOUNT K1
+        对多个合并 PFMERGE mk k1 k2
+      "
   Bitmap位图:
     概述:
       -
+      - 用String类型作为底层数据结构实现的一种统计二值状态的数据类型
+      - 位图本质是数组，它是机遇String类型的按位的操作。该数组由多个二进制位组成，每个二进制位都对应一个偏移量(称之为一个索引)
+      - "
+        增 SETBIT k1 20 1
+        改 SETBIT k1 20 0
+        统计一共设置多少次1 BITCOUNT k1
+        统计一共有多少字节 STRLEN k1
+      "
   Bitfield位域:
     概述:
       - 可以一次性操作多个比特位域(连续的多个比特位)，它会执行一系列操作并返回一个响应数组，这个数组中的元素对应参数列表中的响应操作的执行结果
+      - "
+        SET k1 hello
+        BITFIELD k1 SET i8 8 120  对无符号8位操作，从第8位开始，设置为120
+        BITFIELD k1 GET i8 8
+        GET k1
+      "
 持久化:
+  RDB与AOF同时开启的时候: 优先加载AOF文件
+  RDB(Redis DataBase):
+    概述:
+      - RDB持久化以指定的时间间隔执行数据集的时间点快照(在时间范围内数据变化的频率触发快照)
+    RDB快照策略: "
+      Redis6.0.16以下
+        save 900 1
+        save 300 10
+        save 60 1000
+      Redis6.2及Redis-7.0.0
+        3600秒(1小时)发生1次变化写一份dump.rdb文件
+        300秒(5分钟)发生60次变化写一份dump.rdb文件
+        60秒(1分钟)发生10000次变化写一份dump.rdb文件
+        save 3600 1 300 100 60 10000
+      修改持久化目录的路径
+        dir ./
+      修改文件名
+        dbfilename dump.rdb
+    "
+    RDB文件恢复数据: "
+      根据如下参数，把dump.rdb文件放入对应位置，重启redis既可以重新加载备份文件到内存中
+        修改RDB快照文件的路径
+          dir ./
+        修改文件名
+          dbfilename dump.rdb
+    "
+    自动触发备份: "
+      自动触发，当操作满足以下任一条件，即可触发RDB备份
+        save 3600 1 300 100 60 10000
+    "
+    手动触发备份:
+      save(慎用): "
+        同步执行，在主程序中执行会阻塞当前redis服务器，直到持久化工作完成执行save命令期间，redis不能处理其它命令，一般不用于线上
+      "
+      bgsave: "
+        异步执行，redis会在后台异步进行快照操作，不阻塞快照同时还可以响应客户端请求，该触发方式会fork一个子进程由子进程复制持久化过程
+      "
+    查看最后一次备份时间: "
+        LASTSAVE 
+        date -d @1701474390
+    "
+    RDB文件修复: "
+        redis-check-rdb ./dump.rdb
+    "
+    优点:
+      - 适合大规模的数据恢复
+      - 按照业务定时备份
+      - 对数据完整性和一致性要求不高
+      - RDB文件在内存中的加载速度要比AOF快得多，而且文件的占用体积可能会比AOP要小
+    缺点:
+      - "
+        RDB会出现数据丢失问题
+        save 3600 1 300 100 60 10000
+        因为上面的保存策略的存在，如果突然宕机的情况下，RDB会丢失一次策略的数据
+      "
+      - 内存数据的全量同步，如果数据量太大会导致I/O严重影响服务器性能
+      - RDB在fork内存的数据被克隆一份(占用更多的内存)
+      - RDB依赖于主进程的fork，在更大的数据集中，这可能会导致服务器请求的瞬间延迟(可能会导致Redis停止为客户端服务几毫秒甚至1秒钟)。
+    禁用RDB快照: "
+      默认开始RDB，禁用RDB快照，把策略更改为空
+        save ''
+    "
+  AOF(Append Only File):
+    概述:
+      - AOF以日志的形式来记录每个【写操作】，只允许追加文件，但不可以改写文件。
+    AOF持久化过程: "
+      Client作为命令的来源，会有多个源头以及源源不断的请求命令。
+      在这些命令到达Redis Server 以后并不是直接写入AOF文件，会将其这些命令先放入AOF缓存中进行保存。这里的AOF缓冲区实际上是内存中的一片区域，存在的目的是当这些命令达到一定量以后再写入磁盘，避免频繁的磁盘IO操作。
+      AOF缓冲会根据AOF缓冲区同步文件的【三种写回策】将命令写入磁盘上的AOF文件
+      随着写入AOF内容的增加为避免文件膨胀，会根据规则进行命令的合并(又称AOF重写)，从而起到AOF文件压缩的目的。
+      当Redis Server 服务器重启的时候会从AOF文件载入数据。
+    "
+    AOF开启: "
+      1.关闭默认的RDB 
+        save ''
+      2.开启AOF
+        appendonly yes 默认情况下redis只开启了RDB持久化
+        dir ./ 修改持久化目录的路径
+        appendfilename 'appendonly.aof' AOF文件名   
+        appenddirname 'appendonlydir' AOF目录
+        aof-use-rdb-preamble yes 是否开启AOF混合方式
+    "
+    AOF文件恢复数据: "
+      根据如下参数，把aof目录或文件放入对应位置，重启redis既可以重新加载备份文件到内存中
+        appendonly yes 默认情况下redis只开启了RDB持久化
+        dir ./ 修改持久化目录的路径
+        appendfilename 'appendonly.aof' AOF文件名   
+        appenddirname 'appendonlydir' AOF目录
+    "
+    AOF策略: "
+      同步写回，可靠性高，数据基本不丢失，每个写命令都要落磁盘，性能影响较大
+        appendfsync always
+      默认策略，每秒写回，性能适中，宕机时丢失1秒内的数据
+        appendfsync everysec
+      操作系统控制写会，性能最好，宕机时丢失数据较多
+        appendfsync no
+    "
+    AOF文件修复: "
+      直接给清单文件对所有文件修复，或者给某一个AOF文件
+      redis-check-aof --fix  /root/appendonlydir/appendonly.aof.manifest
+    "
+    AOF重写机制:
+      概述:
+        - 由于AOF持久化是Redis不断将写命令记录到AOF文件中，随着Redis不断的进行，AOF的文件会越来越大，占用服务器磁盘也就越大， 以及AOF恢复时间越长。
+        - 为了解决这个问题，Redis新增了AOF重写机制，当AOF文件的大小超过了所设定的阈值时，Redis就会自动启动AOF文件内容压缩，只保留可以恢复数据的最小指令集
+      重写原理: "
+        1.在重写开始前，redis会创建一个“重写子进程”，这个子进程会读取现有的AOF文件，并将其包含的指令进行分析压缩并写入到一个临时文件中。
+        2.与此同时，主进程会将新接收到的写指令一边累积到内存缓冲区中，一边继续写入到原有的AOF文件中，这样做是保证原有的AOF文件的可用性，避免在重写过程中出现意外。
+        3.当“重写子进程”完成重写工作后，它会给父进程发一个信号，父进程收到信号后就会将内存中缓存的写指令追加到新AOF文件中
+        4.当追加结束后，redis就会用新AOF文件来代替旧AOF文件，之后再有新的写指令，就都会追加到新的AOF文件中
+        5.【重写aof文件的操作，并没有读取旧的aof文件，而是将整个内存中的数据内容用命令的方式重写了一个新的aof文件，这点和RDB快照有点类似】
+      "
+      自动触发重写机制: "
+        根据上次重写后的AOF文件大小，判断当前AOF的大小是否增长了1倍，并且AOF文件是否达到64mb
+        auto-aof-rewrite-percentage 100
+        auto-aof-rewrite-min-size 64mb
+      "
+      手动触发重写机制: 命令 BGREWRITEAOF
+    AOF混合方式: "
+      reids7
+        混合方式文件 aof-use-rdb-preamble yes(默认)
+          appendonly.aof.4.base.rdb（自动触发重写机制或手动触发重写机制，全量RDB记录方式）
+          appendonly.aof.4.incr.aof（增量AOF记录方式）
+          appendonly.aof.manifest
+        非混合方式文件 aof-use-rdb-preamble no
+          appendonly.aof.4.base.aof（自动触发重写机制或手动触发重写机制，全量AOF记录方式）
+          appendonly.aof.4.incr.aof（增量AOF记录方式）
+          appendonly.aof.manifest
+    "
+    优点:
+      - 使用AOF Redis 更加持久，您可以有不同的 fsync 策略，根本不fsync、每秒fsync、每次查询时fsync。使用每秒fsync的默认策略，写入性能仍然很棒。fsync 是使用后台线程执行的，当没有 fsync正在进行时，主线程将努力执行写入，因此您只能丢失一秒钟的写入。
+      - AOF日志是一个仅附加日志，因此不会出现寻道问题，也不会在断电时出现损坏问题。即使由于某种原因(磁盘已满或其他原因) 日志以写一半的命令结尾，redis-check-aof 工具也能够轻松修复它
+      - 当AOF 变得太大时，Redis 能够在后台自动重写AOF。重写是完全安全的，因为当 Redis继续附加到旧文件时，会使用创建当前数据集所需的最少操作集生成一个全新的文件，一旦第二个文件准备就绪，Redis 就会切换两者并开始附加到新的那一个。
+      - AOF 以易于理解和解析的格式依次包含所有操作的日志。您甚至可以轻松导出AOF 文件。例如，职使您不小心使用该FLUSHALL命令刷新了所有内容，只要在此期间没有执行日志重写，您仍然可以通过停止服务器、删除最新命令并重新启动 Redis 来保存您的数据集。
+    缺点:
+      - AOF文件通常比相同数据集的等效 RDB文件大。
+      - 根据确切的fsync 策略，AOF 可能比RDB 慢一般来说，将fsync 设置为每秒性能仍然非常高，并且在禁用 fsync 的情况下，即使在高负载下它也应该与 RDB 一样快。即使在巨大的写入负载的情况下，RDB 仍然能够提供关于最大延迟的更多保证。
+  RDB与AOF总结:
+    - RDB体积小，恢复快，数据安全低
+    - AOF体积大，恢复慢，数据安全高
+  开启纯缓存模式: "
+    虽然禁用了持久化，但是BGREWRITEAOF SAVE GBSAVE仍可以使用生成文件
+    save '' 关闭RDB持久化
+    appendonly no 关闭AOF持久化
+  "
 事务:
+  概述:
+    - 可以一次执行多个命令所有命令都会序列化，按顺序地串行化执行而不会被其它命令插入，不许加塞
+    - 一个队列中，一次性顺序性、排他性的执行一系列命令
+    - Redis事务可以理解为多个命令仅仅只是进行一次批处理，而没有像传统数据库一样支持回滚
+  Redis事务 Vs 数据库事务: "
+     1.单独的隔离操作，Redis的事务仅仅是保证事务里的操作会被连续独占的执行，redis命令执行是单线程架构，在执行完事务内所有指令前是不可能再去同时执行其他客户端的请求的
+     2.没有隔离级别的概念，因为事务提交前任何指令都不会被实际执行，也就不存在【事务内的查询要看到事务里的更新，在事务外查询不能看到】这种问题了
+     3.不保证原子性，Redis的事务不保证原子性，也就是不保证所有指令同时成功或同时失败，只有决定是否开始执行全部指令的能力，没有执行到一半进行回滚的能力
+     4.排它性，Redis会保证一个事务内的命令依次执行，而不会被其它命令插入
+    "
+  案例1-成功执行: "
+    MULTI
+    SET k1 v1
+    SET k2 v2
+    EXEC
+  "
+  案例2-取消执行: "
+      MULTI
+      SET k1 v1
+      SET k2 v2
+      DISCARD
+    "
+  案例3-有语法错误-导致全部失败: "
+      MULTI
+      SET k1 v1
+      SET k2 v2
+      SET k3
+      EXEC
+    "
+  案例4-没语法错误-导致部分失败: "
+        MULTI
+        SET k1 v1
+        SET k2 v2
+        INCR k1  --此语法会通过，但是执行会失败
+        EXEC
+      "
 管道:
 发布订阅:
 复制（replica）:
