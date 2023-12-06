@@ -11,6 +11,8 @@ public class Test {
         map.put(1,1);
         System.out.println(map.size());
         String.valueOf(100L);
+        Integer i =1213;
+        System.out.println(i.hashCode());
 
     }
 }

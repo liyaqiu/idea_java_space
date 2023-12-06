@@ -10,10 +10,6 @@
       - https://download.redis.io/releases/ 下载第二位为偶数版本的
       - http://www.redis.cn/
       - https://redis.com.cn/documentation.html
-    练习:
-      - https://try.redis.io/ (命令在线练习)
-      - http://doc.redisfans.com/ (命令网址)
-      - http://www.redis.cn/commands.html (命令网址)
   安装&启动: "
     1编译(需要安装gcc)
       cd redis-7.0.14
@@ -42,22 +38,27 @@
       查看redis版本
         redis-server --version
   "
-10大数据类型(针对value类型):
+常用命令:
   命令网址:
     - https://try.redis.io/
     - http://doc.redisfans.com/
     - http://www.redis.cn/commands.html
     - https://redis.io/commands/
-  查看数据类型命令: "
+  命令: "
     帮助文档 
       help [@string | @list | @hash | @Set | Sorted-Set]
     查询所有
-      key keys *
+      KEY keys *
     查看key数据类型 
-      type k1
+      TYPE k1
     根据参数名查看配置
       CONFIG GET [dir|dbfilename|参数名]
+    清空当前数据库所有数据
+      FLUSHDB
+    情况所有数据库所有数据
+      FLUSHALL
   "
+10大数据类型(针对value类型):
   String字符串:
     概述:
       - 最大可以是512M
@@ -356,6 +357,10 @@
     - 可以一次执行多个命令所有命令都会序列化，按顺序地串行化执行而不会被其它命令插入，不许加塞
     - 一个队列中，一次性顺序性、排他性的执行一系列命令
     - Redis事务可以理解为多个命令仅仅只是进行一次批处理，而没有像传统数据库一样支持回滚
+  事务流程:
+    开启: MULTI，开启事务
+    入队: CMD1 CMD2 CMD3，把命令添加入队列
+    执行: EXEC 执行事务
   Redis事务 Vs 数据库事务: "
      1.单独的隔离操作，Redis的事务仅仅是保证事务里的操作会被连续独占的执行，redis命令执行是单线程架构，在执行完事务内所有指令前是不可能再去同时执行其他客户端的请求的
      2.没有隔离级别的概念，因为事务提交前任何指令都不会被实际执行，也就不存在【事务内的查询要看到事务里的更新，在事务外查询不能看到】这种问题了
@@ -388,11 +393,321 @@
         INCR k1  --此语法会通过，但是执行会失败
         EXEC
       "
+  案例5-watch: "
+    1.在监控期间，如果一旦有人修改了事务内任何一个key的值，那么会导致整个事务失败
+    2.使用UNWATCH或者EXEC都会取消监控
+    3.WATCH和UNWATCH写在事务内无效
+    
+    WATCH k1
+    UNWATCH k1  
+    MULTI
+      SET k1 v11
+      SET k2 v22
+    EXEC
+    
+  "
 管道:
+  概述:
+    - redis pipeline 类似于 http1.0和http1.1的keeplive的概念
+    - redis pipeline解决多次命令的反复请求和响应(RTT)，尽量在一次请求中处理多个命令
+  案例: "
+  创建命令
+    vi cmd.txt
+      HSET k2 f1 f1v f2 f2v
+      SET k1 v1
+  利用管道执行  
+    cat cmd.txt  | redis-cli -h 192.168.88.11  -a 123456 -p 6379 --pipe
+  "
 发布订阅:
-复制（replica）:
+  概述:
+    - "
+      发布订阅可以使用Stream来代替，Stream的数据可以持久化，而pus/sub的数据不持久化
+    "
+  案例: "
+     订阅 SUBSCRIBE c1 c2
+     发布 PUBLISH c1 msg
+     查看活跃的队列 PUBSUB CHANNELS
+     查看队列有多少个订阅者 PUBSUB NUMSUB c1
+     取消订阅c1队列 UNSUBSCRIBE c1
+  "
+主从复制集群(replica):
+  概述:
+    - 当master数据变化的时候，自动将新的数据异步同步到slave数据库
+    - 主从复制，可以实现读写分离，容灾恢复，数据备份，水平扩容支撑高并发
+  配置（以下配置没开始持久化）: "
+    master
+      dir  '/root/node1/'
+      port 7771
+      pidfile '/var/run/redis_7771.pid'
+      logfile '/root/node1/redis.log'
+      save ''
+      appendonly no
+      protected-mode no
+      daemonize yes
+      bind 0.0.0.0
+      requirepass 123456
+    slave 1
+      dir  '/root/node2/'
+      port 7772
+      pidfile '/var/run/redis_7772.pid'
+      logfile '/root/node2/redis.log'
+      save ''
+      appendonly no
+      protected-mode no
+      daemonize yes
+      bind 0.0.0.0
+      requirepass 123456
+      replicaof 192.168.88.11 7771
+      masterauth 123456
+    slave 2
+      dir  '/root/node3/'
+      port 7773
+      pidfile '/var/run/redis_7773.pid'
+      logfile '/root/node3/redis.log'
+      save ''
+      appendonly no
+      protected-mode no
+      daemonize yes
+      bind 0.0.0.0
+      requirepass 123456
+      replicaof 192.168.88.11 7771
+      masterauth 123456
+  "
+  案例: "
+    支持复制模式 
+      主->多从
+      主->即从即主->从
+    
+    配置redis.conf
+      此案例为同一台机器进行，不同机器则不需要区分配置
+      基本配置
+        不同的
+          dir  /root/node1/ 指定RDB或者AOF日志文件目录
+          port 指定端口
+          pidfile /var/run/redis_7771.pid 进行PID号
+          logfile '/root/node1/redis.log' 日志文件，可以通过loglevel指定日志级别
+        相同的
+          save '' 禁用RDB
+          appendonly no 禁用AOF
+          protected-mode no 是否开启保护模式
+          daemonize yes 后台启动
+          bind 0.0.0.0 绑定ip
+          requirepass 123456 设置密码
+      主从复制配置，master不需要配置
+        slave配置永久指定(跟mysql一样，从也可以作为主)
+          replicaof 192.168.88.11 7771
+          masterauth 123456
+        slave配置临时指定(跟mysql一样，从也可以作为主)
+          SLAVEOF 192.168.88.11 7771
+          CONFIG SET masterauth 123456
+    启动服务
+      redis-server /root/node1/redis.conf --port 7771 &&
+      redis-server /root/node2/redis.conf --port 7772 &&
+      redis-server /root/node3/redis.conf --port 7773 
+    关闭服务
+      redis-cli -h 192.168.88.11  -a 123456 -p 7771 shutdown &&
+      redis-cli -h 192.168.88.11  -a 123456 -p 7772 shutdown &&
+      redis-cli -h 192.168.88.11  -a 123456 -p 7773 shutdown
+    连接服务
+      redis-cli -h 192.168.88.11  -a 123456 -p 7771
+      redis-cli -h 192.168.88.11  -a 123456 -p 7772
+      redis-cli -h 192.168.88.11  -a 123456 -p 7773
+    查看主从信息
+      INFO replication
+    取消主从同步
+      SLAVEOF NO ONE
+      清空当前数据库所有数据
+        FLUSHDB
+      情况所有数据库所有数据
+        FLUSHALL
+  "
+  工作原理: "
+    slave启动，同步初请
+      slave启动成功连接到master后会发送一个sync命令
+      slave首次全新连接master,一次完全同步 (全量复制)将被自动执行，slave自身原有数据会被master数据覆盖清除
+    首次连接，全量复制
+      master节点收到sync命令后会开始在后台保存快照(即RDB持久化，主从复制时会触发RDB)，司时收集所有接收到的用于修改数据集命令缓得起来，master节点执行RDB持久化完后，master将rdb快照文件和所有缓存的命令发送到所有slave,以完成一全量同步
+      而slave服务在接收到数据库文件数据后，将其存盘并加载到内存中，从而完成复制初始化
+    心跳持续，保持通信
+      master发出PING包的周期，默认是10秒（参数 repl-ping-replica-period 10）
+    进入平稳，增量复制
+      master会检查backlog里面的offset，master和slave都会保存一个复制的offset还有一个masterId，offset是保存在backlog中的。Master只会把已经复制的offset后面的数据复制给Slave，类似断点续传
+    从机下线，重连续传
+      master继续将新的所有收集到的修改命令自动依次传给slave,完成同步（断点续传）
+  "
+  缺点:
+    master宕机: 默认情况下，不会在slave节点中自动重选一个master，而slave只能读不允许写操作
+    复制延时，信号衰减: 由于所有的写操作都是先在Master上操作，然后同步更新到Slave上，所以从Master同步到Slave机器有一定的延迟，当系统很繁亡的时候，延迟问题会更加严重，Slave机器数量的增加也会使这个问题重加严重。
 哨兵(sentinel):
+  概述:
+    - 哨兵集群是用来监控redis主从复制集群，一旦主从复制集群的master宕机，哨兵集群会主从复制集群中选举出一个slave来当选master，从而保持主从复制集群的健壮性
+    - "
+      主从监控，监控主从复制redis集群运行是否正常
+      消息通知，哨兵可以将故障转移的结果发送到客户端
+      故障转移，如果master异常，则会进行主从切换，将其中一个slave作为新的master
+      配置中心，客户端通过连接哨兵来获得当前redis服务的主节点地址
+    "
+  哨兵集群工作原理:
+    概述:
+      - 更改原有的sentinel.conf配置，以及更改redis.conf的配置，并且维护redis主从复制集群的关系
+    主观下线&客观下线: "
+        主观下线 转为 客观下线，最后由sentinel leader选取一个redis master
+
+        主观下线(Subjective Down): sentinel down-after-milliseconds mymaster 30000
+          主观下线是指单个哨兵节点认为一个特定的Redis节点（主节点、从节点或其他哨兵）不可用。主观下线是一种主观的判断，是基于单个哨兵节点的观察结果得出的。当一个哨兵无法连接到某个Redis节点，它会将该节点标记为主观下线。多个哨兵节点可能会对同一个节点发出主观下线标记。
+        客观下线(Objective Down): sentinel monitor <master-name> <ip> <redis-port> <quorum>
+          客观下线是指在整个哨兵集合中达成一致，认为某个特定的Redis节点不可用。客观下线是一种更客观的判断，需要多个哨兵节点共同达成一致。
+          当多个哨兵节点都主观下线同一个Redis节点时，这个节点会被认为是客观下线。 
+          quorum表示客观下线最少哨兵数量，意思就是，当你有3台哨兵机器的时候，法定人数那么配置为机器数量的一半加1(3/2+1 = 2)
+          我们知道，网络是不可靠的，有时候一个sentinel会因为网络堵塞而误认为一个master已经死掉，在sentinel集群环境下需要多个sentinel相互沟通来确认某个master是否真的死掉
+      "
+    哨兵之间的选举: 通过RAFT算法来选出leader
+  主从复制+哨兵集群步骤:
+    1主从复制集群配置（以下配置没开始持久化）: "
+      master mkdir /root/node1 && touch /root/node1/redis.conf
+        dir  '/root/node1/'
+        port 7771
+        pidfile '/var/run/redis_7771.pid'
+        logfile '/root/node1/redis.log'
+        save ''
+        appendonly no
+        protected-mode no
+        daemonize yes
+        bind 0.0.0.0
+        requirepass 123456
+        masterauth 123456 #将来有可能成为slave
+      slave1 mkdir /root/node2 && touch /root/node2/redis.conf
+        dir  '/root/node2/'
+        port 7772
+        pidfile '/var/run/redis_7772.pid'
+        logfile '/root/node2/redis.log'
+        save ''
+        appendonly no
+        protected-mode no
+        daemonize yes
+        bind 0.0.0.0
+        requirepass 123456
+        replicaof 192.168.88.11 7771
+        masterauth 123456
+      slave2 mkdir /root/node3 && touch /root/node3/redis.conf
+        dir  '/root/node3/'
+        port 7773
+        pidfile '/var/run/redis_7773.pid'
+        logfile '/root/node3/redis.log'
+        save ''
+        appendonly no
+        protected-mode no
+        daemonize yes
+        bind 0.0.0.0
+        requirepass 123456
+        replicaof 192.168.88.11 7771
+        masterauth 123456
+      "
+    2主从复制集群启动命令: "
+      启动服务
+        redis-server /root/node1/redis.conf --port 7771 &&
+        redis-server /root/node2/redis.conf --port 7772 &&
+        redis-server /root/node3/redis.conf --port 7773 
+      关闭服务
+        redis-cli -h 192.168.88.11  -a 123456 -p 7771 shutdown &&
+        redis-cli -h 192.168.88.11  -a 123456 -p 7772 shutdown &&
+        redis-cli -h 192.168.88.11  -a 123456 -p 7773 shutdown
+      连接服务
+        redis-cli -h 192.168.88.11  -a 123456 -p 7771
+        redis-cli -h 192.168.88.11  -a 123456 -p 7772
+        redis-cli -h 192.168.88.11  -a 123456 -p 7773
+      查看主从信息
+        INFO replication
+      取消主从同步
+        SLAVEOF NO ONE
+        清空当前数据库所有数据
+          FLUSHDB
+        情况所有数据库所有数据
+          FLUSHALL
+    "
+    3哨兵集群配置: "
+      mkdir /root/sentinel1 && touch /root/sentinel1/sentinel.conf
+        bind 0.0.0.0
+        daemonize yes
+        protected-mode no
+        port 8881
+        pidfile /var/run/redis-sentinel-8881.pid
+        logfile /root/sentinel1/sentinel.log
+        dir  /root/sentinel1  
+        sentinel monitor mymaster 192.168.88.11 7771 2
+        sentinel auth-pass mymaster 123456
+      mkdir /root/sentinel2 && touch /root/sentinel2/sentinel.conf
+        bind 0.0.0.0
+        daemonize yes
+        protected-mode no
+        port 8882
+        pidfile /var/run/redis-sentinel-8882.pid
+        logfile /root/sentinel2/sentinel.log
+        dir  /root/sentinel2
+        sentinel monitor mymaster 192.168.88.11 7771 2
+        sentinel auth-pass mymaster 123456
+      mkdir /root/sentinel3 && touch /root/sentinel3/sentinel.conf
+        bind 0.0.0.0
+        daemonize yes
+        protected-mode no
+        port 8883
+        pidfile /var/run/redis-sentinel-8883.pid
+        logfile /root/sentinel3/sentinel.log
+        dir  /root/sentinel3
+        sentinel monitor mymaster 192.168.88.11 7771 2
+        sentinel auth-pass mymaster 123456
+    "
+    4哨兵集群启动命令: "
+      启动
+        redis-sentinel /root/sentinel1/sentinel.conf --sentinel &&
+        redis-sentinel /root/sentinel2/sentinel.conf --sentinel &&
+        redis-sentinel /root/sentinel3/sentinel.conf --sentinel
+    "
+  总结:
+    - 哨兵节点的数量应为多个，哨兵本身应该是集群，保证高可用
+    - 哨兵节点的数量应该是奇数(跟zookeeper一样，防止选举脑裂)
+    - 各个哨兵节点的配置应该一致
+  缺点: 哨兵集群+主从复制集群，并不能保证数据零丢失(在master宕机时，从slave中选取master过程中[假设5分钟切换成功]，会丢失部分之前访问原有master的请求)
 集群(cluster):
+  概述:
+    - redis分片集群支持多个master，每个master又可以挂载多个slave
+    - 由于分片集群自带哨兵集群的故障转移机制，内置了高可用的支持，无需在使用哨兵功能
+    - 客户端与redis的节点连接，不在需要连接集群中的所有的节点，只需要任意连接集群中的一个可用节点即可
+    - 槽位slot负责分配到各个物理服务器服务节点，由对应的集群来负责维护节点、插槽和数据之间的关系
+  数据如何存储到槽:
+    算法:
+      哈希取余分区:
+        概述: hash(key) mod 节点数量
+        缺点:
+          - 不方便扩缩容，数据切斜问题
+          - 机器宕机，会对某一个节点数据访问不了
+          - 如果扩缩容需要对【全部数据】重新计算hash
+      一致性哈希算法分区:
+        概述:
+          - 因为hash是int类型的，所以hash范围是2^32-1
+          - hash(key) mod (2^32-1)
+        一致性哈希算法3个步骤: "
+          1.算法构建一致性哈希环
+            利用hash范围是2^32-1构建哈希环
+          2.服务器IP节点映射
+            通过某种算法将机器落在哈希环上
+          3.key落到服务器的规则
+          存储key在哈希环上顺时针落地，往前走就是自己要存储的机器
+        "
+        缺点:
+          - 不方便扩缩容，数据切斜问题
+          - 机器宕机，会对某一个节点数据访问不了
+          - 如果扩缩容需要对【部分数据】重新计算hash
+      哈希槽分区:
+    个人总结: "
+    redis集群一共有16384个槽位（固定大小），然后分别将这些槽位一定的范围域分散到各个集群节点中。
+    后续对数据的CRUD都通过算法(SLOT = CRC16(16) mod 16384)来操作，这样做的好处就是方面了后续的水平扩缩容
+  "
+  优势: "
+    方便扩缩容和数据分派查找
+      这种结构很容易添加或者删除节点，比如如果我想新添加个节点D，我需要从节点 A、B、C中得部分槽到D上，如果我想移除节点A，需要将A中的槽移到B和C节点上，然后将没有任何槽的A节点从集群中移除即可。
+      由于从一个节点将哈希槽移动到另一个节点并不会停止服务，所以无论添加删除或者改变某个节点的哈希槽的数量都不会造成【集群不可用的状态】。
+  "
 springboot集成:
 
 
