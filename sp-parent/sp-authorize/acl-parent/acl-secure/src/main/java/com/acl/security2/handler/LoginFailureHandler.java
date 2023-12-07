@@ -2,7 +2,6 @@ package com.acl.security2.handler;
 
 import cn.hutool.json.JSONUtil;
 import com.acl.security2.utils.Result;
-import com.gzzn.service.common.utils.Res;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
