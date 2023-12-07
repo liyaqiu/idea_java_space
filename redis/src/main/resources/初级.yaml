@@ -430,7 +430,7 @@
      查看队列有多少个订阅者 PUBSUB NUMSUB c1
      取消订阅c1队列 UNSUBSCRIBE c1
   "
-主从复制集群(replica):
+主从复制集群(replica)(1主多从):
   概述:
     - 当master数据变化的时候，自动将新的数据异步同步到slave数据库
     - 主从复制，可以实现读写分离，容灾恢复，数据备份，水平扩容支撑高并发
@@ -538,7 +538,7 @@
   缺点:
     master宕机: 默认情况下，不会在slave节点中自动重选一个master，而slave只能读不允许写操作
     复制延时，信号衰减: 由于所有的写操作都是先在Master上操作，然后同步更新到Slave上，所以从Master同步到Slave机器有一定的延迟，当系统很繁亡的时候，延迟问题会更加严重，Slave机器数量的增加也会使这个问题重加严重。
-哨兵(sentinel):
+哨兵(sentinel)(动态切换的1主多从):
   概述:
     - 哨兵集群是用来监控redis主从复制集群，一旦主从复制集群的master宕机，哨兵集群会主从复制集群中选举出一个slave来当选master，从而保持主从复制集群的健壮性
     - "
@@ -662,51 +662,350 @@
         redis-sentinel /root/sentinel1/sentinel.conf --sentinel &&
         redis-sentinel /root/sentinel2/sentinel.conf --sentinel &&
         redis-sentinel /root/sentinel3/sentinel.conf --sentinel
+      
+      停止
+        ps -ef | grep sentinel 
+        kill 2659  
     "
   总结:
     - 哨兵节点的数量应为多个，哨兵本身应该是集群，保证高可用
     - 哨兵节点的数量应该是奇数(跟zookeeper一样，防止选举脑裂)
     - 各个哨兵节点的配置应该一致
   缺点: 哨兵集群+主从复制集群，并不能保证数据零丢失(在master宕机时，从slave中选取master过程中[假设5分钟切换成功]，会丢失部分之前访问原有master的请求)
-集群(cluster):
+集群(cluster)(动态切换的多主多从):
   概述:
     - redis分片集群支持多个master，每个master又可以挂载多个slave
     - 由于分片集群自带哨兵集群的故障转移机制，内置了高可用的支持，无需在使用哨兵功能
     - 客户端与redis的节点连接，不在需要连接集群中的所有的节点，只需要任意连接集群中的一个可用节点即可
     - 槽位slot负责分配到各个物理服务器服务节点，由对应的集群来负责维护节点、插槽和数据之间的关系
-  数据如何存储到槽:
-    算法:
-      哈希取余分区:
-        概述: hash(key) mod 节点数量
-        缺点:
-          - 不方便扩缩容，数据切斜问题
-          - 机器宕机，会对某一个节点数据访问不了
-          - 如果扩缩容需要对【全部数据】重新计算hash
-      一致性哈希算法分区:
-        概述:
-          - 因为hash是int类型的，所以hash范围是2^32-1
-          - hash(key) mod (2^32-1)
-        一致性哈希算法3个步骤: "
-          1.算法构建一致性哈希环
-            利用hash范围是2^32-1构建哈希环
-          2.服务器IP节点映射
-            通过某种算法将机器落在哈希环上
-          3.key落到服务器的规则
-          存储key在哈希环上顺时针落地，往前走就是自己要存储的机器
-        "
-        缺点:
-          - 不方便扩缩容，数据切斜问题
-          - 机器宕机，会对某一个节点数据访问不了
-          - 如果扩缩容需要对【部分数据】重新计算hash
-      哈希槽分区:
-    个人总结: "
-    redis集群一共有16384个槽位（固定大小），然后分别将这些槽位一定的范围域分散到各个集群节点中。
-    后续对数据的CRUD都通过算法(SLOT = CRC16(16) mod 16384)来操作，这样做的好处就是方面了后续的水平扩缩容
+  分片算法:
+    哈希取余:
+      概述: 值 = hash(key) mod 节点数量，在根据值找到具体节点
+      缺点: 不方便扩缩容(如果扩缩容需要对【全部数据】重新计算hash)，数据切斜问题
+    一致性哈希取余:
+      概述:
+        - 因为hash是int类型的，所以hash范围是2^32-1
+        - 值 = hash(key) mod (2^32-1)，在根据值顺时针找到具体节点
+      一致性哈希算法3个步骤: "
+        1.算法构建一致性哈希环
+          利用hash范围是2^32-1构建哈希环
+        2.服务器IP节点映射
+          通过某种算法将机器落在哈希环上
+        3.key落到服务器的规则
+        存储key在哈希环上顺时针落地，往前走就是自己要存储的机器
+      "
+      缺点: 不方便扩缩容(如果扩缩容需要对【部分数据】重新计算hash)，数据切斜问题
+    哈希槽(*):
+      概述:
+        - 节点与哈希槽绑定(16384个哈希槽)
+        - 哈希槽位 = CRC16(key) mod 16384，在根据哈希槽位找到对应节点
+      为什么使用16384个槽: "
+        1.如果槽位为65536，发送心跳信息的消息头达8k，发送的心跳包过于庞大
+            因为每秒钟，redis节点需要发送一定数量的ping消息作为心跳包，如果槽位为65536，这个ping消息的消息头太大了浪费带宽。
+        2.redis的集群主节点数量基本不可能超过1000个
+            集群节点越多，心跳包的消息体内携带的数据越多。如果dis cluster节点数量超过节点过1000个，也会导致网络拥堵。因此redis作者不建议re1000个。 那么，对于节点数在1000以内的redis cluster集群，16384个槽位够用了。没有必要拓展到65536个。
+        3.槽位越小，节点少的情况下，压缩比高容易传输
+            Redis主节点的配置信息中它所负责的哈希槽是通过一张itmap的形式来保存的，在传输过程中会对bitmap进行压缩但是如果bitmap的填充率slots/ N很高的话(N表示节点数)，bitmap的压缩率就低。 如果节点数很少，而哈希槽数量很多的话，bitmap的压缩率就很低。
+      "
+      优点: 方便扩缩容(如果扩缩容需要对【部分数据】重新计算slot)
+      个人总结: "
+        redis集群一共有16384个槽位（固定大小），然后分别将这些槽位一定的范围域分散到各个集群节点中。
+        后续对数据的CRUD都通过算法(SLOT = CRC16(16) mod 16384)来操作，这样做的好处就是方面了后续的水平扩缩容
+      "
+  分片集群配置(关闭持久化): "
+    至少需要6个节点，3主3从
+      *** ERROR: Invalid configuration for cluster creation.
+      *** Redis Cluster requires at least 3 master nodes.
+      *** This is not possible with 4 nodes and 1 replicas per node.
+      *** At least 6 nodes are required.
+    
+    mkdir /root/cluster1 && touch /root/cluster1/redis.conf &&
+    mkdir /root/cluster2 && touch /root/cluster2/redis.conf &&
+    mkdir /root/cluster3 && touch /root/cluster3/redis.conf &&
+    mkdir /root/cluster4 && touch /root/cluster4/redis.conf &&
+    mkdir /root/cluster5 && touch /root/cluster5/redis.conf &&
+    mkdir /root/cluster6 && touch /root/cluster6/redis.conf 
+    
+    vi /root/cluster1/redis.conf
+      dir  /root/cluster1
+      port 7771
+      pidfile /var/run/redis_7771.pid
+      logfile /root/cluster1/redis.log
+      save '' #改成双引号
+      appendonly no
+      protected-mode no
+      daemonize yes
+      bind 0.0.0.0
+      requirepass 123456
+      masterauth 123456
+      cluster-enabled yes
+      cluster-config-file nodes-7771.conf
+      cluster-node-timeout 15000
+    
+    vi /root/cluster2/redis.conf
+      dir  /root/cluster2
+      port 7772
+      pidfile /var/run/redis_7772.pid
+      logfile /root/cluster2/redis.log
+      save '' #改成双引号
+      appendonly no
+      protected-mode no
+      daemonize yes
+      bind 0.0.0.0
+      requirepass 123456
+      masterauth 123456
+      cluster-enabled yes
+      cluster-config-file nodes-7772.conf
+      cluster-node-timeout 15000
+      
+    vi /root/cluster3/redis.conf
+      dir  /root/cluster3
+      port 7773
+      pidfile /var/run/redis_7773.pid
+      logfile /root/cluster3/redis.log
+      save '' #改成双引号
+      appendonly no
+      protected-mode no
+      daemonize yes
+      bind 0.0.0.0
+      requirepass 123456
+      masterauth 123456
+      cluster-enabled yes
+      cluster-config-file nodes-7773.conf
+      cluster-node-timeout 15000
+      
+    vi /root/cluster4/redis.conf
+      dir  /root/cluster4
+      port 7774
+      pidfile /var/run/redis_7774.pid
+      logfile /root/cluster4/redis.log
+      save '' #改成双引号
+      appendonly no
+      protected-mode no
+      daemonize yes
+      bind 0.0.0.0
+      requirepass 123456
+      masterauth 123456
+      cluster-enabled yes
+      cluster-config-file nodes-7774.conf
+      cluster-node-timeout 15000
+      
+    vi /root/cluster5/redis.conf
+      dir  /root/cluster5
+      port 7775
+      pidfile /var/run/redis_7775.pid
+      logfile /root/cluster5/redis.log
+      save '' #改成双引号
+      appendonly no
+      protected-mode no
+      daemonize yes
+      bind 0.0.0.0
+      requirepass 123456
+      masterauth 123456
+      cluster-enabled yes
+      cluster-config-file nodes-7775.conf
+      cluster-node-timeout 15000
+      
+    vi /root/cluster6/redis.conf
+      dir  /root/cluster6
+      port 7776
+      pidfile /var/run/redis_7776.pid
+      logfile /root/cluster6/redis.log
+      save '' #改成双引号
+      appendonly no
+      protected-mode no
+      daemonize yes
+      bind 0.0.0.0
+      requirepass 123456
+      masterauth 123456
+      cluster-enabled yes
+      cluster-config-file nodes-7776.conf
+      cluster-node-timeout 15000
   "
+  启动命令步骤: "
+    1.启动服务
+      redis-server /root/cluster1/redis.conf --port 7771 &&
+      redis-server /root/cluster2/redis.conf --port 7772 &&
+      redis-server /root/cluster3/redis.conf --port 7773 &&
+      redis-server /root/cluster4/redis.conf --port 7774 &&
+      redis-server /root/cluster5/redis.conf --port 7775 &&
+      redis-server /root/cluster6/redis.conf --port 7776 
+      
+    2.组建集群，--cluster-replicas 1表示1个slave
+      redis-cli -h 192.168.88.11  -a 123456 -p 7771 --cluster create --cluster-replicas 1 192.168.88.11:7771 192.168.88.11:7772 192.168.88.11:7773 192.168.88.11:7774 192.168.88.11:7775 192.168.88.11:7776
+      
+    3.查看集群状态
+      方式1
+        redis-cli -h 192.168.88.11  -a 123456 -p 7771 -c
+          CLUSTER NODES  #查看集群的槽分配情况，以及集群master、slave关系
+          INFO REPLICATION
+          CLUSTER INFO
+          CLUSTER KEYSLOT k1 #查看Key隶属于哪个哈希槽
+          CLUSTER COUNTKEYSINSLOT 8157 #查看这个槽一共有多少个key(注意：需要用get k1去到本机器的槽才能查看到)
+      方式2
+        redis-cli -h 192.168.88.11  -a 123456  --cluster check 192.168.88.11:7771 #查看集群的槽分配情况，以及集群master、slave关系
+        
+    4.关闭服务，测试发现，只要3台master集群正常，反之集群异常(不能进行数据存储)
+      redis-cli -h 192.168.88.11  -a 123456 -p 7772 shutdown
+    
+    5.数据存储命令 -c代表以集群方式进行连接
+      redis-cli -h 192.168.88.11  -a 123456 -p 7774 -c
+        set k1 v1 存储数据
+        get k1 获取数据
+  "
+  手动主从切换调整:
+    概述: 让某一个slave机器切换成master
+    操作: "
+      1.登陆想让salve变为master的机器
+        redis-cli -h 192.168.88.11  -a 123456 -p 7774
+      2.查看集群关系
+        CLUSTER NODES
+      3.将slave切换成master
+        CLUSTER FAILOVER
+    "
+  集群扩缩容及从新分配插槽:
+    扩容(1主1从):
+      步骤:
+        1master配置: "
+          1.master配置
+            mkdir /root/cluster7 && touch /root/cluster7/redis.conf
+            vi /root/cluster7/redis.conf
+              dir  /root/cluster7
+              port 7777
+              pidfile /var/run/redis_7777.pid
+              logfile /root/cluster7/redis.log
+              save '' #改成双引号
+              appendonly no
+              protected-mode no
+              daemonize yes
+              bind 0.0.0.0
+              requirepass 123456
+              masterauth 123456
+              cluster-enabled yes
+              cluster-config-file nodes-7777.conf
+              cluster-node-timeout 15000
+          2.启动
+            redis-server /root/cluster7/redis.conf --port 7777
+          3.加入集群命令
+            redis-cli -a 123456 --cluster add-node 需要加入机器地址  集群机器地址
+            redis-cli -a 123456 --cluster add-node 192.168.88.11:7777 192.168.88.11:7771
+          4.查看集群状态
+            方式1
+              redis-cli -h 192.168.88.11  -a 123456 -p 7771
+                CLUSTER NODES  #查看集群的槽分配情况，以及集群master、slave关系
+                INFO REPLICATION
+                CLUSTER INFO
+                CLUSTER KEYSLOT k1 #查看Key隶属于哪个哈希槽
+            方式2
+              redis-cli -h 192.168.88.11  -a 123456  --cluster check 192.168.88.11:7771 #查看集群的槽分配情况，以及集群master、slave关系
+          5.重新分片，一般按照机器数量平均分 16384/4 = 4096
+            redis-cli -a 123456 --cluster reshard 192.168.88.11:7771
+              方式1，从所有master的槽分配一部分到新的master
+                How many slots do you want to move (from 1 to 16384)? 4096
+                What is the receiving node ID? 1be96b44d3ad81bc7d991567084632c18fcc4416 #目标机器
+                Source node #1: all
+              方式2，从指定的master的槽分配一部分到新的master
+                How many slots do you want to move (from 1 to 16384)? 4096
+                What is the receiving node ID? 1be96b44d3ad81bc7d991567084632c18fcc4416 #目标机器
+                Source node #1: 55cde4d14338c7efde81c684aa9fc1fe9ebd77d9
+                Source node #2: 6e72a779ffac1f1277d7c13aab3a880c761c1e03
+                Source node #3: done
+      "
+        2slave配置: "
+          1.slave配置 
+            mkdir /root/cluster8 && touch /root/cluster8/redis.conf 
+            vi /root/cluster8/redis.conf
+              dir  /root/cluster8
+              port 7778
+              pidfile /var/run/redis_7778.pid
+              logfile /root/cluster8/redis.log
+              save '' #改成双引号
+              appendonly no
+              protected-mode no
+              daemonize yes
+              bind 0.0.0.0
+              requirepass 123456
+              masterauth 123456
+              cluster-enabled yes
+              cluster-config-file nodes-7778.conf
+              cluster-node-timeout 15000
+          2.启动
+            redis-server /root/cluster8/redis.conf --port 7778
+          3.加入到主节点，成为slave
+            redis-cli -a 123456 --cluster add-node 需要加入机器地址  集群机器地址 --cluster-slave --cluster-master-id masterID号
+            redis-cli -a 123456 --cluster add-node 192.168.88.11:7778 192.168.88.11:7771 --cluster-slave --cluster-master-id 1be96b44d3ad81bc7d991567084632c18fcc4416
+          4.查看集群状态
+          方式1
+            redis-cli -h 192.168.88.11  -a 123456 -p 7771
+              CLUSTER NODES  #查看集群的槽分配情况，以及集群master、slave关系
+              INFO REPLICATION
+              CLUSTER INFO
+              CLUSTER KEYSLOT k1 #查看Key隶属于哪个哈希槽
+          方式2
+            redis-cli -h 192.168.88.11  -a 123456  --cluster check 192.168.88.11:7771 #查看集群的槽分配情况，以及集群master、slave关系
+        "
+    缩容(1主1从):
+      步骤:
+        1删除slave: "
+          1.查看集群状态
+            方式1
+              redis-cli -h 192.168.88.11  -a 123456 -p 7771
+                CLUSTER NODES  #查看集群的槽分配情况，以及集群master、slave关系
+                INFO REPLICATION
+                CLUSTER INFO
+                CLUSTER KEYSLOT k1 #查看Key隶属于哪个哈希槽
+            方式2
+              redis-cli -h 192.168.88.11  -a 123456  --cluster check 192.168.88.11:7771 #查看集群的槽分配情况，以及集群master、slave关系
+          2.找出所有的slave先删除
+            redis-cli -a 123456 --cluster del-node 192.168.88.11:7771 55cde4d14338c7efde81c684aa9fc1fe9ebd77d9
+        "
+        2删除master: "
+          1.查看集群状态
+            方式1
+              redis-cli -h 192.168.88.11  -a 123456 -p 7771
+                CLUSTER NODES  #查看集群的槽分配情况，以及集群master、slave关系
+                INFO REPLICATION
+                CLUSTER INFO
+                CLUSTER KEYSLOT k1 #查看Key隶属于哪个哈希槽
+            方式2
+              redis-cli -h 192.168.88.11  -a 123456  --cluster check 192.168.88.11:7771 #查看集群的槽分配情况，以及集群master、slave关系
+          2.将master碎片移除
+            redis-cli -a 123456 --cluster reshard 192.168.88.11:7771
+              How many slots do you want to move (from 1 to 16384)? 4096
+              What is the receiving node ID? 5bd8a666464d9b5c02ef10f30dbdd2e7c9e91285 #目标机器
+              Source node #1: 1be96b44d3ad81bc7d991567084632c18fcc4416
+              Source node #3: done
+          3.删除slave
+            redis-cli -a 123456 --cluster del-node 192.168.88.11:7771 1be96b44d3ad81bc7d991567084632c18fcc4416
+        "
   优势: "
     方便扩缩容和数据分派查找
       这种结构很容易添加或者删除节点，比如如果我想新添加个节点D，我需要从节点 A、B、C中得部分槽到D上，如果我想移除节点A，需要将A中的槽移到B和C节点上，然后将没有任何槽的A节点从集群中移除即可。
       由于从一个节点将哈希槽移动到另一个节点并不会停止服务，所以无论添加删除或者改变某个节点的哈希槽的数量都不会造成【集群不可用的状态】。
+  "
+  缺点: 分片集群，并不能保证数据零丢失(在master宕机时，从slave中选取master过程中[假设5分钟切换成功]，会丢失部分之前访问原有master的请求)
+  分片集群对多key操作支持不友好*: "
+    错与操作
+      set k1 v1
+      set k2 v2
+      set k3 v3
+      mget k1 k2 k3
+    查看槽位 redis-cli -h 192.168.88.11  -a 123456 -p 7771 CLUSTER KEYSLOT k1  
+    查看槽位 redis-cli -h 192.168.88.11  -a 123456 -p 7771 CLUSTER KEYSLOT k2  
+    查看槽位 redis-cli -h 192.168.88.11  -a 123456 -p 7771 CLUSTER KEYSLOT k3  
+    
+    正确操作  
+      set k1{xx} v1
+      set k2{xx} v2 
+      set k3{xx} v3
+      mget k1{xx} k2{xx} k3{xx}
+    查看槽位 redis-cli -h 192.168.88.11  -a 123456 -p 7771 CLUSTER KEYSLOT k1{xx}  
+    查看槽位 redis-cli -h 192.168.88.11  -a 123456 -p 7771 CLUSTER KEYSLOT k2{xx} 
+    查看槽位 redis-cli -h 192.168.88.11  -a 123456 -p 7771 CLUSTER KEYSLOT k3{xx}
+  "
+  集群是否需所有master都存活才对外服务: "
+    默认是yes，例如3主3从，那么3主需要存活整个集群才可以对外服务
+    cluster-require-full-coverage yes  
   "
 springboot集成:
 

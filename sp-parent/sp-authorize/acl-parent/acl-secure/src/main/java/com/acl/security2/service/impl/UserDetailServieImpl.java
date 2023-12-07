@@ -1,9 +1,8 @@
 package com.acl.security2.service.impl;
 
-import com.gzzn.service.acl.entity.AclUserEntity;
-import com.gzzn.service.acl.mapper.AclUserMapper;
-import com.gzzn.service.acl.security.model.SecureUser;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import com.acl.security2.model.AclUserEntity;
+import com.acl.security2.model.SecureUser;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,12 +15,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserDetailServieImpl implements UserDetailsService {
 
-    @Autowired
-    AclUserMapper aclUserMapper;
+
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        AclUserEntity aclUser = aclUserMapper.selectById("1");
+        AclUserEntity aclUser = new AclUserEntity();
         return new SecureUser(aclUser);
     }
 }

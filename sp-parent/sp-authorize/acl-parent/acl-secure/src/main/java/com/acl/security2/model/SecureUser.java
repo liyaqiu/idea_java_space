@@ -1,6 +1,5 @@
 package com.acl.security2.model;
 
-import com.gzzn.service.acl.entity.AclUserEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 

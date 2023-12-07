@@ -1,8 +1,6 @@
-package com.exception;
+package com.acl.security2.utils;
 
-import lombok.Builder;
 import lombok.Data;
-import org.springframework.http.HttpStatus;
 
 /**
  * @author lyq
@@ -31,4 +29,12 @@ public class Result {
         this.isSuccess = false;
         this.message = message;
     }
+    public static Result fail(Object data){
+        return new Result(Result.OK,"成功",true,data);
+    }
+
+    public static Result ok(Object data){
+        return new Result(Result.FAIL,"失败",true,data);
+    }
+
 }

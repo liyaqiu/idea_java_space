@@ -1,6 +1,6 @@
 package com.acl.security2.filter;
 
-import com.gzzn.service.common.utils.JWTUtil;
+import com.acl.security2.utils.CJWTUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -40,7 +40,7 @@ public class TokenAuthenticationFilter extends BasicAuthenticationFilter {
         //如果存在token，则已经登录，解析jwtToken
         String userName = null;
         try {
-            userName = JWTUtil.parseToken(token);
+            userName = CJWTUtil.parseToken(token);
         } catch (Exception e) {
             throw new ServletException(e);
         }

@@ -1,7 +1,7 @@
 package com.acl.security2.handler;
 
 import cn.hutool.json.JSONUtil;
-import com.gzzn.service.common.utils.Res;
+import com.acl.security2.utils.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -27,7 +27,7 @@ public class TokenAccessDeniedHandler implements AccessDeniedHandler {
         response.setContentType("application/json;charset=UTF-8");
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         try(ServletOutputStream outputStream = response.getOutputStream()) {
-            Res res = Res.fail().setMessage(accessDeniedException.getMessage());
+            Result res = Result.fail(accessDeniedException.getMessage());
             outputStream.write(JSONUtil.toJsonStr(res).getBytes(StandardCharsets.UTF_8));
             outputStream.flush();
         }

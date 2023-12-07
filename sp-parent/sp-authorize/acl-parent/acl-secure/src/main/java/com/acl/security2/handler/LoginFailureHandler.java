@@ -1,6 +1,7 @@
 package com.acl.security2.handler;
 
 import cn.hutool.json.JSONUtil;
+import com.acl.security2.utils.Result;
 import com.gzzn.service.common.utils.Res;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
@@ -26,7 +27,7 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
         log.debug("onAuthenticationFailure");
         response.setContentType("application/json;charset=UTF-8");
         try(ServletOutputStream outputStream = response.getOutputStream()) {
-            Res res = Res.fail().setMessage(exception.getMessage());
+            Result res = Result.fail(exception.getMessage());
             outputStream.write(JSONUtil.toJsonStr(res).getBytes(StandardCharsets.UTF_8));
             outputStream.flush();
         }

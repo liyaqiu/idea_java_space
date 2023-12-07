@@ -4,6 +4,8 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.json.JSONUtil;
 import cn.hutool.jwt.JWTUtil;
 
+import com.acl.security2.utils.CJWTUtil;
+import com.acl.security2.utils.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -30,9 +32,9 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         try(ServletOutputStream outputStream = response.getOutputStream()) {
 
             //生成jwtToken
-            String token = JWTUtil.createToken(authentication.getName());
+            String token = CJWTUtil.createToken(authentication.getName());
             //返回
-            Res res = Res.ok().setData(MapUtil.builder().put("token", token));
+            Result res = Result.ok(MapUtil.builder().put("token", token));
             outputStream.write(JSONUtil.toJsonStr(res).getBytes(StandardCharsets.UTF_8));
             outputStream.flush();
         }
