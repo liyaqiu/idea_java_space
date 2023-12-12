@@ -35,28 +35,9 @@
       连接服务
         redis-cli -h 192.168.88.11  -a 123456 -p 6379
         redis-cli -h 192.168.88.11  -a 123456 -p 6379 --raw  解决中文乱码
+        redis-cli -h 192.168.88.11  -a 123456 -p 6379 -n 1  指定数据库索引
       查看redis版本
         redis-server --version
-  "
-常用命令:
-  命令网址:
-    - https://try.redis.io/
-    - http://doc.redisfans.com/
-    - http://www.redis.cn/commands.html
-    - https://redis.io/commands/
-  命令: "
-    帮助文档 
-      help [@string | @list | @hash | @Set | Sorted-Set]
-    查询所有
-      KEY keys *
-    查看key数据类型 
-      TYPE k1
-    根据参数名查看配置
-      CONFIG GET [dir|dbfilename|参数名]
-    清空当前数据库所有数据
-      FLUSHDB
-    情况所有数据库所有数据
-      FLUSHALL
   "
 10大数据类型(针对value类型):
   String字符串:
@@ -67,6 +48,7 @@
         查 get k1
         改 set k1 eric
         删 del k1
+        异步删除 unlink k1
       "
   List列表:
     概述:
@@ -565,6 +547,7 @@
   主从复制+哨兵集群步骤:
     1主从复制集群配置（以下配置没开始持久化）: "
       master mkdir /root/node1 && touch /root/node1/redis.conf
+        vi /root/node1/redis.conf
         dir  '/root/node1/'
         port 7771
         pidfile '/var/run/redis_7771.pid'
@@ -577,6 +560,7 @@
         requirepass 123456
         masterauth 123456 #将来有可能成为slave
       slave1 mkdir /root/node2 && touch /root/node2/redis.conf
+        vi /root/node2/redis.conf
         dir  '/root/node2/'
         port 7772
         pidfile '/var/run/redis_7772.pid'
@@ -590,6 +574,7 @@
         replicaof 192.168.88.11 7771
         masterauth 123456
       slave2 mkdir /root/node3 && touch /root/node3/redis.conf
+        vi /root/node3/redis.conf
         dir  '/root/node3/'
         port 7773
         pidfile '/var/run/redis_7773.pid'
@@ -1007,7 +992,6 @@
     默认是yes，例如3主3从，那么3主需要存活整个集群才可以对外服务
     cluster-require-full-coverage yes  
   "
-springboot集成:
 
 
 

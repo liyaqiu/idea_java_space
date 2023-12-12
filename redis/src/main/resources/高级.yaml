@@ -1,0 +1,60 @@
+常用命令:
+  命令网址:
+    - https://try.redis.io/
+    - http://doc.redisfans.com/
+    - http://www.redis.cn/commands.html
+    - https://redis.io/commands/
+  命令禁用或改名: "
+    rename-command KEYS ''
+    rename-command FLUSHDB ''
+    rename-command FLUSHALL ''
+  "
+  命令:
+    基本命令: "
+      帮助文档 
+        help [@string | @list | @hash | @Set | Sorted-Set]
+      查询所有
+        KEY keys *
+      查看key数据类型 
+        TYPE k1
+      根据参数名查看配置
+        CONFIG GET [dir|dbfilename|参数名]
+      清空当前数据库所有数据
+        FLUSHDB
+      情况所有数据库所有数据
+        FLUSHALL
+      查看某一个库下面的数据总量
+        DBSIZE
+      删除
+        DEL k1 (同步)
+        UNLINK k1 (异步)
+  "
+    遍历命令: "
+      0为游标号，根据返回的游标继续往下执行，可以查找所有类型的key
+        SCAN 0 MATCH * COUNT 2 
+      只对某一个Set类型的值进行查找，0为游标号，根据返回的游标继续往下执行
+        SSCAN s1 0 MATCH * count 2
+      只对某一个Hash类型的值进行查找，0为游标号，根据返回的游标继续往下执行
+        HSCAN h1 0 MATCH * COUNT 2
+      只对某一个Sort-Set类型的值进行查找，0为游标号，根据返回的游标继续往下执行
+        ZSCAN z1 0 MATCH *  COUNT 2
+    "
+bigkey:
+  概述: 大于10kb或者大于5000个元素
+  查找bigkey: "
+    查找bigkey
+      redis-cli -h 192.168.88.11  -a 123456 -p 7771 -n 1 --bigkeys
+    统计bigkey占用字节数
+      redis-cli -h 192.168.88.11  -a 123456 -p 7771 -n 1 MEMORY USAGE k1
+  "
+  bigkey删除:
+    概述:
+      - 字符串可以使用del或者unlink删除
+      - 其他类型则使用sscan hscan zscan进行渐进性删除(先把内容情况，在使用del进行删除)
+  惰性删除(异步处理): "
+    lazyfree-lazy-eviction no
+    lazyfree-lazy-expire no
+    lazyfree-lazy-server-del yes 更改后del编译异步删除
+    replica-lazy-flush yes
+    lazyfree-lazy-user-del yes
+  "

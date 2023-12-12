@@ -55,7 +55,6 @@ public class _1HelloWorld {
         log.info("部署id{}",deployment.getId());
         log.info("部署name{}",deployment.getName());
     }
-
     @Test
     public void 查询流程定义(){
         RepositoryService repositoryService = processEngine.getRepositoryService();

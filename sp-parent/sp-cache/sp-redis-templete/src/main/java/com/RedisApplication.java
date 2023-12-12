@@ -1,10 +1,13 @@
 package com;
 
+import io.lettuce.core.ReadFrom;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.data.redis.LettuceClientConfigurationBuilderCustomizer;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Bean;
 
 /**
  * @author lyq
@@ -48,8 +51,8 @@ public class RedisApplication {
     ReadFrom.REPLICA 从slave读取
     ReadFrom.REPLICA_PREFERRED 优先slave读取，slave不可以在读取master
     */
-    /*@Bean
+    @Bean
     public LettuceClientConfigurationBuilderCustomizer test0(){
         return configBuilder -> configBuilder.readFrom(ReadFrom.REPLICA_PREFERRED);
-    }*/
+    }
 }
