@@ -2,36 +2,36 @@ server:
   port: 8080
 
 # 单机普通配置
-#spring:
-#  redis:
-#    database: 1
-#    host: 192.168.88.11
-#    port: 7771
-#    password: 123456
-#    lettuce:
-#      pool:
-#        max-active: 8
-#        max-wait: -1ms
-#        max-idle: 8
-#        min-idle: 0
-
-# 哨兵集群
 spring:
   redis:
-    password: 123456
     database: 1
+    host: 192.168.88.11
+    port: 6661
+    password: 123456
     lettuce:
       pool:
         max-active: 8
-        min-idle: 0
         max-wait: -1ms
         max-idle: 8
-    sentinel:
-      master: mymaster
-      nodes:
-        - 192.168.88.11:9991
-        - 192.168.88.11:9992
-        - 192.168.88.11:9993
+        min-idle: 0
+
+# 哨兵集群
+#spring:
+#  redis:
+#    password: 123456
+#    database: 1
+#    lettuce:
+#      pool:
+#        max-active: 8
+#        min-idle: 0
+#        max-wait: -1ms
+#        max-idle: 8
+#    sentinel:
+#      master: mymaster
+#      nodes:
+#        - 192.168.88.11:9991
+#        - 192.168.88.11:9992
+#        - 192.168.88.11:9993
 
 # 分片集群
 #spring:
