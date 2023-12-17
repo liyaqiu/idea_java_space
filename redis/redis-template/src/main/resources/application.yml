@@ -4,7 +4,7 @@ server:
 # 单机普通配置
 spring:
   redis:
-    database: 1
+    database: 0
     host: 192.168.88.11
     port: 6661
     password: 123456

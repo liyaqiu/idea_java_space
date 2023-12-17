@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
-public class UserBloomFilterManager {
+public class GuavaUserBloomFilterManager {
 
     //样本数大小
     private int dataSize = 1_000_000;

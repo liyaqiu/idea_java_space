@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
-public class UserBloomFilterManager {
+public class RedisUserBloomFilterManager {
     @Autowired
     private RedisTemplate redisTemplate;
     private final String PREFIX = "user-id:";

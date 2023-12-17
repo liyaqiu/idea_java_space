@@ -2,6 +2,7 @@
   命令网址:
     - https://try.redis.io/
     - http://doc.redisfans.com/
+    - https://redis.com.cn/documentation.html
     - http://www.redis.cn/commands.html
     - https://redis.io/commands/
   命令禁用或改名: "
@@ -108,3 +109,35 @@ bigkey:
     "
   解决方案2: 使用双检锁实现，降低MYSQL查询频率
   产生原因: 热点key失效
+Lua脚本:
+  概述: Redis调用Lua脚本通过Eval命令保证代码执行的原子性
+  案例:
+    案例1: "
+      井号替换成双引号
+      语法 EVAL script numkeys [key [key ...]] [arg [arg ...]]
+      
+      入门
+        EVAL # return 'hello-world' # 0 
+      0个key，0个参数  
+        EVAL # redis.call('set','k1','v1') return redis.call('get','k1')  # 0 
+      2个key，0个参数  
+        EVAL # redis.call('set',KEYS[1],'v1') return redis.call('get',KEYS[2])  # 2 k1 k1
+      1个key，1个参数  
+        EVAL # redis.call('set',KEYS[1],'v1') return redis.call('get',ARGV[1])  # 1 k1 k1
+      0个key，2个参数  
+        EVAL # redis.call('set',ARGV[1],'v1') return redis.call('get',ARGV[2])  # 0 k1 k1
+    "
+    案例2(*): "
+      井号替换成双引号
+      语法 EVAL script numkeys [key [key ...]] [arg [arg ...]]
+        利用lua来做原子删除命令
+          EVAL #
+          if redis.call('get',KEYS[1]) == ARGV[1] then
+            return redis.call('del',KEYS[1])
+          else
+            return 0
+          end
+          # 1 k1 v1
+          
+          EVAL # if redis.call('get',KEYS[1]) == ARGV[1] then return redis.call('del',KEYS[1]) else return 0 end # 1 k1 v1
+    "

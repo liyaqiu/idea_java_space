@@ -1,0 +1,38 @@
+//判断锁是否存在
+if redis.call('exists','lockName') == 0 then
+	redis.call('hset','lockName','uuid:threadId',1)
+	redis.call('expire','lockName',50)
+	return 1
+//判断此锁是否是自己上的锁
+elseif redis.call('hexists','lockName','uuid:threadId') == 1 then
+	reids.call('hincrby','lockName','uuid:threadId',1)
+	redis.call('expire','lockName',50)
+	return 1
+//不是自己的锁
+else
+	return 0
+end
+
+-------------------------精简版 hincrby(可以创建或者增加值) 可以替代 hset-------------------------
+
+//判断锁是否存在 或者 判断此锁是否是自己上的锁
+if redis.call('exists','lockName') == 0 or redis.call('hexists','lockName','uuid:threadId') == 1 then
+	redis.call('hincrby','lockName','uuid:threadId',1)
+	redis.call('expire','lockName',50)
+	return 1
+//不是自己的锁
+else
+	return 0
+end
+
+--------------------------------------测试使用--------------------------------------
+
+if redis.call('exists',KEYS[1]) == 0 or redis.call('hexists',KEYS[1],ARGV[1]) == 1 then
+	redis.call('hincrby',KEYS[1],ARGV[1],1)
+	redis.call('expire',KEYS[1],50)
+	return 1
+else
+	return 0
+end
+
+EVAL "if redis.call('exists',KEYS[1]) == 0 or redis.call('hexists',KEYS[1],ARGV[1]) == 1 then redis.call('hincrby',KEYS[1],ARGV[1],1) redis.call('expire',KEYS[1],50) return 1 else return 0 end" 1 lockName uuid:threadId

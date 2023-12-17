@@ -1,0 +1,22 @@
+---------------------------------解锁---------------------------------------
+//判断此锁是否属于是自己的锁，如果不是则直接返回Null
+if redis.call('hexists','lockName','uuid:threadId') == 0 then
+	return nil
+//对自己锁的计数器进行减，如果等于0则进行删除
+elseif redis.call('hincrby','lockName','uuid:threadId',-1) == 0 then
+	return redis.call('del','lockName')
+//次锁计数器还没为0，直接返回0
+else
+	return 0
+end
+
+---------------------------------测试---------------------------------------
+if redis.call('hexists',KEYS[1],ARGV[1]) == 0 then
+	return nil
+elseif redis.call('hincrby',KEYS[1],ARGV[1],-1) == 0 then
+	return redis.call('del',KEYS[1])
+else
+	return 0
+end
+
+EVAL "if redis.call('hexists',KEYS[1],ARGV[1]) == 0 then return nil elseif redis.call('hincrby',KEYS[1],ARGV[1],-1) == 0 then return redis.call('del',KEYS[1]) else return 0 end" 1 lockName uuid:threadId
