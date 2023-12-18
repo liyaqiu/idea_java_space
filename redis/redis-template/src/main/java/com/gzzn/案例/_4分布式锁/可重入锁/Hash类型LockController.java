@@ -1,19 +1,24 @@
 package com.gzzn.案例._4分布式锁.可重入锁;
 
 import cn.hutool.core.util.IdUtil;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 /**
  * 可重入锁
- * */
+ */
 @RestController
 @RequestMapping("/HashLock")
 public class Hash类型LockController {
@@ -23,16 +28,21 @@ public class Hash类型LockController {
 
     private final String SHOP_KEY = "SHOP_KEY";
 
-    private final String LOCK_KEY = "LOCK_KEY";
+    private final String KEY = "LOCK_KEY";
+
 
     @GetMapping("test01")
     public String test01() {
-        String lockValue = IdUtil.randomUUID() + Thread.currentThread().getId();
+        RedisLock redisLock = RedisLock.builder()
+                .key(KEY)
+                .hKey(IdUtil.randomUUID() + ":" + Thread.currentThread().getId())
+                .expireTime(30)
+                .redisTemplate(redisTemplate)
+                .build();
         try {
-            while (!redisTemplate.opsForValue().setIfAbsent(LOCK_KEY, lockValue,60L,TimeUnit.SECONDS)) {
-                TimeUnit.MILLISECONDS.sleep(2000);
-                System.out.println("重试加锁");
-            }
+            redisLock.lock();
+            //测试自动续期
+            //TimeUnit.SECONDS.sleep(120);
             //加锁成功
             String count = redisTemplate.opsForValue().get(SHOP_KEY);
             int shopNumber = count == null ? 0 : Integer.parseInt(count);
@@ -46,19 +56,8 @@ public class Hash类型LockController {
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
-            /*String value = redisTemplate.opsForValue().get(LOCK_KEY);
-            if(value!=null&&value.equals(lockValue)){
-                System.out.println("删除锁");
-                redisTemplate.delete(LOCK_KEY);
-            }*/
-            //只能删除自己的锁，利用lua脚本保证多命令的原子性
-            String script =
-                    "if redis.call('get',KEYS[1]) == ARGV[1] then " +
-                        "return redis.call('del',KEYS[1]) " +
-                    "else " +
-                        "return 0 " +
-                    "end ";
-            redisTemplate.execute(new DefaultRedisScript(script, Boolean.class), Arrays.asList(LOCK_KEY), lockValue);
+            redisLock.unlock();
         }
     }
 }
+

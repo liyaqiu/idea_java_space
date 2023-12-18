@@ -6,11 +6,13 @@ import com.gzzn.RedisTemplate.entity.Person;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.*;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.PostConstruct;
+import java.util.Arrays;
 import java.util.HashMap;
 
 @RestController
@@ -21,9 +23,6 @@ public class RedisTemplateController {
     @Autowired
     RedisTemplate redisTemplate;
 
-    public static void main(String[] args) {
-        System.out.println(Math.pow(2, 32));
-    }
     @GetMapping("/test1")
     public void String类型() throws Exception {
         ValueOperations<String, Person> opsForValue = redisTemplate.opsForValue();

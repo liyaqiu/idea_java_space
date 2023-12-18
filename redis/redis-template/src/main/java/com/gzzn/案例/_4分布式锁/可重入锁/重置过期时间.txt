@@ -1,0 +1,7 @@
+if redis.call('HEXISTS',KEYS[1],ARGV[1]) == 1 then
+    return redis.call('expire',KEYS[1],ARGV[2])
+else
+    return 0
+end
+------------------------脚本测试-----------------------------
+EVAL "if redis.call('HEXISTS',KEYS[1],ARGV[1]) == 1 then return redis.call('expire',KEYS[1],ARGV[2]) else return 0 end" 1 lockName uuid:threadId 50
