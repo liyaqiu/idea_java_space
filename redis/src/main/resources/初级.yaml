@@ -992,7 +992,65 @@
     默认是yes，例如3主3从，那么3主需要存活整个集群才可以对外服务
     cluster-require-full-coverage yes  
   "
-
+redisson分布式锁: "
+  推荐安装5台(演示案例为3台)，可以由单机、分片集群、哨兵集群自由组合搭建
+  最好与现在有redis集群分开，单独搭建
+  
+  master1
+    mkdir -p /home/redis/lock/node1 && touch /home/redis/lock/node1/redis.conf
+    vi /home/redis/lock/node1/redis.conf
+      dir  '/home/redis/lock/node1'
+      port 5551
+      pidfile '/var/run/redis_5551.pid'
+      logfile '/home/redis/lock/node1/redis.log'
+      save ''
+      appendonly no
+      protected-mode no
+      daemonize yes
+      bind 0.0.0.0
+      requirepass 123456
+    
+  master2
+    mkdir -p /home/redis/lock/node2 && touch /home/redis/lock/node2/redis.conf
+    vi /home/redis/lock/node2/redis.conf
+      dir  '/home/redis/lock/node2'
+      port 5552
+      pidfile '/var/run/redis_5552.pid'
+      logfile '/home/redis/lock/node2/redis.log'
+      save ''
+      appendonly no
+      protected-mode no
+      daemonize yes
+      bind 0.0.0.0
+      requirepass 123456
+    
+  master3
+    mkdir -p /home/redis/lock/node3 && touch /home/redis/lock/node3/redis.conf
+    vi /home/redis/lock/node3/redis.conf
+      dir  '/home/redis/lock/node3'
+      port 5553
+      pidfile '/var/run/redis_5553.pid'
+      logfile '/home/redis/lock/node3/redis.log'
+      save ''
+      appendonly no
+      protected-mode no
+      daemonize yes
+      bind 0.0.0.0
+      requirepass 123456
+      
+  启动服务
+    redis-server /home/redis/lock/node1/redis.conf --port 5551 &&
+    redis-server /home/redis/lock/node2/redis.conf --port 5552 &&
+    redis-server /home/redis/lock/node3/redis.conf --port 5553
+  关闭服务
+    redis-cli -h 192.168.88.11  -a 123456 -p 5551 shutdown &&
+    redis-cli -h 192.168.88.11  -a 123456 -p 5552 shutdown &&
+    redis-cli -h 192.168.88.11  -a 123456 -p 5553 shutdown
+  连接服务
+    redis-cli -h 192.168.88.11  -a 123456 -p 5551
+    redis-cli -h 192.168.88.11  -a 123456 -p 5552
+    redis-cli -h 192.168.88.11  -a 123456 -p 5553
+"
 
 
 

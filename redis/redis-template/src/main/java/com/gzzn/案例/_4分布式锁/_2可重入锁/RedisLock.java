@@ -1,4 +1,4 @@
-package com.gzzn.案例._4分布式锁.可重入锁;
+package com.gzzn.案例._4分布式锁._2可重入锁;
 
 import lombok.Builder;
 import org.springframework.data.redis.core.StringRedisTemplate;

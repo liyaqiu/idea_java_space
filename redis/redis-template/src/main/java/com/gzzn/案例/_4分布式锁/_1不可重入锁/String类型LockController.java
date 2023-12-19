@@ -1,4 +1,4 @@
-package com.gzzn.案例._4分布式锁.不可重入锁;
+package com.gzzn.案例._4分布式锁._1不可重入锁;
 
 import cn.hutool.core.util.IdUtil;
 import org.springframework.beans.factory.annotation.Autowired;

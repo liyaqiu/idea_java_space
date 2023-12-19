@@ -1,20 +1,11 @@
-package com.gzzn.案例._4分布式锁.可重入锁;
+package com.gzzn.案例._4分布式锁._2可重入锁;
 
 import cn.hutool.core.util.IdUtil;
-import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.script.DefaultRedisScript;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 可重入锁
