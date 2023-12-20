@@ -243,5 +243,16 @@ RedLock(redission):
       2.如果所有的 key的访问概率都是差不多的，那么可以选用allkeys-random策略去置换数据
       3.如果对数据有足够的了解，能够为 key 指定 hint (通过expire/ttl指定)，那么可以选择 volatile-ttl进行置换
     "
+网络IO模型:
+  基本概念:
+    参考: https://www.bilibili.com/video/BV13R4y1v7sP?p=168&spm_id_from=pageDriver&vd_source=cc17fab1d456bc3958dcb51e2fdd520b
+    同步&&异步: 针对的是服务提供者(linux)
+    阻塞&&非阻塞: 针对的是服务请求者(java api)
+  Unix网络编程中5种IO模型:
+    Blocking IO: 阻塞IO
+    NoneBlocking IO: 非阻塞IO
+    IO multiplexing: IO多路复用
+    Signal driven IO: 信号驱动IO
+    asynchronous IO: 异步IO
 
 
