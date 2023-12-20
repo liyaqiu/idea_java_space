@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.example</groupId>
-        <artifactId>redis</artifactId>
+        <artifactId>redis-project</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>lettuce</artifactId>
+    <artifactId>redis-template</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -55,12 +55,32 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/redis.clients/jedis -->
-        <!-- https://mvnrepository.com/artifact/io.lettuce/lettuce-core -->
+        <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
         <dependency>
-            <groupId>io.lettuce</groupId>
-            <artifactId>lettuce-core</artifactId>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>32.0.1-jre</version>
         </dependency>
+
+
+        <!-- redis start  -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId>
+        </dependency>
+        <!-- redis end  -->
+
+        <!-- https://mvnrepository.com/artifact/org.redisson/redisson -->
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson</artifactId>
+            <version>3.24.3</version>
+        </dependency>
+
 
 
         <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
