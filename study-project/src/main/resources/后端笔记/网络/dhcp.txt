@@ -1,0 +1,13 @@
+DHCP动态主机配置协议(Dynamic Host Configuration Protocol)
+	DHCP广播报文
+		S-IP 0.0.0.0
+		D-IP 255.255.255.255
+	路由器 DHCP接口地址池配置
+		dhcp enable 开启dhcp服务
+		int g0/0/0	进入接口
+			ip address 192.168.1.1 24 
+			dhcp select interface 绑定接口
+			dhcp server dns-list 8.8.8.8 分配dns
+			dhcp server static-bind ip-address 192.168.1.2 mac-address 5489-983C-7E38 静态绑定mac
+			
+	

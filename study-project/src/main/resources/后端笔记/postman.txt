@@ -1,0 +1,82 @@
+Postman
+	下载地址
+		https://www.postman.com/downloads/
+	
+	变量使用
+		非脚本使用
+			自定义变量
+				{{token}}
+			内置变量 https://blog.csdn.net/OneForYou97/article/details/121450226
+				{{$randomUUID}}
+		脚本使用
+			pm.globals.get("token") 获取全局变量
+			globals["token"] 获取全局变量
+			globals.token 获取全局变量
+			
+			
+	pre request script 接口执行前执行	
+		可以准备一些预参数
+			pm.globals.set("author",Date.now())
+	Tests 接口执行后执行
+		实现接口关联方式1 
+			从body获取json数据
+				var jsonObj = JSON.parse(responseBody) 解析json数据
+				pm.globals.set("token",jsonObj.name) 设置全局变量		
+		实现接口关联方式2
+			从Header获取key
+				console.log(pm.response.headers.get("token"))
+				var token = pm.response.headers.get("token")
+				pm.globals.set("token",token)
+		断言
+			状态码断言
+				pm.test("状态码断言",function(){
+					pm.response.to.have.status(200)
+				})
+			业务断言
+				pm.test("业务断言",function(){
+					pm.expect("hello").to.eq("hello")
+					pm.expect("hello").to.contain("hel")
+					pm.expect("hello").contain("hel")
+					pm.expect("").empty
+				})
+			超时断言
+				pm.test("超时断言",function(){
+					pm.expect(pm.response.responseTime).to.be.below(1000)
+					pm.expect(pm.response.responseTime).below(1000)
+				})
+		基于data来做反例测试(非正常传参)
+			Run collection->data->csv
+				dataname,dataage,expect
+				liyaqiu,31,liyaqiu
+				,31,31
+				liyaqiu,,liyaqiu
+			
+			
+	newman来执行postman到处的json文件
+		https://blog.csdn.net/itfootball/article/details/50570240
+			
+	jenkins+newman		
+		https://zhuanlan.zhihu.com/p/377592148	
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			

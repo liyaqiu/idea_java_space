@@ -1,0 +1,22 @@
+ICT(Information Communication Technology)信息、通信技术
+	IT(Information Technology信息技术
+	CT(Communication Technology)通信技术
+
+网络设备(交换机，路由器):
+	控制平面
+	转发平面/数据平面
+	管理平面	
+	
+SDN软件定义网络(Software Defined Networking)
+	功能:
+		转控分离
+		集中控制
+		开放可编程接口
+	南向协议
+		Openflow
+	北向协议
+		API
+	
+NFV网络功能虚拟化(Network Functions Virtualization)
+	虚拟化技术+云化技术
+	

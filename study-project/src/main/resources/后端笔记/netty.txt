@@ -1,0 +1,96 @@
+tcp通讯存在一个time_wait状态，这个状态主要是由主动关闭方产生的，因为主动调用socker.close的会最后发送一个ack包。
+time_wait状态对服务器端是没有影响的，因为服务器端每次都是用同样的端口。
+time_wait状态对客户端会有影响，因为请求方每次像服务器申请请求会申请一个端口，这个端口说有系统随机分配的，那么如果客户端
+是一个高并发的请求，会导致段时间内无法申请到请求端口（1-65535）。最后因为端口申请失败，导致无法访问
+
+bio 同步阻塞(java.net 和 java.io)
+ tcp
+  (ServerSocket 和 Socket)
+ udp
+   (单播)DatagramSocket 和 DatagramPacket
+   (组播)MultiSocket 和 DatagramPacket
+nio 同步非阻塞(java.nio)
+   selector
+   channel
+   buffer
+  tcp
+	(ServerSocketChannel)
+	(SocketChannel)
+   
+https://www.cnblogs.com/whf191/p/9712110.html 
+https://blog.csdn.net/qq_42646885/article/details/97619294
+http(超文本传输协议)
+	post请求：
+		请求行（请求方式 URL 协议版本）/响应行(协议版本 状态码 状态信息)
+		请求头/响应头
+		请求体/响应体
+	get请求：
+		请求行
+		请求头
+
+netty最大的性能体现在(事件的拆分+buff零拷贝)
+netty重点笔记
+1.eventloop
+  没个eventloop是一个线程
+2.channel
+	EmbeddedChannel 用做handler测试
+	pipeline  in1 out3 in2 in3 out4 out5 out6
+	super.channelRead(ctx, msg);//或者ctx.fireChannelRead(msg); 往下一个handler
+	super.write(ctx, msg, promise); 往前一个handler
+	channel.write();channel.writeAndFlush(); 从后往前找out  out6->out5->out4-out3
+	ctx.write();ctx.writeAndFlush();【当前的不处理】，往前找out  假设当前在in3调用ctx.write() in1->int2->int3->out3 
+3.bytebuff
+	直接内存 读写快，分配慢  默认就用直接内存 改为堆内存 -Dio.netty.noPreferDirect=true
+	堆内存  读写慢，分配快
+	池化直接内存 读写快 分配快 
+	池化堆堆内存 读写慢 分配快
+	非池化采用
+		Unpooled.buffer(10);默认采用非池化堆内存
+        Unpooled.directBuffer(1);
+	池化采用 查看参数是否开启 -Dio.netty.allocator.type=unpooled|pooled
+		ByteBufAllocator.DEFAULT.buffer(10);默认直接内存
+        ByteBufAllocator.DEFAULT.directBuffer(10);
+        ByteBufAllocator.DEFAULT.heapBuffer(1);
+	零拷贝分片方法 注意 retain()和release()
+		slice()和duplicate() 会共用内存，但是指针独立
+	零拷贝合并 注意 retain()和release()
+		CompositeByteBuf compositeByteBuf = Unpooled.compositeBuffer();
+        compositeByteBuf.addComponents(true, buffer,buffer1);
+		Unpooled.wrappedBuffer(buffer, buffer1);底层也是调用了CompositeByteBuf
+4.decoder 解码器 ByteToMessageDecoder
+	HttpServerCodec http协议编解码
+	FixedLengthFrameDecoder  双方约定固定大小的长度的byte
+	DelimiterBasedFrameDecoder 最大长度+自定义分隔符
+	LineBasedFrameDecoder 最大长度+换行
+	使用LengthFieldBasedFrameDecoder解决黏包和半包问题，在配合我们自定义（MessageToMessageCodec或者ByteToMessageCodec）协议一起使用
+	LengthFieldBasedFrameDecoder 数据的长度+内容 简单协议
+			maxFrameLength 允许接受单个最大数据包字节，对方发送过来多余的字节会保留下次使用。如果超过数据包大小，会把全部数据清除
+            lengthFieldOffset lengthFieldLength 读取字段长度（从哪里开始读，读多少个字节能把数据字段长度读取到）
+            lengthAdjustment 从偏移量（lengthFieldOffset）位置开始，是否需要跳过多少个字节长度
+			initialBytesToStrip 最后的数据需要剔除多少个字节
+5.handler 
+	duplixHandler
+		LoggingHandler
+	inboundHandler
+		SimpleChannelInboundHandler  做消息过滤
+		ChannelInboundHandlerAdapter 普通入站处理器
+	outboundHandler
+		ChannelOutboundHandlerAdapter
+		IdleStateHandler 超时检测 配合duplixHandler做连接断开以及心跳检测
+
+6.参数调优  NetUtil这个类里面
+	客户端(option socketChannel)
+		connect_timeout_millis 默认值为30秒
+	服务器(chlidOption socketChannel)(option ServerSocketChannel)
+		option(ChannelOption.SO_BACKLOG) 设置全连接队列大小（并不是限制总连接数）。默认值win 200 其他的平台128
+			window系统不用管
+			linux系统2.2前不用管，2.2以后，半连接队列/proc/sys/net/ipv4/tcp_max_syn_backlog 全连接队列 /proc/sys/net/core/somaxconn，2者之间取最小值
+		childOption(ChannelOption.RCVBUF_ALLOCATOR,new AdaptiveRecvByteBufAllocator(size,size,size)) 自动调整下一次缓冲区建立时分配的空间大小，避免内存的浪费
+
+7.参数调优
+	server
+		option(ChannelOption.SO_BACKLOG) 默认值win 200 其他的平台128 建议设置
+		childOption(ChannelOption.TCP_NODELAY, true) 没延迟发送，建议设置
+		childOption(ChannelOption.SO_RCVBUF, 50) TCP数据接收缓冲区大小。该缓冲区即TCP接收滑动窗口，由双方自动协商调整，不建议设置
+        childOption(ChannelOption.SO_SNDBUF, 50) TCP数据发送缓冲区大小。该缓冲区即TCP发送滑动窗口，由双方自动协商调整，不建议设置
+

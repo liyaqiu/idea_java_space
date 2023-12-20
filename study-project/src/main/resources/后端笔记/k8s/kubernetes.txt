@@ -1,0 +1,484 @@
+命令行图形界面
+	https://github.com/derailed/k9s
+
+kubernetes （对容器的集群编排）
+	主要功能如下
+		1.自我修复:一旦某一个容器宕机，能够在段时间内启动新容器
+		2.弹性伸缩:可以根据需求，自动扩容或者缩容
+		3.服务发现:服务可以通过自动发现的形式找到他们所依赖的服务
+		4.负载均衡:能够实现多服务的请求分发
+		5.版本回退:如果新发布的程序出现BUG，可以立即回退到久版本运行
+		6.存储编排:可以根据容器自身的需求创建存储卷
+概念篇
+	集群
+		master
+			apiserver 
+				集群统一入口，以restful方式交互，数据持久化到etcd
+			shcheduler
+				节点调度器，计算服务合适部署在哪台work机器
+			controller-manager 
+				处理集群中常规后台任务，一个资源对应一个控制器
+			etcd
+				用于保存集群的相关数据
+		work
+			kebelet
+				负责对node节点中容器的管理
+			kube-proxy
+				提供网络代理和负载均衡
+	核心概念
+		lable
+			对资源打上标签，方便资源划分和查找以及管理
+		pod
+			k8s最小管理单元为pod，每个pod至少有1个（pause容器）或多个容器
+			pod控制器来负责管理pod
+			pod如果想对外提供服务，需要k8s提供的service来实现
+			pod生命周期
+				1.pod创建过程
+				2.运行初始化容器过程
+				3.运行主容器过程
+					容器启动后钩子
+					容器终止前钩子
+					容器存活性探测
+					容器就绪性探测
+				4.pod终止过程
+			pod状态(相位)
+				挂起(Pending): apiserver已经创建了pod资源对象，但尚未被调度完成或者处于下载镜像过程中
+				运行中(Running)：pod已经被调度至某节点，并且所有容器都已经被kueblei创建完成
+				成功(succeeded)：pod中的所有容器都已经成功终止并且不会被重启
+				失败(Failed)：所有容器都已经终止，但至少有一个容器终止失败，即容器返回了非0值的退出状态
+				未知(Unknown)：apiserver无法正常获取到pod对象的状态信息,通常由网络通信失败所导致
+			pod调度
+				自动调度: 运行在哪个节点上完全由Scheduler经过一系列的算法计算得出
+				定向调度: 
+					NodeName
+					NodeSelector
+				亲和性调度: 
+					NodeAffinity  将Pod调度到不同node
+					PodAffinity   将Pod调度到同一个拓扑域，减少服务与服务之间的通讯网络IO
+									  拓扑域：根据节点标签来划分（node,机架,云）
+									  同一个拓扑域：节点标签的Key和Vaule同样
+					PodAntiAffinity 将pod调度到不同拓扑域，以增加并发访问
+										拓扑域：根据节点标签来划分（node,机架,云）
+										同一个拓扑域：节点标签的Key和Vaule同样
+				污点容忍调度: 
+					Taints
+						PreferNoSchedule 尽量不要往这个节点部署（除非没有任何节点部署）
+						NoSchedule 保留旧节点的pod，新的Pod不要进来
+						NoExecute  删除不做容忍配置的所有pod
+					Toleration
+		namespaces
+			namespaces是用来做Pod的网络隔离，以及存储隔离，系统资源限制（cpu 内存....）
+		
+		deployments
+			deployments是pod控制器，负责对pod进行监控和管理（重启，重新发布，删除）
+		service 
+			service只是一个概念性的存在，正真起作用的其实是Kube-proxy服务进程，每个node街上都运行着一个kube-proxy进程
+			当创建service的时候，kube-proxy会监听到，从而将service信息转换为对应的访问规则		
+		controller
+			管理pod的运行状态，一旦pod宕机，及时恢复
+		kubeproxy:
+			在iptables和ipvs模式下，负责创建service规则
+			在userspace模式下，sevice充当了负载均衡器
+	数据卷（Volume）
+		概念:同一个Pod下，容器之间共享数据卷
+		简单存储
+			EmptyDir
+				生命周期跟随Pod（由k8s来维护，一旦pod删除，数据卷也删除）
+			HostPath
+				将数据卷挂载到自己的目录下
+			NFS（网络文件存储系统）
+			CIFS
+		高级存储
+			PV
+				实际定义了数据卷
+			PVC
+				数据卷索取
+		配置存储（存储到K8s集群里面）
+			ConfigMap
+				支持动态更新
+			Secret
+				支持动态更新
+命令
+	资源管理
+		命令式对象管理：
+			kubectl create ns dev-ns
+			kubectl run nginx-pod --image=nginx:1.17.1 --port=80 -n dev-ns
+			kubectl delete ns dev-ns
+		命令式对象配置：支持单个文件操作
+			kubectl create -f nginx-pod.yaml 创建
+			kubectl get -f nginx-pod.yaml 获取
+ 			kubectl delete -f nginx-pod.yaml 删除
+		声明式对象配置：支持对多个文件批量操作（只能新增和更新）
+			kubectl apply -f ./k8sconfig/
+	
+	修改service默认用的iptables为ipvs
+		 1修改
+			kubectl edit cm kube-proxy -n kube-system
+			mode: "ipvs"
+		 2删除kube-proxy
+			kubectl delete pod -l k8s-app=kube-proxy -n kube-system	
+		 3查看
+			ipvsadm -Ln	
+		 
+	查看命令	
+		kubectl --help
+			基本命令
+				kubectl create 创建资源
+				
+					kubectl create ns dev-ns 创建命令空间
+					
+					kubectl create deploy nginxtest --image=nginx:1.14-alpine -n dev-ns 创建pod控制器
+					
+				kubectl edit 编辑资源
+					
+					kubectl edit rs rsname -n dev  编辑rs配置文件
+					
+					kubectl edit deploy deployname -n dev  编辑deploy配置文件					
+					 
+					kubectl edit pod rsname-2vlb9  -n dev  编辑Pod配置文件
+					
+					kubectl edit cm configmap-name  -n dev
+							
+				kubectl set 修改配置
+				
+					kubectl set image rs rsname containerName=nginx:1.17.2 -n dev 修改rs控制器的pods里面的某一个容器的镜像
+					
+					kubectl set image deploy deployname containerName=nginx:1.17.2 -n dev  修改deploy控制器的pods里面的某一个容器的镜像
+					kubectl set image deploy deployname containerName=nginx:1.17.2 -n dev  --record  升级的时候可以用到(kubectl rollout history)
+					
+				kubectl scale 扩缩容pod的数量
+				
+					 kubectl scale rs rsname --replicas=6 -n dev  对rs控制器修改扩缩容
+					 
+					 kubectl scale deploy deployname --replicas=1 -n dev 对deploy控制器修改扩缩容
+				
+				kubectl get 获取资源
+				
+					kubectl get nodes 查看slave节点信息
+				
+					kubectl get -f ./k8sconfig/  对多个文件查看
+					kubectl get -f ./k8sconfig/nginx-pod1.yaml  对单个文件查看
+				
+					kubectl get ns 查看所有命令空间
+					kubectl get ns dev-ns查看某个命令空间
+					
+					
+					kubectl get pods -A  -o wide 查看所有所有空间下Pod
+					kubectl get pod  查看默认命名空间所有Pod
+					kubectl get pod nginx-6867cdf567-cjgdg 根据pod名字查
+					kubectl get pod -o [wide|yaml|json] 查看所有pod详细信息
+					kubectl get pod nginx-6867cdf567-cjgdg -o [wide|yaml|json] 查看某个pod详细信息
+					kubectl get pod -n dev-ns 查看某个命令空间下的pod
+					kubectl get pod -n dev-ns --show-labels 查看pod的标签信息
+					kubectl get pod -n dev -w	  watch监听pod
+					kubectl get pod -l run=testpod -n dev 根据pod标签名查找
+					
+					kubectl get deploy -A 查看所有空间下的deploy
+					kubectl get deploy  查看所有部署
+					kubectl get deploy nginx  根据命令查看部署		
+					kubectl get deploy -o [wide|yaml|json]	查看所有pod控制器详细信息
+					kubectl get deploy nginx -o [wide|yaml|json] 查看某个pod控制器详细信息
+					kubectl get deploy -n dev -w	  watch监听deploy
+					
+					kubectl get  rs rsname -n dev -o wide    查看rs
+					kubectl get  rs rsname -n dev -o yaml    查看rs
+					kubectl get  rs rsname -n dev -o wide -w 监听rs
+					
+					kubectl get svc -A 查看所有空间下的svc
+					kubectl get svc  查看所有服务
+					kubectl get svc nginx 根据服务名字查看	
+					kubectl get svc -o [wide|yaml|json] 查看所有服务的详细信息
+					kubectl get svc nginx -o [wide|yaml|json] 查看某个服务的详细信息
+					kubectl get svc -n dev -w	  watch监听svc
+					
+					kubectl get ep -A -o wide --show-labels 查看所有endpoints资源
+					kubectl get ep -n dev -o wide --show-labels 查看endpoints资源
+					
+					kubectl get ing -n dev 查看所有ingress资源
+					
+					kubectl get pv -o wide --show-labels -w
+					kubectl get pvc -o wide --show-labels -w -n dev
+					 		
+					kubectl get cm -o wide --show-labels -w -n dev 					
+					
+					kubectl get secrets -o wide --show-labels -w -n dev 		
+					
+					kubectl get [pod/ns/deploy] -n dev-ns --show-labels 查看所有资源标签			
+					kubectl get [pod/ns/deploy] -n dev-ns -l version==1.0 --show-labels 单标签查找资源
+					kubectl get [pod/ns/deploy] -n dev-ns -l version!=1.0,env==test --show-labels 多个标签查找资源
+
+					
+				kubectl patch 更新资源
+				kubectl delete 删除资源
+				
+					kubectl delete -f ./k8sconfig/  对多个文件删除
+					kubectl delete -f ./k8sconfig/nginx-pod1.yaml 对单个文件删除
+				
+					kubectl delete ns dev-ns 删除某一个命名空间
+					
+					kubectl delete pod pod-864f9875b9-jtzx9 -n dev-ns  根据pod的名字删除
+					kubectl delete pod -l run=testpod -n dev 根据pod标签名删除
+					
+					kubectl delete deploy nginxtest -n dev-ns  删除pod控制器
+					
+					kubectl delete rs rsname -n dev  级联删除pod,删除rs控制器（现将rs replicas数量调整为0，在删除rs控制器）
+					kubectl delete rs rsname -n dev --cascade=false 不级联删除pod,直接删除rs控制器
+												
+				kubectl explain 解析资源
+					
+					kubectl explain pod
+					kubectl explain pod.metadata
+					kubectl explain pod.spec.containers.livenessProbe
+					
+					kubectl explain ReplicaSet.spec
+					
+					kubectl explain svc
+					kubectl explain deploy
+
+					
+			运行和调试命令
+				kubectl run 在集群中运行一个指定镜像
+				
+					kubectl run testpod --image=nginx:1.14-alpine -n dev-ns （默认创建Pod控制器，然后在创建1个pod）
+					kubectl run testpod --image=nginx:1.14-alpine -n dev-ns --replicas 3 （默认创建Pod控制器，然后在创建3个pod）
+					
+				kubectl expose 暴露资源为Service
+				
+					kubectl expose deploy nginxtest --port=80 --type=NodePort 端口暴露
+					kubectl expose deploy testpod --name=svc-nginx --type=ClusterIP --port=80 --target-port=80 -n dev-ns 端口暴露
+				
+				kubectl describe 显示资源描述信息
+					
+					kubectl describe ns 查看所有命令空间详细信息
+					kubectl describe ns dev-ns 查看某个命令空间详细信息
+					
+					kubectl describe pod  -n dev-ns 查看所有Pod的描述信息
+					kubectl describe pod pod-864f9875b9-n2gvb -n dev-ns 查看单个pod描述信息
+					
+					kubectl describe deploy 查看所有pod控制器详细信息
+					kubectl describe deploy nginxtest -n dev-ns 查看单个pod控制器详细信息
+					
+					kubectl describe rs rsname -n dev
+					
+				kubectl logs 输出容器在pod中的日志
+				
+					kubectl logs -f podName -n dev -c containerName
+					
+				kubectl attach 进入运行中的容器(共用容器shell)
+					
+					kubectl attach pod mypod-demo2  -n dev  -c nginx 
+					kubectl attach pod mypod-demo1  -n dev  -c nginx 
+					kubectl attach pod mypod-demo1  -n dev  -c busybox			
+					
+				kubectl exec 执行容器中的命令(新创建一个shell并执行命令)
+				
+					kubectl exec podname -n dev -it  -c containerName sh 
+					kubectl exec podname -n dev -it -c containerName sh /run.sh arg1 arg2
+					kubectl exec podname -n dev -it -c containerName sh /run1.sh arg1 arg2
+				
+				kubectl cp 在pod内外复制文件
+				kubectl rollout 管理资源的发布
+				
+					 kubectl rollout status deploy deployname -n dev  显示当前升级状态
+					 kubectl rollout history deploy deployname -n dev 显示升级历史记录					 
+					 
+					 kubectl rollout undo deploy deployname -n dev  回滚到上一级版本
+					 kubectl rollout undo deploy deployname -n dev --to-revision=3  回滚到指定版本
+					 
+					 金丝雀发布（灰度发布）  滚动更新会立即新的RS（maxSurge: 30%）那么就会有130%（新版本和旧版本）的应用
+						1. kubectl set image deploy deployname containerName=nginx:1.17.3 -n dev  --record && kubectl rollout pause deploy deployname -n dev   暂停版本升级过程 
+						2. 没问题 kubectl rollout resume deploy deployname -n dev  继续已经暂停的版本升级过程  
+						3. 有问题 kubectl rollout resume deploy deployname -n dev && kubectl rollout undo deploy deployname -n dev 继续并且回滚上一个版本
+					  
+					 kubectl rollout restart deploy deployname -n dev  当前版本重启，滚动更新
+					 
+				kubectl autoscale 自动调整pod数量
+			高级命令
+				kubectl apply 通过文件对资源进行配置（只能新增和更新）
+				
+					kubectl apply -f ./k8sconfig/  整个目录进程创建或者更新
+					kubectl apply -f ./k8sconfig/nginx-pod1.yaml   指定一个文件创建或者更新
+					kubectl apply -f ./k8sconfig/nginx-pod1.yaml --record  升级的时候可以用到(kubectl rollout history)
+				
+				kubectl label 资源标签
+				
+					kubectl label [pod/ns/deploy] --all version=1.0 -n dev-ns  对所有pod进行打标签
+					kubectl label [pod/ns/deploy] nginxpod version=1.0 -n dev-ns  对单个pod进行打标签
+					kubectl label [pod/ns/deploy] nginxpod version=1.0 env=dev -n dev-ns  对单个pod打多个标签
+					
+					kubectl label [pod/ns/deploy] --all --overwrite=true version=3.0 -n dev-ns  更新所有资源标签
+					kubectl label [pod/ns/deploy] nginxpod --overwrite=true version=3.0 -n dev-ns  更新单个资源标签
+					
+					kubectl label [pod/ns/deploy] nginxpod  version- -n dev-ns 删除单个资源标签
+					kubectl label [pod/ns/deploy] --all version- -n dev-ns 删除所有资源标签	
+
+					kubectl label nodes node1 env=test 添加节点标签
+					kubectl label nodes node1 env-  删除节点标签
+					
+			其他命令
+				kubectl taint 污点
+				
+					添加污点
+					kubectl taint nodes node1 wudian=v1:PreferNoSchedule 尽量不要往这个节点部署（除非没有任何节点部署）
+					kubectl taint nodes node1 wudian=v2:NoSchedule 保留旧节点的pod，新的Pod不要进来
+					kubectl taint nodes node1 wudian=v3:NoExecute  删除掉节点的所有pod
+
+					kubectl taint nodes node1 wudian:PreferNoSchedule-  #删除单个污点
+					kubectl taint nodes node1 wudian- #删除某个key的所有污点
+					
+				kubectl top 需要安装 metrics-server
+				
+					kubectl top node 查看集群资源使用情况
+					kubectl top node node1
+					kubectl top pod -n kube-system 查看某个命名空间下的Pod资源使用情况
+					kubectl top pod podname -n kube-system
+				
+				
+				kubectl cluster-info 显示集群信息
+				kubectl version 显示server和client版本
+	查看所有api版本
+		kubectl api-versions
+	查看所有资源
+		kubectl api-resources  
+			集群级别资源
+				[nodes|no][kind:Node][ns:false]
+				[namespaces|ns][kind:Namespace][ns:false]				
+			pod资源
+				[pods|po|pod][kind:Pod][ns:true]		
+			pod资源控制器
+			
+				[replicationcontrollers|rc][kind:ReplicationController][ns:true] 已经弃用，被ReplicaSet替代
+				
+				[replicasets|rs][kind:ReplicaSet][ns:true] 主要用于保证一定数量的Pod能够正常运行，它会持续监听这些Pod的运行状态，一旦Pod发生故障，就会重启或重建，同时它还支持对Pod数量的扩缩容和版本镜像的升级
+				[deployments|deploy][kind:Deployment][ns:true]控制replicaset，来实现滚动更新和版本回退，发布的停止和继续, 为了更好解决服务编排问题，k8s在v1.2开始引入了deployment控制器，这种控制器并不是直接管理Pod,而是通过管理ReplicaSet来简介管理Pod，即：Deployment管理了ReplicaSet，ReplicaSet管理了Pod.
+				[horizontalpodautoscalers hpa][kind:HorizontalPodAutoscaler][ns:true] hpa控制器是对deployment的控制。根据每个pod的整体情况，来实现自动的扩缩容
+				
+				[statefulsets|sts][kind:StatefulSet][ns:true]
+				
+				[daemonsets|ds][kind:DaemonSet][ns:true] 每个节点有1个守护pod，如果有新加入节点也会自动创建pod,支持滚动更新（先删后创建）
+				
+				[jobs|job][kind:Job][ns:true] 批量执行任务，可以实现执行失败后重试机制
+				[cronjobs|cj][kind:CronJob][ns:true] 根据corn表达法来定时控制jobs
+				
+			服务发现资源
+				[services|service|svc][kind:Service][ns:true]		
+				[endpoints|ep][kind:Endpoints][ns:true]	
+				[ingress|ing][kind:Ingress][ns:true]
+			存储资源
+				[volumeattachments][kind:VolumeAttachment][ns:false]
+				
+				[persistentvolumes|pv][kind:PersistentVolume][ns:false] k8s管理人员负责创建真实的持久卷
+				[persistentvolumeclaims|pvc][kind:PersistentVolumeClaim][ns:true] 用户申请持久卷声明
+				
+			配置资源
+			
+				[configmaps|cm][kind:ConfigMap][ns:true] 是一种特殊的存储卷key value结构
+				
+				[secrets][kind:Secret][ns:true]	
+				
+
+		
+metrics-server安装 查看k8s集群资源使用情况(https://github.com/kubernetes-sigs/metrics-server/tree/v0.3.6)		
+	解压
+		unzip metrics-server-0.3.6.zip
+	修改
+		vi /root/metrics-server-0.3.6/deploy/1.8+/metrics-server-deployment.yaml
+		添加如下内容
+		---
+		apiVersion: v1
+		kind: ServiceAccount
+		metadata:
+		  name: metrics-server
+		  namespace: kube-system
+		---
+		apiVersion: apps/v1
+		kind: Deployment
+		metadata:
+		  name: metrics-server
+		  namespace: kube-system
+		  labels:
+			k8s-app: metrics-server
+		spec:
+		  selector:
+			matchLabels:
+			  k8s-app: metrics-server
+		  template:
+			metadata:
+			  name: metrics-server
+			  labels:
+				k8s-app: metrics-server
+			spec:
+			  hostNetwork: true #修改
+			  serviceAccountName: metrics-server
+			  volumes:
+			  # mount in tmp so we can safely use from-scratch images and/or read-only containers
+			  - name: tmp-dir
+				emptyDir: {}
+			  containers:
+			  - name: metrics-server
+				#image: k8s.gcr.io/metrics-server-amd64:v0.3.6
+				image: registry.cn-hangzhou.aliyuncs.com/google_containers/metrics-server-amd64:v0.3.6 #修改
+				imagePullPolicy: Always
+				args:  #修改
+				  - --kubelet-insecure-tls
+				  - --kubelet-preferred-address-types=InternalIP,Hostname,InternalDNS,ExternalDNS,ExternalIP
+				volumeMounts:
+				- name: tmp-dir
+				  mountPath: /tmp
+
+	执行
+		cd /root/metrics-server-0.3.6/deploy/1.8+/
+		kubectl apply -f ./
+	查看
+		kubectl  get pod -A 
+		kubectl top node 查看集群资源使用情况
+		kubectl top node node1
+		kubectl top pod -n kube-system 查看某个命名空间下的Pod资源使用情况
+		kubectl top pod podname -n kube-system
+	
+		
+dashboard安装
+	wget  https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml
+
+	修改
+	kind: Service
+	apiVersion: v1
+	metadata:
+	  labels:
+		k8s-app: kubernetes-dashboard
+	  name: kubernetes-dashboard
+	  namespace: kubernetes-dashboard
+	spec:
+	  type: NodePort #更改
+	  ports:
+		- port: 443
+		  targetPort: 8443
+		  nodePort: 30080 #更改
+	  selector:
+		k8s-app: kubernetes-dashboard
+
+	安装
+		kubectl apply -f recommended.yaml
+	查看状态
+		kubectl get pod,svc -n kubernetes-dashboard
+	访问UI
+		https://192.168.88.21:30080/#/login
+
+		创建账号
+			kubectl create serviceaccount dashboard-admin -n kubernetes-dashboard
+		授权
+			kubectl create clusterrolebinding dashboard-admin-rb --clusterrole=cluster-admin --serviceaccount=kubernetes-dashboard:dashboard-admin
+		查看token账号
+			kubectl get secrets -n kubernetes-dashboard | grep dashboard-admin
+		获取token
+			kubectl describe secrets dashboard-admin-token-vznn5 -n kubernetes-dashboard
+
+		
+		
+		
+
+		
+		
+		
+		
+		

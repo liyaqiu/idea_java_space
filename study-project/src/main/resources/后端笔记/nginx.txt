@@ -1,0 +1,152 @@
+集群分类
+	LB集群（负载均衡）
+		LVS（Linux Virtual Server）4层协议做负载均衡
+		haproxy（4，7层）
+		nginx（4，7层）
+	HA集群
+		keepalived,heartbeat,pacemaker,piranha
+	HPC集群
+
+
+nginx nginx-1.18.0.tar.gz
+	下载
+		http://nginx.org/download/
+	关闭selinux
+		vi /etc/selinux/config  SELINUX=disabled  init 6
+	nginx依赖
+		yum -y install gcc pcre pcre-devel zlib zlib-devel openssl openssl-devel
+		./configure 
+		make && make install
+	命令
+		启动
+			nginx
+			nginx -s stop 强制关闭
+			nginx -s quit 优雅关闭
+			nginx -s reload 重启work进程
+			nginx -s reopen 重新打开日志文件（用于日志迁移）
+		配置文件检查
+			nginx -t
+			nginx -t -c /usr/local/nginx/conf/nginx.conf
+		指定配置文件启动
+			nginx -c /usr/local/nginx/conf/nginx.conf
+			
+		location
+			指定模式【^~】
+				location /abc  匹配路径  /abc  /abcccc /abc/asdas  
+				location ^~/abc  匹配路径  /abc  /abcccc /abc/asdas    [^~] 匹配到就停止往下继续匹配别的location
+			精确匹配【=】
+				location =/abc  匹配路径  /abc
+			正则表达式匹配【~】【~*】
+				location ~^/abc\w$  匹配路径  /abc1  /abcd
+				location ~*^/abc\w$  匹配路径  /ABc1  /Abcd
+    跨域location添加
+      add_header Access-Control-Allow-Origin http://192.168.0.203,http://192.168.0.204;
+      add_header Access-Control-Allow-Methods GET,POST,PUT,DELETE;
+	 
+	内置变量
+		https://www.cnblogs.com/xiaopaipai/p/10522645.html
+	命令
+		break 同一作用域后面的代码无效，并且会执行重定向操作
+		return 整个作用域后面代码无效
+				
+nginx升级或者增加module
+	 1.把相应参数复制下来
+		nginx -V
+	 2.备份之前版本的nginx
+		mv /usr/local/nginx/sbin/nginx  /usr/local/nginx/sbin/nginx.bak
+	 3.清空之前编译过的内容
+		cd /root/nginx-1.18.0
+		make clean
+	 4.重新编译+之前的nginx -V的参数
+		 ./configure --with-http_gzip_static_module
+	    make
+	 5.将二进制文件复制到之前nginx sbin目录
+	   cp /root/nginx-1.18.0/objs/nginx /usr/local/nginx/sbin/
+	 6.执行更新,把老服务关闭，启动新服务
+	   cd /root/nginx-1.18.0
+	   make upgrade
+	
+
+	
+	
+
+module依赖
+       开启zip压缩资源访问 --with-http_gzip_static_module   因为sendfile on 的开启，所以压缩会设置到用户态和内核态的切换以及拷贝。
+	   开启https  --with-http_ssl_module
+
+相关参数获取
+	$1 获取正则表达式参数
+	$http_Connection 获取request请求头参数
+	$arg_canshu 获取地址上的参数
+	$cookie_channel 获取cookie参数   
+
+
+
+
+lua-5.4.4.tar.gz
+	官方下载
+		https://www.lua.org/download.html
+	安装
+		cd lua-5.4.4
+		make linux test
+		make install
+		lua -v
+		如果安装失败，缺少libreadline-dev包  yum -y install readline-devel
+
+
+
+
+OpenResty(lua+nginx)  http://openresty.org/cn/download.html  不需要单独安装lua
+	yum安装
+		yum -y install pcre-devel openssl-devel gcc --skip-broken
+		yum-config-manager --add-repo https://openresty.org/package/centos/openresty.repo
+		yum -y install yum-utils(报错的情况下执行)
+		yum -y install openresty
+		yum -y install openresty-opm
+	启动OpenResty
+		添加环境变量
+			export PATH=$PATH:/usr/local/openresty/nginx/sbin
+		命令
+			启动 nginx
+			停止 nginx -s stop
+			加载配置 nginx -s reload
+
+	
+	编译安装
+		下载源码包
+			https://openresty.org/download/openresty-1.19.3.2.tar.gz
+		tar -zxvf openresty-1.19.3.2.tar.gz
+		cd openresty-1.19.3.2
+		./configure
+		make && make install
+		
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+	   
+ ./configure --with-http_gzip_static_module --with-http_ssl_module --add-module=/usr/local/nginx/module/nginx-upstream-fair-master	--add-module=/usr/local/nginx/module/ngx_cache_purge-2.3
+
+	   
+
+
+
+
+				

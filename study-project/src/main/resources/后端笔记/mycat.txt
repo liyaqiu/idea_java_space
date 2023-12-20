@@ -1,0 +1,65 @@
+mycat是数据库分库分表的中间件（支持事务）
+
+	下载地址
+		http://dl.mycat.org.cn/1.6.7.3/20190927161129/
+
+	垂直拆分（对不同的表进行拆分）	
+	水平拆分（横向拆分）（对同一张表的数据做区域拆分）
+
+
+	分片
+		分片表（数据量较大的表）（拆分多个节点存放）
+		非分片表（相对于分片表来说，不需要分片的表）（单独一个节点存放）
+		全局表（对分片的表有依赖，但数据量较小）（保存在跟分片表同一个物理节点上，不做拆分）
+		ER表（对分片的表有关联关系，而且数据量较大）（保存在跟分片表同一个物理节点上，做拆分）
+		
+	配置文件
+		conf/server.xml配置
+			system标签
+			user标签
+			firewall标签
+		conf/schema.xml
+			schema标签
+			datanode标签
+			datahost标签
+		conf/rule.xml
+
+	分片规则
+		rang-long 范围分片
+		mod-long 取模分片
+		sharding-by-murmur hash一致性分片（容易扩容）
+			方案一、
+			a) 停止数据服务，导出全部分片表数据，进行备份； 
+			b) 清空分片表； 
+			c) 在mycat中重新导入分片表，完成迁移。 
+			这种方案缺点很明显，需要导出导入的数据量大时，操作很费时，且容易出错。
+			方案二、
+			a) 修改MyCAT配置，使用扩容后的配置启动； 
+			b) 自己编写脚本，利用MyCAT的explain语法，分析出各个MySQL节点中分片表需要重新hash的数据，并记录ID（或数据）到文件中； 
+			b) 导出各节点中的需要重新hash的数据进行备份， 
+			c) 确认备份无误，清除原节点中的数据记录； 
+			c) 在mycat中重新导入备份的数据，完成迁移。
+
+	启动mycat 默认端口8066  管理端口9066
+		./bin/mycat restart 
+	修改日志
+		 <AsyncLogger name="io.mycat.backend.mysql.nio.MySQLConnection" level="DEBUG" includeLocation="true" additivity="false">
+			 <AppenderRef ref="RollingFile"/>
+		</AsyncLogger>
+			
+
+	mycat-web依赖zookeeper
+		下载地址 
+			http://dl.mycat.org.cn/mycat-web-1.0/  	
+		修改zookeeper地址 
+			/root/mycat-web/mycat-web/WEB-INF/classes/mycat.properties
+		访问url
+			http://192.168.0.201:8082/mycat/
+
+	 service mysqld restart
+	 update user set password=password('123456') where user='root'and host='localhost';
+		
+		GRANT ALL PRIVILEGES ON *.* TO'root'@'%' IDENTIFIED BY '123456' WITH GRANT OPTION;
+		GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY '123456' WITH GRANT OPTION;
+		grant replication slave on *.* to 'root'@'%' IDENTIFIED BY '123456';
+		alter user 'root'@'localhost' identified by '123456';

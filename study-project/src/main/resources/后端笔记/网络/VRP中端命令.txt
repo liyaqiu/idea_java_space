@@ -1,0 +1,40 @@
+环境安装
+	WinPcap_4_1_3.exe
+	Wireshark-win64-3.0.0.exe
+	VirtualBox-5.2.22-126460-Win.exe
+	eNSP_Setup.exe
+VRP中端命令
+	用户视图
+		telnet 192.168.88.1
+		display arp 查看arp信息
+	系统视图
+		system-view  用户视图切换到系统视图
+			sysname R1 更改设备名字
+			display ip interface brief 查看接口地址
+			display current-configuration 查看当前设备的配置
+			display ip routing-table 查看路由表
+			display router id 查看路由id
+			display arp 查看arp表
+			display ip routing-table 192.168.88.0 查看单个网络地址的路由信息
+			display mac-address 查看mac表地址
+			shutdown 停掉接口
+			undo shutdown 恢复接口
+			开启telnet远程管理
+				user-interface vty 0 4 设置最多4个人同时可以进行远程管理
+					authentication-mode password 配置密码
+					user privilege level 3 设置权限级别为3 取值1-3
+					display this 查看当前等级信息
+			配置换回接口
+				好处:
+					逻辑接口，用不宕机
+				interface LoopBack 0 
+					ip address 10.0.0.1 32
+					display ip interface brief
+	接口视图
+		interface Ethernet 0/0/1  进入到接口视图
+			ip address 192.168.88.8 24
+			ip address 192.168.88.2 255.255.255.0
+			display this 显示当前接口的ip地址
+			undo ip address 取消命令
+	协议视图
+		ospf 10 进入到协议视图

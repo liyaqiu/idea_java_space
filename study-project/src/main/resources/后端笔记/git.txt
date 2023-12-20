@@ -1,0 +1,182 @@
+git
+	结构
+		本地库
+		暂存区 		
+		工作区
+	
+	环境变量
+		Path = D:\git_client\cmd
+	
+	认证方式
+		密钥验证 git@192.168.88.15:liyaqiu/git-test.git
+			生成非对称密钥
+				ssh-key -t rsa -C 361234567@qq.com
+				密钥位置:C:\Users\admin\.ssh
+				
+		账户密码验证 http://192.168.88.15:4567/liyaqiu/git-test.git
+			密码位置:
+				控制面板\用户帐户\凭据管理器
+	常用命令
+		
+		git config --global user.name eric  设置签名用户，文件位置 C:\Users\admin\.gitconfig
+		git config --global user.email 361234567@qq.com 设置签名邮箱
+		git config --global user.name 查看签名用户
+		git config --global user.email 浅看签名邮箱
+		
+		
+		git init 初始化本地库
+		
+		git add Test5.java 添加到暂存区
+		
+		git rm --cached  Testa.java 从暂存区删除文件
+		git rm --cached -f Testa.java 从暂存区强制删除文件
+		
+		git commit -m "提交描述" Test3.java 提暂存区指定文件到本地库
+		git commit -m "提交描述"  提交暂存区所有文件到本地库
+		
+		git reflog 查看【当前分支】所有操作历史记录
+		
+		git log 查看当前版本，之前的版本
+		git log --all 查看所有版本
+		git log --pretty=oneline 格式化显示
+		
+		git reset --hard 65803dd 版本切换【通过git log --all查看全部版本，不能越界切换版本，越界会触发自动合并分支操作】
+		
+		git status 查看当前状态
+		
+		
+		git commit -am "提交描述" 将工作区的文件(已经追踪过的文件)添加到暂存区，并且提交
+
+		git restore src/main/java/com/git/test/Test3.java 恢复本地库指定文件
+		git restore * 恢复本地库所有文件
+		
+		git restore --staged src/main/java/com/git/test/Test3.java 恢复暂存区指定文件
+		git restore --staged * 恢复暂存区所有文件
+		
+	分支命令	
+		git branch -v 查看分支信息
+		git branch hotfix 创建分支
+		git branch -d  hotfix 删除分支
+		git checkout hotfix 切换分支
+		git checkout -b branch2 创建分支并切换分支
+		git merge hotfix 合并xxx分支到当前分支
+		
+		git branch -a 查看所有分支(本地库和远程库)
+		git branch -r 查看远程库分支
+		git checkout -b v3 remotes/gongsi/v3 从远程库拉取分支到本地库
+		
+		git stash 当前分支临时存储
+		git stash list 查看当前分支临时存储列表
+		git stash pop 弹出当前分支临时存储
+		
+	tag命令
+		git tag 查看标签
+		git tag master-v1 基于当前分支打标签
+		git tag -d master-v1 删除标签
+		git show master-v1 查看标签信息
+		
+		git push gongsi master-v1 推送标签到远程库
+		git push gongsi --tags 把所有标签推送到远程库
+		
+		git ls-remote --tags gongsi 查看远程库的标签
+		git fetch gongsi 拉取远程库所有tag
+		
+		git push gongsi :refs/tags/master-v1 删除远程库标签
+	远程库命令
+		git remote -v 查看当前本地库关联的远程库
+		git remote add ori git@192.168.88.15:eric/git-test.git 为远程库地址取个别名
+			github  git@github.com:liyaqiu/git-test.git (fetch)
+			github  git@github.com:liyaqiu/git-test.git (push)
+			gongsi  http://192.168.88.15:4567/eric/git-test.git (fetch)
+			gongsi  http://192.168.88.15:4567/eric/git-test.git (push)
+
+		git remote remove ori 删除别名
+		git remote rename ori origin 更改别名
+
+		git push ori master 从本地库推送分支到远程库
+		git push ori q1 从本地库推送分支到远程库
+		
+		git pull ori master 从远程库拉取到本地库
+
+
+	忽略文件名 .gitignore，以下所有匹配都是目录和分件，也就是说不git不分文件和目录
+		# Compiled class file
+		*.class
+
+		# Eclipse
+		.project
+		.classpath
+		.settings/
+
+		# Intellij
+		*.ipr
+		*.iml
+		*.iws
+		.idea/
+
+		# Maven
+		target/
+
+		# Gradle
+		build
+		.gradle
+
+		# Log file
+		*.log
+		log/
+
+		# out
+		out/
+
+		# Mac
+		.DS_Store
+
+		# others
+		*.jar
+		*.war
+		*.zip
+		*.tar
+		*.tar.gz
+		*.pid
+		*.orig
+		temp/
+
+
+	idea整合git
+		关联git
+			File->Settings->Version Control->Git
+		取消自动添加到暂存区
+			File->Settings->Version Control->Confirmation
+				Add silently 自动添加到暂存区
+				Do not add 取消自动添加到暂存区
+				
+	idea整合github	
+		方式1,推荐
+			手动在git clint关联好ssh，并且设置git clint的密钥，到时候idea会调用到
+				git remote add ori git@192.168.88.15:eric/git-test.git
+		方式2,此方式容易登陆失败
+		File->Settings->Version Control->GitHub
+		基于token方式认证
+			https://github.com/settings/tokens
+				Settings->Developer->settings->Personal access tokens
+		
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+		
+		
+		

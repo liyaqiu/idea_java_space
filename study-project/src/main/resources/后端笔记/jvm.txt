@@ -1,0 +1,231 @@
+
+垃圾回收之MinorGC,MajorGC（CMSGC）和FullGC的区别
+https://www.cnblogs.com/amazing-eight/p/13197653.html
+
+
+查看类的加载情况
+jstat -class -t -h3  8844 1000 10
+查看gc使用状况
+jstat -gc -t -h3  8844 1000 10
+查看gc发生的原因
+jstat -gccause 8844
+
+查看当前jvm设置过的一些参数
+jinfo -flags 8844
+查看系统级别的参数
+jinfo -sysprops 9072
+查看单个参数信息
+jinfo -flag HeapDumpPath 10104
+修改单个参数信息
+jinfo -flag HeapDumpPath=D:/3.hprof 10104
+
+
+
+手动到处映像文件
+jmap -dump:format=b,file=D:/1.hprof pid
+jmap -dump:live,format=b,file=D:/1.hprof pid
+查看实例对象信息
+jmap -histo pid 
+
+自动到处映像文件 在jvm产生oom之前的一次gc后保存的映像文件
+-XX:+HeapDumpOnOutOfMemoryError 或者 -XX:+HeapDumpBeforeFullGC
+-XX:HeapDumpPath=D:/2.hprof
+
+
+查看线程是否有死锁
+jstack pid 
+
+查看帮助文档
+jcmd 8844 help
+
+
+
+阿尔萨斯
+https://arthas.aliyun.com/zh-cn/
+http://arthas.gitee.io/
+
+指令文档
+https://arthas.aliyun.com/doc/advanced-use.html#id2
+
+
+
+jvm官方参数列表
+https://docs.oracle.com/javase/8/docs/technotes/tools/unix/java.html
+---------------------------------------打印jvm设置的参数---------------------------------------
+程序运行前打印jvm设置过的参数
+-XX:+PrintCommandLineFlags  
+程序运行结束打印jvm设置过的参数(只打印-XX:参数) 打印-XX:MaxHeapSize=300M 不打印-Xmx300m
+-XX:+PrintVMOptions
+打印XX默认值
+-XX:+PrintFlagsInitial
+打印XX选项在运行程序时生效的值
+-XX:+PrintFlagsFinal
+
+查看可修改的jvm参数(jvm运行可修改)
+java -XX:+PrintFlagsFinal -version | grep manageable
+查看和修改
+jinfo -flag HeapDumpPath 10104
+jinfo -flag HeapDumpPath=D:/3.hprof 10104
+
+---------------------------------------设置jvm堆栈参数---------------------------------------
+设置每个线程栈大小（当栈溢出时候把此参数变大）
+-Xss128k = -XX:ThreadStackSize=128k
+堆初始化大小
+-Xms60m = -XX:InitialHeapSize=60m
+堆最大大小
+-Xmx60m = -XX:MaxHeapSize=60m
+设置新生代和老年代的比率(默认为2)
+-XX:NewRatio=2（如果生命周期长的对象很多，建议设置老年代的值大一点，-XX:NewRatio=4）
+设置自动选择各个区大小比例(默认为开启状态，会影响SurvivorRatio的比率为6:1:1)(此参数关闭后并不会影响新生代的比率，需要显示赋值-XX:SurvivorRatio=8才行)
+-XX:+UseAdaptiveSizePolicy
+设置新生代的比率(Eden和suvivor)(默认为8:1:1，但是被UseAdaptiveSizePolicy影响，所以为6:1:1)
+-XX:SurvivorRatio=8
+
+设置年轻代(初始值以及最大值)大小(官方推荐配置为整个堆大小的3/8)
+-Xmn1024m
+设置年轻代初始值
+-XX:NewSize=1024m
+设置年轻代最大值
+-XX:MaxNewSize=1024m
+
+jdk7永久代 
+-XX:PermSize=256m  
+-XX:MaxPermSize=256m 
+以下是基于jdk8元空间
+初始化元空间大小
+-XX:MetaspaceSize=256m
+元空间最大值大小(默认无穷大)
+-XX:MaxMetaspaceSize=256m
+压缩对象指针
+-XX:+UseCompressedOops
+压缩类指针
+-XX:+UseCompressedClassPointers
+设置Klass Metaspace的大小，默认为1G
+-XX:CompressedClassSpaceSize
+直接内存大小设置，默认与堆最大值一样（这里的直接内容与【元空间使用本地内存不是一个概念】）
+MaxDirectMemorySize=256m
+
+
+
+设置让大于此阈值的对象直接分配到老年代(单位kb，只对Serial和ParNew收集器有效)
+-XX:PretenureSizeThreshold=1024
+设置新生代每次MinorGC后，还存活的对象年龄+1,当对象的年龄大于设置的这个值(默认15)的时候进入老年代
+-XX:MaxTenuringThreshold=15
+让jvm在每次MinorGC后打印当前使用的Suivivor中对象的年龄分布
+-XX:+PrintTenuringDistribution
+表示MinorGC结束后Suvivor区域中占用空间的期望比例
+-XX:+TargetSurvivorRatio
+
+
+
+
+---------------------------------------设置jvm oom参数---------------------------------------
+
+生成堆转储dumo文件
+-XX:+HeapDumpOnOutOfMemoryError 或者 -XX:+HeapDumpBeforeFullGC  -XX:+HeapDumpAfterFullGC
+-XX:HeapDumpPath=D:/2.hprof
+
+当出现oom执行一个脚本
+-XX:OnOutOfMemoryError=/restartServer.sh
+
+---------------------------------------设置GC相关参数---------------------------------------
+调优心得
+1.优先调整堆大小让JVM自适应完成
+2.如果内存小于100M，使用串行收集器（树莓派开发）
+3.如果是单核，单机程序，并且没有停顿时间要求，使用串行收集器
+4.如果是多CPU，需要高吞吐量，允许停顿时间超过1秒，选择并行或者JVM自己选择
+5.如果是多CPU，追求低停顿时间，需快速做响应交互（比如延迟不能超过1秒，如互联网应用），使用并发收集器，官方推荐G1，性能高。现在互联网的相互，基本都是使用G1
+
+禁用System.gc()
+-XX:+DisableExplicitGC
+
+查看命令行相关参数（包含使用的垃圾收集器）
+-XX:+PrintCommandLineFlags
+
+
+打印GC时间2个参数配合使用
+-XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps
+
+
+jvm运行结束后打印的GC使用情况
+-XX:+PrintGCDetails 
+
+每一次GC前和GC后都打印堆信息
+-XX:+PrintHeapAtGC
+
+把GC日志输出到文件
+-Xloggc:/root/garbage-collection.log
+
+使用serialGC(默认开启UseSerialOldGC)
+-XX:+UseSerialGC
+
+
+使用ParallelGC(默认开启UseParallelOldGC)
+-XX:+UseParallelGC
+设置年轻和老年代中用于并行垃圾收集的线程数。默认值取决于JVM可用的CPU数量（CPU核心*2=线程数量）
+当CPU数量小于8则等于8CPU数量，当大于8则【3+[5*CPU_Count]/8】
+-XX:ParallelGCThreads=2
+设置Parallel Scavenge收集器具有自适应调节策略
+在自动模式下，年轻代的大小,Eden和suvivor的比例,晋升老年代的对象年龄等参数会被自动调整，已达到在堆的大小,吞吐量和停顿时间之间的平衡点
+在手动调优比较困难的场合，可以直接使用这种自适应的方式，仅指定虚拟机的最大堆，目标的吞吐量（GCTimeRatio）和停顿时间(MaxGCPauseMills)，让虚拟机自己完成调优工作
+-XX:+UseAdptiveSizePolicy
+
+使用ParNewGC(默认开启ParNewGC+UseConcMarkSweepGC+SerialOldGC)
+-XX:+UseConcMarkSweepGC
+
+使用G1  G1设置堆大小不在使用-Xms和-Xmx
+-XX:+UseG1GC
+设置新生代占用整个堆内存的最小百分比（默认为5%）最大百分比（默认为60%）
+-XX:G1NewSizePercent -XX:G1MaxNewSizePercent
+保存内存区域，防止to space（Survisor中的to区）溢出
+-XX:G1ReservePercent=10
+设置每个Region的大小，值算2的幂，范围算1MB到32MB之间，目标算根据最小的JAVA堆大小划分出越2048歌区域，默认是堆内存的1/2000
+-XX:G1HeapRegionSize
+设置期望达到的最大GC停顿时间指标（JVM会尽力实现，但不保证达到，停顿越大回收的Region越多）默认值算200ms 
+-XX:MaxGCPauseMillis
+设置STW时GC线程数的值，最多设置位8
+-XX:ParallelGCThreads=8
+设置并发标记的线程数，将n设置为并行垃圾回收线程(ParallelGCThreads)的1/4左右
+-XX:ConcGCThreads
+设置触发并发GC周期的Java堆占用率阈值，超过此值就触发GC，默认算45
+-XX:InitiatingHeapOccupancyPercent
+
+
+
+
+jvm参数设置
+-Xms60m = -XX:InitialHeapSize=60m
+-Xmx60m = -XX:MaxHeapSize=60m
+-XX:+PrintGCDetails 
+-XX:+HeapDumpOnOutOfMemoryError
+-XX:HeapDumpPath=D:/2.hprof
+-XX:+PrintGCTimeStamps 
+-XX:+PrintGCDateStamps
+-XX:+PrintHeapAtGC
+-Xloggc:/root/garbage-collection.log
+
+gc监控软件
+	jconsole(jdk提供)
+	jvisualvm(jdk提供)
+	mat(mamery analizer tools)做内存参数跟踪
+	jprofiler(付费)
+	arthas(阿里提供生产用比较好)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

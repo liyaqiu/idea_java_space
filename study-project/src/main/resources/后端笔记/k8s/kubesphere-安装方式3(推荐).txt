@@ -1,0 +1,227 @@
+
+环境依赖安装：
+	设置主机host，重要：主机名不配置，后面会导致slave加入master出问题
+		hostnamectl set-hostname master
+		hostnamectl set-hostname node1
+		hostnamectl set-hostname node2
+	设置hosts域名解析	
+		tee >> /etc/hosts << EOF
+		192.168.88.21 master
+		192.168.88.22 node1
+		192.168.88.23 node2
+		EOF
+	网络时间同步
+		方式1
+			yum -y install ntp ntpdate && ntpdate cn.pool.ntp.org && hwclock --systohc && hwclock -w	
+		方式2
+			yum install -y chrony
+			systemctl start chronyd && systemctl enable chronyd
+	禁用防火墙
+		systemctl stop firewalld && systemctl disable firewalld  
+	禁用selinux
+		setenforce 0 临时关闭
+		sed -i 's/enforcing/disabled/' /etc/selinux/config 永久关闭
+	关闭swap分区
+		swapoff -a 临时关闭
+		sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab 永久关闭
+	修改linux的内核参数
+		1.将桥接的IPv4流量传递到iptables的链
+			tee /etc/sysctl.d/k8s.conf <<-'EOF'
+			net.bridge.bridge-nf-call-ip6tables = 1
+			net.bridge.bridge-nf-call-iptables = 1
+			net.ipv4.ip_forward = 1
+			EOF
+			
+			tee /etc/modules-load.d/k8s.conf <<-'EOF'
+			br_netfilter
+			EOF
+		2.重新加载配置 
+			sysctl --system
+	重启系统
+		init 6
+	确保 br_netfilter 模块被加载
+		sysctl -a | grep ip_forward  && lsmod | grep br_netfilter 	
+docker安装（19.03.3）
+	yum -y install gcc gcc-c++ yum-utils device-mapper-persistent-data lvm2
+	yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo && yum makecache fast
+	yum -y install docker-ce-19.03.3 docker-ce-cli-19.03.3 containerd.io
+		
+	添加阿里云加速器和k8s的推荐使用的cgroup(docker info查看，默认使用 Cgroup Driver: cgroupfs)			
+	mkdir -p /etc/docker && tee /etc/docker/daemon.json <<-'EOF'
+	{
+	  "exec-opts": ["native.cgroupdriver=systemd"],
+	  "registry-mirrors": ["https://lrlaxcij.mirror.aliyuncs.com"]
+	}
+	EOF
+			
+	systemctl daemon-reload && systemctl start docker && systemctl enable docker.service
+	
+k8s安装（1.17.4-0）
+	官方文档
+		https://kubernetes.io/zh/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
+	注意大坑（一定要7.5以上的centos，不然后面服务的集群ip可能无法正常访问）
+		cat /etc/redhat-release 
+		CentOS Linux release 7.4.1708 (Core) 
+	配置阿里镜像源
+		tee /etc/yum.repos.d/kubernates.repo <<-'EOF'
+		[kubernetes]
+		name=Kubernetes
+		baseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64
+		enabled=1
+		gpgcheck=0
+		repo_gpgcheck=0
+		gpgkey=https://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg
+			   https://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg
+		EOF
+	更新缓存		
+		yum makecache fast
+	查看版本
+		yum list kubelet --showduplicates | sort -r	 (注意顶部的版本不一定是最新的)
+	安装【kubectl】【kubelet】【kubeadm】
+		yum install -y kubelet-1.17.4-0 kubeadm-1.17.4-0 kubectl-1.17.4-0
+	设置kubelet开机启动
+		systemctl enable kubelet
+	初始化master
+		方式1
+			查看依赖的容器并下载
+				kubeadm config images list
+			下载
+				images=(
+				kube-apiserver:v1.17.4
+				kube-controller-manager:v1.17.4
+				kube-scheduler:v1.17.4
+				kube-proxy:v1.17.4
+				pause:3.1
+				etcd:3.4.3-0
+				coredns:1.6.5 
+				)
+				for imageName in ${images[@]} ; 
+				do
+					docker pull registry.cn-hangzhou.aliyuncs.com/google_containers/$imageName
+					docker tag registry.cn-hangzhou.aliyuncs.com/google_containers/$imageName k8s.gcr.io/$imageName
+					docker rmi registry.cn-hangzhou.aliyuncs.com/google_containers/$imageName
+				done
+				master执行
+					kubeadm init --kubernetes-version v1.17.4 --apiserver-advertise-address=192.168.88.21  --service-cidr=10.10.0.0/16 --pod-network-cidr=10.244.0.0/16
+					配置初始化
+						mkdir -p $HOME/.kube && sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config && sudo chown $(id -u):$(id -g) $HOME/.kube/config
+					查看集群状态
+						kubectl get nodes
+		方式2
+			master执行
+				kubeadm init --kubernetes-version v1.17.4 --image-repository registry.aliyuncs.com/google_containers  --apiserver-advertise-address=192.168.88.12  --service-cidr=10.96.0.0/12 --pod-network-cidr=10.244.0.0/16 
+				配置初始化
+					mkdir -p $HOME/.kube && sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config && sudo chown $(id -u):$(id -g) $HOME/.kube/config
+				查看集群状态
+					kubectl get nodes
+	初始化slave（192.168.88.13，192.168.88.14）
+		slave加入master
+			kubeadm join 192.168.88.12:6443 --token d87rt8.d8pjd3mfgo8zyu2k --discovery-token-ca-cert-hash sha256:7c3ca32f59ae50edfcdb3b2328599ca9faf489934a64f01c9df5a60e4d59929a 
+		过期后重新生成
+			kubeadm token create --print-join-command 
+			
+	初始化k8s以后可以看到加载了(ipvs)如下模块
+		lsmod | grep -e br_netfilter -e ip_vs -e ip_vs_rr -e ip_vs_wrr -e ip_vs_sh -e nf_conntrack_ipv4
+	安装ipvs管理工具
+		yum -y install ipset ipvsadm
+	网络安装在master执行即可（flannel calico canal）
+		应用网络
+			wget https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+			kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+		查看网络pod是否启动成功
+			kubectl get pod -A
+		查看集群状态
+			kubectl get nodes	
+			
+	在master做案例测试
+		创建命名空间
+			kubectl create ns dev
+		运行1个deploy控制器，并且绑定2个pod
+			kubectl run testpod --image=nginx:1.14-alpine -n dev --replicas 2
+		service通过通过控制器绑定pod关系
+			kubectl expose deploy testpod --name=svc-nginx --type=ClusterIP --port=80 --target-port=80 -n dev
+		查看状态
+			kubectl get pods,svc -n dev -o wide
+		测试运行
+			curl 10.110.40.248:80
+	
+安装kubesphere
+	安装文档
+		https://www.yuque.com/leifengyang/oncloud/gz1sls
+	安装nfs-server
+		master安装 server
+			安装
+				yum install -y nfs-utils
+			配置nfs
+				echo "/nfs/data *(insecure,rw,sync,no_root_squash)" > /etc/exports
+			创建共享目录
+				mkdir -p /nfs/data
+			启动 nfs 服务
+				systemctl enable rpcbind && systemctl enable nfs-server && systemctl start rpcbind && systemctl start nfs-server
+			使配置生效
+				exportfs -r
+			检查配置是否生效
+				exportfs
+		node安装 client(可选)
+			安装
+				yum install -y nfs-utils
+			挂载
+				showmount -e 192.168.88.21
+				mkdir -p /nfs/data
+				mount -t nfs 192.168.88.21:/nfs/data /nfs/data
+		
+	
+	配置动态供应的默认存储类
+		kubectl apply -f dynamic_storage_config.yaml 在idea中 	
+			更改配置文件
+				containers->env->value = 192.168.88.21
+				containers->env->value = /nfs/data
+				volumes->nfs->server = 192.168.88.21
+				volumes->nfs->path = /nfs/data
+	
+	
+	安装集群指标监控组件 metrics-server	
+		kubectl apply -f k8s-metric.yaml 在idea中
+	
+	安装kubesphere
+		参考文档
+			https://kubesphere.com.cn/docs/pluggable-components/overview/
+		
+		kubectl apply -f kubesphere-installer.yaml  在idea中 	
+			wget https://github.com/kubesphere/ks-installer/releases/download/v3.1.1/kubesphere-installer.yaml
+
+		kubectl apply -f cluster-configuration.yaml  在idea中 	
+			wget https://github.com/kubesphere/ks-installer/releases/download/v3.1.1/cluster-configuration.yaml
+			ippool->type-> = flannel
+			etcd-> endpointIps = 192.168.88.21 etcd地址
+			
+			解决etcd监控证书找不到问题
+				kubectl -n kubesphere-monitoring-system create secret generic kube-etcd-client-certs  --from-file=etcd-client-ca.crt=/etc/kubernetes/pki/etcd/ca.crt  --from-file=etcd-client.crt=/etc/kubernetes/pki/apiserver-etcd-client.crt  --from-file=etcd-client.key=/etc/kubernetes/pki/apiserver-etcd-client.key
+	
+		查看安装进度
+			kubectl logs -f -n kubesphere-system $(kubectl get pod -n kubesphere-system -l app=ks-install -o jsonpath='{.items[0].metadata.name}') 
+		UI
+			Console: http://192.168.88.21:30880
+			Account: admin
+			Password: Liyaqiu@123456
+	
+	
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+			

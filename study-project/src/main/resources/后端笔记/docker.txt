@@ -1,0 +1,723 @@
+docker安装
+	卸载久版本
+		yum remove docker \
+				  docker-client \
+				  docker-client-latest \
+				  docker-common \
+				  docker-latest \
+				  docker-latest-logrotate \
+				  docker-logrotate \
+				  docker-engine
+    阿里云安装docker				  
+		https://developer.aliyun.com/article/773368?spm=a2c6h.13813017.content3.1.68d11b25RD3rwp
+		https://cr.console.aliyun.com/cn-hangzhou/instances/mirrors
+	安装  		
+		yum -y install gcc gcc-c++							
+		yum install -y yum-utils device-mapper-persistent-data lvm2
+		yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+		yum makecache fast
+		安装最新版本
+			yum -y install docker-ce docker-ce-cli containerd.io
+		手动指定版本
+			yum list docker-ce --showduplicates | sort -r
+				docker-ce.x86_64            3:20.10.9-3.el7                     docker-ce-stable
+				docker-ce.x86_64            3:20.10.8-3.el7                     docker-ce-stable
+				docker-ce.x86_64            3:20.10.7-3.el7                     docker-ce-stable
+				docker-ce.x86_64            3:20.10.6-3.el7                     docker-ce-stable
+				docker-ce.x86_64            3:20.10.5-3.el7                     docker-ce-stable
+				docker-ce.x86_64            3:20.10.4-3.el7                     docker-ce-stable
+				
+				取:{20.10.9}-
+			yum -y install docker-ce-19.03.3 docker-ce-cli-19.03.3 containerd.io
+        启动
+			systemctl enable docker.service && systemctl start docker
+        添加阿里云加速器和k8s的推荐使用的cgroup(docker info查看，默认使用 Cgroup Driver: cgroupfs)			
+			mkdir -p /etc/docker
+			tee /etc/docker/daemon.json <<-'EOF'
+			{
+			  "exec-opts": ["native.cgroupdriver=systemd"],
+			  "registry-mirrors": ["https://lrlaxcij.mirror.aliyuncs.com"]
+			}
+			EOF
+			systemctl daemon-reload && systemctl restart docker 
+		开启ipv4流量转发（虚拟机挂起会导致模块加载不了）
+			tee /etc/sysctl.d/dcoker.conf <<-'EOF'
+			net.ipv4.ip_forward = 1
+			EOF
+		查看
+			sysctl --system
+			sysctl -a | grep ip_forward
+		
+		运行 docker run --name nginx-test -p 8080:80 -d nginx
+		
+	卸载
+		yum remove -y docker-ce-20.10.9 docker-ce-cli-20.10.9 containerd.io
+		rm -rf /var/lib/docker
+		rm -rf /var/lib/containerd
+		
+概念
+	联合文件系统UnionFIleSystem，采用了分层方式生成一个操作系统
+	容器
+		bootfs层
+			linux内核(用户权限，进程空间，用户空间，网络空间....)
+		rootfs层
+			Contos-rootfs，Ubuntu-rootfs，Redhat-rootfs
+			rootfs准备了不同版本的根文件系统标准的文件(/dev./proc./bin,/etc .....)
+		用户自定义层
+			application		
+		
+命令
+	登录
+		登录dockerhub仓库
+			docker login --username=18813664703
+			docker logout 
+		登录第三方仓库	
+			docker login --username=tb2603639_11 registry.cn-hangzhou.aliyuncs.com 
+			docker login -u eric -p Eric123456 192.168.88.12:86
+			docker logout registry.cn-hangzhou.aliyuncs.com 
+	启动类命令
+		docker --help  
+		docker 命令 --help
+		docker info 查看总览信息
+		
+		systemctl start docker 启动
+		systemctl restart docker 重启
+		systemctl status docker 查看状态
+		
+		systemctl enable docker 开机启动
+	
+	运维相关命令
+		docker stats  查看容器运行情况，以及CPU占用率等
+		docker system df 查看镜像/容器/数据卷的占用情况 
+	镜像命令
+		docker search nginx 查找镜像
+		
+		docker images 列出所有镜像
+		docker images -qa 紧显示镜像IDs
+		docker images nginx:1.*  查找部分相关版本
+		
+	
+		docker rmi 605c77e624dd 删除
+		docker rmi -f 605c77e624dd 强制删除镜像
+		docker rmi -f $(docker images -qa) 强制删除所有镜像
+		docker rmi -f $(docker images nginx:v* -qa) 强制删除部分镜像
+		docker images nginx:v* -qa | xargs docker rmi -f 强制删除部分镜像
+		
+		docker images -qf dangling=true  查看所有虚悬镜像ids
+		docker rmi -f $(docker images -qf dangling=true) 强制删除所有虚悬镜像
+		docker images -qf dangling=true | xargs docker rmi -f 强制删除所有虚悬镜像
+		docker image prune 删除所有虚悬对象(不删除容器关联的)
+		docker image inspect test:v5  查看镜像的信息
+		
+		docker pull nginx:latest
+		
+		docker history  605c77e624dd  查看镜像构建信息
+		
+		docker login eric
+		docker tag zms:v1 www.eric.com:1234/zms:v1
+		docker push www.eric.com:1234/zms:v1  推送到私有仓库
+		
+		docker save -o ./zms_v1.tar zms:v1  保存镜像文件到本地
+		docker load -i ./zms_v1.tar 加载镜像到docker
+		
+	容器命令		
+			
+		docker run -it ba6acccedd29 /bin/bash (默认执行bash,常用的有/bin/bash  bash /usr/bin/bash  sh /bin/sh /usr/bin/sh)
+		docker run -it --rm ba6acccedd29 /bin/bash 退出后删除容器
+		
+		docker attach 继续使用以前的终端,exit或者Ctrl+c退出容器会停止（正确退出方式Ctrl+p+q）
+		docker exec  重新打开一个终端,exit或者Ctrl+c退出容器不会停止
+		
+		docker attach ce39f4a4d6f4  
+		docker exec -it 38cb4ef91f5e /bin/bash (默认执行bash)  
+		docker exec  38cb4ef91f5e touch 123.txt
+		docker exec  38cb4ef91f5e sh my.sh
+		
+		docker start ba6acccedd29 启动容器
+		docker restart ba6acccedd29 重新启动容器
+		docker stop ba6acccedd29 停止容器
+		docker kill ba6acccedd29 强制停止容器
+		docker pause ba6acccedd29 挂起容器
+		docker unpause ba6acccedd29 取消挂起容器
+
+		docker rm 38cb4ef91f5e 删除容器
+		docker rm -f 38cb4ef91f5e 强制删除单个容器
+		docker rm -f $(docker ps -aq) 强制删除全部容器
+		docker ps -aq | xargs docker rm -f 强制删除全部容器
+			
+		docker cp localdir 38cb4ef91f5e:/dir 拷贝本地目录到容器
+		docker cp localfile 38cb4ef91f5e:/file 拷贝本地文件到容器
+		docker cp 38cb4ef91f5e:/dir  localdir	拷贝容器目录到本地
+		docker cp 38cb4ef91f5e:/file localfile 拷贝容器文件到本地
+		
+		
+		docker update ba6acccedd29 --restart=always 更新容易的某个参数
+		
+		
+		端口映射
+			docker run --name testName -d -P nginx:v3  结合EXPOSE 8080 8081 8082   随机端口:8080 随机端口:8081 随机端口:8082
+			docker run --name testName -d -p 8080:80 -p 8081:81 -p 8082:82  nginx:v3  
+		数据卷,如果权限不足用（--privileged=true）
+			默认数据卷
+				docker volume ls  查看数据卷
+				docker volume create juan1 创建数据卷
+				docker volume rm juan1	删除单个数据卷
+				docker volume prune  删除未使用的数据卷
+				docker volume inspect juan1 查看数据卷的具体位置
+			数据卷挂载
+				方式1
+					docker run --name testName -d -p 8080:80 -v /local/dirName:/container/dirName -v /local/fileName:/container/fileName  nginx:v3 
+				方式2
+					docker run --name testName -d -p 8080:80 -v volumeDirName:/container/dirName  nginx:v3   
+			数据卷继承（好处就是不用知道对方挂载多少个目录，以及具体位置，就算被继承u1 u2 挂了也没影响u3，只是继承了mounts规则）
+				docker run -it --name u1 -v /root/data:/data  -v /root/data1:/data1 ba6acccedd29
+				docker run -it --name u2 -v /root/data2:/data2  -v /root/data3:/data3 ba6acccedd29
+				docker run -it --name u3 --volumes-from u1 --volumes-from u2 ba6acccedd29 
+		网络模式指定
+			docker run -it --net mynetwork2 cd202e250476 
+			docker run -it --network mynetwork2 cd202e250476 
+		开机启动
+			docker run -it --restart always -d 1ad6c8779201  
+		 
+		docker ps  | grep nginx 筛选部分容器
+		
+		docker logs --tail=2 -f  839ee565e46b  查看容器日志
+
+		docker inspect 38cb4ef91f5e 查看容器所有信息
+		
+		docker top 38cb4ef91f5e 查看容器进程
+		
+		镜像重构
+			方式1
+				docker export 7173465f1b40 > ./zms.tar  导出容器
+				cat ./zms.tar | docker import - zms:v1(仓库地址/镜像名:版本号) 
+			方式2
+				docker commit -m="添加了vim工具" -a="eric" 38cb4ef91f5e zms:v1(仓库地址/镜像名:版本号) 
+			方式3 
+				Dockerfile
+				
+		docker diff 0d31bb58d1d9  查看容器目录文件变化情况
+		docker wait 0d31bb58d1d9  监听容器退出的状态码	
+		
+	docker-compose命令(docker-compose对 docker run 的编排)
+		docker-compose面向的是服务操作
+			docker-compose -h 查看帮助文档
+			docker-compose up	 
+			docker-compose up -d 后台运行
+			docker-compose start 启动服务
+			docker-compose stop 停止服务
+			docker-compose kill 暴力停止服务
+			docker-compose pause 挂起服务
+			docker-compose unpause 取消挂起服务
+			docker-compose restart 重启服务
+			docker-compose rm -f 强制删除停止容器实例（不删除网络）
+			docker-compose list 查看所有镜像
+			docker-compose down 停止并且删除容器，网络
+				
+			docker-compose ps 查看所有编排过的容器
+			docker-compose top 查看所有编排过的容器进程
+			docker-compose config 检查配置，没问题列出配置
+			docker-compose config -q 检查配置，没问题不输出
+			
+			docker-compose logs zms-compose.yml服务id  查案容器某个容器的日志
+			docker-compose exec zms-compose.yml服务id /bin/bash 进入某个容器内部
+		
+docker网络命令
+	4种网络模式 https://www.jianshu.com/p/22a7032bb7bd
+		bridge 类似VM nat模式，单独网络空间
+		host 共享主机网络空间
+		none 有网络空间，但不分配任何IP等，需要自己配置，(默认只能通过容器本身访问)
+		container 共享别的容器网络空间(kubernetes中的pod就是多个容器共享同一个网络。)一旦主重启或者下线，那么永久无法共享网络空间了
+		
+	docker network ls 查看网络
+	docker network create test1 创建网络(默认创建bridge模式)
+	docker network rm test1 指定删除没关联的网络
+	docker network prune 删除没关联的网络
+	docker network inspect test1 查看网络细节
+	docker network connect test1 3d357644d01859	 为容器分配网络（桥接模式可以分配多个,从而可以访问多个不同网络）
+	docker network disconnect test1 3d357644d01859	 断开容器网络
+
+容器与容器之间的访问
+	默认bridge
+		ip              可以
+		容器ID          不可以
+		指定容器名字    不可以
+		--network-alias 不可以
+		默认容器名字    不可以
+	自定义bridge
+		ip              可以
+		容器ID          可以
+		指定容器名字    可以（重点，一般需要指定 docker run --name serviceName --net myNetwork）
+		--network-alias 可以（重点，一般需要指定 docker run --name serviceName --net myNetwork --network-alias myalias1 --network-alias myalias2 ）	
+		默认容器名字    不可以
+Dockerfle命令
+	构建
+		docker build -t test:V1 /root/ 
+		
+	FROM 继承哪个镜像
+		FROM ubuntu:latest
+	MAINTAINER 维护者信息
+		MAINTAINER eric
+
+	ENV环境变量设定
+		ENV JAVA_HOME /root/jdk1.8.0_191
+		ENV JAVA_BIN  $JAVA_HOME/bin
+	
+	ARG 该参数只在构建的时候生效
+		ARG env_arg
+		docker build -t test:v1 . --build-arg env_arg=pro
+	RUN运行方式
+		shell格式
+			RUN sh /root/zms.sh arg1 arg2
+		exec格式
+			RUN ["/root/zms.sh","arg1","arg2"]
+
+	EXPOSE告知运行着程序内部程序运行时会有这些端口监听，起到提示作用（注意：不代表实际监听端口）
+		EXPOSE 8080 9090
+
+	WORKDIR run进入容器的默认位置
+		WORKDIR  /root/zms
+
+	USER指定用户运行默认为root（需要你的容器内也具备这个用户）
+		USER eric
+
+	VOLUME声明挂载目录，如果用户不用-v进行挂载，会默认挂载出来（通过docker inspect查看）,如果用户指定-v挂载，则会覆盖默认挂载
+		VOLUME ["/data","/data1"]
+
+	LABEL 为镜像打标签
+		LABEL version="snapshot-1.0" auther="eric" email="361234567@qq.com"
+
+	ADD会拷贝并且作为tar文件解压
+		ADD ./redis.tar /data/
+	COPY原封不动拷贝
+		COPY ./redis.tar /data1/
+
+
+	--------------------------CMD 和 ENTRYPOINT---------------------------------------
+	创建一个run.sh测试
+		vi run.sh
+		#!/bin/bash | #!/bin/sh 重点记得加上
+		echo $1
+		echo $2
+		echo $3
+		echo $4
+		echo $5
+		echo $JAVA_HOME
+		echo $JABA_PATH
+		/bin/bash
+	chmod 755 /run.sh
+
+	CMD单独使用运行方式
+		shell格式
+			CMD sh /run.sh hello 123456
+		exec格式
+			CMD ["/run.sh","hello","123456"]
+		docker run取消默认运行方式
+			docker run  -it test:v1 /run.sh 参数1 参数2
+
+
+	ENTRYPOINT单独使用运行方式
+		shell格式
+			ENTRYPOINT sh /run.sh hello 123456
+		exec格式（可以在docker run后面传参）
+			定参1个
+				ENTRYPOINT ["/run.sh","hello"]
+					docker run  -it test:v1  111 222
+					run.sh最后获取的参数为 hello 111 222
+			定参N个
+				ENTRYPOINT ["/run.sh","hello","123456"]
+					docker run  -it test:v1  111 222
+					run.sh最后获取的参数为 hello 123456 111 222
+		docker run取消默认运行方式
+			docker run --entrypoint /run.sh -it test:v1 参数1 参数2
+
+
+	CMD和ENTRYPOINT配合使用
+		exec格式
+			CMD参数提供给ENTRYPOINT
+				ENTRYPOINT ["/run.sh","定参1","定参2"]
+				CMD ["变参数1","变参数2","变参数3"]
+			docker run默认覆盖参数
+				 docker run  -it test:v1  参数1 参数2
+			docker run取消默认运行方式
+				 docker run --entrypoint /run.sh -it test:v1 参数1 参数2
+		
+docker-compose (docker-compose对 docker run 的编排)
+	官方文档
+		https://docs.docker.com/compose/compose-file/compose-file-v3/
+	安装文件
+		https://docs.docker.com/compose/install/
+	发布的地址
+		https://github.com/docker/compose/releases
+	下载
+		curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+		chmod +x /usr/local/bin/docker-compose && ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose && docker-compose -version	
+	卸载
+		rm -rf /usr/local/bin/docker-compose /usr/bin/docker-compose
+
+------------docker-compose.yml start-------------------
+version: "3"
+
+services:
+    zmsService: #可以访问
+        image: test:v2
+        container_name: zms #可以访问
+        restart: always # 等同 docker run --restart always
+        environment:
+            JAVA_HOME: '01234'
+            JABA_PATH: '56789'
+        ports:
+            - "8080:80"
+            - "8081:81"
+        volumes:
+            - datavolume:/data
+            - /root/data1:/data1
+        networks:
+            - my1
+        expose: #起到一个声明最庸，跟Dockerfile EXPOSE 或者是 docker run --expose 12345 --expose 22345
+            - "3000"
+            - "8000"
+        depends_on: #只是单纯的获取了容器的running状态，并不能实际解决项目的ready状态，所以需要外加辅助启动来达到真正意义上的依赖（https://zhuanlan.zhihu.com/p/365193592）
+            - redisService
+            - mysqlService
+        #---------------规则1---------------------
+        #单 CMD /run.sh 11 22 33 44
+        #使用方式
+        #command: /run.sh aaa bbb ccc  #覆盖执行命令
+        #---------------规则2---------------------
+        #单 ENTRYPOINT ["/run.sh","hello"]
+        #使用方式
+        #command: /run.sh aaa bbb ccc  #传递参数 最后参数结果为：hello /run.sh aaa bbb ccc
+        #---------------规则3---------------------
+        # 组合
+        #ENTRYPOINT ["/run.sh","hello"]
+        #CMD ["123","456"]
+        #使用方式
+        #command: /run.sh aaa bbb ccc  #覆盖变参数，结果为 hello /run.sh aaa bbb ccc
+        #entrypoint: ["/run.sh","11","22","33","44"]  # 覆盖命令，以及覆盖参数
+    appService:
+        image: test:v2
+        deploy:
+            replicas: 2
+
+    redisService:
+        image: test:v2
+        container_name: redis
+        ports:
+            - "8082:80"
+            - "8083:81"
+        volumes:
+            - datavolume:/data
+            - /root/data1:/data1
+        networks:
+            - my1
+            - my2
+    mysqlService:
+        image: test:v2
+        #container_name: mysql #可以访问 默认不写（zmsdir_mysqlService_1）
+        ports:
+            - "8084:80"
+            - "8085:81"
+        volumes:
+            - datavolume:/data
+            - /root/data1:/data1
+        networks:
+            - my2
+
+volumes: #声明数据卷
+    datavolume:
+networks: #声明网络（默认为bridge模式）
+    my1:
+    my2:
+------------docker-compose.yml end---------------------
+
+		
+私服
+	dockerhub
+		server
+			下载
+				docker pull registry:latest
+			运行私服容器	
+				docker run -d -p 5000:5000 --restart always -v /root/registrydir:/var/lib/registry --privileged=true --name registry registry:latest
+		client	
+			配置
+				mkdir -p /etc/docker
+				tee /etc/docker/daemon.json <<-'EOF'
+				{
+				  "registry-mirrors": ["https://lrlaxcij.mirror.aliyuncs.com"],
+				  "insecure-registries": ["192.168.88.19:5000,192.168.88.19:6000"]
+				}
+				EOF
+				systemctl daemon-reload && systemctl restart docker 
+			查看仓库
+				curl -XGET http://192.168.88.19:5000/v2/_catalog	
+				
+			推送
+				docker tag 50fe74b50e0d 192.168.88.19:5000/myspace/myubuntu:v2	
+				docker push 192.168.88.19:5000/myspace/myubuntu:v2	
+			拉取
+				docker pull 192.168.88.19:5000/myspace/myubuntu:v2	
+	harbor(港口)
+		server
+			https://goharbor.io/
+			1.提供web管理界面
+			2.支持水平扩展(集群)
+			3.支持权限访问控制(RABC)
+			下载地址
+				https://github.com/goharbor/harbor/releases
+				wget https://github.com/goharbor/harbor/releases/download/v1.9.2/harbor-offline-installer-v1.9.2.tgz
+			安装docker-compose
+				下载
+					curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+					chmod +x /usr/local/bin/docker-compose && ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose && docker-compose -version	
+				卸载
+					rm -rf /usr/local/bin/docker-compose /usr/bin/docker-compose
+			安装
+				tar -zxvf harbor-offline-installer-v1.9.2.tgz	
+				修改配置
+					vi harbor/harbor.yml
+						hostname: 192.168.88.19
+						port: 85 注意:(6666部分端口可能被浏览器保留导致无法访问)
+				初始化,每次修改完配置文件后都需要运行
+					./prepare && ./install.sh
+				停止服务： docker-compose stop
+				开始服务： docker-compose start
+				重启服务：docker-compose restart
+				停止服务并删除容器：docker-compose down
+				启动服务并运行容器：docker-compose up
+			访问UI
+				http://192.168.88.12:86/
+				用户名密码 admin/Harbor12345
+				用户名密码 eric/Eric123456
+		client
+			配置
+				mkdir -p /etc/docker
+				tee /etc/docker/daemon.json <<-'EOF'
+				{
+				  "registry-mirrors": ["https://lrlaxcij.mirror.aliyuncs.com"],
+				  "insecure-registries": ["192.168.88.12:86"]
+				}
+				EOF
+				systemctl daemon-reload && systemctl restart docker 
+			推送
+				docker tag mysql:5.7.25 192.168.88.12:86/zms/mysql:5.7.25
+				docker push 192.168.88.12:86/zms/mysql:5.7.25
+			拉取
+				docker pull 192.168.88.12:86/zms/mysql:5.7.25
+			登录第三方仓库	
+				docker login -u eric -p Eric123456 192.168.88.12:86
+				docker logout 192.168.88.12:86
+		
+mysql改版后的安装		
+	5.7安装
+		创建目录
+			mkdir -p /root/mysql5.7/conf  && mkdir -p /root/mysql5.7/data
+		修改配置
+			vi /root/mysql5.7/conf/my.cnf
+			[mysql]
+			default-character-set = utf8mb4
+
+			[mysql.server]
+			default-character-set = utf8mb4
+
+			[mysqld_safe]
+			default-character-set = utf8mb4
+
+			[client]
+			default-character-set = utf8mb4
+
+			[mysqld]
+			character_set_server=utf8mb4
+
+			!includedir /etc/mysql/conf.d/
+			!includedir /etc/mysql/mysql.conf.d/
+
+		启动
+			docker run -p 3306:3306 --name mysql5.7.25 -v /root/mysql5.7/conf/my.cnf:/etc/mysql/my.cnf -v /root/mysql5.7/data:/var/lib/mysql   -e MYSQL_ROOT_PASSWORD=123456 --privileged=true -d mysql:5.7.25
+		查看字符集
+			show variables like '%char%';  			
+	8.0安装
+		创建目录
+			mkdir -p /root/mysql8.0/conf  && mkdir -p /root/mysql8.0/data
+		修改配置
+			vi /root/mysql8.0/conf/my.cnf
+			[mysql]
+			default-character-set = utf8mb4
+
+			[mysql.server]
+			default-character-set = utf8mb4
+
+			[mysqld_safe]
+			default-character-set = utf8mb4
+
+			[client]
+			default-character-set = utf8mb4
+
+			[mysqld]
+			character_set_server=utf8mb4
+
+		启动
+			docker run -p 3307:3306 --name mysql8.1.0 -v /root/mysql8.0/conf/my.cnf:/etc/mysql/my.cnf -v /root/mysql8.0/data:/var/lib/mysql   -e MYSQL_ROOT_PASSWORD=123456 --privileged=true -d mysql:8.1.0
+		查看字符集
+			show variables like '%char%';  		
+mysql安装
+	
+	docker run -p 3306:3306 --name mysql -v mysqlconf:/etc/mysql -v mysqllog:/var/log/mysql -v mysqldata:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 --privileged=true -d mysql:5.7.25	数据卷
+
+	docker run -p 3306:3306 --name mysql -v /root/mysql/conf/my.cnf:/etc/mysql/my.cnf  -v /root/mysql/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 --privileged=true -d mysql:5.7.25  本地数据卷
+
+	docker run -p 3307:3306 --name mysql8 -e MYSQL_ROOT_PASSWORD=123456  --privileged=true  -d  mysql:8.0.31
+	
+	在/root/mysql/conf目录下创建my.cnf
+		[mysql]
+		default-character-set = utf8mb4
+
+		[mysql.server]
+		default-character-set = utf8mb4
+
+		[mysqld_safe]
+		default-character-set = utf8mb4
+
+		[client]
+		default-character-set = utf8mb4
+
+		[mysqld]
+		character_set_server=utf8mb4
+		init_connect=’SET NAMES utf8mb4’
+		
+		!includedir /etc/mysql/conf.d/
+		!includedir /etc/mysql/mysql.conf.d/
+	查看字符集
+		show variables like '%char%';  
+	
+redis安装
+	下载默认配置文件
+		wget http://download.redis.io/redis-stable/redis.conf  && mkdir -p /root/redis/conf && mkdir -p /root/redis/data && mv redis.conf /root/redis/conf
+	运行
+		docker run  -d -p 6379:6379 --name redis-server -v /root/redis/conf/redis.conf:/etc/redis/redis.conf  -v /root/redis/data:/data  redis:6.2 redis-server /etc/redis/redis.conf 
+	
+	运行redis客户端
+		docker exec -it redis-server redis-cli
+	
+	
+redis分片集群安装
+	启动集群节点	
+		vim /root/redis.conf
+			192.168.0.0.101-106 在redis.conf增加如下配置
+				port 6379
+				cluster-enabled yes 开启集群
+				cluster-config-file /redis/clusterconf/nodes.conf  集群的配置文件名称，不需我们创建，由redis自己维护
+				cluster-node-timeout 5000  节点之间心跳超时时间
+				dir /redis/data
+				bind 192.168.0.101-106
+				daemonize no 开启后台运行
+				protected-mode no 保护模式(用户密码校验是否开启)
+				databases 1 数据库数量(集群模式只能操作1个 (error) ERR SELECT is not allowed in cluster mode)
+				logfile /redis/logs/run.log
+	
+		mkdir -p  /root/cluster/redis1/conf && mkdir -p  /root/cluster/redis1/clusterconf && mkdir -p  /root/cluster/redis1/data && mkdir -p  /root/cluster/redis1/logs 
+		mkdir -p  /root/cluster/redis2/conf && mkdir -p  /root/cluster/redis2/clusterconf && mkdir -p  /root/cluster/redis2/data && mkdir -p  /root/cluster/redis2/logs
+		mkdir -p  /root/cluster/redis3/conf && mkdir -p  /root/cluster/redis3/clusterconf && mkdir -p  /root/cluster/redis3/data && mkdir -p  /root/cluster/redis3/logs
+		mkdir -p  /root/cluster/redis4/conf && mkdir -p  /root/cluster/redis4/clusterconf && mkdir -p  /root/cluster/redis4/data && mkdir -p  /root/cluster/redis4/logs
+		mkdir -p  /root/cluster/redis5/conf && mkdir -p  /root/cluster/redis5/clusterconf && mkdir -p  /root/cluster/redis5/data && mkdir -p  /root/cluster/redis5/logs
+		mkdir -p  /root/cluster/redis6/conf && mkdir -p  /root/cluster/redis6/clusterconf && mkdir -p  /root/cluster/redis6/data && mkdir -p  /root/cluster/redis6/logs
+		
+		cp /root/redis.conf  /root/cluster/redis1/conf/
+		cp /root/redis.conf  /root/cluster/redis2/conf/
+		cp /root/redis.conf  /root/cluster/redis3/conf/
+		cp /root/redis.conf  /root/cluster/redis4/conf/
+		cp /root/redis.conf  /root/cluster/redis5/conf/
+		cp /root/redis.conf  /root/cluster/redis6/conf/
+		
+		可以使用docker top测试一下这个容器运行使用了什么用户（polkitd）		
+		chown -R polkitd /root/cluster		
+	
+		前面基本配置已经修改，现在只需修改端口即可
+		vim /root/cluster/redis1/conf/redis.conf port 6379
+		vim /root/cluster/redis2/conf/redis.conf port 6380
+		vim /root/cluster/redis3/conf/redis.conf port 6381
+		vim /root/cluster/redis4/conf/redis.conf port 6382
+		vim /root/cluster/redis5/conf/redis.conf port 6383
+		vim /root/cluster/redis6/conf/redis.conf port 6384	 
+			
+		docker run -v /root/cluster/redis1/conf:/redis/conf  -v /root/cluster/redis1/clusterconf:/redis/clusterconf  -v /root/cluster/redis1/data:/redis/data -v /root/cluster/redis1/logs:/redis/logs --name node1 --net=host -d redis redis-server /redis/conf/redis.conf 
+		docker run -v /root/cluster/redis2/conf:/redis/conf  -v /root/cluster/redis2/clusterconf:/redis/clusterconf  -v /root/cluster/redis2/data:/redis/data -v /root/cluster/redis2/logs:/redis/logs --name node2 --net=host -d redis redis-server /redis/conf/redis.conf 
+		docker run -v /root/cluster/redis3/conf:/redis/conf  -v /root/cluster/redis3/clusterconf:/redis/clusterconf  -v /root/cluster/redis3/data:/redis/data -v /root/cluster/redis3/logs:/redis/logs --name node3 --net=host -d redis redis-server /redis/conf/redis.conf 
+		docker run -v /root/cluster/redis4/conf:/redis/conf  -v /root/cluster/redis4/clusterconf:/redis/clusterconf  -v /root/cluster/redis4/data:/redis/data -v /root/cluster/redis4/logs:/redis/logs --name node4 --net=host -d redis redis-server /redis/conf/redis.conf 
+		docker run -v /root/cluster/redis5/conf:/redis/conf  -v /root/cluster/redis5/clusterconf:/redis/clusterconf  -v /root/cluster/redis5/data:/redis/data -v /root/cluster/redis5/logs:/redis/logs --name node5 --net=host -d redis redis-server /redis/conf/redis.conf 
+		docker run -v /root/cluster/redis6/conf:/redis/conf  -v /root/cluster/redis6/clusterconf:/redis/clusterconf  -v /root/cluster/redis6/data:/redis/data -v /root/cluster/redis6/logs:/redis/logs --name node6 --net=host -d redis redis-server /redis/conf/redis.conf
+	
+	配置集群之间关系
+		docker exec -it node1 bash
+		redis-cli --cluster create --cluster-replicas 1 192.168.88.11:6379 192.168.88.11:6380 192.168.88.11:6381 192.168.88.11:6382 192.168.88.11:6383 192.168.88.11:6384
+
+
+	集群命令
+		查看帮助
+			redis-cli --cluster help
+		查看集群信息
+			redis-cli -h 192.168.88.11  -p 6379 cluster info
+		查看集群状态
+			redis-cli -h 192.168.88.11  -p 6379 cluster nodes
+		检查集群
+			redis-cli --cluster check 192.168.88.11:6379 
+		客户端连接（进行 set key 和 get key）
+			redis-cli -c -h 192.168.88.11  -p 6379 
+	
+	扩容
+		增加master节点
+			增加节点
+				redis-cli --cluster add-node 192.168.88.11:6385  192.168.88.11:6379(集群中任意一个节点)
+			哈希槽分配
+				redis-cli --cluster reshard  192.168.88.11:6379（集群地址）
+					1. 填写槽数量(4096)  16384/4(master个数) = 4096个槽
+					2. 哪个ID接收(e3f47b1c9624)  加入集群的时候会有一个masterID ，或者通过redis-cli --cluster check 192.168.0.203:6379  查看
+					3. 来源IDs(all)  all代表所有id，或者手动输入每个Id最后使用done结束
+		增加slave节点	
+			redis-cli --cluster  add-node 192.168.88.11:6386  192.168.88.11:6379(集群中任意一个节点)  --cluster-slave --cluster-master-id a201f4213c5263ca4c9690910c7ba112beac602d
+	缩容
+		删除slave节点
+			redis-cli --cluster del-node 192.168.88.11:6379（集群地址）【节点ID】
+		删除master节点
+			哈希槽分配
+				redis-cli --cluster reshard 192.168.88.11:6379（集群地址）
+					1. 填写槽数量(4096)  16384/4(master个数) = 4096个槽
+					2. 哪个ID接收(集群中任何一个主节点IDe3f47b1c9624)  加入集群的时候会有一个masterID ，或者通过redis-cli --cluster check 192.168.0.203:6379  查看
+					3. 来源IDs(准备删除节点IDe3f47b1c9624)  all代表所有id，或者手动输入每个Id最后使用done结束
+			删除节点
+				redis-cli --cluster del-node 192.168.88.11:6379（集群地址）【节点ID】
+	手动故障转移（指定某个slave变成master）
+		1.192.168.0.107这台机器最后由slave变成master
+		2.登陆slave客户端 redis-cli -h 192.168.88.11 -p 6382  
+		3.执行 cluster failover
+
+容器管理工具 portainer
+	官方文档
+		https://www.portainer.io/
+	安装
+		docker run -d -p 8000:8000 -p 9443:9443 --name portainer  --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data  portainer/portainer-ce:2.9.3
+	访问地址
+		https://192.168.88.11:9443/
+
+
+
+容器监控CIG（CAdvisor+InfluxDB+Granafa）
+	docker stats  查看容器运行情况，以及CPU占用率等
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

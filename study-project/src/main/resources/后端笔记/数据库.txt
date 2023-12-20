@@ -1,0 +1,282 @@
+https://www.bilibili.com/video/BV1zJ411M7TB?p=1
+
+https://www.bilibili.com/video/BV1zJ411M7TB?p=80
+58 - 79 没学
+
+	
+https://www.cnblogs.com/yy3b2007com/p/10497787.html mysql安装
+
+mysql存储引擎
+	myisam（不支持事务，查询快）
+	innodb（支持事务，重量级，查询慢）
+	memory(断电数据就消失，查询最快)
+
+优化
+	查看sql执行频率
+		show global status like 'Com_______';查看全局操作
+		show status like 'Com_______'; 查看执行那些操作最多
+		show status like 'Innodb_rows_%';
+	时时查看慢查询的日志
+		show processlist;
+	查看执行的sql日志（用来观察是否用了索引查询）
+		explain select * from test1;
+	追踪sql如何执行过程
+		set optimizer_trace="enabled=on",end_markers_in_json=on;
+		set optimizer_trace_max_mem_size=10000;
+		select * from test1;
+		select * from information_schema.optimizer_trace\G;
+		
+explain 字段解析 https://blog.csdn.net/weixin_36415835/article/details/113907120		
+索引3种类型（数据库8版本以后，在5很多版本都失效的情况下，在8会生效，所以具体情况还得分析）
+	单值索引
+	唯一索引
+	复合索引
+		索引生效（name,age,address）
+			最左前缀法则（跟爬楼梯性质一样）
+				explain select * from test2 where name='liyaqiu';
+				explain select * from test2 where name='liyaqiu' and age = '123';
+				explain select * from test2 where age = '123' and name='liyaqiu' and address = '北京';(和顺序无关)
+				explain select * from test2 where  and name='liyaqiu' and address = '北京';（不能跳过中间索引，这里只有name有索引，address没有索引）
+				explain select * from test2 where name='liyaqiu' and age > '123' and address = '北京'; (范围后面的索引失效)
+				explain select * from test2 where  age > '123' and address = '北京' and name='liyaqiu';（与顺序无关，name为1楼，age为2楼，2楼以后的索引失效）
+		索引失效
+			列上运算，索引失效
+				explain select * from test2 where substring(name,1,3)='liyaqiu'; 失效
+				explain select * from test2 where name='liyaqiu' and age = 123; 不加单引号导致索引失效 age = '123',解析器检测到字符串类型，会调用函数来做隐式转换explain select * from test2 where name='liyaqiu' and cast(age as SIGNED INTEGER) = 123;
+			覆盖索引
+				explain select name,age,address from test2 where name like '%liyaqiu'; 把*去掉，全部替换为所谓的字段，不能出现没有索引的字段
+				
+		
+CREATE TABLE test2 (name VARCHAR(255), age VARCHAR(255),address VARCHAR(255));				
+ALTER TABLE my_db.test2
+  ADD INDEX fuhe_index (name, age,address);	
+INSERT INTO test2 VALUES ("liyaqiu1","21",'beijing');
+INSERT INTO test2 VALUES ("liyaqiu2","21",'beijing');
+INSERT INTO test2 VALUES ("liyaqiu3","21",'beijing');
+INSERT INTO test2 VALUES ("liyaqiu4","21",'beijing');
+INSERT INTO test2 VALUES ("liyaqiu5","21",'beijing');
+INSERT INTO test2 VALUES ("liyaqiu6","21",'beijing');
+
+
+CREATE TABLE test3 (id int,name VARCHAR(255), age VARCHAR(255),address VARCHAR(255));		
+INSERT INTO test3 VALUES (1,"1","1",'1');  
+INSERT INTO test3 VALUES (2,"2","2",'2');  
+INSERT INTO test3 VALUES (3,"3","3",'3');  
+INSERT INTO test3 VALUES (4,"4","4",'4');  
+INSERT INTO test3 VALUES (9,"9","9",'9'); 
+INSERT INTO test3 VALUES (1000,"21","力压球",'你好');  
+update test3 set age='31' where id='1' ;
+ALTER TABLE my_db.test3
+  ADD INDEX haha_index (id);	
+
+https://blog.csdn.net/xts5701046/article/details/81395958
+事务isolation(把多个操作看做一个执行单元)
+	原子性
+	一致性
+	隔离性（根据隔离的不同，CURD都需要用到事务，每个connection建立的session都会用到事务，只不过默认是自动提交）
+		   (如果你的事务隔离级别设置为读未提交，那么你的session会读到脏数据)
+		读未提交  脏读,不可重复读,幻读  （没锁）
+		读已提交       不可重复读,幻读  （没锁）
+		可重复读                  幻读  （没锁）（mysql 解决了这个问题）
+		串行化读                        （加共享锁）
+	持久性
+
+脏读         可以读取对方未提交的数据
+不可重复读   一般指的是数据的修改，2次读取的数据值不一样
+幻读         一般指数据的增加或者删除，2次读取的数据数量上不一样
+
+	
+oracle默认事务隔离级别为（读已提交）
+mysql默认事务隔离级别为（可重复读）
+
+innodb支持事务
+myisam不支持事务
+
+锁分为
+	读锁（共享锁）
+	写锁（排它锁）
+锁主的范围
+	行锁（对行加锁）
+	间隙锁（对范围加锁）
+	表锁（对表加锁）
+		
+ SELECT * from acl_user where uid =11 LOCK IN SHARE MODE; 手动指定共享锁		
+ SELECT * from acl_user where uid =10 FOR UPDATE; 手动指定排它锁		
+
+查看锁的争抢情况
+	show status like 'innodb_row_lock%';
+innodb 默认会对DML操作加【排它锁】，对DQL不加任何锁
+	行锁升级为表锁的情况
+		如果你操作无索引或者有索引操作不当导致的无索引，那么会由行锁升级为表锁（DML和DQL 索引失效都会导致锁升级）
+	间隙锁
+		范围的修改会导致行锁升级为间隙锁
+
+日志分类
+	错误日志
+		查看错误日志位置(默认在data目录下)
+			show VARIABLES like 'log_error%'  
+	binlog日志（DDL DML操作记录）做主从需要用到
+		查看日志位置
+			show VARIABLES like 'log_bin%'
+		开启日志
+			log-bin=/var/lib/mysql/mysqlbin #存储路径以及文件名
+			binlog_format=STATEMENT #binlog格式
+		查看日志
+			show binlog events; 
+			show binlog events in 'mysqlbin.000003'; 查看具体的日志记录 
+			mysqlbinlog mysqlbin.000001 
+		清除日志（有好几种清除方式）
+			reset master;(会将当前的binlog日志文件删除掉)
+	查询日志（DML DQL DDL记录）
+		查看日志位置
+			show VARIABLES like 'general_log%'
+		开启日志
+			general_log=1
+			general_log_file=/usr/local/mysql/data/querylog/log
+		查询日志
+			mysqldumpslow log （此方式查询，查询条件的参数会被忽略，可以通过tail来查看）
+	慢查询日志（DML DQL DDL记录）
+		查看日志位置
+			show VARIABLES like 'slow_query_log%'
+			show VARIABLES like 'long_query%'
+		开启日志
+			long_query_time=10
+			slow_query_log=1
+			slow_query_log_file=/usr/local/mysql/data/slowquerylog/slow.log
+		查询日志
+			mysqldumpslow slow.log （此方式查询，查询条件的参数会被忽略，可以通过tail来查看）
+mysql主从
+	master开启binlog日志
+		vim /etc/my.cnf 
+			server-id=1 #唯一ID
+			log-bin=/var/lib/mysql/mysqlbin #存储路径以及文件名
+			binlog_format=STATEMENT #binlog格式
+			#read-only=0 #1为只读 0为读写，对管理员账户不生效
+			#binlog-ignore-db=db1 #忽略不需要同步的数据库，多个复制即可
+			binlog-do-db=db1 #指定同步的数据库，多个复制即可
+		授权用户 replication slave
+			grant replication slave on *.* to 'liyaqiu'@'192.168.0.202' IDENTIFIED BY '123456';
+			FLUSH   PRIVILEGES; 
+	slave开启同步操作
+		vim /etc/my.cnf 
+			server-id=2 #唯一ID
+			log-bin=/var/lib/mysql/mysqlbin #存储路径以及文件名
+			#read-only=1 #1为只读 0为读写，对管理员账户不生效
+			relay-log=mysql-relay #指定中继日志文件名
+		登陆
+			mysql -u root -p
+		设置master节点位置，利用show MASTER STATUS;查看最新位置状态，从最新开始同步
+			change master to master_host='192.168.0.201',master_user='liyaqiu',master_password='123456',master_log_file='mysqlbin.000005',master_log_pos=6958
+		开启同步
+			start slave;
+			断开主从关系
+				stop slave；
+				reset master;（会将当前的binlog日志文件删除掉,一旦开启以后不能随便执行此命令）
+				reset slave;（清除当前的relaylog，以及清除master binglog日志状态）
+			show slave status\G;
+				如下显示即表示成功
+				Slave_IO_Running: Yes
+				Slave_SQL_Running: Yes
+	校验DDL和DML操作
+mysql双主
+	master1
+		开启binlog日志
+			vim /etc/my.cnf 
+				server-id=1 #唯一ID
+				log-bin=/var/lib/mysql/mysqlbin #存储路径以及文件名
+				binlog_format=STATEMENT #binlog格式
+				binlog-do-db=db4 #指定同步的数据库，多个复制即可
+				relay-log=mysql-relay #指定中继日志文件名
+		授权用户 replication slave
+			grant replication slave on *.* to 'liyaqiu'@'192.168.0.202' IDENTIFIED BY '123456';	
+			FLUSH   PRIVILEGES; 
+		slave开启同步操作	
+			登陆
+				mysql -u root -p
+			设置master节点位置，利用show MASTER STATUS;查看最新位置状态，从最新开始同步
+				change master to master_host='192.168.0.202',master_user='liyaqiu',master_password='123456',master_log_file='mysqlbin.000001',master_log_pos=154
+			开启同步
+				start slave;
+				断开主从关系
+					stop slave；
+					reset master;（会将当前的binlog日志文件删除掉,一旦开启以后不能随便执行此命令）
+					reset slave;（清除当前的relaylog，以及清除master binglog日志状态）
+				show slave status\G;
+					如下显示即表示成功
+					Slave_IO_Running: Yes
+					Slave_SQL_Running: Yes		
+	master2
+		开启binlog日志
+			vim /etc/my.cnf 
+				server-id=1 #唯一ID
+				log-bin=/var/lib/mysql/mysqlbin #存储路径以及文件名
+				binlog_format=STATEMENT #binlog格式
+				binlog-do-db=db4 #指定同步的数据库，多个复制即可
+				relay-log=mysql-relay #指定中继日志文件名
+		授权用户 replication slave
+			grant replication slave on *.* to 'liyaqiu'@'192.168.0.201' IDENTIFIED BY '123456';	
+			FLUSH   PRIVILEGES; 
+		slave开启同步操作			
+			登陆
+				mysql -u root -p
+			设置master节点位置，利用show MASTER STATUS;查看最新位置状态，从最新开始同步
+				change master to master_host='192.168.0.201',master_user='liyaqiu',master_password='123456',master_log_file='mysqlbin.000001',master_log_pos=154
+			开启同步
+				start slave;
+				断开主从关系
+					stop slave；
+					reset master;
+					reset slave;
+				show slave status\G;
+					如下显示即表示成功
+					Slave_IO_Running: Yes
+					Slave_SQL_Running: Yes
+	
+CREATE TABLE test1 (name VARCHAR(255), age VARCHAR(255));
+ INSERT INTO test1 VALUES ("liyaqiu","21");
+ update test1 set age='31' where name='liyaqiu1' ;
+ select * from test1;
+mysql 启动
+ D:\mysql-8.0.25-winx64\bin\net start MySQL 
+ D:\mysql-8.0.25-winx64\bin\net stop MySQL 
+ 
+ 登陆
+	mysql -u root -p
+	use my_db;
+
+SELECT @@transaction_isolation;
+select @@global.transaction_isolation;	
+	
+set session transaction isolation level read uncommitted;
+set session transaction isolation level read committed;
+set session transaction isolation level repeatable read;
+set session transaction isolation level serializable;
+
+
+START TRANSACTION;
+		事务代码
+		commit;
+	
+update test2 set age='31' where name='liyaqiu1' and age ;
+update test2 set  name='liyaqiu1' where age= 31  ;	
+
+
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

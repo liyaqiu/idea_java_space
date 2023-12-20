@@ -1,0 +1,321 @@
+路由器
+	路由器特点
+		路由器每个接口都是一个广播域
+		路由器每个接口都是不同网段
+	路由加表
+		原则:保证下一跳地址能够通过路由表的某个出接口可达	
+		目标网络地址一致+子网掩码一致【优先级越小就会进行加表】
+			(Pre/Cost越小越优先)
+			直连路由 Pre 0
+			静态路由 Pre 60
+			当 Pre 相同比较Cost值	
+				Cost值=参考带宽/接口带宽
+					当值小于1，则为1，0.1=1
+					当值大于1，则取整，2.9=2
+		目标网络地址一致+子网掩码不一致【都会进行加表】
+			子网掩码越大(长)，优先级越高
+			0.0.0.0/0 默认路由优先级最低，当都匹配不上才会匹配到默认路由						
+	默认路由表
+		网段路由(子网掩码8-30)
+			127.0.0.0/8 - 127.0.0.0/30 常见的8-30  31掩码，那么地址不够没实际意义
+				127.0.0.0/0 - 127.0.0.0/31 不可能出现，因为A类地掩码默认是8
+		主机路由/精确路由(子网掩码32)
+			127.0.0.1/32
+			127.255.255.255/32
+			255.255.255.255/32
+		
+	路由表的形成
+		直连路由 根据本网段的物理接口信息生成的，无法进行非直连的通讯
+			默认生成
+				网段路由
+					192.168.88.0/24
+				主机路由
+					192.168.88.1/32 
+					192.168.88.255/32
+	
+		静态路由 
+			系统视图下配置
+				display ip routing-table 查看路由表
+				ip route-static 0.0.0.0 0 12.1.1.2 配置静态路由
+				undo ip route-static 0.0.0.0 0 12.1.1.2 取消静态路由配置
+
+				R1
+				ip route-static 192.168.89.0 24 12.1.1.2
+				ip route-static 192.168.90.0 24 12.1.1.2
+				R2
+				ip route-static 192.168.88.0 24 12.1.1.1
+				ip route-static 192.168.90.0 24 23.1.1.3
+				R3
+				ip route-static 192.168.88.0 24 23.1.1.2
+				ip route-static 192.168.89.0 24 23.1.1.2
+			浮动静态路由
+				主从切换
+					display ip interface brief 查看接口地址
+					display current-configuration 查看当前设备的配置
+					display ip routing-table 查看路由表
+					电信路由器
+						int LoopBack 10
+							ip address 123.1.1.1 24
+						int g0/0/0
+							ip address 10.1.1.1 24
+					移动路由器
+						int LoopBack 10
+							ip address 123.1.1.1 24
+						int g0/0/0
+							ip address 20.1.1.1 24
+					我的路由器
+						int g0/0/0
+							ip address 10.1.1.2 24
+						int g0/0/1
+							ip address 20.1.1.2 24		
+						
+						shutdown以后可以实现主备切换
+						ip route-static 123.1.1.0 24 10.1.1.1 preference 80
+						ip route-static 123.1.1.0 24 20.1.1.1 preference 70	
+				流量负载均衡
+					display ip interface brief 查看接口地址
+					display current-configuration 查看当前设备的配置
+					display ip routing-table 查看路由表
+					电信路由器
+						int LoopBack 10
+							ip address 123.1.1.1 24
+						int g0/0/0
+							ip address 10.1.1.1 24
+					移动路由器
+						int LoopBack 10
+							ip address 123.1.1.1 24
+						int g0/0/0
+							ip address 20.1.1.1 24
+					我的路由器
+						int g0/0/0
+							ip address 10.1.1.2 24
+						int g0/0/1
+							ip address 20.1.1.2 24		
+
+						ip route-static 123.1.1.0 24 10.1.1.1 preference 70
+						ip route-static 123.1.1.0 24 20.1.1.1 preference 70	
+		动态路由 	
+			AS自治系统(由1个或多个设备【路由器】组成的AS系统)
+				公有AS
+					电信，网通，移动，需要经过认证申请
+				私有AS
+					公司内网搭建的，或者家用，不需要经过验证申请
+			通过在设备运行某种协议，并且通过这种协议自动交互路由信息
+			IGP协议-内部网关路由协议 AS内:
+				RIP协议是一种基于距离矢量算法的路由协议，存在着收敛慢，易产生路由环路，可扩展性差等问题，已经被OSPF取代
+					距离矢量算法:
+						特点:只知道路由的传递，但不知道路由具体的始发信息
+						功能:查看是否能加表，可以加表则往下传递(传递给相邻设备)，不能加表则不传递
+					缺点:
+						逐跳收敛,收敛慢，先计算后泛洪，故障恢复时间长
+						传闻路由更新机制.缺少对全局网络拓扑的了解
+						最多有效跳数为15，环形组网中，使远端路由不可达
+						以"跳数"为度量，存在选择次优路径风险
+				OSPF协议(Open Shortest Path First 开放式最短路径优先)是IETF定义的一种基于【链路状态的内部网关路由协议】
+					相对RIP的优点:
+						以COST计算次优路径
+						收敛快，先番泛洪后计算
+						没有跳数限制
+					报文解释:
+						Version：用于描述当前OSPF协议版本
+						Massage Type:用于描述当前OSPF报文的类型
+						Source OSPF Router:用于描述发送该Hello报文的路由器的Router ID
+						Area ID:用于描述发送该OSPF报文的接口在哪个区域
+						Checksum:校验和，用于保证报文的完整性
+						Auth Type:认证类型,Null为空
+						Autho Data:认证数据
+							Network Mask:用于描述发送该Hello报文路由器的接口掩码长度
+							Hello Interval:用于描述自神Hello报文发送的时间间隔
+							OPtions:可选项,OSPF零距建立的时候需要满足Ebit和Nbit一致
+							Router Priority:用于发送该OSPF报文接口的DR优先级
+							Router Dead Interval:用于描述邻居的失效时间
+							DR:指定路由器,取值为该接口地址
+							BDR:备份指定路由器,取值为该链路上的BDR接口地址
+					OSPF邻居建立的条件
+						1版本一致
+						2RouterID不能冲突
+						3区域ID一致
+						4认证类型和认证密码一致
+						5两端接口IP要求在同网段
+						6两端接口掩码要求相同
+						7Hello发送时间间隔一致
+						8Dead时间一致
+						9Option选项中Nbit和Ebit需要一致
+						10双方接口的MTU一致
+					OSPF网络类型
+						p2p
+						p2mp
+						broadcast
+						nbma
+					OSPF LSDB		
+						LSA类型(11种)
+							Router-LSA = 1类
+								在一个区域内部，每个OSPF路由器都会产生一条一类的LSA描述自身所有接口的链路状态信息
+								在1类LSA中，使用4种链路类型描述接口的链路状态信息
+									link-type: StubNet【叶子】 用于描述直连网络号
+										link-id: 用于描述直接的网络地址
+										data: 用于描述网络掩码信息
+										metric: 用于描述路由器自神去往改网络的COST值
+									link-type: P2P【树干】 用于描述直连链路上网络类型为P2P或者P2MP的邻居
+										link-id: 用于描述P2P网络上邻居的RID
+										data: 用于描述自身链接P2P邻居的接口IP地址
+										metric: 用于描述自身去往邻居的Cost值
+									link-type: TransNet【树干】 用于描述直连链路上网络类型为broadcast或者nbma的邻居
+										link-id: 用于描述为节点的Router-id,使用的是DR的接口IP地址充当
+										data: 用于描述自身去往为节点的接口IP地址
+										metric: 用于描述自身到达为节点的Cost值
+									link-type: V-link【树干】 用于描述虚链路上的OSPF邻居
+										link-id: 用于描述虚链路零距的Router-id
+										data: 用于描述自身去往虚链路邻居的接口IP地址
+										metric: 用于描述自身去往虚链路邻居的Cost值
+							Network-LSA = 2类
+			
+						LSA交互原则
+							相互交换自身没有的LSA，以及使用新的LSA替换旧的LSA
+						LSA唯一性判断
+							LSA类型(Type)
+							LSA链路状态ID(Link State ID)
+							LSA的通告者(Adv Router)
+						LSA的新旧状态判断
+							
+							首先比较的就是LSA的序列号
+								当序列号相同时，比较校验和，越大越优
+									当校验和相同，比较LSA的age时间
+										首先age等于3600s的LAS，用于删除一条LSA
+										如何两条LSA的age时间大于900s，选择age数值小的LSA，如果小于900S，则保持不变
+						LSA更新机制
+							触发更新
+								当链路状态发生改变之后OSPF将会触发更新，如COST变，网段掩码变，取消宣告
+							周期更新
+								每个OSPF路由器每隔30分钟周期更新一次自身产生的LSA，更新的时候将SEQ+1校验和重新计算，age时间重新恢复到初始值
+						LSA老化机制
+							OSPF路由器每产生一条LSA，都会存在一个age时间为3600s，初始值为1，当age时间递增到3600s之后，将会惹味LSA老化，从自身LSDB中删除LSA
+						LSA删除机制
+							当OSPF需要删除一条LSA的时候，将会把LSA的age时间变为3600s，当其他路由器接受到这条LSA之后，将会从LSDB中对应的LSA删除掉
+					链路状态算法:
+						特点:每台路由器能独立的通过计算产生最短路径
+						LSA:链路状态通告	
+						LSDB:链路状态数据库
+						功能:
+							1.建立邻居/邻接关系--存放在邻居表	
+							2.同步LSA，构建完LSDB--存放在LSDB数据库	
+							3.SPF算法计算路由--存放在路由表
+					几个重要的参数: ospf 10 router-id 1.1.1.1  area 0
+						1.进程ID process-id 10
+							一个设备可以有多个进程，尽量保持一个设备一个ospf进程即可
+						2.路由器ID router-id 1.1.1.1 
+							以后做作为LSA标记
+							手动配置
+								1.1.1.1
+							自动生成
+								根据全局的router-id生成
+						3.区域号 area 0
+							LSA同步前提条件,必须在相同区域中才能同步
+							骨干区域:为0区域，ospf必须要有的区域，而且ospf规定第一个区域必须为0
+							非骨干区域: 非0区域		
+					5种报文类型	
+						Hello报文:
+							发现和维护邻居关系
+						DD(Database Description)报文:
+							交互链路状态数据库摘要
+						LSR(Link State Request)报文:
+							请求特定的链路状态信息
+						LSU(Link State Update)报文:
+							发送详细的链路状态信息
+						LSACK(Link State Acknowledgment)报文:
+							发送确认报文
+					7种状态	
+						Down状态
+							Hello报文
+						Init状态 
+							Hello报文
+								收到对方的Hello报文,header(source ospf router:1.1.1.1)
+						2-way状态
+							Hello报文
+								收到对方的Hello报文，里面活跃邻居字段(active neighbor:2.2.2.2)		
+						-------------------建立邻居关系------------------						
+						DR和BDR建立 DR(Designated Router) BDR(Backup Designated Router) DRO(Designated Router Other)
+							作用
+								是为了优化同一广播域多台设备之间【交叉】交互
+								路由器广播域:为单口
+								交换机广播域:全部口(不划分Vlan)
+							关系建立
+								DR和BDR----邻接关系
+								DR和DRO----邻接关系
+								BDR和DRO---邻接关系
+								DRO和DRO---邻居关系
+							选举过程
+								利用Hello报文选举
+								冷启动(40秒选举时间)
+									先选举出BDR，如果同一个广播域里面没有DR，则由BDR升级位DR
+										Router Priority: 1 (1-255)默认为1，0为不参与DR，BDR选举
+										如果Priority相同，则根据Router id选，Router id最大则为DR
+								热启动
+									就算优先级在大也无法成为DR，只能重启OSPF服务
+						Exstart状态
+							DD(Database Description)报文
+								发送空DD报文进行主从选举(Router id大为主)
+						Exchange状态
+							DD(Database Description)报文
+								双方开始发送LSA摘要信息
+						Loading状态
+							LSR(Link State Request)报文
+								缺少LSA摘要信息求情
+							LSU(Link State Update)报文
+								缺少的LSA详细信息回复
+							LSACK(Link State Acknowledgment)报文
+								缺少的LSA摘要信息确认
+						Full状态 
+						-------------------建立邻接关系------------------		
+					命令:
+						协议视图
+							display ip routing-table 查看路由表
+							R1
+								ospf 10 router-id 1.1.1.1 创建进程，或者进入
+									area 0 创建区域，或者进入
+										区域下宣告(开始整个ospf的过程)
+											network 12.1.1.0 0.0.0.255 宣告接口地址以及反掩码(255.255.255.255-255.255.255.0)
+											network 192.168.77.0 0.0.0.255 
+											
+											network 12.1.1.1 0.0.0.0 精确宣告
+											network 12.1.1.0 0.0.0.255 网段宣告
+											network 0.0.0.0 0.0.0.0 宣告全部，可以实现自动宣告功能
+										接口下宣告(开始整个ospf的过程)
+											int g0/0/1
+											ospf enable 10 area 0 宣告
+											undo ospf enable 10 area 0 取消宣告
+											display this 查看宣告信息
+							R2
+								ospf 10 router-id 2.2.2.2
+									area 0 
+										network 12.1.1.0 0.0.0.255 
+										network 23.1.1.0 0.0.0.255 
+										network 192.168.88.0 0.0.0.255
+																					
+							R3
+								ospf 10 router-id 3.3.3.3
+									area 0
+										network 23.1.1.0 0.0.0.255 
+										network 192.168.99.0 0.0.0.255
+							状态信息查看
+								display ospf peer 显示邻居节点信息，以及ospf进程号
+								display ospf peer brief 显示邻居节点信息，以及ospf进程号
+								display ospf interface	查看所有接口					
+								display ospf interface g0/0/0 查看某个接口
+							修改或者删除
+								undo ospf 10 删除ospf
+								ospf 10 router-id 1.1.1.2 覆盖router-id，但是重启ospf进程
+									bandwidth-reference 10000 修改cost参考值，建议全部都进行更改
+								int g0/0/0
+									ospf dr-priority 233  修改ospf接口优先级
+									ospf cost 10 修改cost开销值
+									ospf network-type p2p 修改ospf网络类型
+								用户视图	
+									reset ospf proces 重启ospf进程	
+								display ospf lsdb 查看lsdb	
+									display ospf lsdb [几类lsa] [lsid]
+									display ospf lsdb network 23.1.1.2 查看LSA详细信息
+									display ospf lsdb router 1.1.1.1  查看LSA详细信息
+				IS-IS协议
+			EGP协议-外部网关路由协议 AS间:
+				BGP协议

@@ -1,0 +1,307 @@
+1node0 mysql
+node1
+node2 harbor
+node3 sonarqube	
+node4 nexus	
+node5 gitlab
+node6 jenkins master
+node7 生产服务器
+node8 测试服务器
+node9 jenkins slave1
+
+
+
+newnode1 k8s-master
+newnode2 k8s-node1
+newnode3 k8s-node2
+
+
+机器初始化
+	网络时间同步
+		方式1
+			yum -y install ntp ntpdate && ntpdate cn.pool.ntp.org && hwclock --systohc && hwclock -w	
+		方式2
+			yum install -y chrony
+			systemctl start chronyd && systemctl enable chronyd
+	禁用防火墙
+		systemctl stop firewalld && systemctl disable firewalld  
+
+
+安装nexus
+	https://blog.csdn.net/lizhiqiang1217/article/details/82631937
+	下载地址
+		https://help.sonatype.com/repomanager3/download
+		wget https://download.sonatype.com/nexus/3/nexus-3.38.1-01-unix.tar.gz
+		
+		
+安装gitlab
+	相关依赖
+		yum -y install policycoreutils-python openssh-server openssh-clients postfix
+	设置postfix(邮件服务器)，提供给gitlab作为邮件服务器发送
+		systemctl enable postfix && systemctl start postfix
+	下载gitlab rpm包
+		wget https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el6/gitlab-ce-12.4.2-ce.0.el6.x86_64.rpm --no-check-certificate
+	安装gitlab 
+		rpm -ivh gitlab-ce-12.4.2-ce.0.el6.x86_64.rpm 
+	修改配置
+		vi /etc/gitlab/gitlab.rb
+		external_url 'http://192.168.88.15:4567'
+		nginx['listen_port'] = 4567
+	gitlab命令
+		gitlab-ctl reconfigure  重新加载配置
+		gitlab-ctl restart 重启
+	访问
+		http://192.168.88.15:4567
+	账户
+		管理员
+			root/liyaqiu123456
+		普通用户
+			eric/eric123456
+			liyaqiu/liyaqiu123456
+		
+	Gitlab用户在组里面5种不同角色
+		Guest: 可以创建issue,发表评论，不能读写版本库
+		Reporter:可以克隆代码，不能提交
+		Developer:可以克隆代码，开发，提交。push
+		Maintainer:可以创建项目，添加tag，保护分支，添加项目成员，编辑项目
+		Owner:可以设置项目访问权限，删除项目，迁移项目，管理组成员
+安装sonarqube
+	下载地址
+		https://www.sonarqube.org/downloads/
+	安装
+		1.jre安装
+		2.mysql安装
+		3.sonarqube安装
+			cd /usr/local/
+			yum -y install unzip
+			unzip sonarqube-7.0.zip 
+			useradd sonar
+			chown -R sonar:sonar sonarqube-7.0
+			配置修改
+				vi sonarqube-7.0/conf/sonar.properties       
+					sonar.jdbc.username=root
+					sonar.jdbc.password=123456
+					sonar.jdbc.url=jdbc:mysql://192.168.88.10:3306/sonar
+					sonar.web.port=9000
+			su sonar /usr/local/sonarqube-7.0/bin/linux-x86-64/sonar.sh restart
+			su sonar /usr/local/sonarqube-7.0/bin/linux-x86-64/sonar.sh status
+			su sonar /usr/local/sonarqube-7.0/bin/linux-x86-64/sonar.sh stop
+			tail -f /usr/local/sonarqube-7.0/logs/web.log 
+			UI访问
+				http://192.168.88.13:9000
+				用户密码admin/admin
+				token: 97a01560c1c4aaf89cd79bb4e14e1f4e83bfc851
+安装jenkins（是java写的）
+	jenkins依赖
+		安装jre运行环境
+			export JAVA_HOME=/root/jdk1.8.0_191
+			export PATH=$PATH:$JAVA_HOME/bin
+		安装git
+			yum -y install git
+		安装maven
+			https://dlcdn.apache.org/maven/maven-3/3.8.5/binaries/apache-maven-3.8.5-bin.tar.gz
+			tar -zxvf apache-maven-3.8.5-bin.tar.gz
+			mkdir -p /root/apache-maven-3.8.5/repository
+			添加阿里云私服和仓库路径
+				vi /root/apache-maven-3.8.5/conf/settings.xml
+				<localRepository>/root/apache-maven-3.8.5/repository</localRepository>
+				<mirror>
+				 <id>nexus-aliyun</id>
+				 <mirrorOf>*</mirrorOf>
+				 <name>Nexus aliyun</name>
+				 <url>http://maven.aliyun.com/nexus/content/groups/public</url>
+				</mirror> 				
+			配置环境变量
+				vi /etc/profile
+				export MAVEN_HOME=/root/apache-maven-3.8.5
+				export PATH=$PATH:$MAVEN_HOME/bin
+			加载环境变量
+				. /etc/profile
+	下载安装包
+		https://jenkins.io/zh/download
+		wget http://mirrors.jenkins-ci.org/redhat/jenkins-2.190-1.1.noarch.rpm
+		rpm -ivh jenkins-2.190-1.1.noarch.rpm
+	修改配置
+		vi /etc/sysconfig/jenkins
+		JENKINS_USER="root"
+		JENKINS_PORT="8899"
+		JENKINS_JAVA_CMD="/root/jdk1.8.0_191/bin/java"
+		systemctl start jenkins
+	访问
+		http://192.168.88.16:8899/
+		cat /var/lib/jenkins/secrets/initialAdminPassword
+	账户
+		管理员
+			eric/123456
+		普通用户
+			liyaqiu/123456
+	更改插件下载源
+		https://blog.csdn.net/weixin_43882359/article/details/121803421	
+		第一步 
+			JenkinsPlugin > Manager > Available
+			cp /var/lib/jenkins/updates/default.json /root/default.json.bak
+			cd /var/lib/jenkins/updates
+			sed -i 's#http://updates.jekins-ci.org/download#https://mirrors.tuna.tsinghua.edu.cn/jenkins#g' default.json && sed -i '#/http://www.google.com#https://www.baidu.com#g' default.json
+		第二步
+			JenkinsPlugin > Manager > Advanced
+			https://mirrors.tuna.tsinghua.edu.cn/jenkins/updates/update-center.json
+		第三步
+			http://192.168.88.16:8899/restart
+	初始化jenkins
+		汉化插件(Localization: Chinese)
+		权限管理插件(Role-based Authorization Strategy)
+			Dashboard > Configure Global Security > Authorization > Logged-in users can do anything 改为 [Role-Based Strategy]
+			Dashboard > Manage and Assign Roles > Manage Roles > Global roles 
+			Dashboard > Manage and Assign Roles > Manage Roles > Item roles  
+			Dashboard > Jenkins’ own user database > Users
+			Dashboard > Manage and Assign Roles > Assign Roles > Global roles  
+			Dashboard > Manage and Assign Roles > Assign Roles > Item roles
+		密钥管理插件(Credentials Binding)
+			Dashboard > 凭据配置配置 > git访问账户和密码
+		Git插件(Git)
+		配置全局maven和jre
+			Dashboard > Global Tool Configuration > JDK
+				myjdk-jdk1.8.0_191 /root/jdk1.8.0_191
+			Dashboard > Global Tool Configuration > Maven	
+				mymaven-maven-3.8.5 /root/apache-maven-3.8.5
+			Dashboard > Configure System > Environment variables
+				JAVA_HOME /root/jdk1.8.0_191
+				M2_HOME /root/apache-maven-3.8.5
+				PATH+EXTRA $M2_HOME/bin
+		Maven插件(Maven IntegrationVersion)
+		Pipeline构建项目插件(Pipeline)
+		GitLab插件(GitLab)
+			实现gitlab钩子触发器构建项目
+		邮件插件(Email Extension Template)
+		sonarqube插件(SonarQube Scanner)
+		远程调用插件(Publish Over SSH)
+		多选框参数插件(Extended Choice ParameterVersion)
+	常用项目构建
+		自由风格构建 FreeStyle Project
+		Maven构建 Maven Project
+		流水线构建 Pipeline Project
+			pipeline支持2种写法
+				Declarative声明式
+					Dashboard > test-pipeline > 流水线语法 利用代码片段生成
+					http://192.168.88.16:8899/job/test-pipeline/pipeline-syntax/
+				Scripted Pipeline脚本式
+	
+	构建触发器
+		在构建其他项目之后构建 (Build after other projects are build)
+			依赖于一个工程来触发此工程
+		定期构建(Build periodically)
+			cron表达式 */1 * * * *
+		轮询SCM(Poll SCM)
+			定期的去git上获取代码，如果发现有新代码就进行工程构建
+			cron表达式 */1 * * * *
+		远程触发构建(Trigger builds remotely (e.g., from scripts))
+			http://192.168.88.16:8899/job/test-pipeline/build?token=8888
+		代替轮询SCM的做法 将更改推送到GitLab时构建 Build when a change is pushed to GitLab. GitLab webhook URL: 
+			jenkins
+				管理安装插件GitLab插件
+				管理修改
+					Dashboard > Configure System > Gitlab > Enable authentication for '/project' end-point(取消选项)
+			gitlab修改 
+				管理人员修改gitlab
+					http://192.168.88.15:4567/admin/application_settings/network > Outbound requests > Allow requests to the local network from web hooks and services
+				开发人员修改gitlab
+					http://192.168.88.15:4567/group1/test-jenkins/-/settings/integrations > URL > http://192.168.88.16:8899/project/test-pipeline 	
+	邮件发送
+		Dashboard > Configure System > Jenkins Location
+			System Admin e-mail address = 361234567@qq.com
+		Dashboard > Configure System > E-mail Notification
+			SMTP server = smtp.qq.com
+			Default user e-mail suffix = @qq.com
+			Use SMTP Authentication 用户名 = 361234567@qq.com
+			Use SMTP Authentication 密码 = aybozlhywolycagc
+			Use SSL = 打勾框选
+			SMTP Port = 465
+			Reply-To Address = 361234567@qq.com
+		Dashboard > Configure System > Extended E-mail Notification
+			SMTP server = smtp.qq.com
+			SMTP Port = 465
+			Default Content Type = HTML (text/html)
+			Use SSL = 打勾框选
+			
+	sonarqube整合
+		配置
+			Dashboard > Global Tool Configuration > SonarQube Scanner
+				Name = SonarQube-Scanner-test
+				Install automatically = 打勾框选
+			Dashboard > Configure System > SonarQube servers
+				Name = SonarQube-servers-test
+				Server URL = http://192.168.88.13:9000
+				Server authentication token = 97a01560c1c4aaf89cd79bb4e14e1f4e83bfc851
+		freestyle使用方式
+			Dashboard > test-jenkins > Build > Execute SonarQube Scanner
+				Task to run = scan
+				JDK = 1.8
+				Path to project properties = sonar.properties
+		pipeline使用方式
+			Jenkinsfile配置
+			stage('code check') {
+				steps {
+					echo '代码检查'
+					script {
+						//引入SonarScanner工具
+						scannerHome = tool 'SonarQube-Scanner-test'
+					}
+					//引用sonarQube server环境
+					withSonarQubeEnv('SonarQube-servers-test') {
+						sh "${scannerHome}/bin/sonar-scanner"
+					}
+				}
+			}	
+			sonar-project.properties配置
+				sonar.projectKey=test-jenkins-pipeline
+				sonar.projectName=test-jenkins
+				sonar.projectVersion=1.0
+				#需要扫描的项目位置
+				#扫描根
+				#sonar.sources=.
+				#扫描指定的目录
+				sonar.sources=src
+				sonar.java.binaries=target/classes
+				#排除的扫描位置
+				#sonar.exclusions=**/test/**,**/targer/**
+				sonar.exclusions=**/test/**
+				sonar.java.source=1.8
+				sonar.java.target=1.8
+				sonar.sourceEncoding=UTF-8
+
+	远程调用整合
+		需要jenkins机器免密到node机器
+			把jenkins机器的公钥拷贝到node机器
+				ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.88.18
+			测试登陆
+				ssh 192.168.88.18
+		Dashboard > Configure System > Publish over SSH
+			Path to key = /root/.ssh/id_rsa
+		Dashboard > Configure System > Publish over SSH > SSH Servers
+			Name = test-server
+			Hostname = 192.168.88.18
+			Username = root
+			Remote Directory = /
+		配置pipeline代码
+			http://192.168.88.16:8899/job/parent/pipeline-syntax/
+			片段生成器 > sshPublisher
+		后端docker镜像部署思路
+			通过【远程调用插件】来执行node上的deploy.sh
+		前端nginx部署思路
+			通过【远程调用插件】来做目录文件拷贝
+		
+	jenkins主从	
+		Dashboard > Configure Global Security > Agents
+			TCP port for inbound agents = Random
+		Dashboard > Nodes > Manage nodes and clouds > New Node
+			Remote root directory = /root/jenkins_slave1
+			Custom WorkDir path = /root/jenkins_slave1
+		点击节点可以获取运行jar包
+			java -jar agent.jar -jnlpUrl http://192.168.88.16:8899/computer/slave1/jenkins-agent.jnlp -secret f8abe479bcb163d690d7465ee14c523422194f36d2d959c845fb0927d0533602 -workDir "/root/jenkins_slave1"
+			
+		freestyle项目运行
+			Dashboard > slave1-test > Restrict where this project can be run
+					Label Expression = slave1
+
+		
+		

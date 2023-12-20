@@ -1,0 +1,45 @@
+NAT网络地址转换(Network Address Translation)
+	标准NAT:仅支持IP地址转换
+		静态NAT【出口入口映射】
+			私网IP和公网IP一对一绑定
+				int g0/0/1 路由器对接公网的接口(不可以与该接口地址重复)	
+					nat static global 12.1.1.10 inside 192.168.1.2 路由器对接公网的接口做映射
+				int g0/0/0 路由器对接公网的接口(不可以与该接口地址重复)	
+					nat static global 12.1.1.20 inside 192.168.1.2 路由器对接公网的接口做映射				
+		动态NAT【出口映射】
+			私网IP向公网IP地址池申请绑定和释放
+				nat address-group 1 12.1.1.10 12.1.1.15 配置nat地址池(不可以与该接口地址重复)	
+				acl 2000 配置基本ACL
+					rule permit source 192.168.1.0 0.0.0.255 基本ACL规则配置	
+				int g0/0/1 路由器对接公网的接口
+					nat outbound 2000 address-group 1 no-pat 路由器对接公网的接口做映射,no-pat的作用:(不进行端口转换)
+				
+				undo nat address-group 1 删除nat地址池
+				display nat address-group 查看nat地址池
+				display acl 2000 查看ACL规则配置
+				display nat outbound 查看NAT配置
+	NAPT网络地址端口转换(Network Address Port Translation)
+		NAPT配置【出口映射】
+			nat address-group 1 12.1.1.20 12.1.1.20 配置nat地址池(不可以与该接口地址重复)	
+			acl 2000 配置基本ACL
+				rule permit source 192.168.1.0 0.0.0.255 基本ACL规则配置	
+			int g0/0/1 路由器对接公网的接口
+				nat outbound 2000 address-group 1  路由器对接公网的接口做映射
+			
+			undo nat address-group 1 删除nat地址池
+			display nat address-group 查看nat地址池
+			display acl 2000 查看ACL规则配置
+			display nat outbound 查看NAT配置
+			
+		Easy IP【出口映射】(支持动态公网地址【拨号地址每天都会改变】
+			acl 2000 配置基本ACL
+				rule permit source 192.168.1.0 0.0.0.255 基本ACL规则配置	
+			int g0/0/1 路由器对接公网的接口
+				nat outbound 2000
+
+			display acl 2000 查看ACL规则配置
+			display nat outbound 查看NAT配置
+	NAT服务器【入口映射】
+		int g0/0/0 路由器对接公网的接口
+			nat server protocol tcp global current-interface 8888 inside 192.168.1.2 6666
+				current-interface = int g0/0/0地址

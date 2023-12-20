@@ -1,0 +1,78 @@
+﻿
+https://xiaomirom.com/rom/redmi-k30-ultra-cezanne-china-fastboot-recovery-rom/#%E4%B8%8B%E8%BD%BD-%E7%BA%A2%E7%B1%B3-k30-%E8%87%B3%E5%B0%8A%E7%BA%AA%E5%BF%B5%E7%89%88-%E7%A8%B3%E5%AE%9A%E7%89%88-fastboot-%E7%BA%BF%E5%88%B7%E5%8C%85
+
+https://twrp.me/
+
+	
+	
+	
+后端相关
+	
+	Spring Data https://www.bilibili.com/video/BV1RE41167Pk?p=7&spm_id_from=pageDriver
+	shiro https://www.bilibili.com/video/BV1j54y1t7jM?spm_id_from=333.337.search-card.all.click
+	spring security  https://www.bilibili.com/video/BV15a411A7kP?p=35&spm_id_from=pageDriver
+	Oauth2.0 https://www.bilibili.com/video/BV1Hq4y1W7eo?p=12
+	redis 
+	mongodb   https://www.bilibili.com/video/BV1bJ411x7mq?spm_id_from=333.999.0.0
+	memcached 缓存
+	rocketmq  https://www.bilibili.com/video/BV1L4411y7mn?from=search&seid=3090188336145775345&spm_id_from=333.337.0.0
+	atcivemq https://www.bilibili.com/video/BV1vJ41177j1?spm_id_from=333.999.0.0
+	rabbitmq
+	apisix 网关
+	double
+	curator
+	jndi
+	websocket
+	Zabbix 
+	统一认证  sso单点登录 https://developer.aliyun.com/article/636281
+	webflux https://www.bilibili.com/video/av203182483?from=search&seid=8118518497432004823&spm_id_from=333.337.0.0
+	mysql https://www.bilibili.com/video/BV1iq4y1u7vj?spm_id_from=333.999.0.0&vd_source=cc17fab1d456bc3958dcb51e2fdd520b
+	分布式系统遵守的cap原则https://www.ruanyifeng.com/blog/2018/07/cap.html
+	脑裂问题学习 https://www.cnblogs.com/kevingrace/p/12433503.html https://www.cnblogs.com/kevingrace/p/7205846.html	
+	mycat2 https://www.bilibili.com/video/BV1iT41157JX?spm_id_from=333.999.0.0&vd_source=cc17fab1d456bc3958dcb51e2fdd520b
+	
+	gradle https://www.bilibili.com/video/BV1yT41137Y7?spm_id_from=333.999.0.0&vd_source=cc17fab1d456bc3958dcb51e2fdd520b
+	spring系统实践  https://www.bilibili.com/video/BV1tw411f79E 
+	未结束的课程 https://www.bilibili.com/video/BV1dQ4y1A75e?p=278&vd_source=cc17fab1d456bc3958dcb51e2fdd520b
+	权限系统 https://www.bilibili.com/video/BV1tw411f79E/?spm_id_from=333.788.recommend_more_video.3&vd_source=cc17fab1d456bc3958dcb51e2fdd520b
+	
+	velocity  java模版引擎 https://www.bilibili.com/video/BV1hK4y1G7Np?p=18&vd_source=cc17fab1d456bc3958dcb51e2fdd520b
+	Sharding Sphere（分库分表中间件） https://www.bilibili.com/video/BV1LK411s7RX/?spm_id_from=333.337.search-card.all.click&vd_source=cc17fab1d456bc3958dcb51e2fdd520b
+运维相关
+	网络 https://www.bilibili.com/video/BV1HY4y1W7e7?p=25&spm_id_from=pageDriver
+	linux  https://www.bilibili.com/video/BV1pz4y1D73n?p=617	
+	lvs https://www.bilibili.com/video/BV18f4y1U7St?p=2&spm_id_from=pageDriver	
+		https://www.zsythink.net/archives/tag/lvs/
+	云原生kubesphere https://www.bilibili.com/video/BV13Q4y1C7hS?p=82&spm_id_from=pageDriver
+
+前端相关知识
+
+	uniapp https://www.bilibili.com/video/BV1Ar4y1s7U5?p=4&vd_source=cc17fab1d456bc3958dcb51e2fdd520b
+
+	nuxt 服务端渲染 https://www.bilibili.com/video/BV13Z4y1T74J?spm_id_from=333.337.search-card.all.click&vd_source=cc17fab1d456bc3958dcb51e2fdd520b
+
+	vue实战移动端 https://www.bilibili.com/video/BV1Lp411d7w4?spm_id_from=333.999.0.0&vd_source=cc17fab1d456bc3958dcb51e2fdd520b    18
+			
+	微信小程序	https://space.bilibili.com/302417610/search/video?keyword=%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F
+	vue3 https://www.bilibili.com/video/BV1Zy4y1K7SH?p=136&spm_id_from=pageDriver&vd_source=cc17fab1d456bc3958dcb51e2fdd520b 有空在学
+	
+	Vue3 + vite + Ts + pinia https://www.bilibili.com/video/BV1dS4y1y7vd/?spm_id_from=333.788.recommend_more_video.2&vd_source=cc17fab1d456bc3958dcb51e2fdd520b
+	
+	
+	webpack高级 https://www.bilibili.com/video/BV1cv411C74F/?spm_id_from=333.788.recommend_more_video.0&vd_source=cc17fab1d456bc3958dcb51e2fdd520b
+
+	nodejs https://www.bilibili.com/video/BV1a34y167AZ?p=4&vd_source=cc17fab1d456bc3958dcb51e2fdd520b
+	
+	Bootstrap与layui https://www.bilibili.com/video/BV19V411b7sx?p=44&vd_source=cc17fab1d456bc3958dcb51e2fdd520b
+	
+	React https://www.bilibili.com/video/BV1wy4y1D7JT?spm_id_from=333.999.0.0
+	angular https://www.bilibili.com/video/BV1ts411E7qg?spm_id_from=333.999.0.0
+	
+	
+数据结构算法
+	https://www.bilibili.com/video/BV13g41157hK?p=6&vd_source=cc17fab1d456bc3958dcb51e2fdd520b
+
+外挂
+https://www.bilibili.com/video/BV1et411b73Z?p=2&vd_source=cc17fab1d456bc3958dcb51e2fdd520b
+https://www.bilibili.com/video/BV1By4y1r7Cq?p=161&vd_source=cc17fab1d456bc3958dcb51e2fdd520b
+	

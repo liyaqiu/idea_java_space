@@ -1,0 +1,489 @@
+spring boot
+
+yaml配置文档
+	https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html#application-properties
+	
+
+spring cloud alibaba中文文档
+	https://github.com/alibaba/spring-cloud-alibaba/blob/master/README-zh.md	
+	
+	
+负载均衡策略
+	旧版本ribbon
+	新版本loadbalancer 
+	https://docs.spring.io/spring-cloud-commons/docs/3.1.0/reference/html/#spring-cloud-loadbalancer
+	https://www.cnblogs.com/seanRay/p/14781110.html
+
+
+eureka服务发现
+	配置文档
+		https://docs.spring.io/spring-cloud-netflix/docs/2.2.10.RELEASE/reference/html/
+	利用restTepmelete发服务请求
+nacos服务发现和配置管理 https://github.com/alibaba/nacos
+	依赖
+		 <!-- nacos注册中心-->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        </dependency>
+       <!-- nacos配置中心-->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+        </dependency>
+	文档地址
+		https://nacos.io/zh-cn/docs/quick-start.html
+	下载地址
+		https://github.com/alibaba/nacos/releases/tag/1.4.1
+	启动命令
+		startup.cmd -m standalone
+	UI
+		http://192.168.109.1:8848/nacos/index.html	
+	集群配置 nginx+nacos+mysql集群
+		1.导入数据表
+			nacos-mysql.sql 
+		2.cluster.conf
+			192.168.109.1:8848
+			192.168.109.1:8849
+			192.168.109.1:8850
+		3.application.properties
+			server.port=8850
+			spring.datasource.platform=mysql
+			db.num=1
+			db.url.0=jdbc:mysql://localhost:3306/nacosdb?characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useUnicode=true&useSSL=false&serverTimezone=UTC
+			db.user.0=root
+			db.password.0=123456
+		4.启动nacos
+			startup.cmd
+	nacos 
+		临时实例
+		永久实例（当大流量过来触发保护阈值的时候，会将健康和不健康实例一起返回，避免雪崩）
+			https://blog.csdn.net/ZrZrZr666666/article/details/109556283
+			
+	
+	
+feign
+	<dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+		
+spring cloud gateway
+	官方文档
+		https://docs.spring.io/spring-cloud-gateway/docs/2.2.9.RELEASE/reference/html/#gatewayfilter-factories
+		
+docker
+	 阿里云镜像加速
+		https://developer.aliyun.com/article/773368?spm=a2c6h.13813017.content3.1.68d11b25RD3rwp
+docker registry ui
+	图形化界面私有仓库搭建
+		https://github.com/jc21/docker-registry-ui
+
+
+spring amqp	(advanced message queue protocol)
+	官方文档
+		https://docs.spring.io/spring-amqp/docs/2.3.13/reference/html/#rabbitlistener-changes
+	rabbitmq 		 
+		docker run -d --hostname my-rabbit \
+		--name rmq -e RABBITMQ_DEFAULT_USER=liyaqiu -e RABBITMQ_DEFAULT_PASS=123456 \
+		-p 15672:15672 -p 5672:5672 -d rabbitmq:3-management
+	登陆地址
+		http://192.168.0.203:15672/#/users/liqiu
+	
+	rabbitmq 基于内存存储
+		消息可靠性（可靠消息最终一致性）
+			生产者ack
+			消息持久化
+			消费者ack
+			消费失败重试	
+		死信交换机（队列中丢弃的消息直接发送到交换机）
+			如下3种情况会把消息重新发送到死信交换机
+			1.消息TTL超时或者队列TTL超时
+			2.reject或者nack的消息（消费者失败重试）
+			3.消息队列满了	
+		惰性队列（数据直接写磁盘）
+			普通队列（先存内存，在达到阈值时部分数据刷磁盘）
+		MQ集群
+			普通集群（共享交换机和队列的元信息，队列数据不共享）
+				docker安装
+				1.准备.erlang.cookie文件
+					docker exec -it rmq cat /var/lib/rabbitmq/.erlang.cookie
+					FNZAQOJSDCFWBNNXYJVC
+					echo "FNZAQOJSDCFWBNNXYJVC" > .erlang.cookie 
+					chmod 600 rabbitdir1/.erlang.cookie
+				2.准备rabbitmq.conf文件
+					vim rabbitmq.conf
+					loopback_users.guest = false
+					listeners.tcp.default = 5672
+					cluster_formation.peer_discovery_backend = rabbit_peer_discovery_classic_config
+					cluster_formation.classic_config.nodes.1 = rabbit@rmq1
+					cluster_formation.classic_config.nodes.2 = rabbit@rmq2
+					cluster_formation.classic_config.nodes.3 = rabbit@rmq3
+				3.拷贝文件
+					cp .erlang.cookie rabbitmq.conf rabbitdir1/
+					cp .erlang.cookie rabbitmq.conf rabbitdir2/
+					cp .erlang.cookie rabbitmq.conf rabbitdir3/
+				4.创建docker网络
+					docker network create rmq-net
+				5.启动	
+					docker run -d --net rmq-net \
+					-v ${PWD}/rabbitdir1/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf \
+					-v ${PWD}/rabbitdir1/.erlang.cookie:/var/lib//rabbitmq/.erlang.cookie \
+					-e RABBITMQ_DEFAULT_USER = liyaqiu \
+					-e RABBITMQ_DEFAULT_PASS = 123456 \
+					--name rmq1 --hostname rmq1 -p 5672:5672 -p 15672:15672 rabbitmq:3.8.27-management
+					
+					docker run -d --net rmq-net \
+					-v ${PWD}/rabbitdir1/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf \
+					-v ${PWD}/rabbitdir1/.erlang.cookie:/var/lib//rabbitmq/.erlang.cookie \
+					-e RABBITMQ_DEFAULT_USER = liyaqiu \
+					-e RABBITMQ_DEFAULT_PASS = 123456 \
+					--name rmq1 --hostname rmq1 -p 5673:5672 -p 15673:15672 rabbitmq:3.8.27-management
+					
+					docker run -d --net rmq-net \
+					-v ${PWD}/rabbitdir1/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf \
+					-v ${PWD}/rabbitdir1/.erlang.cookie:/var/lib//rabbitmq/.erlang.cookie \
+					-e RABBITMQ_DEFAULT_USER = liyaqiu \
+					-e RABBITMQ_DEFAULT_PASS = 123456 \
+					--name rmq1 --hostname rmq1 -p 5674:5672 -p 15674:15672 rabbitmq:3.8.27-management	
+			镜像集群（在普通集群的基础上，添加主从备份功能，提供集群的数据可用性，数据同步弱一致性）
+				exactly模式
+					docker exec -it rmq1 bash
+					rabbitmqctl set_policy ha-two "^two\." '{"ha-mode":"exactly","ha-params":2,"ha-sync-mode":"automatic"}'
+				all模式（同步到所有节点）
+					docker exec -it rmq1 bash
+					rabbitmqctl set_policy ha-all "^all\." '{"ha-mode":"all"}'
+				nodes模式（同步到指定点模式）
+					docker exec -it rmq1 bash
+					rabbitmqctl set_policy ha-nodes "^nodes\." '{"ha-mode":"nodes","ha-params":["rabbit@rmq2","rabbit@rmq3"]}'
+			仲裁队列（3.8以后版本，跟镜像集群功能一样，但是确保数据同步强一致性）
+				在UI界面进行添加
+					type = quorum
+		
+elasticsearch
+		docker run -d --name elasticsearch --net somenetwork -p 9200:9200 -p 9300:9300 -v config:/usr/share/elasticsearch/config -v data:/usr/share/elasticsearch/data -v plugins:/usr/share/elasticsearch/plugins -e "ES_JAVA_OPTS=-Xms512m -Xmx512m"  -e "discovery.type=single-node" elasticsearch:7.12.1
+	登陆地址	
+		http://192.168.0.203:9200	
+	kibana
+		docker run -d --name kibana --net somenetwork -e "ELASTICSEARCH_HOSTS=http://elasticsearch:9200" -e "LS_JAVA_OPTS=-Xmx256m -Xms256m"  -p 5601:5601 kibana:7.12.1
+	分词器
+		拼音分词器
+			https://github.com/medcl/elasticsearch-analysis-pinyin/releases
+		中文分词器	
+			https://github.com/medcl/elasticsearch-analysis-ik
+	cerebro 监控es
+
+sentinel 微服务保护
+		官方文档
+			https://github.com/alibaba/Sentinel/releases/tag/1.8.1
+		雪崩问题（因一个服务的故障导致整个链路的其他服务产生故障）
+			1.流量控制
+				（QPS）
+				热点参数限流（令牌桶算法）
+				排队模式（漏桶算法）
+				默认限流（滑动窗口算法）
+			2.线程隔离
+				（线程数）
+				sentinel使用的是信号量隔离
+			3.降级熔断
+				熔断策略
+					慢调用
+					异常比例
+					异常数
+			4.超时处理
+		启动
+			java -jar -Dnacos.addr=localhost:8080 sentinel-dashboard-1.8.1.jar
+			java -jar  sentinel-dashboard-1.8.1.jar
+		访问UI
+			http://192.168.0.110:8080/#/dashboard
+		配置持久化
+			https://blog.csdn.net/qq_40592377/article/details/108895824
+			利用sentinel-dashboard推送到nacos,服务在从nacos获取下来
+			
+seata四种分布式事务解决方案
+	官方文档
+		https://seata.io/zh-cn/docs/ops/deploy-guide-beginner.html
+	全局事务四中常用模式
+	
+		XA  模式 （无代码入侵）：强一致性分阶段事务，牺牲了一定的可用性	
+			优点：事务的强一致性，满足ACID严则
+			缺点：需要数据库支持XA模式，资源锁定
+			事务协调器（TC）依赖表
+				branch_table
+				global_table
+		AT  模式 （无代码入侵）：最终一致性的分阶段事务模式，说seata默认模式
+			优点：一点段直接提交事务，释放数据库资源，性能比较号
+				  利用全局锁实现隔离
+			缺点：两阶段提交属于软状态，属于弱一致性
+				  框架的快照（undolog）功能会影响性能，但比XA模式要好很多
+			事务协调器（TC）依赖表
+				branch_table
+				global_table
+				lock_table
+			资源管理器（RM）依赖表
+				undo_log
+				  
+		TCC 模式 （有代码入侵）：弱一致性的分阶段事务模式
+			优点：一阶段完成事务提交，释放数据库资源，性能好
+				  相比AT和XA模型，无需要生成快照，无需使用全局锁，性能最强
+				  不依赖数据库事务，而是依赖补偿操作，可以用非事务型数据库实现
+			缺点：软状态，事务是最终一致性
+				  实现复杂，需要实现 try confirm cancel接口
+				  需要考虑confirm和cancel失败情况做幂等处理
+			TCC每个阶段
+				Try：资源检查和预留
+					悬挂处理：Try操作网络阻塞造成Cancel执行，从而已经回滚过了，对于已经回滚过的业务永远不可能在执行Confirm和Concel操作，此时Try操作因为网络的恢复而成功，这时候形成的业务悬挂。
+				Confirm：业务执行和提交（Confirm方法可能网络堵塞原因，事务管理器（TM）可能会调用多次）
+					幂等处理
+				Cancel：预留资源的释放（Cancel方法可能网络堵塞原因，事务管理器（TM）可能会调用多次）
+					空回滚+幂等处理：因为Try网络阻塞或者执行时间过长，被TM当作失败处理向TC发起了回滚操作，导致的Cancel的执行形成的空回滚。
+					
+		SAGA模式 （有代码入侵）：长事务模式
+	
+	[client](https://github.com/seata/seata/tree/develop/script/client)  存放用于客户端的配置和SQL
+		- at: AT模式下的 `undo_log` 建表语句
+		- conf: 客户端的配置文件
+		- saga: SAGA 模式下所需表的建表语句
+		- spring: SpringBoot 应用支持的配置文件
+	[server](https://github.com/seata/seata/tree/develop/script/server) 存放server侧所需SQL和部署脚本
+		- db: server 侧的保存模式为 `db` 时所需表的建表语句
+		- docker-compose: server 侧通过 docker-compose 部署的脚本
+		- helm: server 侧通过 Helm 部署的脚本
+		- kubernetes: server 侧通过 Kubernetes 部署的脚本
+	[config-center](https://github.com/seata/seata/tree/develop/script/config-center) 用于存放各种配置中心的初始化脚本，执行时都会读取 `config.txt`配置文件，并写入配置中心
+	# 脚本说明
+		- nacos: 用于向 Nacos 中添加配置
+		- zk: 用于向 Zookeeper 中添加配置，脚本依赖 Zookeeper 的相关脚本，需要手动下载；ZooKeeper相关的配置可以写在 `zk-params.txt` 中，也可以在执行的时候输入
+		- apollo: 向 Apollo 中添加配置，Apollo 的地址端口等可以写在 `apollo-params.txt`，也可以在执行的时候输入
+		- etcd3: 用于向 Etcd3 中添加配置
+		- consul: 用于向 consul 中添加配置
+	
+	利用nacos配置管理
+	seataServer.properties
+		store.mode = db
+		store.db.datasource = druid
+		store.db.dbType = mysql
+		store.db.driverClassName = com.mysql.jdbc.Driver
+		store.db.url = jdbc:mysql://localhost:3306/seata?rewriteBatchedStatements=true
+		store.db.user = root
+		store.db.password = 123456
+		store.db.minConn = 5
+		store.db.maxConn = 30
+		store.db.globalTable = global_table
+		store.db.branchTable = branch_table
+		store.db.lockTable = lock_table
+		store.db.queryLimit = 100
+
+		server.recovery.committingRetryPeriod = 1000
+		server.recovery.asynCommittingRetryPeriod = 1000
+		server.recovery.rollbackingRetryPeriod = 1000
+		server.recovery.timeoutRetryPeriod = 1000
+		  
+		metrics.enabled = false
+		metrics.registryType = compact
+		metrics.exporterList = prometheus
+		metrics.exporterPrometheusPort = 9898
+
+
+radis
+	安装
+		yum -y install gcc tcl
+		tar -zxvf redis-6.2.6.tar.gz
+		cd redis-6.2.6
+		make && make install
+	服务器启动 redis-server  /conf/redis.conf
+	客户端连接 redis-cli -h 192.168.0.203 -p 6379
+	
+	持久化 redis.conf文件
+		RDB全量保存 （文件体积小）内存快照，利用fork异步备份一份新的文件，存在数据丢失
+			save "" #禁用rdb
+			save 300 5 #300秒内有5个key被修改将触发持久化
+			dir /root/temp 修改保存数据的位置
+		AOF增量保存 （文件体积大）追加命令到文件
+			appendonly  yes 启用AOF
+			appendfilename  "appendonly.aof"
+			appendfsync no 将命令先存入AOF缓存区 由操作系统决定将缓存区命令写到磁盘，（存在数据丢失）
+			appendfsync everysec 将命令先存入AOF缓存区,每秒将缓存区数据写到AOF文件（存在数据库丢失）
+			appendfsync always 每执行一次命令，立即记录到AOF文件（数据不丢失，性能差）
+	主从数据同步
+		原理
+			使用全量同步（RDB）+增量同步（repl-backlog环形数据），也就是说，第一次先master先把生成RDB文件到磁盘，然后在把文件发送到slave，最后利用缓冲数据增量同步即可
+		优化
+			1.可以把生成RDB数据不写磁盘，直接通过网络发送 repl-diskless-sync yes（可能造成网络堵塞）
+			2.减少每台redis内存大小（<20G）
+			3.减少全量同步次数，确保slave宕机的时间不要太久，并且设置repl-backlog-size 1mb的大小
+	主从集群（1主多从） redis.conf文件  
+		192.168.0.100(主，写数据)
+			port 6379
+			bind 192.168.0.100
+			replica-announce-ip 192.168.0.100  （ip声明）
+			dir /temp/data/
+			daemonize yes 开启后台运行
+			logfile /tmp/data/run.log
+		192.168.0.101(从，读数据)
+			port 6379
+			bind 192.168.0.101
+			replica-announce-ip 192.168.0.101 （ip声明）
+			dir /temp/data/
+			replicaof 192.168.0.100 6379  /5.0旧版本 slaveof 192.168.0.100 6379  从节点加入主节点
+			daemonize yes 开启后台运行
+			logfile /tmp/data/run.log
+		192.168.0.102(从，读数据)
+			port 6379
+			bind 192.168.0.102
+			replica-announce-ip 192.168.0.102 （ip声明）
+			dir /temp/data/
+			replicaof 192.168.0.100 6379 从节点加入主节点
+			daemonize yes 开启后台运行
+			logfile /tmp/data/run.log
+		查看主从 info replication
+	redis-sentinel集群 可以不同redis机器安装 （新创建一份文件）sentinel.conf文件
+		启动redis-sentinel ./sentinel.conf
+		192.168.0.103
+			port 26379
+			sentinel announce-ip 192.168.0.103 （ip声明）
+			sentinel monitor mymaster 192.168.0.100 6379 2 (需要监控的redis master,2表示选举master多少个法定人数)
+			sentinel down-after-milliseconds mymaster 5000
+			sentinel failover-timeout mymaster 60000
+			dir /data/
+		192.168.0.104
+			port 26380
+			sentinel announce-ip 192.168.0.104 （ip声明）
+			sentinel monitor mymaster 192.168.0.100 6379 2 (需要监控的redis master,2表示选举master多少个法定人数)
+			sentinel down-after-milliseconds mymaster 5000
+			sentinel failover-timeout mymaster 60000
+			dir /data/
+		192.168.0.105
+			port 26381
+			sentinel announce-ip 192.168.0.105 （ip声明）
+			sentinel monitor mymaster 192.168.0.100 6379 2 (需要监控的redis master,2表示选举master多少个法定人数)
+			sentinel down-after-milliseconds mymaster 5000
+			sentinel failover-timeout mymaster 60000
+			dir /data/
+			
+	redis分片集群（多主多从），不需要redis-sentinel来做监测了
+		哈希分区算法
+			hash求余分区
+				缺点:扩容的时候影响全部节点数据
+			hash一致性分区
+				缺点:扩容的时候影响部分节点数据，机器数量少时会导致大量数据切斜问题
+			hash槽分区
+				解决了扩容问题
+					每个新加入的节点，都会在每个旧节点的槽里面拿出来一部分给新节点
+				解决数据倾斜问题
+					利用16384个槽来绑定数据
+		192.168.0.0.101-106 在redis.conf增加如下配置
+			port 6379
+			cluster-enabled yes 开启集群
+			cluster-config-file /tmp/data/nodes.conf  集群的配置文件名称，不需我们创建，由redis自己维护
+			cluster-node-timeout 5000  节点之间心跳超时时间
+			dir /temp/data/
+			bind 192.168.0.101-106
+			daemonize yes 开启后台运行
+			replica-announce-ip 192.168.0.101-106 （声明ip地址）
+			protected-mode no 保护模式(用户密码校验是否开启)
+			databases 1 数据库数量(默认为16个)
+			logfile /tmp/data/run.log
+		启动redis集群
+			redis-server  /conf/redis.conf	
+		停止redis
+			redis-cli -h 192.168.1.100 -p 7002 shotdown
+		redis5.0前启动集群的方式
+			yum -y install zlib ruby rubygems
+			gem install redis
+			/root/redis-4.9/src/redis-trib.rb --replicas 1 192.168.0.101:6379 192.168.0.102:6379 192.168.0.103:6379 192.168.0.104:6379 192.168.0.105:6379 192.168.0.106:6379
+		redis5.0后启动集群的方式
+			redis-cli --cluster create --cluster-replicas 1 192.168.0.101:6379 192.168.0.102:6379 192.168.0.103:6379 192.168.0.104:6379 192.168.0.105:6379 192.168.0.106:6379
+			命令解析
+				--cluster-replicas 1 公式：节点总数/(replicas+1) 得到master数量，剩下的全部为slave节点，随机分配到不同的master
+			
+		集群命令
+			查看帮助
+				redis-cli --cluster help
+			查看集群信息
+				redis-cli -h 192.168.0.203  -p 7006 cluster info
+			查看集群状态
+				redis-cli -h 192.168.0.203  -p 7006 cluster nodes
+			检查集群
+				redis-cli --cluster check 192.168.0.203:6379 
+			客户端连接
+				redis-cli -c -h 192.168.0.203  -p 7006 
+		扩容
+			增加master节点
+				增加节点
+					redis-cli --cluster add-node 192.168.1.107:6379  192.168.1.101:6379(集群中任意一个节点)
+				哈希槽分配
+					redis-cli --cluster reshard 【集群地址】
+						1. 填写槽数量(4096)  16384/4(master个数) = 4096个槽
+						2. 哪个ID接收(e3f47b1c9624)  加入集群的时候会有一个masterID ，或者通过redis-cli --cluster check 192.168.0.203:6379  查看
+						3. 来源IDs(all)  all代表所有id，或者手动输入每个Id最后使用done结束
+			增加slave节点	
+				redis-cli --cluster  add-node 192.168.1.107:6379  192.168.1.101:6379(集群中任意一个节点)  --cluster-slave --cluster-master-id 7a23d544e7cf3300584c3da2d53e8abdf696947d
+		缩容
+			删除slave节点
+				redis-cli --cluster del-node 【192.168.1.107:6379】【节点ID】
+			删除master节点
+				哈希槽分配
+					redis-cli --cluster reshard 【集群地址】
+						1. 填写槽数量(4096)  16384/4(master个数) = 4096个槽
+						2. 哪个ID接收(集群中任何一个主节点IDe3f47b1c9624)  加入集群的时候会有一个masterID ，或者通过redis-cli --cluster check 192.168.0.203:6379  查看
+						3. 来源IDs(准备删除节点IDe3f47b1c9624)  all代表所有id，或者手动输入每个Id最后使用done结束
+				删除节点
+					redis-cli --cluster del-node 【192.168.1.107:6379】【节点ID】
+		手动故障转移（指定某个slave变成master）
+			1.192.168.0.107这台机器最后由slave变成master
+			2.登陆slave客户端 redis-cli -h 192.168.0.107 -p 6379
+			3.执行 cluster failover
+		哈希(散列)插槽利用{???}来存取，可以路由到不同的master的插槽(slots)
+			{abc}aa
+			{abc1}aa
+			{abc2}aa	
+      
+多级缓存
+	思路（利用nginx代理到业务服务器openresty，openresty先从redis获取数据，获取不到在去tomcat获取）
+	caffeine本地缓存类似于guava
+		官方文档
+			https://github.com/ben-manes/caffeine/wiki/Cleanup-zh-CN
+	docker run -p 3306:3306 --name mysql -v $PWD/conf:/etc/mysql/conf.d -v $PWD/logs:/var/logs/mysql -v $PWD/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 --privileged=true -d mysql:5.7.25		
+	OpenResty	
+	
+缓存同步
+	1.设置缓存过期时间
+	2.同步更新
+	3.异步更新
+		利用 alibaba canal监听mysql binlog，然后把更新请求发送到需要更新的服务
+		3.1开启mysql binlog
+			vim  /root/mysql5.7.25/conf/my.cnf 
+			[mysqld]
+			skip-name-resolve
+			character_set_server=utf8
+			datadir=/var/lib/mysql
+			server-id=1000
+			#binlog log
+			log-bin=/var/lib/mysql/mysqlbin
+			binlog-do-db=nginx_mysql
+		3.2 查看主节点binlog状态
+			show master status;
+		3.3 创建docker网络
+			docker network create huancun
+			docker network connect huancun 52c2fb10b3c0
+		3.4 添加mysql用户
+			create user canal@'%' identified by 'canal' ;
+			设置从节点权限
+			grant select,replication slave,replication client,super on *.* to 'canal' @'%' identified by 'canal' ;
+			flush privileges;
+		3.5安装canal https://github.com/alibaba/canal/wiki/Docker-QuickStart
+			docker pull canal/canal-server:v1.1.5
+			docker run -p 11111:11111 --name canal -e canal.destinations=test -e canal.instance.master.address=mysql:3306  -e canal.instance.dbUsername=canal  -e canal.instance.dbPassword=canal -e canal.instance.connectionCharset=UTF-8  -e canal.instance.tsdb.enable=true -e canal.instance.gtidon=false  -e canal.instance.filter.regex=nginx_mysql\\..*  --network huancun -d canal/canal-server:v1.1.5
+	
+		3.6 第三方的canal client  https://github.com/NormanGyllenhaal/canal-client  后面可以继续研究官方api
+
+		
+		
+		
+		
+		
+		
+		
+		
+		

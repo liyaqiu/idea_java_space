@@ -1,0 +1,7 @@
+kubesphere
+	官方
+		https://kubesphere.com.cn/
+	UI
+		Console: http://192.168.88.21:30880
+		Account: admin
+		Password: Liyaqiu@123456

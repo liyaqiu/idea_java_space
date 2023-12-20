@@ -1,0 +1,299 @@
+交换机
+	基本命令:
+		display mac-address 查看mac表地址	
+		display port vlan 查看prot pvid
+		display vlan  查看vlan
+		vlan 10 创建vlan
+		vlan batch 10 20 同时创建多个vlan
+	交换机特点:
+		每个vlan都是一个广播域
+		交换机的每个接口可以对应多个mac，但是一个mac只能对于交换机的一个接口
+	mac地址表:
+		可以通过自动学习获取
+			学习来之每个接口下发送数据的S-MAC
+		mac地址表(动态数据)老化时间为5分钟
+	工作方式:
+		可以进行端口协商，向下兼容
+		可以实现定向转发
+		单播mac
+			查看mac地址表
+				不存在
+					直接泛洪
+				存在
+					直接转发
+		广播mac
+			直接泛洪
+	vlan虚拟局域网:
+		使用vlan解决广播域的问题
+		帧格式:
+			【D.MAC|S.MAC|Tag|Type|Data|FCS】
+			Tag【TPID|PRI|CFI|VLAN ID】
+				TPID 协议类型
+				PRI 优先级，QOS需要用到
+				CFI 是否经典 以太网经典(值为0)，非以太网不经典
+				VLAN ID 12位，0-4095，可用为1-4094，0和4095保留
+		重要的理论概念
+			pvid 指的是交换机每个端口的port vlan id值，不修改，默认为1
+			vid 指的是协议包tag里面的vlan id值
+		端口链路类型
+			access--接入类型
+				发送方向,剥离Tag,发送				
+				接收方向
+					带Tag
+						VID与PVID相同，接收，进一步处理
+						VID与PVID不相同，丢弃
+					不带Tag
+						接收并打上PVID，进一步处理
+				int g0/0/3 进入接口
+				port link-type access 修改链路类型
+				port default vlan 10 把端口划分到vlan 10，修改pvid为10
+				display this 查看当前配置
+				
+			trunk--干道类型
+				发送方向
+					VID与PVID相同
+						剥离Tag,发送			
+					VID与PVID不相同
+						保持原有Tag,发送
+				接收方向
+					带Tag
+						VID是否允许通过(display vlan)
+							如果在则通过，并且接收，并行下一步处理 
+							不在则丢弃
+					不带Tag
+						给数据加上Tag,并且给VID打上PVID号
+							VID是否允许通过(display vlan)
+								如果在则通过，并且接收，并行下一步处理 
+								不在则丢弃
+				int g0/0/1 进入接口
+				port link-type trunk 修改链路类型
+				port trunk allow-pass vlan 10 20 把端口划分到vlan 10 vlan 20，接收方向:指定放行的VID 10 20，默认只放行VID 1(可以undo port trunk allow-pass vlan 1关闭)
+				
+				port trunk allow-pass vlan all 放行所有的VID
+				port trunk pvid vlan 40 修改了默认的pvid，默认pvid为1
+				display this 查看当前配置
+				
+			hybrid(默认为hybrid)--混合类型-华为私有协议				
+				发送方向
+					配置tagged
+						保持原有的vid进行发送
+					未配置tagged
+						剥离vid
+				接收方向
+					带tag
+						VID是否允许通过(display vlan)
+							如果在则通过，并且接收，并行下一步处理 
+							不在则丢弃
+					不带Tag
+						给数据加上Tag,并且给VID打上PVID号
+							VID是否允许通过(display vlan)
+								如果在则通过，并且接收，并行下一步处理 
+								不在则丢弃
+				vlan batch 20 30 100
+				主机口
+					p1-1
+						int g0/0/1
+						port link-type hybrid 设置为hybrid链路类型
+						port hybrid pvid vlan 20 修改pvid，并且以后发送数据的时候会给vid打上pvid号
+						port hybrid untagged vlan 20 100 把端口划分到vlan 20 和 vlan100，发送方向:会对vid 20 100进行剥离
+						undo port hybrid vlan 1 
+					p1-2
+						int g0/0/2
+						port link-type hybrid 设置为hybrid链路类型
+						port hybrid pvid vlan 30 修改pvid，并且以后发送数据的时候会给vid打上pvid号
+						port hybrid untagged vlan 30 100 把端口划分到vlan 30 和 vlan100，发送方向:会对vid 30 100进行剥离
+						undo port hybrid vlan 1  把默认的取消掉
+					p2-1
+						int g0/0/2
+						port link-type hybrid 设置为hybrid链路类型
+						port hybrid pvid vlan 100 修改pvid，并且以后发送数据的时候会给vid打上pvid号
+						port hybrid untagged vlan 20 30 100 把端口划分到vlan 20 vlan 30 vlan100，发送方向:会对vid 20 30 100进行剥离
+						undo port hybrid vlan 1  把默认的取消掉
+				骨干口
+					p1-3
+						int g0/0/3
+						port link-type hybrid 设置为hybrid链路类型
+						port hybrid tagged vlan 20 30 100 把端口划分到vlan 20 vlan 30 vlan100,接收方向:指定放行的VID20 30 100
+						undo port hybrid vlan 1 把默认的取消掉
+					p2-1
+						int g0/0/1
+						port link-type hybrid 设置为hybrid链路类型
+						port hybrid tagged vlan 20 30 100 把端口划分到vlan 20 vlan 30 vlan100,接收方向:指定放行的VID20 30 100
+						undo port hybrid vlan 1 把默认的取消掉
+										
+			qinq
+			
+			
+	vlan间通讯
+		实现不vlan间(每个vlan同一个网段)通讯,
+		1.每个vlan一个物理连接
+			实现原理：交换机用N个口连接路由器的N个口连接实现
+		2.单臂路由
+			实现原理：交换机用1个口连接路由器的1个口连接实现
+			vlan batch 20 30
+			路由器:
+				display ip routing-table 查看路由表
+				display ip interface brief 查看路由器接口信息
+				int g0/0/0.1
+					ip address 192.168.1.1 24
+					dot1q termination vid 20 接收方向:剥离vid,发送方向:打上vid
+					arp broadcast enable 华为默认子接口不开启arp广播
+				int g0/0/0.2
+					ip address 192.168.2.1 24
+					dot1q termination vid 30 接收方向:剥离vid,发送方向:打上vid
+					arp broadcast enable 华为默认子接口不开启arp广播
+			交换机:
+				p3-连接路由器
+					int g0/0/1 进入接口
+					port link-type trunk 修改链路类型
+					port trunk allow-pass vlan 20 30 把端口划分到vlan 20 vlan 30，接收方向:指定放行的VID 20 30，默认只放行VID 1(可以undo port trunk allow-pass vlan 1关闭)
+					undo port trunk allow-pass vlan 1 关闭默认放行vlan
+				p1-连接PC
+					int g0/0/2 进入接口
+					port link-type access 修改链路类型
+					port default vlan 20 把端口划分到vlan 20，修改pvid为20
+				p2-连接PC
+					int g0/0/3 进入接口
+					port link-type access 修改链路类型
+					port default vlan 30 把端口划分到vlan 30，修改pvid为30
+		3.三层交换Vlanif
+			实现原理：利用交换机虚拟接口功能(SVI)来代替路由器
+			vlan batch 20 30
+			display ip routing-table 查看交换机路由表
+				p1-连接PC
+					int g0/0/1 进入接口
+					port link-type access 修改链路类型
+					port default vlan 20 把端口划分到vlan 20，修改pvid为20
+				p2-连接PC
+					int g0/0/2 进入接口
+					port link-type access 修改链路类型
+					port default vlan 30 把端口划分到vlan 30，修改pvid为30	
+				进入vlan，给vlan划分ip地址
+					interface Vlanif 20
+						ip address 192.168.1.1 24
+					interface Vlanif 30
+						ip address 192.168.2.1 24
+						
+	STP生成树协议Spanning tree protocol
+		逻辑上断开环路，防止二层网络广播风暴的产生,以及防止mac地址漂移
+		BPDU报文【PID|PVI|BPDU Type|Flags|ROOT ID|RPC |Bridge ID |Port ID|Message Age|Max Age|Hello Time|Fwd Delay】
+			协议字段解析
+				PVI
+					stp模式
+						0=mstp
+						2=rstp
+						3=stp
+				BPDU Type
+					配置BPDU
+					TCN BPDU
+				ROOT ID
+					根ID/根桥/根桥ID	
+				RPC (Root Path Cost)
+					根路径开销值
+				Bridge ID
+					桥ID
+				Port ID
+					端口ID
+		桥ID(Bridge ID)
+			桥ID = 优先级(默认32768)+mac(交换机背板mac)
+			在做选举比较的时候，先比较优先级，如果优先级一样在比较mac
+			优先级需要按照4096倍数来配置 0 4096 8192
+		交换机端口状态
+			Disabled
+				端口状态为Down,不处理BPDU报文，也不转发用户流量
+			Blocking
+				端口仅仅接收并处理BPDU，不转发用户流量
+			Listening
+				过渡状态，开始生成树计算，端口可以接收和发哦死牛工BPDU，但不转发用户流量
+			Learning
+				过渡状态，建立五环的MAC地址转发表，不转发用户流量
+			Forwarding
+				端口可以接受和发送BPDU，也转发用户流量，只有【根端口】或【指定端口】才能进入Forwarding状态	
+		交换机端口选举
+			1.选根
+				比较桥ID(Bridge ID),值越小越优先		
+			2.选根端口(面向设备端口)
+				根桥是没有根端口，只有非根桥才有根端口
+				非根桥设备有且只能有一个根端口（最少要有1个根端口，最多只能有1个根端口）
+				【比根路径开销值总和】
+					越小越优
+					从根设备端口到非根设备端口的所有路径开销总和，总开销越小就成为跟端口
+					如果根路径开销值总和一样
+						【比较上行设备桥ID】
+							越小越优
+							如果上行设备桥ID一样
+								【比较上行的接口优先级】
+									越小越优
+									接口优先级默认为128
+									如果上行的接口优先级一样
+										【比较上行的接口端口号PID】
+											越小越优
+											这个端口号是由STP根据g0/0/1生成的
+											如果上行的接口端口号一样
+												【比较自己的接口端口号PID】
+													越小越优
+													这个端口号是由STP根据g0/0/1生成的
+			3.选指定端口(面向设备的链路)
+				根桥设备上的所有端口都是指定端口
+				非根桥设备每个链路上只能有一个指定端口
+				【比根路径开销值总和】
+					越小越优
+					意思是链路选指定端口的时候，拿别人去比较。俗称凡尔赛比较
+					如果根路径开销值总和一样
+					【比较链路每台设备桥ID】
+						越小越优
+						【比较自己的接口端口号PID】
+							越小越优
+							这个端口号是由STP根据g0/0/1生成的
+			4.剩下端口自动阻塞
+		
+		配置BPDU（Configuration Bridge Protocol Data Unit）
+			用来进行生成树计算和维护的生成树拓扑的报文
+		TCN BPDU（Topology Change Bridge Protocol Data Unit）
+			是在网络拓扑变化时，用来通知相关设备的报文
+				拓扑变化是指有【阻塞端口】变成根端口或者指定端口
+				当拓扑变化时候，由于无法及时更新每台设备的mac表，所以由根端口向上游发送TCN BPDU报文，上游回复下游ACK后继续由根端口往上汇报，直到根桥设备，再由根桥设备发送TCN BPDU报文flags(TC置位为1)往下游发送，告诉全网更新配置
+		命令
+			stp priority 4096 配置Bridge ID优先级，优先级需要按照4096倍数来配置
+			stp mode rstp 配置stp模式，mstp rstp stp
+			stp pathcost-standard 配置路径开销值的计算方式
+			int g0/0/0	
+				stp cost 2000 设置接口的开销值
+			display stp 查看stp配置
+	
+	链路聚合
+		描述:
+			多根链路逻辑上捆绑在一起，当STP进行拓扑计算时，此时会按照集合之后的链路进行计算
+		功能:
+			1.提升带宽
+			2.提高网络可用性
+			3.负载分担
+		模式:
+			手工负载均衡模式(manual)
+				手工模式下所有活动接口都参与数据转发，实现负载分担
+				命令
+					SW1
+						interface Eth-Trunk 1 创建链路
+							mode manual load-balance  指定模式，指定负载分担(默认模式)
+							trunkport GigabitEthernet 0/0/1 t 0/0/2 将g0/0/1 - g0/0/2端口添加到 Eth-Trunk
+						
+						单独添加到Eth-Trunk
+							int g0/0/3 
+							eth-trunk 1
+							
+						display eth-trunk 1 查看链路
+						display interface Eth-Trunk 1 查看链路详细信息
+					SW2
+						interface Eth-Trunk 1 创建链路
+							mode manual load-balance  指定模式，指定负载分担(默认模式)
+							trunkport GigabitEthernet 0/0/1 t 0/0/2 将g0/0/1 - g0/0/2端口添加到 Eth-Trunk
+						
+						单独添加到Eth-Trunk
+							int g0/0/3 
+							eth-trunk 1
+							
+						display eth-trunk 1 查看链路
+						display interface Eth-Trunk 1 查看链路详细信息
+			LACP模式(lacp-static)
+				LACP模式支持链路备份，实现链路切换
+	

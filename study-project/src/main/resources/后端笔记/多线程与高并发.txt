@@ -1,0 +1,116 @@
+多线程状态 
+new
+Runnable 
+Blocked(synchronized)  
+Waiting(join wait,park) 
+TimedWaiting(sleep(1000),join(1000),wait(10000),park)  
+Terminate
+
+查看jol锁的文档
+https://blog.csdn.net/P19777/article/details/103125545
+https://blog.csdn.net/wangyy130/article/details/106495180
+
+
+
+https://blog.csdn.net/zq1994520/article/details/84175573?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522165285745716782248553513%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=165285745716782248553513&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduend~default-1-84175573-null-null.142^v10^pc_search_result_control_group,157^v4^control&utm_term=java%E9%87%8D%E9%87%8F%E7%BA%A7%E9%94%81%E5%9B%9E%E9%80%80%E8%BD%BB%E9%87%8F%E7%BA%A7&spm=1018.2226.3001.4187
+synchronized https://www.jianshu.com/p/36eedeb3f912
+无偏向锁
+偏向锁（没有线程竞争，1次cas交换(对象头的mark word 和栈帧的数据交换)，往后只需要线程id进入）   
+---- 单个线程没有出现竞争情况下，每次只需要从mark word判断thread id 即刻进入synchronized
+轻量级锁（有线程交替，但无实际竞争，cas交换(对象头的mark word 和栈帧的数据交换)）
+缺点，每次锁重入都需要执行cas
+---- 线程产生竞争锁以后，如果线程cas（cas不设计到阻塞）成功，那么从偏向锁进阶为轻量级锁，如果cas失败（锁膨胀，即一直进行自旋优化都失败）进阶为重量级锁(涉及阻塞)
+重量级锁（wait和notify才有重量级锁） （有线程竞争，monitor交换，（对象头的mark word 和monitor数据交换））  
+---- 设计阻塞，线程上下文切换，性能极差
+
+
+偏向锁解锁后还说偏向状态
+轻量级和重量级锁解锁后为正常状态（不可偏向状态）
+
+批量重偏向阈是20（只有1次偏向机会，偏向对象可以无数个）例如A线程100个锁对象，然后B线程在去执行100个锁对象，前面20次为撤销操作，后面80次为偏向操作
+批量撤销阈值是40，新创建出来的锁对象默认为无偏向锁(001)
+t4-17       (object header)                           05 09 7d 19 (00000101 
+t4-17       (object header)                           48 f5 3f 1a (01001000（撤销操作达到40次） 
+t4-17       (object header)                           01 00 00 00 (00000001 
+
+
+偏向锁
+	加锁:对象头存储线程ID，不需要进行CAS
+	解锁:还原对象信息
+轻量级锁
+	加锁:对象头存储线程引用地址，需要进行CAS
+	解锁:还原对象信息
+重量级锁
+	加锁:对象头存储监视器的引用地址，需要进行CAS
+	解锁:还原对象信息
+
+锁的升级过程
+
+偏向锁(-XX:BiasedLockingStartupDelay=0)->轻量级锁 
+只要有线程来竞争都会晋升为轻量级锁，解锁后变为正常状态
+
+轻量级锁->重量级锁
+新线程CAS失败，锁膨胀，晋升为重量级锁
+
+JMM(Java Memory Model)体现在以下几个方面
+临界区代码 原子性   保证指令不会受到上下文切换的影响
+共享变量   可见性   保证执行不会受cpu缓存的影响
+指令执行   有序性   保证指令不会受cpu指令并行优化的影响
+
+synchronized 原子性 可见性 有序性(指令重排)
+synchronized可以保证有序性，但不可禁止指令重排
+
+volatile  可见性 有序性（禁止指令重排）
+volatile有读写屏障（写之前的操作屏障，读之后的操作屏障，屏障就是保证指令的有序性）
+
+
+DCL（double check lock双重检查锁）主要说当一个对象未初始化完成就被别人的线程调用了
+
+https://segmentfault.com/a/1190000011458941 详解
+happens before  7种规则
+1.程序顺序规则
+2.synchronized规则
+3.volatile规则
+4.线程启动规则 （A启动B.start()，A happens before B）
+5.线程中断规则（A做了操作 A调用interrupt ,B调用 interrupt(),isInterrupt()对A的操作是可见的）
+6.线程终止规则（join(),isAlive()）
+7.传递性规则
+8.对象终结规则
+
+多线程设计模式
+1.保护性暂停模式
+2.生产者与消费者模式
+3.分工模式
+4.两阶段终止模式（volatile+t1.interrupt+isInterrupt()）
+5.2个线程执行交替输出模式(wait notify)
+6.多个线程安顺序执行模式（wait notify flag）
+
+
+AQS （abstract queued synchronized 抽象队列同步器）
+
+独占锁
+  tryAcquire
+  tryRelease
+共享锁
+  tryAcquireShared
+  tryAcquireRelease
+
+AQS实现  
+1.ReentrantLock
+2.ReentrantReadWriteLock
+3.Semaphore (限制线程个数访问资源)
+4.CountDowmLatch
+非AQS实现
+1.StampLock (根据戳来判断)
+2.CyclicBarrier（实现多次倒计时）
+3LockSupport.park();
+//如果Thread.interrupted()为true。不管有没有许可都会运行
+//如果Thread.interrupted()为false，没有许可就会阻塞
+                
+
+
+
+
+
+
+

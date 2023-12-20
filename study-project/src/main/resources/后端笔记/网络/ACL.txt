@@ -1,0 +1,42 @@
+acl访问控制列表(access control list)
+	一个acl列表中，可以定义多个不同规则，然后根据不同规则执行具体动作
+	
+	动作
+		Permit(允许)
+		Deny(拒绝)
+	ACL分类
+		基本ACL 2000-2999 匹配S-IP地址等
+		高级ACL 3000-3999 匹配五元组(S-IP,D-IP,S-MAC,D-MAC,Protocol)等
+		二层ACL 4000-4999 匹配S-MAC,D-MAC,以太帧协议类型等
+		
+	
+	入口方向(Inbound):相对于设备的某个接口，当接口接收数据的时候则为入口方向
+	出口方向(Outbound):相对于设备的某个接口，当接口发送数据的时候则为出口方向
+
+	acl配置命令
+		定义acl
+			基本acl定义
+				acl 2000 创建基本acl
+				rule deny source 192.168.1.100 0.0.0.0 填写规则匹配规则支持【通配符】，由于到ip阶段学，现在用反掩码方式来做
+
+				rule deny source any 拒绝所有
+				rule permit source any 放行所有
+				undo rule 5 取消某条规则
+				display  acl 2000 查看acl匹配到的包
+				display  acl all 查看所有acl匹配到的包
+				将acl挂载到某个接口
+					int g0/0/0 进入接口
+					traffic-filter inbound acl 2000 在该接口入口方向下挂上ACL
+					
+			高级acl定义
+				acl 3001 创建基本acl
+				rule deny icmp source 192.168.1.200 0.0.0.0 destination any  填写规则匹配规则支持【通配符】，由于到ip阶段学，现在用反掩码方式来做
+
+				undo rule 5 取消某条规则
+				display  acl 3001 查看acl匹配到的包
+				display  acl all 查看所有acl匹配到的包
+				将acl挂载到某个接口
+					int g0/0/0 进入接口
+					traffic-filter inbound acl 3001 在该接口入口方向下挂上ACL
+				
+	

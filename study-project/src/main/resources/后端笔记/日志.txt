@@ -1,0 +1,102 @@
+总结：
+logger子类会【覆盖】父类logger的Level，并且会继承父类的输出appender，一般会取消掉父类的继承
+
+jcl     logging有level hander有level（可以实现往上输出）   formatter
+log4j   logger有level appender无level                      layout
+logback logger有level appender有level（固定输出）          encoder
+log4j2  logger有level appender有level （范围输出，灵活性） layout
+
+
+jul-slf4j
+	class org.slf4j.impl.JDK14LoggerAdapter
+log4j-slf4j
+	class org.slf4j.impl.Log4jLoggerAdapter	
+logback-slf4j
+	class ch.qos.logback.classic.Logger
+log4j2-slf4j
+	class org.apache.logging.slf4j.Log4jLogger
+	
+
+门面技术获取logger对象
+jcl org.apache.commons.logging.LogFactory.getLog();
+slf4j org.slf4j.LoggerFactory.getLogger();
+log4j2 org.apache.logging.log4j.LogManager.getLogger();
+
+
+log4j(实现技术)log4j.properties
+jul(实现技术) logging.properties
+jcl(门面技术)
+logback(实现技术)logback.xml
+log4j2(门面技术,实现技术)log4j2.xml
+slf4j(门面技术,实现技术)如果出现多个日志实现，默认会用第一个
+
+
+一下几种常用的日志组合
+1.jcl+jul 加入以下依赖 jul(jdk自带)不需要导入依赖
+	commons-logging
+2.jcl+log4j 
+	commons-logging
+	log4j
+3.slf4j + log4j
+	slf4j-api
+	slf4j-log4j12（其实只需要导入这个即可，maven有依赖传递）
+	log4j
+4.slf4j + jul
+	slf4j-api
+	slf4j-jdk14（其实只需要导入这个即可，maven有依赖传递）
+5.slf4j + slf4j-nop（日志开关）
+	slf4j-api
+	slf4j-nop（其实只需要导入这个即可，maven有依赖传递）
+6.slf4j + slf4j-simple
+	slf4j-api
+	slf4j-simple（其实只需要导入这个即可，maven有依赖传递）
+7.slf4j + logback  主流
+	slf4j-api
+	logback-classic（其实只需要导入这个即可，maven有依赖传递）
+	logback-core	
+8. log4j2+log4j2 一般很少用
+	log4j-api
+    log4j-core（其实只需要导入这个即可，maven有依赖传递）
+9.slf4j + log4j2 相当主流
+	slf4j-api
+	log4j-slf4j-impl（其实只需要导入这个即可，maven有依赖传递）
+	log4j-api
+    log4j-core
+	加入如下依赖实现异步日志，性能提升极大
+	<groupId>com.lmax</groupId>
+    <artifactId>disruptor</artifactId>
+
+log4j2 从【2.6版本】以后使用了无垃圾模式，并且尽可能不分配临时对象。
+AsyncAppender,AsyncLogger和【全局logger】不能同时出现否则【性能会下降】,只能任选其中一种
+方式1 禁止使用异步appender
+	<appenders>
+		<Async name="yibuAppender">-->
+			<AppenderRef ref="kongzhitai"/>
+		</Async>
+	</appenders>
+方式2全局【Logger】异步开启
+	log4j2.component.properties
+	Log4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
+方式3 局部异步【logger】开启  includeLocation="false" 不关闭行号打印很影响【性能】，比同步还要慢
+技巧，可以根据是否是出行号来判断异步是否生效
+	<loggers>
+		<AsyncLogger name="logslf4j2" level="DEBUG" includeLocation="false" additivity="false">
+			<appender-ref ref="kongzhitai"/>
+		</AsyncLogger>
+	</loggers>
+日志升级
+由原来的log4j升级到logback/slf4j	
+	1.注释log4j
+	2.引入log4j-over-slf4j桥接包 
+	3.引入slf4j-api门面包
+	4.引入logback-classic/log4j-slf4j-impl
+由原来的jcl升级到logback/slf4j	
+	1.注释log4j以及commons-logging
+	2.引入jcl-over-slf4j桥接包 
+	3.引入slf4j-api门面包
+	4.引入logback-classic/log4j-slf4j-impl
+由原来的jul升级到logback/slf4j	
+	1.引入jul-to-slf4j桥接包 
+	2.引入slf4j-api门面包
+	3.引入logback-classic/log4j-slf4j-impl
+
