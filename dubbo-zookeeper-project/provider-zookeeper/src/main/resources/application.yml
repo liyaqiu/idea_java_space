@@ -1,0 +1,12 @@
+server:
+  port: 9999
+dubbo:
+  application:
+    name: provider-zookeeper
+    qos-enable: false
+  protocol:
+    name: dubbo
+    port: -1
+  registry:
+    address: zookeeper://192.168.88.11:2181
+

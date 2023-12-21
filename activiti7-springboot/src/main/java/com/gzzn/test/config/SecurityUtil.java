@@ -11,12 +11,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.util.Collection;
 
 //@Component
 @Slf4j
 public class SecurityUtil {
-    @Autowired
+    @Resource
     @Qualifier("myUserDetailsService")
     private UserDetailsService userDetailsService;
 

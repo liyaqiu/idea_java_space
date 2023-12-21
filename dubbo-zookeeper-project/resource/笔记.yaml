@@ -1,0 +1,5 @@
+文档:
+  - https://github.com/apache/dubbo
+  - https://cn.dubbo.apache.org/zh-cn/overview/home/
+  - zookeeper配置 https://cn.dubbo.apache.org/zh-cn/overview/mannual/java-sdk/reference-manual/registry/zookeeper/
+  - springboot项目 https://cn.dubbo.apache.org/zh-cn/overview/mannual/java-sdk/quick-start/spring-boot/

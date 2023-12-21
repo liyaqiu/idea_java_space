@@ -1,5 +1,0 @@
-lvs (Linux Virtual Server),4层协议做负载均衡
-由我们中国人(章文嵩)开发，集成到linux内核，是国人的骄傲（正是由于这个原因，我就学了这个）
-
-查看linux是否集成看LVS
-	grep -i -C 10 ipvs /boot/config-3.10.0-693.el7.x86_64 
