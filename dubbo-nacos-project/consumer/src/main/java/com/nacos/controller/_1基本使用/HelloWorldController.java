@@ -1,21 +1,21 @@
-package com.nacos.controller;
+package com.nacos.controller._1基本使用;
 
 
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import service.DemoService;
+import service._1基本使用.HelloWorldService;
 
 @RestController
-@RequestMapping("/demo")
-public class DemoController {
+@RequestMapping("/HelloWorld")
+public class HelloWorldController {
 
-    @DubboReference(group = "provider-group")
-    private DemoService demoService;
+    @DubboReference
+    private HelloWorldService helloWorldService;
 
     @GetMapping("/test01")
     public String test01() {
-        return demoService.sayHello("eric");
+        return helloWorldService.helloWorld("eric");
     }
 }

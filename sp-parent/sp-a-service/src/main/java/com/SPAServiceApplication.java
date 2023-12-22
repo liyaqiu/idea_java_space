@@ -14,7 +14,7 @@ import org.springframework.web.client.RestTemplate;
  */
 @SpringBootApplication
 //@EnableDiscoveryClient
-@EnableFeignClients(basePackages = "com.sp.feign.client")
+@EnableFeignClients(basePackages = "com.feign.client")
 public class SPAServiceApplication {
     public static void main(String[] args) {
         SpringApplication.run(SPAServiceApplication.class, args);

@@ -24,6 +24,7 @@ dubbo:
   protocol:
     name: dubbo
     port: -1
+    serialization: fastjson2 #默认使用 Hessian2
   registry:
     parameters.namespace: fb55a73d-610f-48ab-ac76-ac9984ca2dec
     group: test-group

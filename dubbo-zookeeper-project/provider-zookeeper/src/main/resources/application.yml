@@ -4,6 +4,7 @@ dubbo:
   application:
     name: provider-zookeeper
     qos-enable: false
+    qos-port: 2222
   protocol:
     name: dubbo
     port: -1

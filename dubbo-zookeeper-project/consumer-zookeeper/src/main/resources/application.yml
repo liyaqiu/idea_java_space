@@ -4,6 +4,7 @@ dubbo:
   application:
     name: consumer-zookeeper
     qos-enable: false
+    qos-port: 3333
   protocol:
     name: dubbo
     port: -1

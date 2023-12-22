@@ -1,5 +1,5 @@
 server:
-  port: 9999
+  port: 9991
 spring:
   application:
     name: provider-service  #nacos data-id = name+active+file-extension sp-a-service-dev.yaml
@@ -21,6 +21,7 @@ dubbo:
   application:
     name: provider-nacos
     qos-enable: false
+    serialization: fastjson2 #默认使用 Hessian2
   protocol:
     name: dubbo
     port: -1
