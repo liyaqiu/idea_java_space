@@ -1,0 +1,17 @@
+server:
+  port: 9992
+
+
+# xxl-job基本配置
+xxl:
+  job:
+    admin:
+      addresses: http://127.0.0.1:8080/xxl-job-admin
+    accessToken: 1234567890
+    executor:
+      appname: xxl-job-executor-sample
+      address:
+      ip: 127.0.0.1
+      port: 5552 #集群需要更改不同的端口
+      logpath: D:\my_project\idea_java_space\xxl-job-project\src\main\resources\log
+      logretentiondays: 30
