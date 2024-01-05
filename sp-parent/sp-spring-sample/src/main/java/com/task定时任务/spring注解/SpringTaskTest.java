@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 //@EnableScheduling
 @Slf4j
-public class MySpringTask {
+public class SpringTaskTest {
 
 
     //在线生成corn表达式 https://tool.lu/crontab/

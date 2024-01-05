@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
  * @author eric
  * @date 2022/5/12 11:54
  **/
-@Configuration("HelloTaskTime")
+@Configuration
 @ConfigurationProperties(prefix = "mytaskconfig")
 @Getter
 @Setter

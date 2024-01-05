@@ -16,7 +16,7 @@ public class ConfigValueController {
     @Value("${config.path:当前配置文件没有值}")
     String path;
 
-    @GetMapping("/test")
+    @GetMapping("${config.path:/test}")
     public void test(){
         System.out.println("配置文件的值"+path);
     }
