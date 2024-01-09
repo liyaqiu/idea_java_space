@@ -51,6 +51,7 @@ public class _1HelloWorld {
                                 //.name("请假流程")
                                 .addClasspathResource("bpmn/demo1.bpmn")
                                 .addClasspathResource("bpmn/demo1.png")
+
                                 .deploy();
         log.info("部署id{}",deployment.getId());
         log.info("部署name{}",deployment.getName());
@@ -81,7 +82,11 @@ public class _1HelloWorld {
         //ProcessInstance processInstance = runtimeService.startProcessInstanceById("myProcess_1:1:4");
         //当有key重复的时候使用最新版本的key
         ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("myProcess_1");
-
+        /**
+         *
+         * 业务表和工作流表双向关联
+         * ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("myProcess_1","businessKey_需要关联表单的id");
+         * */
         log.info("流程定义ID {}",processInstance.getProcessDefinitionId());
         log.info("流程实例ID {}",processInstance.getId());
         log.info("流程实例ID {}",processInstance.getProcessInstanceId());

@@ -1,5 +1,6 @@
 package com.controller;
 
+import cn.hutool.json.JSONUtil;
 import com.common.Result;
 import com.config获取其他配置.MyConfig;
 import com.entity.User;
@@ -7,9 +8,14 @@ import com.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * @author lyq
@@ -25,7 +31,7 @@ public class UserController  {
     ApplicationContext applicationContext;
 
 
-    @GetMapping("/test")
+    /*@GetMapping("/test")
     public void test_1(){}
 
     @PostMapping("/test")
@@ -35,7 +41,7 @@ public class UserController  {
     public void test_3(){}
 
     @DeleteMapping("/test")
-    public void test_4(){}
+    public void test_4(){}*/
 
 
     @GetMapping("/test")
@@ -79,9 +85,29 @@ public class UserController  {
 
 
     @GetMapping("/test2")
+    @Transactional
     public String test2(){
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization(){
+            //事务提交后才执行
+            @Override
+            public void afterCommit() {
+                System.out.println("事务提交后才执行");
+            }
+        });
         log.info("test2执行完成......");
+        User user = new User();
+        user.setName("eric");
+        user.setAge(111);
+        user.setFamilies(null);
+        userService.save(user);
+
+        System.out.println(userService.getById(user.getId()));
         return "helloworld";
+    }
+
+    public static void main(String[] args) {
+
+        System.out.println(Person.B);
     }
 
 

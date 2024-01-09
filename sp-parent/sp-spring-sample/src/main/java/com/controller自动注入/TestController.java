@@ -1,7 +1,7 @@
 package com.controller自动注入;
 
 
-import cn.bean.HelloUtils;
+import com.bean.HelloUtils;
 import com.bean.Goods;
 import com.bean.UserBean;
 import lombok.extern.slf4j.Slf4j;

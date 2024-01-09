@@ -9,6 +9,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Set;
+
 /**
  * @author lyq
  * @date 2021/12/5 12:27
@@ -17,9 +20,11 @@ import org.springframework.stereotype.Component;
 @Component
 @TableName("user")
 public class User{
+
+    @TableId
     private String id;
     private String name;
     private Integer age;
-
+    private List<Integer> families;
 
 }
