@@ -77,9 +77,10 @@ git
 		
 		git push gongsi master-v1 推送标签到远程库
 		git push gongsi --tags 把所有标签推送到远程库
-		
+
 		git ls-remote --tags gongsi 查看远程库的标签
-		git fetch gongsi 拉取远程库所有tag
+		git fetch gongsi 或 git fetch 拉取远程库所有tag
+		git checkout v3.6.3 切换标签
 		
 		git push gongsi :refs/tags/master-v1 删除远程库标签
 	远程库命令

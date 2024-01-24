@@ -4,9 +4,13 @@ server:
 #  client:
 #    service-url:
 #      defaultZone: http://127.0.0.1:10086/eureka
+
+#局部ribbon配置
 sp-b-service:
   ribbon:
     NFLoadBalancerRuleClassName: com.alibaba.cloud.nacos.ribbon.NacosRule
+    ReadTimeout: 15000 #局部读超时
+    ConnectTimeout: 15000 #局部连接超时
 #sp-service:
 #  ribbon:
 #    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule
@@ -14,7 +18,10 @@ sp-b-service:
 #  ribbon:
 #    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule
 
+#全局ribbon配置
 ribbon:
+#  ReadTimeout: 15000 #全局读超时
+#  ConnectTimeout: 15000 #全局连接超时
   eager-load:
     enabled: true  #启动后立即加载feign客户端
     clients: sp-b-service
@@ -23,13 +30,20 @@ feign:
   client:
     config:
       default:
-        loggerLevel: NONE
-  httpclient:
+        loggerLevel: NONE #全局日志设置
+        connect-timeout: 10000 #全局连接超时 ribbon和feign任选其一
+        read-timeout: 10000 #全局读超时 ribbon和feign任选其一
+  httpclient: #连接池
+    enabled: true
     max-connections: 200
-    enabled: true
     max-connections-per-route: 50
-  sentinel: #开启sentinel熔断降级支持
+  sentinel: #开启sentinel降级支持
     enabled: true
+#  compression: # 开启压缩，需要对方server也开启压缩
+#    request: #请求压缩
+#      enabled: true
+#    response: #响应压缩
+#      enabled: true
 logging:
   config: classpath:log4j2.xml
 

@@ -27,6 +27,13 @@ public class SwaggerConfig {
                 .enable(true) //true则显示文档
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.a.b.czms.test.controller"))//要扫描接口的目录
+                //方式1，扫描所有有注解的api，用这种方式更灵活
+                //.apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
+                //方式2 扫描指定包中的swagger注解
+                //.apis(RequestHandlerSelectors.basePackage("com.ruoyi.zms"))
+                //方式3 扫描所有
+                //.apis(RequestHandlerSelectors.any())
+
                 .paths(PathSelectors.any())
                 .build();
     }

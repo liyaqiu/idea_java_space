@@ -12,8 +12,8 @@ spring:
     gateway:
       routes: #网关配置
         - id: service-edu #可以任意起id
-          uri: lb://service-edu #lb可以实现服务的负载均衡  可以填写http:127.0.0.1:8080具体的地址
-          predicates: #断言规则
+          uri: lb://service-edu #lb可以实现服务的负载均衡  可以填写http:127.0.0.1:8080具体的地址  案例文档，https://doc.ruoyi.vip/ruoyi-cloud/cloud/gateway.html#%E8%B7%AF%E7%94%B1%E9%85%8D%E7%BD%AE
+          predicates: #断言规则  案例文档，https://doc.ruoyi.vip/ruoyi-cloud/cloud/gateway.html#%E8%B7%AF%E7%94%B1%E8%A7%84%E5%88%99
             - Path=/dev-api/edu/**
           filters:
             - StripPrefix=1 #过滤掉前缀 /dev-api/
@@ -29,6 +29,15 @@ spring:
             - Path=/dev-api/oss/**
           filters:
             - StripPrefix=1 #过滤掉前缀 /dev-api/
+# 跨域配置  https://doc.ruoyi.vip/ruoyi-cloud/cloud/gateway.html#%E8%B7%A8%E5%9F%9F%E9%85%8D%E7%BD%AE
+#      globalcors:
+#        corsConfigurations:
+#          '[/**]':
+#            allowed-origins: "*"
+#            allowed-methods: "*"
+#            allowed-headers: "*"
+#            allow-credentials: true
+#            exposedHeaders: "Content-Disposition,Content-Type,Cache-Control"
 feign:
   hystrix:
     enabled: true

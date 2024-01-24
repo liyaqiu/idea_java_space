@@ -16,9 +16,9 @@ public class MyImportSelector implements ImportSelector {
         log.info("当前开启了注解的类:"+annotationMetadata.getClassName());
         log.info(("是否开启的注解:"+annotationMetadata.hasAnnotation("org.springframework.stereotype.Component")));
         if(annotationMetadata.hasAnnotation("org.springframework.stereotype.Component")){
-            return new String[]{"com.loadbean.importselector.Selector1"};
+            return new String[]{"com.bean.loadbean.importselector.Selector1"};
         }else{
-            return new String[]{"com.loadbean.importselector.Selector2"};
+            return new String[]{"com.bean.loadbean.importselector.Selector2"};
         }
 
     }

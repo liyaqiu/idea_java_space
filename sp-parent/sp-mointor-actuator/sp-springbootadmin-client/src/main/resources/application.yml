@@ -30,7 +30,7 @@ management:
 #      exposure:
 #        include:
 #          - "*"
-info:
+info: #用于显示整个系统的一些介绍信息
   appConfig: @profile.active@
   appName: @artifactId@
   encode: @project.build.sourceEncoding@

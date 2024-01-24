@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
@@ -28,6 +29,15 @@ public class JwtParseFilter implements WebFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+
+        /*
+            设置请求头
+            ServerHttpRequest request = exchange.getRequest();
+            ServerHttpRequest.Builder mutate = request.mutate();
+            mutate.header("k1", "v1");
+        */
+
+
         log.debug("filter");
         HttpHeaders headers = exchange.getRequest().getHeaders();
         String token = headers.getFirst("token");
@@ -36,9 +46,20 @@ public class JwtParseFilter implements WebFilter {
 
 
         //如果token不存在则放行，或者是在白名单也放行
-        /*if(token==null || WhiteList.urls.contains(exchange.getRequest().getPath())){
-            return chain.filter(exchange);
-        }*/
+        /*
+            if(token==null || WhiteList.urls.contains(exchange.getRequest().getPath())){
+                return chain.filter(exchange);
+            }
+
+            // 跳过不需要验证的路径
+            String url = request.getURI().getPath();
+            if (StringUtils.matches(url, ignoreWhite.getWhites()))
+            {
+                return chain.filter(exchange);
+            }
+        */
+
+
 
         //如果token不存在则放行
         if(token==null){

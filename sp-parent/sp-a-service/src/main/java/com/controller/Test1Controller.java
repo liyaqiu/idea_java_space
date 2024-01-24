@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/tt")
 @Slf4j
-@RefreshScope
+@RefreshScope  //动态刷新nacos配置
 public class Test1Controller {
 
 
