@@ -17,14 +17,20 @@ spring:
         # 共享配置
 #        shared-configs:
 #          - application-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}
+
+
+    #阿里sentinel配置，https://doc.ruoyi.vip/ruoyi-cloud/cloud/sentinel.html#%E4%B8%8B%E8%BD%BD%E6%96%B9%E5%BC%8F
     sentinel:
       transport:
         dashboard: localhost:8080
       web-context-unify: false #默认会将所有的controller整个到同一个链路，关闭上下文链路
-      datasource: #配置sentinel从nacos中拿配置
+      #规则持久化，配置sentinel从nacos中读取配置
+      datasource:
         flow:
           nacos:
             server-addr: localhost:8848 # nacos地址
             dataId: sp-a-service-flow-rules
             groupId: SENTINEL_GROUP
             rule-type: flow # 还可以是：degrade、authority、param-flow
+      #取消控制台懒加载
+      eager: true

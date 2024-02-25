@@ -21,6 +21,8 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+
+        <!--start-->
         <!-- https://mvnrepository.com/artifact/io.springfox/springfox-swagger-ui -->
         <!--<dependency>
             <groupId>io.springfox</groupId>
@@ -30,6 +32,8 @@
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
         </dependency>-->
+        <!--end-->
+
         <!-- https://mvnrepository.com/artifact/com.github.xiaoymin/knife4j-spring-boot-starter -->
         <dependency>
             <groupId>com.github.xiaoymin</groupId>

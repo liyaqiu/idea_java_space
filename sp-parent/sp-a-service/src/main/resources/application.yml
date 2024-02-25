@@ -37,6 +37,7 @@ feign:
     enabled: true
     max-connections: 200
     max-connections-per-route: 50
+  # 当服务请求超时，链接超时，feign利用sentinel来做服务降级
   sentinel: #开启sentinel降级支持
     enabled: true
 #  compression: # 开启压缩，需要对方server也开启压缩

@@ -58,6 +58,9 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
+
+
+        <!--start-->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
@@ -68,7 +71,7 @@
             <groupId>com.alibaba.csp</groupId>
             <artifactId>sentinel-datasource-nacos</artifactId>
         </dependency>
-
+        <!--end-->
 
     </dependencies>
 
