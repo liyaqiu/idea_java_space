@@ -4,7 +4,62 @@
     <meta charset="UTF-8">
     <title>Title</title>
 </head>
+<script type="application/javascript" src="./jquery-3.6.0.js"></script>
+<script>
+    $(function(){
+
+        $("#bt1").click(()=>{
+            $.ajax({
+                type: "POST",
+                url: "/test/test11",
+                contentType: "application/json; charset=utf-8",
+                data: '{"name":"liyaqiu","age":"31"}',
+                success: function (resp) {
+                    console.log(resp)
+                },
+                error: function (err) {
+                    console.log(err)
+                }
+            })
+        })
+
+        $("#bt2").click(()=>{
+            $.ajax({
+                type: "POST",
+                url: "http://192.168.88.111:8888/test/test11",
+                contentType: "application/json; charset=utf-8",
+                data: '{"name":"liyaqiu","age":"31"}',
+                success: function (resp) {
+                    console.log(resp)
+                },
+                error: function (err) {
+                    console.log(err)
+                }
+            })
+        })
+
+        $("#bt3").click(()=>{
+            $.ajax({
+                type: "POST",
+                url: "http://192.168.88.111:8888/test/test11",
+                contentType: "application/json; charset=utf-8",
+                data: '{"name":"liyaqiu","age":"31"}',
+                success: function (resp) {
+                    console.log(resp)
+                },
+                error: function (err) {
+                    console.log(err)
+                }
+            })
+        })
+
+    })
+</script>
 <body>
-    helloworld...1111
+    helloworld...111122
+
+    <input id="bt1" type="button" value="提交">
+    <input id="bt2" type="button" value="提交">
+    <input id="bt3" type="button" value="提交">
 </body>
 </html>
