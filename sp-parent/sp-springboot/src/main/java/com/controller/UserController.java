@@ -49,7 +49,7 @@ public class UserController  {
     @PostMapping("/test/test11")
     public void test_2(@RequestBody Map<String,Object> map,HttpServletResponse response) throws IOException {
         log.error("获取的对象 {}",JSONUtil.toJsonStr(map));
-        //response.sendRedirect("/hello2.html");
+        response.sendRedirect("http://192.168.88.111:8888/hello2.html");
     }
 
     @GetMapping("/test")
