@@ -250,7 +250,7 @@ docker网络命令
 		指定容器名字    可以（重点，一般需要指定 docker run --name serviceName --net myNetwork）
 		--network-alias 可以（重点，一般需要指定 docker run --name serviceName --net myNetwork --network-alias myalias1 --network-alias myalias2 ）	
 		默认容器名字    不可以
-Dockerfle命令
+Dockerfile命令
 	构建
 		docker build -t test:V1 /root/ 
 		

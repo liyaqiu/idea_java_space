@@ -87,6 +87,15 @@
             <artifactId>mapstruct</artifactId>
             <version>1.4.2.Final</version>
         </dependency>-->
+        <!-- https://mvnrepository.com/artifact/org.mapstruct/mapstruct-processor -->
+        <!--<dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct-processor</artifactId>
+            <version>1.4.2.Final</version>
+        </dependency>-->
+
+
+
 
         <!--各种util包装类-->
         <!-- https://mvnrepository.com/artifact/cn.hutool/hutool-all -->
@@ -105,5 +114,6 @@
 
 
     </dependencies>
+
 
 </project>
