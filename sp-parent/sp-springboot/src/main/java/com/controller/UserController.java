@@ -14,8 +14,10 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Map;
 
 /**
  * @author lyq
@@ -43,6 +45,12 @@ public class UserController  {
     @DeleteMapping("/test")
     public void test_4(){}*/
 
+
+    @PostMapping("/test/test11")
+    public void test_2(@RequestBody Map<String,Object> map,HttpServletResponse response) throws IOException {
+        log.error("获取的对象 {}",JSONUtil.toJsonStr(map));
+        response.sendRedirect("http://192.168.88.111:8888/hello2.html");
+    }
 
     @GetMapping("/test")
     public Result test1(HttpServletResponse response,JSRequestLineInfo requestLineInfo){
