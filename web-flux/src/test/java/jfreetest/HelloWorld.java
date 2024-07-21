@@ -451,7 +451,7 @@ public class HelloWorld {
         categoryPlot.setRenderer(renderer);
 
 
-        ChartUtils.saveChartAsPNG(new File("C:\\Users\\admin\\Desktop\\image\\1.png"), chart, 1200, 800);
+        ChartUtils.saveChartAsPNG(new File("C:\\Users\\admin\\Desktop\\xuexi\\1.png"), chart, 1200, 800);
     }
 
 }
