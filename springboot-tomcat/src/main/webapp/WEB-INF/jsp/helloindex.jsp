@@ -6,7 +6,7 @@
 </head>
 <body>
 helloindex.jsp<br>
-
+<%--想查看jsp转成Java文件，可以在tomcat的work目录中查看--%>
 <%
     //https://www.cnblogs.com/chaplu/p/16030775.html
     pageContext.setAttribute("page", "page值");
