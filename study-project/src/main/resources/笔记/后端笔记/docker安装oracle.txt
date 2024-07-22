@@ -136,7 +136,16 @@ docker pull registry.cn-hangzhou.aliyuncs.com/aliyuntestspace/oracle_11g:v1 自�
 --授予管理用户权限
 	grant connect，resource，dba to GMDIWORKFLOW;
 
-	
+-------------------------------------数据导入导出操作---------------------------------------
+#导出 oracle oinstall
+	exp gmdiworkflow/gmdiworkflowhh17@orcl file=/home/oracle/gmdiworkflow.dmp owner=gmdiworkflow
+#导入
+	docker exec -it oracle_11g bash
+	cd /home/oracle && source .bash_profile
+	docker cp /root/gmdiworkflow.dmp oracle_11g:/home/oracle
+	#fromuser 来源于哪个用户，touser 到哪个新用户
+	imp GMDIWORKFLOW/GMDIWORKFLOW@helowin file=/home/oracle/gmdiworkflow.dmp fromuser=gmdiworkflow touser=GMDIWORKFLOW
+
 
 
  	
