@@ -1,0 +1,26 @@
+lvm:
+  安装: yum -y install lvm2
+  概述:
+    - LVM(Logical volume Manager)逻辑卷管理通过将底层物理硬盘抽象封装起来，以逻辑卷的形式表现给上层系统，逻辑卷的大小可以动态调整，而且不会丢失现有数据
+    - 新加入的硬盘也不会改变现有上层的逻辑卷。
+    - 作为一种动态磁盘管理机制，逻辑卷技术大大提高了磁盘管理的灵活性
+  名称:
+    - PE(physical Extend) 物理扩展
+    - PV(physical volume) 物理卷
+    - VG(volume group) 卷组 ，当创建完卷组的时候会有一个目录叫  /dev/xxx卷组名称
+    - LV(logical volume) 逻辑卷 ，当创建完逻辑卷的时候会有一个文件叫 /dev/xxx卷组名称/xxx逻辑卷名称
+  总结:
+    - 第一步，把磁盘格式化成PV，PV里面的最小单元是PE，每一个PE为4MB
+    - 第二步，VG里面装PV，也可以说VG里面装了很多PE
+    - 第三步，从VG里面申请不同大小(1g的LV，2g的LV)的LV进行使用
+
+命令:
+  查看命令:
+    - 查看物理卷 pvs简单查看  pvdisplay详细查看
+    - 查看卷组 vgs简单查看 vgdisplay详细查看
+    - 查看逻辑卷 lvs简单查看 lvdisplay详细查看
+    - https://www.bilibili.com/video/BV16W411t7YY?p=5&vd_source=1980e484b7f7e25f7c330ac3c2f4da02
+
+
+  创建lv  
+  lvcreate -L +2024M -n lv_data1 centos
