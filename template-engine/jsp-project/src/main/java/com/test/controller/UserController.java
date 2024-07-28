@@ -27,7 +27,7 @@ public class UserController {
         return "你好";
     }
 */
-    @GetMapping(value = "test3")
+    @GetMapping(value = "test02")
     public ModelAndView test3(HttpServletRequest request,HttpSession session){
         ModelAndView model = new ModelAndView("helloindex");
         model.addObject("request1","request1值");
@@ -38,6 +38,21 @@ public class UserController {
         servletContext.setAttribute("application","application值");
         return model;
     }
+
+    @GetMapping(value = "test03")
+    public String test3(HttpServletRequest request,HttpSession session,Model model){
+
+        model.addAttribute("request1","request1值");
+        request.setAttribute("request2","request2值");
+
+        session.setAttribute("session","session值");
+
+        servletContext.setAttribute("application","application值");
+        return "helloindex";
+    }
+
+
+
 
     @RequestMapping("test4")
     @ResponseBody

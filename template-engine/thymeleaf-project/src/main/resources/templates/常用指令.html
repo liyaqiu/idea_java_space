@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<style>
+  .odd{
+    color: red;
+  }
+  .even{
+    color: pink;
+  }
+</style>
+<!--javascript使用表达式-->
+<script th:inline="javascript">
+  const key1 = [[${key1}]]
+  console.log('@@@@',key1)
+  const key2 = [[${key2}]]
+  console.log('@@@@',key2)
+
+  const today = [[${#calendars.format(today, 'yyyy/MM/dd HH:mm:ss')}]]
+  console.log('@@@',today)
+</script>
+<body>
+
+
+<!--普通文本显示-->
+<div th:text="'原封不动输出拼接'"></div><hr>
+<!--普通文本显示-->
+<div th:text="${key1}+拼接"></div><hr>
+<div>[[${key1}+内联表达式]]</div><hr>
+<!--html文本显示-->
+<div th:utext="|${key2}拼接|"></div><hr>
+<div>[(${key2}+内联表达式)]</div><hr>
+
+<!--对象简写-->
+<div th:object="${person}">
+  <span th:text="|*{msg}拼接|"></span>
+  <span th:text="*{msg}+拼接"></span>
+  <span th:text="*{msg}"></span>
+  <span th:text="*{msg}"></span>
+</div><hr>
+
+<!--表单-->
+<div>
+  <input th:value="|${key1}拼接|">
+</div><hr>
+
+<!--if语句-->
+<div th:if="${key1}=='显示文本'">显示了</div><hr>
+<div th:unless="${key1}!='显示文本'">显示了</div><hr>
+
+<!--switch-->
+<div th:switch="${key1}">
+  <span th:case="显示文本">显示文本</span>
+  <span th:case="'显示文本1'">显示文本1</span>
+  <span th:case="*">其他</span>
+</div><hr>
+
+<!--for循环-->
+<ul>
+  <li th:each="item,iterStat : ${list}" th:text="${item}+'--'+${iterStat.index}+'--'+${iterStat.odd}" th:class="${iterStat.odd}?odd:even"></li>
+</ul><hr>
+
+<!--href-->
+<div>
+  <a th:href="|${httpAdress}?name=${key1}|">百度</a>
+  <a th:href="@{https://www.baidu.com(name=${key1})}">百度</a>
+</div><hr>
+
+<!--获取地址上的参数 http://localhost:8080/test04?id=1&id=2 -->
+<!--<div>
+  <p th:text="${param.id}"></p>
+  <p>[[${param.id.size()}]]</p>
+</div><hr>-->
+
+
+
+<div>
+  <p th:text="${#locale.language}">en</p> <!-- 显示当前语言 -->
+  <p th:text="${#calendars.format(today, 'yyyy/MM/dd HH:mm:ss')}"></p><!--日期地址 -->
+  <p th:text="${#strings.append(today,'你好')}"></p> <!-- 拼接字符串 -->
+</div><hr>
+
+</body>
+</html>

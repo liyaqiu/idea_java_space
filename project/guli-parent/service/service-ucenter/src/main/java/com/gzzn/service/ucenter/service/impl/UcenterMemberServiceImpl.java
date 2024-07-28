@@ -10,6 +10,7 @@ import com.gzzn.service.ucenter.entity.UcenterMemberEntity;
 import com.gzzn.service.ucenter.mapper.UcenterMemberMapper;
 import com.gzzn.service.ucenter.service.UcenterMemberService;
 import com.gzzn.service.ucenter.vo.req.RegisterVo;
+import com.gzzn.service.utils.Res;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

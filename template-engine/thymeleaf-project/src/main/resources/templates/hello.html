@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+<div th:text="${person.msg}"></div>
+<div th:text="${request1}"></div>
+<div th:text="${request2}"></div>
+<div th:text="${#request.getAttribute('request2')}"></div>
+<div th:text="${session.session1}"></div>
+<div th:text="${#session.getAttribute('session1')}"></div>
+<div th:text="${application.application1}"></div>
+</body>
+</html>

@@ -1,6 +1,7 @@
 package com.gzzn.service.ucenter.client.impl;
 
 import com.gzzn.service.ucenter.client.ServiceMsmClient;
+import com.gzzn.service.utils.Res;
 import org.springframework.stereotype.Component;
 
 /**

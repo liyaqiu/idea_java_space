@@ -1,0 +1,14 @@
+server:
+  port: 8080
+logging:
+  config: classpath:log4j2.xml
+
+spring:
+  freemarker:
+    template-loader-path: classpath:/templates/
+    suffix: .html
+#spring:
+#  freemarker:
+#    template-loader-path: classpath:/templates/
+#    content-type: text/html
+#    charset: utf-8

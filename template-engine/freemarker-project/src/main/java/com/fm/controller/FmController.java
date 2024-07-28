@@ -29,6 +29,7 @@ public class FmController {
         configuration.setDirectoryForTemplateLoading(new File(FmController.class.getClassLoader().getResource("").getPath()+"template"));
         configuration.setDefaultEncoding("utf-8");
         Template template = configuration.getTemplate("test01.ftl");
-        template.process(new Person("helloworld"),new OutputStreamWriter(System.out));
+        //template.process(new Person("helloworld"),new OutputStreamWriter(System.out));
+        template.process(new Person("helloworld"),response.getWriter());
     }
 }

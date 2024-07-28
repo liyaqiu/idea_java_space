@@ -1,6 +1,7 @@
 package com.gzzn.service.ucenter.client;
 
 import com.gzzn.service.ucenter.client.impl.ServiceMsmClientImpl;
+import com.gzzn.service.utils.Res;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;

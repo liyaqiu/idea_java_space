@@ -1,4 +1,4 @@
-package com.test;
+package fm;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -11,9 +11,10 @@ import org.springframework.context.ConfigurableApplicationContext;
 @SpringBootApplication
 public class Launcher {
 
+
     public static void main(String[] args) {
         ConfigurableApplicationContext context = SpringApplication.run(Launcher.class, args);
-        System.out.println("启动完毕");
     }
-}
 
+
+}
