@@ -4,7 +4,7 @@ lvm:
     - LVM(Logical volume Manager)逻辑卷管理通过将底层物理硬盘抽象封装起来，以逻辑卷的形式表现给上层系统，逻辑卷的大小可以动态调整，而且不会丢失现有数据
     - 新加入的硬盘也不会改变现有上层的逻辑卷。
     - 作为一种动态磁盘管理机制，逻辑卷技术大大提高了磁盘管理的灵活性
-  名称:
+  理论:
     - PE(physical Extend) 物理扩展
     - PV(physical volume) 物理卷
     - VG(volume group) 卷组 ，当创建完卷组的时候会有一个目录叫  /dev/xxx卷组名称
@@ -12,15 +12,138 @@ lvm:
   总结:
     - 第一步，把磁盘格式化成PV，PV里面的最小单元是PE，每一个PE为4MB
     - 第二步，VG里面装PV，也可以说VG里面装了很多PE
-    - 第三步，从VG里面申请不同大小(1g的LV，2g的LV)的LV进行使用
+    - 第三步，从VG里面申请不同大小(1g的LV，2g的LV)的LV进行使用，LV大小必须为PE的整数倍(1个PE为4MB，那么你不能划分为5MB)
 
-命令:
-  查看命令:
-    - 查看物理卷 pvs简单查看  pvdisplay详细查看
-    - 查看卷组 vgs简单查看 vgdisplay详细查看
-    - 查看逻辑卷 lvs简单查看 lvdisplay详细查看
-    - https://www.bilibili.com/video/BV16W411t7YY?p=5&vd_source=1980e484b7f7e25f7c330ac3c2f4da02
-
-
-  创建lv  
-  lvcreate -L +2024M -n lv_data1 centos
+命令以及操作:
+  3种方式物理磁盘设备: "
+    [root@localhost ~]# fdisk -l
+    磁盘 /dev/sda：85.9 GB, 85899345920 字节，167772160 个扇区
+    Units = 扇区 of 1 * 512 = 512 bytes
+    扇区大小(逻辑/物理)：512 字节 / 512 字节
+    I/O 大小(最小/最佳)：512 字节 / 512 字节
+    磁盘标签类型：dos
+    磁盘标识符：0x000a1499
+    
+       设备 Boot      Start         End      Blocks   Id  System
+    /dev/sda1   *        2048      411647      204800   83  Linux
+    /dev/sda2          411648     4605951     2097152   82  Linux swap / Solaris
+    /dev/sda3         4605952   125829119    60611584   83  Linux
+    /dev/sda4       125829120   167772159    20971520   83  Linux
+    
+    磁盘 /dev/sdb：21.5 GB, 21474836480 字节，41943040 个扇区
+    Units = 扇区 of 1 * 512 = 512 bytes
+    扇区大小(逻辑/物理)：512 字节 / 512 字节
+    I/O 大小(最小/最佳)：512 字节 / 512 字节
+    磁盘标签类型：dos
+    磁盘标识符：0x4a386bda
+    
+       设备 Boot      Start         End      Blocks   Id  System
+    /dev/sdb1            2048    41943039    20970496   83  Linux
+    
+    磁盘 /dev/sdc：21.5 GB, 21474836480 字节，41943040 个扇区
+    Units = 扇区 of 1 * 512 = 512 bytes
+    扇区大小(逻辑/物理)：512 字节 / 512 字节
+    I/O 大小(最小/最佳)：512 字节 / 512 字节
+    -------------------------------------------
+    方式1，对已有的磁盘扩展后，加入PV
+      步骤1，查看磁盘情况
+        fdisk -l 
+      步骤2，对sda进行操作(目的是将剩余的扇区划分到新的分区中，并且写入)
+        fdisk /dev/sda 
+          m查看帮忙
+          n创建分区
+            选择p，创建主分区(1个磁盘可以创建4个主分区)
+            根据提示进行回车即可
+          w写入分区
+      步骤3，重启虚拟机才可以加入PV    
+        init 6 
+    -------------------------------------------    
+    方式2，加入新磁盘，操作过的
+      步骤1，查看磁盘情况
+        fdisk -l 
+      步骤2，对sda进行操作(目的是将剩余的扇区划分到新的分区中，并且写入)
+        fdisk /dev/sda 
+          m查看帮忙
+          n创建分区
+            选择p，创建主分区(1个磁盘可以创建4个主分区)
+            根据提示进行回车即可
+          w写入分区
+      步骤3，重启虚拟机才可以加入PV    
+        init 6 
+    ---------------------------------------------    
+    方式3，加入新磁盘，没任何操作的
+  "
+  PV物理卷操作: "
+    pvs简单查看  
+    pvdisplay详细查看 
+    pvcreate创建 
+    pvremove /dev/sdx 删除物理卷（前提没加入任何卷组）
+    
+    新增操作
+      1将(3种方式物理磁盘设备)加入PV(将物理磁盘设备初始化为物理卷)
+        pvcreate /dev/sda4 /dev/sdb1 /dev/sdc
+      2查看PV
+        pvs 或者 pvdisplay
+    删除操作
+      1.删除PV（前提是这个PV没加入到任何VG）
+        pvremove /dev/sda4
+  "
+  VG卷组操作: "
+    新增操作
+      1创建卷组
+        卷组未存在
+          vgcreate vg1 /dev/sda4
+        卷组已存在
+          vgextend vg1 /dev/sdb1 /dev/sdc
+      2查看VG
+        vgs 或者 vgdisplay
+    删除操作
+      1.删除这个卷组的所有LV逻辑卷（参考LV逻辑卷操作-删除逻辑卷）
+      2.删除卷组
+        将某个PV从VG移除（有多个的PV的前提下）
+          vgreduce vg1 /dev/sda4
+        有一个或者多个都可以删除卷组
+          vgremove vg1  
+  "
+  LV逻辑卷操作: "
+    新增逻辑卷
+      注意，逻辑卷创建要为PE的整数倍，PE单位为4mb一个
+      1创建逻辑卷
+        指定名字创建
+          lvcreate -n lv_data1 -L +2024M vg1
+        不指定名字创建
+          lvcreate -L +2G vg1
+      2查看逻辑卷
+        lvs 或者 lvdisplay
+      3格式化LV
+        mkfs.ext4 /dev/vg1/lv_data1 （lvdisplay可以查看具体文件路径）
+        mkfs.ext4 /dev/vg1/lvol0 （lvdisplay可以查看具体文件路径）
+      4创建目录并且挂载
+        需要注意的是，挂载会覆盖数据
+        mkdir -p /root/abc && mount /dev/vg1/lv_data1 /root/abc
+        mkdir -p /root/abb && mount /dev/vg1/lvol0 /root/abb
+      5，添加到文件，否则重启后挂载丢失
+        df -Th 需要挂载后才可以查看文件类型（ext4、ext3、xfs） 
+        vi /etc/fstab
+        /dev/vg1/lv_data1 /root/abc ext4 defaults 0 0
+        /dev/vg1/lvol0 /root/abb ext4 defaults 0 0
+    扩容逻辑卷（缩容逻辑卷有风险，出现挂载不上的问题）
+      1.查看逻辑卷大小
+        lvdisplay
+      2.扩展容量
+        lvextend -L +1g /dev/vg1/lv_data1
+      3.查看逻辑卷大小
+        lvdisplay
+      4.更新文件系统
+          df -h 查看更新前大小
+          resize2fs /dev/vg1/lv_data1
+          df -h 查看更新后大小
+    删除逻辑卷
+      1.从文件中删除
+        vi /etc/fstab
+        /dev/vg1/lv_data1 /root/abc ext4 defaults 0 0
+      2.取消目录挂载（lvdisplay里面的open为0可以直接操作删除）
+        umount /dev/mapper/vg1-lv_data1
+      3.删除逻辑卷
+        lvremove /dev/vg1/lv_data1
+  "
