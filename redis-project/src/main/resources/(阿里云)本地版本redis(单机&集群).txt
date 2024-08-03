@@ -1,0 +1,320 @@
+redis7  https://hub.docker.com/_/redis
+
+https://download.redis.io/releases/
+
+单机
+1编译(需要安装gcc)
+  cd redis-7.0.14 && make && make install
+  默认安装的路径为  /usr/local/bin/
+	redis-benchmark 性能测试工具
+	redis-check-aof 修复有问题的(RDB或AOF)文件
+	redis-check-rdb 修复有问题的dump.rdb文件
+	redis-sentinel 集群工具
+	redis-cli 客户端连接工具
+	redis-server 服务端启动
+2修改配置文件
+  mkdir redis7 && cp redis-7.0.14/redis.conf redis7/
+	#后台启动
+	daemonize yes 
+	#取消保护模式
+	protected-mode no 
+	#绑定ip
+	bind 0.0.0.0 
+	#设置密码
+	requirepass 123456 
+	dir  /root/redis7
+	port 7771
+	pidfile redis_7771.pid
+	logfile redis.log
+3启动redis
+  启动服务
+	redis-server /root/redis7/redis.conf
+  关闭服务
+	redis-cli -h 192.168.88.12  -a 123456 -p 6379 shutdown
+  连接服务
+	redis-cli -h 192.168.88.12  -a 123456 -p 6379
+	redis-cli -h 192.168.88.12  -a 123456 -p 6379 --raw  解决中文乱码
+	redis-cli -h 192.168.88.12  -a 123456 -p 6379 -n 1  指定数据库索引
+  查看redis版本
+	redis-server --version
+
+
+
+分片集群配置:
+    至少需要6个节点，3主3从
+      *** ERROR: Invalid configuration for cluster creation.
+      *** Redis Cluster requires at least 3 master nodes.
+      *** This is not possible with 4 nodes and 1 replicas per node.
+      *** At least 6 nodes are required.
+    
+mkdir /service/cluster1 && touch /service/cluster1/redis.conf &&
+mkdir /service/cluster2 && touch /service/cluster2/redis.conf &&
+mkdir /service/cluster3 && touch /service/cluster3/redis.conf &&
+mkdir /service/cluster4 && touch /service/cluster4/redis.conf &&
+mkdir /service/cluster5 && touch /service/cluster5/redis.conf &&
+mkdir /service/cluster6 && touch /service/cluster6/redis.conf 
+
+tee /service/cluster1/redis.conf <<-'EOF'
+#目录的路径
+dir  /service/cluster1
+port 7771
+pidfile redis.pid
+logfile redis.log
+#关闭rdb
+save ""
+#启用AOF
+appendonly yes 
+#AOF文件名
+appendfilename 'appendonly.aof' 
+#AOF目录
+appenddirname 'appendonlydir' 
+#是否开启AOF混合方式
+aof-use-rdb-preamble yes 
+#默认策略，每秒写回，性能适中
+appendfsync everysec 
+protected-mode no
+daemonize yes
+bind 0.0.0.0
+#登陆密码
+#requirepass hh@123456
+#集群交互密码
+masterauth hh@123456
+cluster-enabled yes
+cluster-config-file nodes.conf
+cluster-node-timeout 15000
+# 设置本节点IP
+cluster-announce-ip 119.23.61.185
+# 设置本节点端口
+cluster-announce-port 7771
+# 设置总线端口
+cluster-announce-bus-port 17771
+EOF
+
+tee /service/cluster2/redis.conf <<-'EOF'
+#目录的路径
+dir  /service/cluster2
+port 7772
+pidfile redis.pid
+logfile redis.log
+#关闭rdb
+save ""
+#启用AOF
+appendonly yes 
+#AOF文件名
+appendfilename 'appendonly.aof' 
+#AOF目录
+appenddirname 'appendonlydir' 
+#是否开启AOF混合方式
+aof-use-rdb-preamble yes 
+#默认策略，每秒写回，性能适中
+appendfsync everysec 
+protected-mode no
+daemonize yes
+bind 0.0.0.0
+#登陆密码
+#requirepass hh@123456
+#集群交互密码
+masterauth hh@123456
+cluster-enabled yes
+cluster-config-file nodes.conf
+cluster-node-timeout 15000
+# 设置本节点IP
+cluster-announce-ip 119.23.61.185
+# 设置本节点端口
+cluster-announce-port 7772
+# 设置总线端口
+cluster-announce-bus-port 17772
+EOF
+
+tee /service/cluster3/redis.conf <<-'EOF'
+#目录的路径
+dir  /service/cluster3
+port 7773
+pidfile redis.pid
+logfile redis.log
+#关闭rdb
+save ""
+#启用AOF
+appendonly yes 
+#AOF文件名
+appendfilename 'appendonly.aof' 
+#AOF目录
+appenddirname 'appendonlydir' 
+#是否开启AOF混合方式
+aof-use-rdb-preamble yes 
+#默认策略，每秒写回，性能适中
+appendfsync everysec 
+protected-mode no
+daemonize yes
+bind 0.0.0.0
+#登陆密码
+#requirepass hh@123456
+#集群交互密码
+masterauth hh@123456
+cluster-enabled yes
+cluster-config-file nodes.conf
+cluster-node-timeout 15000
+# 设置本节点IP
+cluster-announce-ip 119.23.61.185
+# 设置本节点端口
+cluster-announce-port 7773
+# 设置总线端口
+cluster-announce-bus-port 17773
+EOF
+
+tee /service/cluster4/redis.conf <<-'EOF'
+#目录的路径
+dir  /service/cluster4
+port 7774
+pidfile redis.pid
+logfile redis.log
+#关闭rdb
+save ""
+#启用AOF
+appendonly yes 
+#AOF文件名
+appendfilename 'appendonly.aof' 
+#AOF目录
+appenddirname 'appendonlydir' 
+#是否开启AOF混合方式
+aof-use-rdb-preamble yes 
+#默认策略，每秒写回，性能适中
+appendfsync everysec 
+protected-mode no
+daemonize yes
+bind 0.0.0.0
+#登陆密码
+#requirepass hh@123456
+#集群交互密码
+masterauth hh@123456
+cluster-enabled yes
+cluster-config-file nodes.conf
+cluster-node-timeout 15000
+# 设置本节点IP
+cluster-announce-ip 119.23.61.185
+# 设置本节点端口
+cluster-announce-port 7774
+# 设置总线端口
+cluster-announce-bus-port 17774
+EOF
+
+tee /service/cluster5/redis.conf <<-'EOF'
+#目录的路径
+dir  /service/cluster5
+port 7775
+pidfile redis.pid
+logfile redis.log
+#关闭rdb
+save ""
+#启用AOF
+appendonly yes 
+#AOF文件名
+appendfilename 'appendonly.aof' 
+#AOF目录
+appenddirname 'appendonlydir' 
+#是否开启AOF混合方式
+aof-use-rdb-preamble yes 
+#默认策略，每秒写回，性能适中
+appendfsync everysec 
+protected-mode no
+daemonize yes
+bind 0.0.0.0
+#登陆密码
+#requirepass hh@123456
+#集群交互密码
+masterauth hh@123456
+cluster-enabled yes
+cluster-config-file nodes.conf
+cluster-node-timeout 15000
+# 设置本节点IP
+cluster-announce-ip 119.23.61.185
+# 设置本节点端口
+cluster-announce-port 7775
+# 设置总线端口
+cluster-announce-bus-port 17775
+EOF
+
+
+tee /service/cluster6/redis.conf <<-'EOF'
+#目录的路径
+dir  /service/cluster6
+port 7776
+pidfile redis.pid
+logfile redis.log
+#关闭rdb
+save ""
+#启用AOF
+appendonly yes 
+#AOF文件名
+appendfilename 'appendonly.aof' 
+#AOF目录
+appenddirname 'appendonlydir' 
+#是否开启AOF混合方式
+aof-use-rdb-preamble yes 
+#默认策略，每秒写回，性能适中
+appendfsync everysec 
+protected-mode no
+daemonize yes
+bind 0.0.0.0
+#登陆密码
+#requirepass hh@123456
+#集群交互密码
+masterauth hh@123456
+cluster-enabled yes
+cluster-config-file nodes.conf
+cluster-node-timeout 15000
+# 设置本节点IP
+cluster-announce-ip 119.23.61.185
+# 设置本节点端口
+cluster-announce-port 7776
+# 设置总线端口
+cluster-announce-bus-port 17776
+EOF
+
+
+集群是否需所有master都存活才对外服务:
+		默认是yes，例如3主3从，那么3主需要存活整个集群才可以对外服务
+		cluster-require-full-coverage yes  
+	查看生效配置
+		CONFIG GET *
+		CONFIG GET cluster-require-full-coverage
+
+启动命令步骤:
+1.启动服务
+redis-server /service/cluster1/redis.conf --port 7771 &&
+redis-server /service/cluster2/redis.conf --port 7772 &&
+redis-server /service/cluster3/redis.conf --port 7773 &&
+redis-server /service/cluster4/redis.conf --port 7774 &&
+redis-server /service/cluster5/redis.conf --port 7775 &&
+redis-server /service/cluster6/redis.conf --port 7776 
+
+2.组建集群，--cluster-replicas 1表示1个slave
+redis-cli -h 119.23.61.185  -a hh@123456 -p 7771 --cluster create --cluster-replicas 1 119.23.61.185:7771 119.23.61.185:7772 119.23.61.185:7773 119.23.61.185:7774 119.23.61.185:7775 119.23.61.185:7776
+
+
+3.查看集群状态
+方式1
+redis-cli -h 119.23.61.185  -a hh@123456 -p 7771 -c 
+redis-cli -h 119.23.61.185  -a hh@123456 -p 7771 -c --raw
+  CLUSTER NODES  #查看集群的槽分配情况，以及集群master、slave关系
+  INFO REPLICATION
+  CLUSTER INFO
+  CLUSTER KEYSLOT k1 #查看Key隶属于哪个哈希槽
+  CLUSTER COUNTKEYSINSLOT 8157 #查看这个槽一共有多少个key(注意：需要用get k1去到本机器的槽才能查看到)
+方式2
+redis-cli -h 119.23.61.185  -a hh@123456  --cluster check 119.23.61.185:7771 #查看集群的槽分配情况，以及集群master、slave关系
+
+4.关闭服务，测试发现，只要3台master集群正常，反之集群异常(不能进行数据存储)
+redis-cli -h 119.23.61.185  -a hh@123456 -p 7771 shutdown &&
+redis-cli -h 119.23.61.185  -a hh@123456 -p 7772 shutdown &&
+redis-cli -h 119.23.61.185  -a hh@123456 -p 7773 shutdown &&
+redis-cli -h 119.23.61.185  -a hh@123456 -p 7774 shutdown &&
+redis-cli -h 119.23.61.185  -a hh@123456 -p 7775 shutdown &&
+redis-cli -h 119.23.61.185  -a hh@123456 -p 7776 shutdown
+
+
+
+5.数据存储命令 -c代表以集群方式进行连接
+redis-cli -h 119.23.61.185  -a hh@123456 -p 7774 -c
+set k1 v1 存储数据
+get k1 获取数据

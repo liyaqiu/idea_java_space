@@ -34,7 +34,7 @@ docker pull registry.cn-hangzhou.aliyuncs.com/aliyuntestspace/oracle_11g:v1 è‡ªå
 		tee /etc/docker/daemon.json <<-'EOF'
 		{
 		  "exec-opts": ["native.cgroupdriver=systemd"],
-		  "registry-mirrors": ["https://lrlaxcij.mirror.aliyuncs.com"]
+		  "registry-mirrors": ["https://lrlaxcij.mirror.aliyuncs.com","https://lrlaxcij.mirror.aliyuncs.com","https://hub.rat.dev","https://docker.1panel.live"]
 		}
 		EOF
 		systemctl daemon-reload && systemctl restart docker 

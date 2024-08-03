@@ -1,19 +1,19 @@
 server:
-  port: 8080
+  port: 9999
 
 # 单机普通配置
-spring:
-  redis:
-    database: 0
-    host: 192.168.88.11
-    port: 6661
-    password: 123456
-    lettuce:
-      pool:
-        max-active: 8
-        max-wait: -1ms
-        max-idle: 8
-        min-idle: 0
+#spring:
+#  redis:
+#    database: 0
+#    host: 192.168.88.11
+#    port: 6661
+#    password: 123456
+#    lettuce:
+#      pool:
+#        max-active: 8
+#        max-wait: -1ms
+#        max-idle: 8
+#        min-idle: 0
 
 # 哨兵集群
 #spring:
@@ -34,25 +34,31 @@ spring:
 #        - 192.168.88.11:9993
 
 # 分片集群
-#spring:
-#  redis:
-#    password: 123456
-#    cluster:
-#      max-redirects: 3
-#      nodes:
-#        - 192.168.88.11:8881
-#        - 192.168.88.11:8882
-#        - 192.168.88.11:8883
-#        - 192.168.88.11:8884
-#        - 192.168.88.11:8885
-#        - 192.168.88.11:8886
-#    lettuce:
-#      pool:
-#        max-active: 8
-#        min-idle: 0
-#        max-wait: -1ms
-#        max-idle: 8
-#      cluster:
-#        refresh:
-#          adaptive: true #集群有master宕机，用于动态发现并刷新集群拓扑
-#          period: 2000
+spring:
+  redis:
+    #password: 123456
+    cluster:
+      max-redirects: 3
+      nodes:
+#        - 192.168.88.12:7771
+#        - 192.168.88.12:7772
+#        - 192.168.88.12:7773
+#        - 192.168.88.12:7774
+#        - 192.168.88.12:7775
+#        - 192.168.88.12:7776
+        - 119.23.61.185:7771
+        - 119.23.61.185:7772
+        - 119.23.61.185:7773
+        - 119.23.61.185:7774
+        - 119.23.61.185:7775
+        - 119.23.61.185:7776
+    lettuce:
+      pool:
+        max-active: 8
+        min-idle: 0
+        max-wait: -1ms
+        max-idle: 8
+      cluster:
+        refresh:
+          adaptive: true #集群有master宕机，用于动态发现并刷新集群拓扑
+          period: 2000
