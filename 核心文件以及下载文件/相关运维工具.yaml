@@ -1,0 +1,20 @@
+screen:
+  概述: 顶替了nohub，用于后台运行
+  安装: yum install -y screen
+  使用: "
+     运行程序
+      screen -dmS xxxName bash -c 'java -jar thymeleaf-project-1.0-SNAPSHOT.jar'
+     查看后台程序列表
+      screen -ls
+     从后台把程序调整到前台
+      screen -r xxxName
+     从前台在把程序调整回后台
+      Ctrl+A 松手后按 D
+     杀死程序
+      方式1
+        ps -ef + kill -9
+      方式2
+        screen -ls + kill -9
+      方式3
+        screen -ls + screen -XS xxxName quit 
+  "
