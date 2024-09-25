@@ -1,5 +1,6 @@
 package com.test.controller;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,6 +12,8 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author lyq
@@ -18,6 +21,8 @@ import javax.servlet.http.HttpSession;
  */
 @Controller
 public class UserController {
+
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
     ServletContext servletContext;
@@ -29,6 +34,10 @@ public class UserController {
 */
     @GetMapping(value = "test02")
     public ModelAndView test3(HttpServletRequest request,HttpSession session){
+        log.error("错误日志33........");
+        log.info("错误日志22........");
+        log.debug("错误日志11........");
+
         ModelAndView model = new ModelAndView("helloindex");
         model.addObject("request1","request1值");
         request.setAttribute("request2","request2值");
@@ -36,6 +45,15 @@ public class UserController {
         session.setAttribute("session","session值");
 
         servletContext.setAttribute("application","application值");
+
+        /*try {
+            if(true){
+                throw new RuntimeException("跑异常");
+            }
+        }catch (Exception e){
+            throw new RuntimeException(e);
+        }*/
+
         return model;
     }
 

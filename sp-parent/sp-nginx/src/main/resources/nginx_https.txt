@@ -1,3 +1,10 @@
+#https://blog.csdn.net/qq_37759376/article/details/132844483
+#生成私钥文件.key：
+#	openssl genrsa -out server.key 2048
+#	openssl req -new -key server.key -out server.csr
+#	openssl x509 -req -days 3650 -in server.csr -signkey server.key -out server.crt
+#	cat server.key server.crt > server.pem
+
 
 master_process on;#默认为on off
 user  root; #使用root来启动work进程
@@ -32,6 +39,7 @@ http {
         ssl_session_cache    shared:SSL:1m;
         ssl_session_timeout  5m;
         ssl_ciphers  HIGH:!aNULL:!MD5;
+        ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
         ssl_prefer_server_ciphers  on; #是否开启work进程共享
 
         server_name  localhost;

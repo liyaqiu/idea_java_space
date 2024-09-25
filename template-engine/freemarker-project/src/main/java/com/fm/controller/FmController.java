@@ -25,7 +25,11 @@ public class FmController {
 
     @GetMapping("/test01")
     public void test01(HttpServletResponse response) throws Exception {
-        log.info("123123{}",configuration);
+        System.out.println("进来了");
+        log.debug("debug123{}",configuration);
+        log.info("info123{}",configuration);
+        log.warn("warn123{}",configuration);
+        log.error("error123{}",configuration);
         configuration.setDirectoryForTemplateLoading(new File(FmController.class.getClassLoader().getResource("").getPath()+"template"));
         configuration.setDefaultEncoding("utf-8");
         Template template = configuration.getTemplate("test01.ftl");

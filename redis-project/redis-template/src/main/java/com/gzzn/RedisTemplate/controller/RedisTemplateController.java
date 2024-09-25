@@ -23,6 +23,12 @@ public class RedisTemplateController {
     @Autowired
     RedisTemplate redisTemplate;
 
+    @GetMapping("/test11")
+    public void String类11型() throws Exception {
+        redisTemplate.opsForValue().set("k6","v6");
+        System.out.println(redisTemplate.opsForValue().get("k6"));
+    }
+
     @GetMapping("/test1")
     public void String类型() throws Exception {
         ValueOperations<String, Person> opsForValue = redisTemplate.opsForValue();

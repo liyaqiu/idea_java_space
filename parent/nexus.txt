@@ -1,0 +1,26 @@
+旧版本
+2 nexus安装  http://www.sonatype.org/nexus/go 官网
+2.1 安装jdk
+2.2 下载  All platforms - Nexus Repository Manager OSS 2.x - bundle.tar.gz  解压
+2.3 vim nexus解压目录/bin/nexus   修改 RUN_AS_USER=root
+2.3 运行 ./apps/nexus-2.14.5-02/bin/nexus start|stop
+2.4 http://192.168.88.20:8081/nexus/#welcome ;  admin admin123
+
+新版本(需要依赖jdk)
+下载地址
+    https://help.sonatype.com/en/download-archives---repository-manager-3.html
+    nexus-3.70.1-02-java8-unix.tar.gz
+安装文档
+    https://blog.51cto.com/u_16213569/10479411
+配置文件所在目录
+    vi  /service/nexus/nexus-3.70.1-02/etc/nexus-default.properties
+    application-port=6006
+    application-host=0.0.0.0
+启动
+    /service/nexus/nexus-3.70.1-02/bin/nexus start
+    /service/nexus/nexus-3.70.1-02/bin/nexus stop
+    /service/nexus/nexus-3.70.1-02/bin/nexus run 调试启动
+
+    cat /service/nexus/sonatype-work/nexus3/admin.password 初始化密码
+web地址
+    http://119.23.61.185:6006

@@ -1,0 +1,51 @@
+##############################################本地#################################################
+#本地调试用控制台输出
+#系统日志输出 INFO 级别以上的日志
+log4j.rootLogger=INFO,Console
+#工程日志输出 DEBUG 级别以上的日志
+log4j.logger.com.contract.management=DEBUG,Console
+#不继承系统日志
+log4j.additivity.com.contract.management=false
+
+
+#appender控制台输出
+log4j.appender.Console=org.apache.log4j.ConsoleAppender
+log4j.appender.Console.encoding=UTF-8
+#添加layout
+log4j.appender.Console.layout=org.apache.log4j.PatternLayout
+log4j.appender.Console.layout.conversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%p] [%l] %m%n
+#################################################生产#####################################################
+##生产用滚动日志文件输出
+##系统日志输出 INFO 级别以上的日志
+#log4j.rootLogger=INFO,RollingFile_DEBUG,RollingFile_WARN
+##工程日志输出 DEBUG 级别以上的日志
+#log4j.logger.com.contract.management=DEBUG,RollingFile_DEBUG,RollingFile_WARN
+#
+##不继承系统日志
+#log4j.additivity.com.contract.management=false
+#
+#
+##appender文件输出 单个文件60mb，一共20个文件，而且每次满60mb就删掉最后一个，然后创建一个新的出来
+#log4j.appender.RollingFile_DEBUG=org.apache.log4j.RollingFileAppender
+#log4j.appender.RollingFile_DEBUG.file=/service/newlog/itg-contract-management/debug/app_debug.txt
+#log4j.appender.RollingFile_DEBUG.encoding=UTF-8
+#log4j.appender.RollingFile_DEBUG.maxFileSize=60mb
+#log4j.appender.RollingFile_DEBUG.maxBackupIndex=20
+#log4j.appender.RollingFile_DEBUG.Threshold=DEBUG
+##添加layout
+#log4j.appender.RollingFile_DEBUG.layout=org.apache.log4j.PatternLayout
+##添加layout输出的格式
+#log4j.appender.RollingFile_DEBUG.layout.conversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%p] [%l] %m%n
+#
+#
+##appender文件输出 单个文件60mb，一共20个文件，而且每次满60mb就删掉最后一个，然后创建一个新的出来
+#log4j.appender.RollingFile_WARN=org.apache.log4j.RollingFileAppender
+#log4j.appender.RollingFile_WARN.file=/service/newlog/itg-contract-management/warn/app_warn.txt
+#log4j.appender.RollingFile_WARN.encoding=UTF-8
+#log4j.appender.RollingFile_WARN.maxFileSize=60mb
+#log4j.appender.RollingFile_WARN.maxBackupIndex=20
+#log4j.appender.RollingFile_WARN.Threshold=WARN
+##添加layout
+#log4j.appender.RollingFile_WARN.layout=org.apache.log4j.PatternLayout
+##添加layout输出的格式
+#log4j.appender.RollingFile_WARN.layout.conversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%p] [%l] %m%n

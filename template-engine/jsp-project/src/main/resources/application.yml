@@ -1,7 +1,9 @@
 server:
-  port: 8899
+  port: 6003
 spring:
   mvc:
     view:
       prefix: /WEB-INF/jsp/
       suffix: .jsp
+logging:
+  config: classpath:log4j.properties

@@ -48,8 +48,26 @@
             <version>1.2</version>
         </dependency>
 
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-logging</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.7.30</version>
+            <!--<scope>test</scope>-->
+        </dependency>
+
     </dependencies>
     <build>
-        <finalName>spring-demo</finalName>
+        <finalName>jsp-project</finalName>
     </build>
 </project>

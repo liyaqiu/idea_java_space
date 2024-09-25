@@ -9,7 +9,7 @@ public class ServletInitializer extends SpringBootServletInitializer {
 
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
-        System.out.println("启动完毕");
+        System.out.println("ServletInitializer启动完毕");
         return builder.sources(Launcher.class);
     }
 }

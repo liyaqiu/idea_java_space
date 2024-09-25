@@ -30,8 +30,8 @@ public class RedisConfig {
     ReadFrom.REPLICA 从slave读取
     ReadFrom.REPLICA_PREFERRED 优先slave读取，slave不可以在读取master
     */
-    @Bean
-    public LettuceClientConfigurationBuilderCustomizer lettuceClientConfigurationBuilderCustomizer(){
-        return configBuilder -> configBuilder.readFrom(ReadFrom.REPLICA_PREFERRED);
-    }
+//    @Bean
+//    public LettuceClientConfigurationBuilderCustomizer lettuceClientConfigurationBuilderCustomizer(){
+//        return configBuilder -> configBuilder.readFrom(ReadFrom.REPLICA_PREFERRED);
+//    }
 }

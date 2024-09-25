@@ -5,12 +5,16 @@ import com.config.ShareConfig;
 import com.entity.UserEntity;
 import com.feign.client.UserClient;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author lyq
@@ -30,7 +34,7 @@ public class UserController {
     UserClient userClient;
 
     @GetMapping("/test")
-    public String test0(){
+    public String test0(HttpServletResponse response){
         log.debug("<---{}--->你好111！！！",restTemplate);
         restTemplate.getForEntity("http://sp-service/service-test0",String.class);
         return "hello!!!";

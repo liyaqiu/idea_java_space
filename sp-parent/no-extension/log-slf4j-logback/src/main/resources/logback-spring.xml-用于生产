@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<configuration scan="true" scanPeriod="1 seconds" debug="false">
+
+    <property name="format" value="%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %c %m%n"/>
+    <property name="filepath_aliyun" value="/service/newlog/product-manage"/>
+    <property name="filepath_prod" value="/webservice/newlog/product-manage"/>
+
+    <!--标准输出-->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${format}</pattern>
+        </encoder>
+    </appender>
+
+
+    <!-- 滚动拆分+时间输出 -->
+    <appender name="RollingFile_DEBUG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <encoder>
+            <pattern>${format}</pattern>
+        </encoder>
+        <springProfile name="aliyun">
+            <file>${filepath_aliyun}/debug/app_debug.txt</file>
+            <!--按照时间+文件大小-->
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>${filepath_aliyun}/debug/app_debug.%d{yyyy-MM-dd}.txt.%i</fileNamePattern>
+                <maxFileSize>60mb</maxFileSize>
+                <maxHistory>20</maxHistory>
+            </rollingPolicy>
+        </springProfile>
+        <springProfile name="prod">
+            <file>${filepath_prod}/debug/app_debug.txt</file>
+            <!--按照时间+文件大小-->
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>${filepath_prod}/debug/app_debug.%d{yyyy-MM-dd}.txt.%i</fileNamePattern>
+                <maxFileSize>60mb</maxFileSize>
+                <maxHistory>20</maxHistory>
+            </rollingPolicy>
+        </springProfile>
+    </appender>
+
+    <!-- 滚动拆分+时间输出 -->
+    <appender name="RollingFile_WARN" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <encoder>
+            <pattern>${format}</pattern>
+        </encoder>
+        <springProfile name="aliyun">
+            <file>${filepath_aliyun}/warn/app_warn.txt</file>
+            <!--按照时间+文件大小-->
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>${filepath_aliyun}/warn/app_warn.%d{yyyy-MM-dd}.txt.%i</fileNamePattern>
+                <maxFileSize>60mb</maxFileSize>
+                <maxHistory>20</maxHistory>
+            </rollingPolicy>
+            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                <level>WARN</level>
+            </filter>
+        </springProfile>
+        <springProfile name="prod">
+            <file>${filepath_prod}/warn/app_warn.txt</file>
+            <!--按照时间+文件大小-->
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>${filepath_prod}/warn/app_warn.%d{yyyy-MM-dd}.txt.%i</fileNamePattern>
+                <maxFileSize>60mb</maxFileSize>
+                <maxHistory>20</maxHistory>
+            </rollingPolicy>
+            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                <level>WARN</level>
+            </filter>
+        </springProfile>
+    </appender>
+
+    <!--JdbcTemplate日志输出 继承根日志的输出方向-->
+    <logger name="org.springframework.jdbc.core.JdbcTemplate" level="DEBUG" additivity="true"/>
+    <logger name="org.springframework.jdbc.core.StatementCallback" level="DEBUG" />
+    <logger name="org.springframework.jdbc.core.RowMapper" level="DEBUG" />
+    <logger name="org.springframework.jdbc.core.PreparedStatementCreator" level="DEBUG" />
+    <logger name="org.springframework.jdbc.core.simple.SimpleJdbcInsert" level="DEBUG"/>
+
+    <springProfile name="local">
+        <root level="INFO">
+            <appender-ref ref="console"/>
+        </root>
+        <logger name="com.dtsjy" level="DEBUG" additivity="false">
+            <appender-ref ref="console"/>
+        </logger>
+    </springProfile>
+
+    <springProfile name="aliyun">
+        <root level="INFO">
+            <appender-ref ref="RollingFile_DEBUG"/>
+            <appender-ref ref="RollingFile_WARN"/>
+        </root>
+        <logger name="com.dtsjy" level="DEBUG" additivity="false">
+            <appender-ref ref="RollingFile_DEBUG"/>
+            <appender-ref ref="RollingFile_WARN"/>
+        </logger>
+    </springProfile>
+
+    <springProfile name="prod">
+        <root level="INFO">
+            <appender-ref ref="RollingFile_DEBUG"/>
+            <appender-ref ref="RollingFile_WARN"/>
+        </root>
+        <logger name="com.dtsjy" level="DEBUG" additivity="false">
+            <appender-ref ref="RollingFile_DEBUG"/>
+            <appender-ref ref="RollingFile_WARN"/>
+        </logger>
+    </springProfile>
+
+</configuration>

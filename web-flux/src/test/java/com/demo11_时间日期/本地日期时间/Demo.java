@@ -52,8 +52,12 @@ public class Demo {
         //根据指定格式格式化时间
         System.out.println(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy年MM月dd日 HH时mm分ss秒SSS毫秒",Locale.CHINA)));
 
+
+        //DateTimeFormatter dtf = DateTimeFormatter.ofPattern("[yyyy-MM-dd][yyyy-M-dd][yyyy-MM-dd HH:mm:ss][yyyy-M-dd HH:mm:ss]"); 支持多日期格式
         //根据指定格式解析时间
         System.out.println(LocalDateTime.parse("2022年09月27日 01时32分00秒313毫秒", DateTimeFormatter.ofPattern("yyyy年MM月dd日 HH时mm分ss秒SSS毫秒",Locale.CHINA)));
+
+
     }
     @Test
     public void test1(){

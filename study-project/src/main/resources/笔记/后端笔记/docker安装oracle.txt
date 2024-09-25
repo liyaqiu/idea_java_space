@@ -137,8 +137,17 @@ docker pull registry.cn-hangzhou.aliyuncs.com/aliyuntestspace/oracle_11g:v1 自�
 	grant connect，resource，dba to GMDIWORKFLOW;
 
 -------------------------------------数据导入导出操作---------------------------------------
+https://www.cnblogs.com/mrcln/p/11640829.html
+https://blog.csdn.net/xinxiaoyonng/article/details/79436673
 #导出 oracle oinstall
-	exp gmdiworkflow/gmdiworkflowhh17@orcl file=/home/oracle/gmdiworkflow.dmp owner=gmdiworkflow
+    空表无法导出(需要分配下segment)
+        select table_name from user_tables where NUM_ROWS=0;
+        select 'alter table '||table_name||' allocate extent;' from user_tables where num_rows=0
+    导出语句
+        exp gmdiworkflow/gmdiworkflowhh17@orcl file=/home/oracle/gmdiworkflow.dmp owner=gmdiworkflow
+        exp gmdiworkflow/gmdiworkflowhh17@orcl file=/home/oracle/gmdiworkflow.dmp full = y 完全导入导出
+        exp gmdiworkflow/gmdiworkflowhh17@orcl file=/home/oracle/gmdiworkflow.dmp tabels=(table1,table2,table3,...);部分用户表table导入导出
+        exp gmdiworkflow/gmdiworkflowhh17@orcl file=/home/oracle/gmdiworkflow.dmp tablespaces=(tablespace1,tablespace2,tablespace3,...)表空间tablespaces导入导出
 #导入
 	docker exec -it oracle_11g bash
 	cd /home/oracle && source .bash_profile

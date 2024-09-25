@@ -56,11 +56,18 @@
             <maxFileSize>100mb</maxFileSize>
             <maxHistory>3</maxHistory>
         </rollingPolicy>
-        <filter class="ch.qos.logback.classic.filter.LevelFilter">
-            <level>ERROR</level>
+
+        <!--只要info级别的日志-->
+        <!--<filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
             <onMatch>ACCEPT</onMatch>
             <onMismatch>DENY</onMismatch>
-        </filter>
+        </filter>-->
+
+        <!--要info级别以上的日志-->
+        <!--<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>-->
     </appender>
     <!--异步log 需要结合原始的appender进行使用-->
     <appender name="asynlog_guidangwenjian" class="ch.qos.logback.classic.AsyncAppender">
@@ -96,4 +103,27 @@
     -->
 
     <logger name="com.example.logback" level="warn"/>
+
+
+    <!--
+        可以根据环境来输出不同日志
+    <springProfile name="dev,test,prod">
+        <root level="INFO">
+            <appender-ref ref="console" />
+        </root>
+        <logger name="com.dtsjy" level="DEBUG" additivity="false">
+            <appender-ref ref="console" />
+        </logger>
+        <logger name="com.dtsjy" level="DEBUG" additivity="false">
+            <appender-ref ref="console" />
+        </logger>
+        <logger name="mapper" level="DEBUG" additivity="false">
+            <appender-ref ref="console" />
+        </logger>
+        <logger name="org.mybatis" level="DEBUG" additivity="false">
+            <appender-ref ref="console" />
+        </logger>
+    </springProfile>
+    -->
+
 </configuration>
